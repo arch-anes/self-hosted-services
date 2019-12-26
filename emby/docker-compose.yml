@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+  emby:
+    image: emby/embyserver
+    restart: always
+    networks:
+      - proxy
+    environment:
+      - UID=1000
+      - GID=100
+      - GIDLIST=100
+    volumes:
+      - config:/config
+      - data:/media
+    devices:
+      - "/dev/dri/renderD128"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.emby.rule=Host(`emby.belfodil.icu`)
+      - traefik.http.routers.emby.tls.certresolver=leresolver
+      - traefik.http.routers.emby.entrypoints=websecure
+      - traefik.http.services.emby.loadbalancer.server.port=8096
+
+volumes:
+  config:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /storage/emby/config
+  data:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /storage/emby/data
+
+networks:
+  proxy:
+    external: true

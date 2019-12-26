@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:alpine
+    restart: always
+    networks:
+      - internal
+    volumes:
+      - db:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+  app:
+    image: nextcloud:latest
+    restart: always
+    networks:
+      - proxy
+      - internal
+    volumes:
+      - app:/var/www/html
+      - data:/var/www/html/data
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=nextcloud
+    env_file:
+      - .env
+    depends_on:
+      - db
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.nextcloud.rule=Host(`nextcloud.belfodil.icu`)
+      - traefik.http.routers.nextcloud.tls.certresolver=leresolver
+      - traefik.http.routers.nextcloud.entrypoints=websecure
+
+volumes:
+  db:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /storage/nextcloud/db
+  app:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /storage/nextcloud/app
+  data:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /storage/nextcloud/data
+
+networks:
+  internal:
+  proxy:
+    external: true

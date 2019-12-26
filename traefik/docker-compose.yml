@@ -1,0 +1,47 @@
+version: "3.3"
+
+services:
+  traefik:
+    image: traefik
+    restart: always
+    networks:
+      - proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./acme.json:/acme.json
+    env_file:
+      - .env
+    command:
+      - --global.sendanonymoususage=false
+      - --log.level=DEBUG
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.web.address=:80
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=proxy
+      - --api
+      - --certificatesresolvers.leresolver.acme.email=cert@belfodil.com
+      - --certificatesresolvers.leresolver.acme.storage=/acme.json
+      - --certificatesresolvers.leresolver.acme.httpchallenge=true
+      - --certificatesresolvers.leresolver.acme.httpchallenge.entrypoint=web
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik.rule=Host(`traefik.belfodil.icu`)
+      - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.routers.traefik.tls.certresolver=leresolver
+      - traefik.http.routers.traefik.entrypoints=websecure
+      - traefik.http.routers.traefik.middlewares=authtraefik
+      - traefik.http.middlewares.authtraefik.basicauth.users=${DASHBOARD_USER}:${DASHBOARD_PASSWORD}
+
+      # global redirect to https
+      - traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)
+      - traefik.http.routers.http-catchall.entrypoints=web
+      - traefik.http.routers.http-catchall.middlewares=redirect-to-https
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+
+networks:
+  proxy:
+    external: true

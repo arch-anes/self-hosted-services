@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  privatebin:
+    image: privatebin/nginx-fpm-alpine
+    restart: always
+    networks:
+      - proxy
+    volumes:
+      - data:/srv/data
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.privatebin.rule=Host(`privatebin.belfodil.icu`)
+      - traefik.http.routers.privatebin.tls.certresolver=leresolver
+      - traefik.http.routers.privatebin.entrypoints=websecure
+
+volumes:
+  data:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /storage/privatebin
+
+networks:
+  proxy:
+    external: true
