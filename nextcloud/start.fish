@@ -2,10 +2,7 @@
 
 set source_dir (dirname (readlink -m (status --current-filename)))
 
-mkdir -p /storage/nextcloud
-pushd /storage/nextcloud
-mkdir -p app data db
-popd
+mkdir -p /storage/nextcloud{,app,data,db}
 
 docker volume create -d local-persist -o mountpoint=/storage/nextcloud/app --name=nextcloud_app
 docker volume create -d local-persist -o mountpoint=/storage/nextcloud/data --name=nextcloud_data
