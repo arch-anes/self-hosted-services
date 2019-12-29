@@ -7,8 +7,8 @@ services:
     networks:
       - proxy
     volumes:
-      - config:/config
-      - media:/media
+      - /storage/jellyfin/config:/config
+      - /storage/jellyfin/media:/media
     devices:
       - "/dev/dri/renderD128"
     labels:
@@ -17,16 +17,6 @@ services:
       - traefik.http.routers.jellyfin.tls.certresolver=leresolver
       - traefik.http.routers.jellyfin.entrypoints=websecure
       - traefik.http.services.jellyfin.loadbalancer.server.port=8096
-
-volumes:
-  config:
-    driver: local-persist
-    driver_opts:
-      mountpoint: /storage/jellyfin/config
-  media:
-    driver: local-persist
-    driver_opts:
-      mountpoint: /storage/jellyfin/media
 
 networks:
   proxy:

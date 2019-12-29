@@ -15,7 +15,7 @@ services:
       - proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - data:/data
+      - /storage/portainer:/data
     labels:
       - traefik.enable=true
       - traefik.http.routers.portainer.rule=Host(`portainer.belfodil.icu`)
@@ -31,12 +31,6 @@ services:
       - internal
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-
-volumes:
-  data:
-    driver: local-persist
-    driver_opts:
-      mountpoint: /storage/portainer
 
 networks:
   internal:
