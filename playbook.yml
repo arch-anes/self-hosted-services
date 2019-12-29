@@ -7,10 +7,10 @@
     - common_vars.yml
 
   tasks:
-    - name: Copy docker-compose files
-      copy:
+    - name: Copy project files
+      synchronize:
         src: .
-        dest: "{{ remote_project_location }}"
+        dest: "~"
 
 - import_playbook: traefik/playbook.yml
 - import_playbook: privatebin/playbook.yml
