@@ -4,7 +4,7 @@
   gather_facts: no
 
   vars_files:
-    - common.yml
+    - common_vars.yml
 
   tasks:
     - name: Copy docker-compose files

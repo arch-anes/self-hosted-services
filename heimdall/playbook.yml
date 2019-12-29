@@ -4,7 +4,7 @@
   gather_facts: no
 
   vars_files:
-    - ../common.yml
+    - ../common_vars.yml
   vars:
     docker_compose_location: "{{remote_project_location}}/heimdall"
     remote_storage_location: "{{remote_storage_location}}/heimdall"

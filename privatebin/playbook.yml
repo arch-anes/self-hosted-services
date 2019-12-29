@@ -4,7 +4,7 @@
   gather_facts: no
 
   vars_files:
-    - ../common.yml
+    - ../common_vars.yml
   vars:
     docker_compose_location: "{{remote_project_location}}/privatebin"
     remote_storage_location: "{{remote_storage_location}}/privatebin"
@@ -12,8 +12,10 @@
   tasks:
     - name: Create data folders
       file:
-        path: "{{remote_storage_location}}"
+        path: "{{remote_storage_location}}/{{item}}"
         state: directory
+      with_items:
+        - ""
 
     - name: Start PrivateBin
       docker_compose:
