@@ -1,0 +1,21 @@
+---
+- name: Start Heimdall in docker
+  hosts: all
+  gather_facts: no
+
+  vars_files:
+    - ../common_vars.yml
+  vars:
+    docker_compose_location: "{{remote_project_location}}/heimdall"
+    remote_storage_location: "{{remote_storage_location}}/heimdall"
+
+  tasks:
+    - name: Create data folders
+      file:
+        path: "{{remote_storage_location}}"
+        state: directory
+
+    - name: Start Heimdall
+      docker_compose:
+        pull: yes
+        project_src: "{{docker_compose_location}}"

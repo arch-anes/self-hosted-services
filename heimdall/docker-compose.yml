@@ -5,9 +5,9 @@ services:
     image: linuxserver/heimdall
     restart: always
     networks:
-      - proxy
+      - reverse_proxy
     volumes:
-      - config:/config
+      - /storage/heimdall:/config
     environment:
       - PUID=1000
       - PGID=100
@@ -19,12 +19,6 @@ services:
       - traefik.http.routers.heimdall.tls=true
       - traefik.http.routers.heimdall.tls.certresolver=leresolver
 
-volumes:
-  config:
-    driver: local-persist
-    driver_opts:
-      mountpoint: /storage/heimdall
-
 networks:
-  proxy:
+  reverse_proxy:
     external: true
