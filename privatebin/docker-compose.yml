@@ -5,7 +5,7 @@ services:
     image: privatebin/nginx-fpm-alpine
     restart: always
     networks:
-      - proxy
+      - reverse_proxy
     volumes:
       - /storage/privatebin:/srv/data
     labels:
@@ -15,5 +15,5 @@ services:
       - traefik.http.routers.privatebin.entrypoints=websecure
 
 networks:
-  proxy:
+  reverse_proxy:
     external: true

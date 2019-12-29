@@ -12,7 +12,7 @@ services:
     command: --templates http://templates/templates.json
     networks:
       - internal
-      - proxy
+      - reverse_proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /storage/portainer:/data
@@ -34,5 +34,5 @@ services:
 
 networks:
   internal:
-  proxy:
+  reverse_proxy:
     external: true

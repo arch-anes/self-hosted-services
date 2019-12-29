@@ -5,7 +5,7 @@ services:
     image: jellyfin/jellyfin
     restart: always
     networks:
-      - proxy
+      - reverse_proxy
     volumes:
       - /storage/jellyfin/config:/config
       - /storage/jellyfin/media:/media
@@ -19,5 +19,5 @@ services:
       - traefik.http.services.jellyfin.loadbalancer.server.port=8096
 
 networks:
-  proxy:
+  reverse_proxy:
     external: true

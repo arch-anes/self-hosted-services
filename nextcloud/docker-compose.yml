@@ -15,7 +15,7 @@ services:
     image: nextcloud:latest
     restart: always
     networks:
-      - proxy
+      - reverse_proxy
       - internal
     volumes:
       - /storage/nextcloud/app:/var/www/html
@@ -36,5 +36,5 @@ services:
 
 networks:
   internal:
-  proxy:
+  reverse_proxy:
     external: true

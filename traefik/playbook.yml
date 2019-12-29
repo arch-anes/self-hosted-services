@@ -17,7 +17,7 @@
 
     - name: Create reverse proxy network
       docker_network:
-        name: proxy
+        name: reverse_proxy
 
     - name: Start Traefik
       docker_compose:

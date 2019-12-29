@@ -5,7 +5,7 @@ services:
     image: linuxserver/heimdall
     restart: always
     networks:
-      - proxy
+      - reverse_proxy
     volumes:
       - /storage/heimdall:/config
     environment:
@@ -20,5 +20,5 @@ services:
       - traefik.http.routers.heimdall.tls.certresolver=leresolver
 
 networks:
-  proxy:
+  reverse_proxy:
     external: true

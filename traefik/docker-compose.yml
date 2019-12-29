@@ -5,7 +5,7 @@ services:
     image: traefik
     restart: always
     networks:
-      - proxy
+      - reverse_proxy
     ports:
       - 80:80
       - 443:443
@@ -21,7 +21,7 @@ services:
       - --entrypoints.web.address=:80
       - --providers.docker
       - --providers.docker.exposedbydefault=false
-      - --providers.docker.network=proxy
+      - --providers.docker.network=reverse_proxy
       - --api
       - --certificatesresolvers.leresolver.acme.email=cert@belfodil.com
       - --certificatesresolvers.leresolver.acme.storage=/acme.json
@@ -43,5 +43,5 @@ services:
       - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
 
 networks:
-  proxy:
+  reverse_proxy:
     external: true
