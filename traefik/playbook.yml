@@ -1,0 +1,25 @@
+---
+- name: Start Traefik in docker
+  hosts: all
+  gather_facts: no
+
+  vars_files:
+    - ../common.yml
+  vars:
+    traefik_location: "{{remote_project_location}}/traefik"
+
+  tasks:
+    - name: Create ACME file
+      file:
+        path: "{{traefik_location}}/acme.json"
+        mode: 0600
+        state: touch
+
+    - name: Create reverse proxy network
+      docker_network:
+        name: proxy
+
+    - name: Start Traefik
+      docker_compose:
+        pull: yes
+        project_src: "{{ traefik_location }}"

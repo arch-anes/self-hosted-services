@@ -1,0 +1,15 @@
+---
+- name: Setup self hosted services
+  hosts: all
+  gather_facts: no
+
+  vars_files:
+    - common.yml
+
+  tasks:
+    - name: Copy docker-compose files
+      copy:
+        src: .
+        dest: "{{ remote_project_location }}"
+
+- import_playbook: traefik/playbook.yml
