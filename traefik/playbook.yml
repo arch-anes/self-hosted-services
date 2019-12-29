@@ -6,12 +6,12 @@
   vars_files:
     - ../common.yml
   vars:
-    traefik_location: "{{remote_project_location}}/traefik"
+    docker_compose_location: "{{remote_project_location}}/traefik"
 
   tasks:
     - name: Create ACME file
       file:
-        path: "{{traefik_location}}/acme.json"
+        path: "{{docker_compose_location}}/acme.json"
         mode: 0600
         state: touch
 
@@ -22,4 +22,4 @@
     - name: Start Traefik
       docker_compose:
         pull: yes
-        project_src: "{{ traefik_location }}"
+        project_src: "{{docker_compose_location}}"

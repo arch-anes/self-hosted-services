@@ -13,3 +13,4 @@
         dest: "{{ remote_project_location }}"
 
 - import_playbook: traefik/playbook.yml
+- import_playbook: privatebin/playbook.yml
