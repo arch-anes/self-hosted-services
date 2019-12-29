@@ -2,8 +2,8 @@
 
 ## Dependencies
 
-- docker-compose
-- ansible
+- docker-compose (remote only)
+- ansible (controller only)
 - openssh
 - rsync
 
