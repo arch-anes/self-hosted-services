@@ -14,3 +14,7 @@
 
 - import_playbook: traefik/playbook.yml
 - import_playbook: privatebin/playbook.yml
+- import_playbook: portainer/playbook.yml
+- import_playbook: nextcloud/playbook.yml
+- import_playbook: jellyfin/playbook.yml
+- import_playbook: heimdall/playbook.yml
