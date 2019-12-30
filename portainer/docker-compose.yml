@@ -15,7 +15,7 @@ services:
       - reverse_proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /storage/portainer:/data
+      - ${STORAGE_LOCATION}/portainer:/data
     labels:
       - traefik.enable=true
       - traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN_NAME}`)
