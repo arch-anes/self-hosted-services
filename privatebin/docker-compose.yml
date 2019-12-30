@@ -10,7 +10,7 @@ services:
       - /storage/privatebin:/srv/data
     labels:
       - traefik.enable=true
-      - traefik.http.routers.privatebin.rule=Host(`privatebin.belfodil.icu`)
+      - traefik.http.routers.privatebin.rule=Host(`privatebin.${DOMAIN_NAME}`)
       - traefik.http.routers.privatebin.tls.certresolver=leresolver
       - traefik.http.routers.privatebin.entrypoints=websecure
 

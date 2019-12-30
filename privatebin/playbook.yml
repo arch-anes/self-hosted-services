@@ -8,6 +8,8 @@
   vars:
     docker_compose_location: "{{remote_project_location}}/privatebin"
     docker_storage_location: "{{remote_storage_location}}/privatebin"
+  environment:
+    DOMAIN_NAME: "{{domain_name}}"
 
   tasks:
     - name: Create data folders

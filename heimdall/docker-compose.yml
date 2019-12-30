@@ -14,7 +14,7 @@ services:
       - TZ=America/Montreal
     labels:
       - traefik.enable=true
-      - traefik.http.routers.heimdall.rule=Host(`belfodil.icu`) || Host(`www.belfodil.icu`)
+      - traefik.http.routers.heimdall.rule=Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)
       - traefik.http.routers.heimdall.entrypoints=websecure
       - traefik.http.routers.heimdall.tls=true
       - traefik.http.routers.heimdall.tls.certresolver=leresolver
