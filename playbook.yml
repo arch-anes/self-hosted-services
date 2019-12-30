@@ -5,6 +5,7 @@
 
   environment:
     DOMAIN_NAME: "{{domain_name}}"
+    STORAGE_LOCATION: "/storage"
 
   roles:
     - setup

@@ -7,7 +7,7 @@ services:
     networks:
       - internal
     volumes:
-      - /storage/nextcloud/db:/var/lib/postgresql/data
+      - ${STORAGE_LOCATION}/nextcloud/db:/var/lib/postgresql/data
     env_file:
       - .env
 
@@ -18,8 +18,8 @@ services:
       - reverse_proxy
       - internal
     volumes:
-      - /storage/nextcloud/app:/var/www/html
-      - /storage/nextcloud/data:/var/www/html/data
+      - ${STORAGE_LOCATION}/nextcloud/app:/var/www/html
+      - ${STORAGE_LOCATION}/nextcloud/data:/var/www/html/data
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_USER=postgres

@@ -7,7 +7,7 @@ services:
     networks:
       - reverse_proxy
     volumes:
-      - /storage/heimdall:/config
+      - ${STORAGE_LOCATION}/heimdall:/config
     environment:
       - PUID=1000
       - PGID=100

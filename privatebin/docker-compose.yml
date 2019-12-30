@@ -7,7 +7,7 @@ services:
     networks:
       - reverse_proxy
     volumes:
-      - /storage/privatebin:/srv/data
+      - ${STORAGE_LOCATION}/privatebin:/srv/data
     labels:
       - traefik.enable=true
       - traefik.http.routers.privatebin.rule=Host(`privatebin.${DOMAIN_NAME}`)
