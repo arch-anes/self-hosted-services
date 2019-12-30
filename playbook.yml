@@ -3,18 +3,14 @@
   hosts: all
   gather_facts: no
 
-  vars_files:
-    - common_vars.yml
+  environment:
+    DOMAIN_NAME: "{{domain_name}}"
 
-  tasks:
-    - name: Copy project files
-      synchronize:
-        src: .
-        dest: "~"
-
-- import_playbook: traefik/playbook.yml
-- import_playbook: privatebin/playbook.yml
-- import_playbook: portainer/playbook.yml
-- import_playbook: nextcloud/playbook.yml
-- import_playbook: jellyfin/playbook.yml
-- import_playbook: heimdall/playbook.yml
+  roles:
+    - setup
+    - traefik
+    - portainer
+    - heimdall
+    - jellyfin
+    - nextcloud
+    - privatebin

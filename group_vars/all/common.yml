@@ -1,3 +1,4 @@
+---
 remote_project_location: "~/self-hosted-services"
 remote_storage_location: "/storage"
 domain_name: "belfodil.icu"
