@@ -18,7 +18,7 @@ services:
       - /storage/portainer:/data
     labels:
       - traefik.enable=true
-      - traefik.http.routers.portainer.rule=Host(`portainer.belfodil.icu`)
+      - traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN_NAME}`)
       - traefik.http.routers.portainer.tls.certresolver=leresolver
       - traefik.http.routers.portainer.entrypoints=websecure
       - traefik.http.services.portainer.loadbalancer.server.port=9000

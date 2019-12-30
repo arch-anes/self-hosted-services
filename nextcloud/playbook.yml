@@ -8,6 +8,8 @@
   vars:
     docker_compose_location: "{{remote_project_location}}/jellyfin"
     docker_storage_location: "{{remote_storage_location}}/jellyfin"
+  environment:
+    DOMAIN_NAME: "{{domain_name}}"
 
   tasks:
     - name: Create data folders

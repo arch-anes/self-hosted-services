@@ -7,6 +7,8 @@
     - ../common_vars.yml
   vars:
     docker_compose_location: "{{remote_project_location}}/traefik"
+  environment:
+    DOMAIN_NAME: "{{domain_name}}"
 
   tasks:
     - name: Create ACME file

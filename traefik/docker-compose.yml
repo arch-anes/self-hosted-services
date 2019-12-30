@@ -29,7 +29,7 @@ services:
       - --certificatesresolvers.leresolver.acme.httpchallenge.entrypoint=web
     labels:
       - traefik.enable=true
-      - traefik.http.routers.traefik.rule=Host(`traefik.belfodil.icu`)
+      - traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN_NAME}`)
       - traefik.http.routers.traefik.service=api@internal
       - traefik.http.routers.traefik.tls.certresolver=leresolver
       - traefik.http.routers.traefik.entrypoints=websecure

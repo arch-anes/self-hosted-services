@@ -13,7 +13,7 @@ services:
       - "/dev/dri/renderD128"
     labels:
       - traefik.enable=true
-      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.belfodil.icu`)
+      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN_NAME}`)
       - traefik.http.routers.jellyfin.tls.certresolver=leresolver
       - traefik.http.routers.jellyfin.entrypoints=websecure
       - traefik.http.services.jellyfin.loadbalancer.server.port=8096
