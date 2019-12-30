@@ -1,4 +1,4 @@
 - name: Copy project files
   synchronize:
-    src: .
+    src: "{{playbook_dir}}"
     dest: "~"
