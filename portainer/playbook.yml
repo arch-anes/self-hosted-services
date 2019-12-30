@@ -7,12 +7,12 @@
     - ../common_vars.yml
   vars:
     docker_compose_location: "{{remote_project_location}}/portainer"
-    remote_storage_location: "{{remote_storage_location}}/portainer"
+    docker_storage_location: "{{remote_storage_location}}/portainer"
 
   tasks:
     - name: Create data folders
       file:
-        path: "{{remote_storage_location}}/{{item}}"
+        path: "{{docker_storage_location}}/{{item}}"
         state: directory
       with_items:
         - ""
