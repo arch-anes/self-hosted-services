@@ -1,0 +1,11 @@
+- name: Create ACME file
+  file:
+    path: "{{docker_compose_location}}/acme.json"
+    mode: 0600
+    state: touch
+
+- name: Create reverse proxy network
+  docker_network:
+    name: reverse_proxy
+
+- import_tasks: roles/common/tasks/start_docker.yml

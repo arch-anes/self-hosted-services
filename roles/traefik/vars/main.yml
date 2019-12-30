@@ -1,0 +1,1 @@
+docker_compose_location: "{{remote_project_location}}/traefik"

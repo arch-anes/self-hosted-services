@@ -1,0 +1,5 @@
+- name: Create data folders
+  file:
+    path: "{{docker_storage_location}}/{{item}}"
+    state: directory
+  with_items: "{{data_folders}}"
