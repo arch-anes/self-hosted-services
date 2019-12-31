@@ -1,3 +1,2 @@
 docker_compose_location: "{{remote_project_location}}/portainer"
 docker_storage_location: "{{remote_storage_location}}/portainer"
-data_folders: [""]
