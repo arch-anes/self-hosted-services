@@ -1,4 +1,1 @@
-- name: Copy project files
-  synchronize:
-    src: "{{playbook_dir}}"
-    dest: "~"
+- import_tasks: copy_project_files.yml
