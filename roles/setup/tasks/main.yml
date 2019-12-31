@@ -1,1 +1,2 @@
 - import_tasks: copy_project_files.yml
+- import_tasks: docker_swam_init.yml
