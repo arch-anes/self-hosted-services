@@ -1,0 +1,4 @@
+- name: Create data folder
+  file:
+    path: "{{docker_storage_location}}"
+    state: directory
