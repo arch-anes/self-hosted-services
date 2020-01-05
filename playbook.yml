@@ -1,12 +1,12 @@
 ---
-- name: Setup self hosted services
-  hosts: all
+- name: Setup home services
+  hosts: home
   gather_facts: no
 
   environment:
     DOMAIN_NAME: "{{domain_name}}"
     STORAGE_LOCATION: "/storage"
-    TZ: America/Montreal
+    TZ: "America/Montreal"
 
   roles:
     - setup
@@ -18,3 +18,15 @@
     - nextcloud
     - privatebin
     - syncthing
+
+- name: Setup routing services
+  hosts: router
+  gather_facts: no
+
+  environment:
+    STORAGE_LOCATION: "/storage"
+    TZ: "America/Montreal"
+
+  roles:
+    - setup
+    - pihole
