@@ -6,6 +6,7 @@
   environment:
     DOMAIN_NAME: "{{domain_name}}"
     STORAGE_LOCATION: "/storage"
+    TZ: America/Montreal
 
   roles:
     - setup
