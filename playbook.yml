@@ -11,6 +11,7 @@
     - setup
     - traefik
     - portainer
+    - calibre
     - heimdall
     - jellyfin
     - nextcloud

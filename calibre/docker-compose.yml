@@ -1,0 +1,24 @@
+version: "3.7"
+
+services:
+  calibre:
+    image: linuxserver/calibre-web
+    restart: always
+    networks:
+      - reverse_proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ${STORAGE_LOCATION}/calibre/config:/config
+      - ${STORAGE_LOCATION}/calibre/books:/books
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.calibre.rule=Host(`calibre.${DOMAIN_NAME}`)
+      - traefik.http.routers.calibre.tls.certresolver=leresolver
+      - traefik.http.routers.calibre.entrypoints=websecure
+      - traefik.http.services.calibre.loadbalancer.server.port=8083
+
+networks:
+  reverse_proxy:
+    external: true
