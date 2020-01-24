@@ -1,4 +1,16 @@
 ---
+- name: Setup routing services
+  hosts: router
+  gather_facts: no
+
+  environment:
+    STORAGE_LOCATION: "/storage"
+    TZ: "America/Montreal"
+
+  roles:
+    - setup
+    - pihole
+
 - name: Setup home services
   hosts: home
   gather_facts: no
@@ -18,15 +30,3 @@
     - nextcloud
     - privatebin
     - syncthing
-
-- name: Setup routing services
-  hosts: router
-  gather_facts: no
-
-  environment:
-    STORAGE_LOCATION: "/storage"
-    TZ: "America/Montreal"
-
-  roles:
-    - setup
-    - pihole
