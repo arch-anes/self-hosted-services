@@ -1,0 +1,63 @@
+version: "3.7"
+
+services:
+  app:
+    image: mayanedms/mayanedms
+    restart: always
+    networks:
+      - mayan-bridge
+      - reverse_proxy
+    volumes:
+      - ${STORAGE_LOCATION}/mayanedms/media:/var/lib/mayan
+    env_file:
+      - .env
+    environment:
+      - MAYAN_CELERY_BROKER_URL=redis://:$REDIS_PASSWORD@redis:6379/0
+      - MAYAN_CELERY_RESULT_BACKEND=redis://:$REDIS_PASSWORD@redis:6379/1
+      - MAYAN_DATABASES={'default':{'ENGINE':'django.db.backends.postgresql','NAME':'mayan','PASSWORD':'$POSTGRES_PASSWORD','USER':'mayan','HOST':'postgresql'}}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.mayanedms.rule=Host(`mayanedms.${DOMAIN_NAME}`)
+      - traefik.http.routers.mayanedms.tls.certresolver=leresolver
+      - traefik.http.routers.mayanedms.entrypoints=websecure
+    depends_on:
+      - postgresql
+      - redis
+
+  postgresql:
+    image: postgres:9.6-alpine
+    networks:
+      - mayan-bridge
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=mayan
+      - POSTGRES_USER=mayan
+    volumes:
+      - ${STORAGE_LOCATION}/mayanedms/db:/var/lib/postgresql/data
+
+  redis:
+    image: redis:5.0-alpine
+    networks:
+      - mayan-bridge
+    restart: always
+    command:
+      - redis-server
+      - --databases
+      - "2"
+      - --maxmemory-policy
+      - allkeys-lru
+      - --save
+      - ""
+      - --requirepass $REDIS_PASSWORD
+    env_file:
+      - .env
+    volumes:
+      - ${STORAGE_LOCATION}/mayanedms/redis:/data
+
+networks:
+  reverse_proxy:
+    external: true
+  mayan-bridge:
+    driver: bridge
