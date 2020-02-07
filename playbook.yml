@@ -24,6 +24,7 @@
     - setup
     - traefik
     - portainer
+    - booksonic
     - calibre
     - heimdall
     - jellyfin
