@@ -1,0 +1,23 @@
+version: "3.7"
+
+services:
+  emby:
+    image: emby/embyserver
+    restart: always
+    networks:
+      - reverse_proxy
+    volumes:
+      - ${STORAGE_LOCATION}/emby/config:/config
+      - ${STORAGE_LOCATION}/emby/media:/media
+    devices:
+      - "/dev/dri/renderD128"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.emby.rule=Host(`emby.${DOMAIN_NAME}`)
+      - traefik.http.routers.emby.tls.certresolver=leresolver
+      - traefik.http.routers.emby.entrypoints=websecure
+      - traefik.http.services.emby.loadbalancer.server.port=8096
+
+networks:
+  reverse_proxy:
+    external: true
