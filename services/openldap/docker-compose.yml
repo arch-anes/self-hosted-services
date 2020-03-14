@@ -17,9 +17,9 @@ services:
       - ${STORAGE_LOCATION}/openldap/config:/etc/ldap/slapd.d
     labels:
       - traefik.enable=true
-      - traefik.http.routers.openldap.rule=Host(`ldap.${DOMAIN_NAME}`)
-      - traefik.http.routers.openldap.tls.certresolver=leresolver
-      - traefik.http.routers.openldap.entrypoints=ldapsecure
+      - traefik.tcp.routers.openldap.rule=HostSNI(`ldap.${DOMAIN_NAME}`)
+      - traefik.tcp.routers.openldap.tls.certresolver=leresolver
+      - traefik.tcp.routers.openldap.entrypoints=ldapsecure
 
   phpLDAPadmin:
     image: osixia/phpldapadmin
