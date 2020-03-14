@@ -1,0 +1,37 @@
+version: "3.7"
+
+services:
+  mail:
+    image: tvial/docker-mailserver
+    restart: always
+    domainname: ${DOMAIN_NAME}
+    ports:
+      - 25:25
+      - 143:143
+      - 587:587
+      - 993:993
+    volumes:
+      - ${STORAGE_LOCATION}/mail/data:/var/mail
+      - ${STORAGE_LOCATION}/mail/state:/var/mail-state
+      - ${STORAGE_LOCATION}/mail/logs:/var/log/mail
+      - ${STORAGE_LOCATION}/mail/config:/tmp/docker-mailserver/
+    environment:
+      - ENABLE_SPAMASSASSIN=1
+      - ENABLE_CLAMAV=1
+      - ENABLE_FAIL2BAN=1
+      - ENABLE_POSTGREY=1
+      - ONE_DIR=1
+      - DMS_DEBUG=0
+    env_file:
+      - .env
+    cap_add:
+      - NET_ADMIN
+      - SYS_PTRACE
+
+# add mailman
+# add roundcube
+
+networks:
+  internal:
+  reverse_proxy:
+    external: true
