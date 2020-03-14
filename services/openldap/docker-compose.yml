@@ -6,15 +6,20 @@ services:
     restart: always
     hostname: ldap.${DOMAIN_NAME}
     networks:
+      - reverse_proxy
       - internal
-    ports:
-      - 389:389
-      - 636:636
+    environment:
+      - LDAP_TLS=false
     env_file:
       - .env
     volumes:
       - ${STORAGE_LOCATION}/openldap/db:/var/lib/ldap
       - ${STORAGE_LOCATION}/openldap/config:/etc/ldap/slapd.d
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.openldap.rule=Host(`ldap.${DOMAIN_NAME}`)
+      - traefik.http.routers.openldap.tls.certresolver=leresolver
+      - traefik.http.routers.openldap.entrypoints=ldapsecure
 
   phpLDAPadmin:
     image: osixia/phpldapadmin
@@ -27,13 +32,13 @@ services:
       - PHPLDAPADMIN_LDAP_HOSTS=openldap
     env_file:
       - .env
-    depends_on: 
+    depends_on:
       - openldap
     labels:
       - traefik.enable=true
-      - traefik.http.routers.openldap.rule=Host(`ldap.${DOMAIN_NAME}`)
-      - traefik.http.routers.openldap.tls.certresolver=leresolver
-      - traefik.http.routers.openldap.entrypoints=websecure
+      - traefik.http.routers.phpldapadmin.rule=Host(`ldap.${DOMAIN_NAME}`)
+      - traefik.http.routers.phpldapadmin.tls.certresolver=leresolver
+      - traefik.http.routers.phpldapadmin.entrypoints=websecure
 
 networks:
   internal:
