@@ -4,6 +4,7 @@ services:
   openldap:
     image: osixia/openldap
     restart: always
+    hostname: ldap.${DOMAIN_NAME}
     networks:
       - internal
     ports:
