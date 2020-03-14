@@ -13,8 +13,8 @@ services:
     env_file:
       - .env
     volumes:
-      - ${STORAGE_LOCATION}/openldap/db:/var/lib/ldap
-      - ${STORAGE_LOCATION}/openldap/config:/etc/ldap/slapd.d
+      - ${STORAGE_LOCATION}/ldap/db:/var/lib/ldap
+      - ${STORAGE_LOCATION}/ldap/config:/etc/ldap/slapd.d
     labels:
       - traefik.enable=true
       - traefik.tcp.routers.openldap.rule=HostSNI(`ldap.${DOMAIN_NAME}`)

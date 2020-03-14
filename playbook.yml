@@ -28,9 +28,9 @@
     - calibre
     - emby
     - heimdall
+    - ldap
     - mail
     - mayanedms
     - nextcloud
-    - openldap
     - privatebin
     - syncthing
