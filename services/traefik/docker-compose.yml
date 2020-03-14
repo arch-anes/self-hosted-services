@@ -13,6 +13,7 @@ services:
       - 587:587
       - 143:143
       - 993:993
+      - 389:389
       - 636:636
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -29,6 +30,7 @@ services:
       - --entrypoints.imapsecure.address=:993
       - --entrypoints.imap.address=:143
       - --entrypoints.ldapsecure.address=:636
+      - --entrypoints.ldap.address=:389
       - --providers.docker
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=reverse_proxy
