@@ -5,11 +5,6 @@ services:
     image: tvial/docker-mailserver
     restart: always
     domainname: ${DOMAIN_NAME}
-    ports:
-      - 25:25
-      - 143:143
-      - 587:587
-      - 993:993
     volumes:
       - ${STORAGE_LOCATION}/mail/data:/var/mail
       - ${STORAGE_LOCATION}/mail/state:/var/mail-state
@@ -27,6 +22,14 @@ services:
     cap_add:
       - NET_ADMIN
       - SYS_PTRACE
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.imap.rule=Host(`mail.${DOMAIN_NAME}`)
+      - traefik.http.routers.imap.tls.certresolver=leresolver
+      - traefik.http.routers.imap.entrypoints=imapsecure
+      - traefik.http.routers.smtp.rule=Host(`mail.${DOMAIN_NAME}`)
+      - traefik.http.routers.smtp.tls.certresolver=leresolver
+      - traefik.http.routers.smtp.entrypoints=smtpsecure
 
 # add mailman
 # add roundcube

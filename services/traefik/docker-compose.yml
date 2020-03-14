@@ -19,6 +19,10 @@ services:
       - --log.level=DEBUG
       - --entrypoints.websecure.address=:443
       - --entrypoints.web.address=:80
+      - --entrypoints.smtpsecure.address=:587
+      - --entrypoints.smtp.address=:25
+      - --entrypoints.imapsecure.address=:993
+      - --entrypoints.imap.address=:143
       - --providers.docker
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=reverse_proxy
