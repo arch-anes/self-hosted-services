@@ -1,0 +1,2 @@
+docker_compose_location: "{{remote_project_location}}/mail"
+docker_storage_location: "{{remote_storage_location}}/mail"
