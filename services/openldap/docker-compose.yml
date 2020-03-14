@@ -1,0 +1,40 @@
+version: "3.7"
+
+services:
+  openldap:
+    image: osixia/openldap
+    restart: always
+    networks:
+      - internal
+    ports:
+      - 389:389
+      - 636:636
+    env_file:
+      - .env
+    volumes:
+      - ${STORAGE_LOCATION}/openldap/db:/var/lib/ldap
+      - ${STORAGE_LOCATION}/openldap/config:/etc/ldap/slapd.d
+
+  phpLDAPadmin:
+    image: osixia/phpldapadmin
+    restart: always
+    networks:
+      - reverse_proxy
+      - internal
+    environment:
+      - PHPLDAPADMIN_HTTPS=false
+      - PHPLDAPADMIN_LDAP_HOSTS=openldap
+    env_file:
+      - .env
+    depends_on: 
+      - openldap
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.openldap.rule=Host(`ldap.${DOMAIN_NAME}`)
+      - traefik.http.routers.openldap.tls.certresolver=leresolver
+      - traefik.http.routers.openldap.entrypoints=websecure
+
+networks:
+  internal:
+  reverse_proxy:
+    external: true
