@@ -28,6 +28,7 @@
     - calibre
     - emby
     - heimdall
+    - ldap
     - mail
     - mayanedms
     - nextcloud
