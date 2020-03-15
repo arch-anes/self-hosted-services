@@ -27,12 +27,27 @@ services:
       - SYS_PTRACE
     labels:
       - traefik.enable=true
-      - traefik.tcp.routers.imap.rule=HostSNI(`mail.${DOMAIN_NAME}`)
-      - traefik.tcp.routers.imap.tls.certresolver=leresolver
-      - traefik.tcp.routers.imap.entrypoints=imapsecure
-      - traefik.tcp.routers.smtp.rule=HostSNI(`mail.${DOMAIN_NAME}`)
-      - traefik.tcp.routers.smtp.tls.certresolver=leresolver
-      - traefik.tcp.routers.smtp.entrypoints=smtpsecure
+
+      - traefik.tcp.services.smtp.loadbalancer.server.port=25
+      - traefik.tcp.services.imap.loadbalancer.server.port=143
+
+      - traefik.tcp.routers.smtp.rule=HostSNI(`*`)
+      - traefik.tcp.routers.smtp.entrypoints=smtp
+      - traefik.tcp.routers.smtp.service=smtp
+
+      - traefik.tcp.routers.smtp-secure.rule=HostSNI(`*`)
+      - traefik.tcp.routers.smtp-secure.tls.certresolver=leresolver
+      - traefik.tcp.routers.smtp-secure.entrypoints=smtpsecure
+      - traefik.tcp.routers.smtp-secure.service=smtp
+
+      - traefik.tcp.routers.imap.rule=HostSNI(`*`)
+      - traefik.tcp.routers.imap.entrypoints=imap
+      - traefik.tcp.routers.imap.service=imap
+
+      - traefik.tcp.routers.imap-secure.rule=HostSNI(`*`)
+      - traefik.tcp.routers.imap-secure.tls.certresolver=leresolver
+      - traefik.tcp.routers.imap-secure.entrypoints=imapsecure
+      - traefik.tcp.routers.imap-secure.service=imap
 
   roundcubedb:
     image: postgres:latest
