@@ -38,7 +38,7 @@ services:
       - internal
     environment:
       - PHPLDAPADMIN_HTTPS=false
-      - PHPLDAPADMIN_LDAP_HOSTS=ldap.${DOMAIN_NAME}
+      - "PHPLDAPADMIN_LDAP_HOSTS=#PYTHON2BASH:[{'ldap.${DOMAIN_NAME}': [{'server': [{'tls': False}]},{'login': [{'bind_id': 'cn=admin,${LDAP_DC}'}]}]}]"
     env_file:
       - .env
     depends_on:
