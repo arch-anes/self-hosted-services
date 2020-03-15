@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  mail:
+  mailserver:
     image: tvial/docker-mailserver
     restart: always
     domainname: ${DOMAIN_NAME}
@@ -9,10 +9,10 @@ services:
       - reverse_proxy
       - internal
     volumes:
-      - ${STORAGE_LOCATION}/mail/server/data:/var/mail
-      - ${STORAGE_LOCATION}/mail/server/state:/var/mail-state
-      - ${STORAGE_LOCATION}/mail/server/logs:/var/log/mail
-      - ${STORAGE_LOCATION}/mail/server/config:/tmp/docker-mailserver/
+      - ${STORAGE_LOCATION}/mailserver/data:/var/mail
+      - ${STORAGE_LOCATION}/mailserver/state:/var/mail-state
+      - ${STORAGE_LOCATION}/mailserver/server/logs:/var/log/mail
+      - ${STORAGE_LOCATION}/mailserver/server/config:/tmp/docker-mailserver/
     environment:
       - ENABLE_SPAMASSASSIN=1
       - ENABLE_CLAMAV=1
@@ -48,41 +48,6 @@ services:
       - traefik.tcp.routers.imap-secure.tls.certresolver=leresolver
       - traefik.tcp.routers.imap-secure.entrypoints=imapsecure
       - traefik.tcp.routers.imap-secure.service=imap
-
-  roundcubedb:
-    image: postgres:latest
-    restart: always
-    networks:
-      - internal
-    volumes:
-      - ${STORAGE_LOCATION}/mail/roundcube/db:/var/lib/postgresql/data
-    env_file:
-      - .env
-    environment:
-      - POSTGRES_DB=${ROUNDCUBEMAIL_DB_NAME}
-      - POSTGRES_USER=${ROUNDCUBEMAIL_DB_USER}
-      - POSTGRES_PASSWORD=${ROUNDCUBEMAIL_DB_PASSWORD}
-
-  roundcube:
-    image: roundcube/roundcubemail
-    restart: always
-    depends_on:
-      - roundcubedb
-    networks:
-      - reverse_proxy
-      - internal
-    volumes:
-      - ${STORAGE_LOCATION}/mail/roundcube/app:/var/www/html
-    env_file:
-      - .env
-    environment:
-      - ROUNDCUBEMAIL_DB_TYPE=pgsql
-      - ROUNDCUBEMAIL_DB_HOST=roundcubedb
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.roundcube.rule=Host(`mail.${DOMAIN_NAME}`)
-      - traefik.http.routers.roundcube.tls.certresolver=leresolver
-      - traefik.http.routers.roundcube.entrypoints=websecure
 
 networks:
   internal:

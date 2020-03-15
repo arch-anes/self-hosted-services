@@ -1,0 +1,42 @@
+version: "3.7"
+
+services:
+  roundcubedb:
+    image: postgres:latest
+    restart: always
+    networks:
+      - internal
+    volumes:
+      - ${STORAGE_LOCATION}/roundcube/db:/var/lib/postgresql/data
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${ROUNDCUBEMAIL_DB_NAME}
+      - POSTGRES_USER=${ROUNDCUBEMAIL_DB_USER}
+      - POSTGRES_PASSWORD=${ROUNDCUBEMAIL_DB_PASSWORD}
+
+  roundcube:
+    image: roundcube/roundcubemail
+    restart: always
+    depends_on:
+      - roundcubedb
+    networks:
+      - reverse_proxy
+      - internal
+    volumes:
+      - ${STORAGE_LOCATION}/roundcube/app:/var/www/html
+    env_file:
+      - .env
+    environment:
+      - ROUNDCUBEMAIL_DB_TYPE=pgsql
+      - ROUNDCUBEMAIL_DB_HOST=roundcubedb
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.roundcube.rule=Host(`roundcube.${DOMAIN_NAME}`)
+      - traefik.http.routers.roundcube.tls.certresolver=leresolver
+      - traefik.http.routers.roundcube.entrypoints=websecure
+
+networks:
+  internal:
+  reverse_proxy:
+    external: true

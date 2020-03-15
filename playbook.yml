@@ -29,8 +29,9 @@
     - emby
     - heimdall
     - ldap
-    - mail
+    - mailserver
     - mayanedms
     - nextcloud
     - privatebin
+    - roundcube
     - syncthing
