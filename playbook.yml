@@ -28,6 +28,7 @@
     - calibre
     - heimdall
     - jellyfin
+    - ldap
     - mail
     - mayanedms
     - nextcloud
