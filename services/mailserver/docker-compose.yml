@@ -20,6 +20,22 @@ services:
       - ENABLE_POSTGREY=1
       - ONE_DIR=1
       - DMS_DEBUG=0
+      - ENABLE_LDAP=1
+      - LDAP_SERVER_HOST=${DOMAIN_NAME}
+      - LDAP_SEARCH_BASE=ou=people,${LDAP_DC}
+      - LDAP_BIND_DN=cn=admin,${LDAP_DC}
+      - LDAP_QUERY_FILTER_USER=(&(mail=%s)(mailEnabled=TRUE))
+      - LDAP_QUERY_FILTER_GROUP=(&(mailGroupMember=%s)(mailEnabled=TRUE))
+      - LDAP_QUERY_FILTER_ALIAS=(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))
+      - LDAP_QUERY_FILTER_DOMAIN=(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))
+      - DOVECOT_PASS_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+      - DOVECOT_USER_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+      - ENABLE_SASLAUTHD=1
+      - SASLAUTHD_MECHANISMS=ldap
+      - SASLAUTHD_LDAP_SERVER=ldap
+      - SASLAUTHD_LDAP_BIND_DN=cn=admin,${LDAP_DC}
+      - SASLAUTHD_LDAP_SEARCH_BASE=ou=people,${LDAP_DC}
+      - POSTMASTER_ADDRESS=postmaster@${DOMAIN_NAME}
     env_file:
       - .env
     cap_add:
