@@ -27,12 +27,12 @@ services:
       - SYS_PTRACE
     labels:
       - traefik.enable=true
-      - traefik.http.routers.imap.rule=Host(`mail.${DOMAIN_NAME}`)
-      - traefik.http.routers.imap.tls.certresolver=leresolver
-      - traefik.http.routers.imap.entrypoints=imapsecure
-      - traefik.http.routers.smtp.rule=Host(`mail.${DOMAIN_NAME}`)
-      - traefik.http.routers.smtp.tls.certresolver=leresolver
-      - traefik.http.routers.smtp.entrypoints=smtpsecure
+      - traefik.tcp.routers.imap.rule=HostSNI(`mail.${DOMAIN_NAME}`)
+      - traefik.tcp.routers.imap.tls.certresolver=leresolver
+      - traefik.tcp.routers.imap.entrypoints=imapsecure
+      - traefik.tcp.routers.smtp.rule=HostSNI(`mail.${DOMAIN_NAME}`)
+      - traefik.tcp.routers.smtp.tls.certresolver=leresolver
+      - traefik.tcp.routers.smtp.entrypoints=smtpsecure
 
   roundcubedb:
     image: postgres:latest
