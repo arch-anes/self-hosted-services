@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  roundcubedb:
+  db:
     image: postgres:latest
     restart: always
     networks:
@@ -15,11 +15,11 @@ services:
       - POSTGRES_USER=${ROUNDCUBEMAIL_DB_USER}
       - POSTGRES_PASSWORD=${ROUNDCUBEMAIL_DB_PASSWORD}
 
-  roundcube:
+  app:
     image: roundcube/roundcubemail
     restart: always
     depends_on:
-      - roundcubedb
+      - db
     networks:
       - reverse_proxy
       - internal
@@ -29,7 +29,7 @@ services:
       - .env
     environment:
       - ROUNDCUBEMAIL_DB_TYPE=pgsql
-      - ROUNDCUBEMAIL_DB_HOST=roundcubedb
+      - ROUNDCUBEMAIL_DB_HOST=db
     labels:
       - traefik.enable=true
       - traefik.http.routers.roundcube.rule=Host(`roundcube.${DOMAIN_NAME}`)
