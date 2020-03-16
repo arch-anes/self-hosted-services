@@ -11,8 +11,8 @@ services:
     volumes:
       - ${STORAGE_LOCATION}/mailserver/data:/var/mail
       - ${STORAGE_LOCATION}/mailserver/state:/var/mail-state
-      - ${STORAGE_LOCATION}/mailserver/server/logs:/var/log/mail
-      - ${STORAGE_LOCATION}/mailserver/server/config:/tmp/docker-mailserver/
+      - ${STORAGE_LOCATION}/mailserver/logs:/var/log/mail
+      - ${STORAGE_LOCATION}/mailserver/config:/tmp/docker-mailserver/
     environment:
       - ENABLE_SPAMASSASSIN=1
       - ENABLE_CLAMAV=1
