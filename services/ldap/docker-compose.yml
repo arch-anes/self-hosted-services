@@ -6,7 +6,7 @@ services:
     restart: always
     hostname: openldap
     networks:
-      - internal
+      - ldap
     environment:
       - LDAP_TLS=false
       - LDAP_DOMAIN=${DOMAIN_NAME}
@@ -20,8 +20,8 @@ services:
     image: osixia/phpldapadmin
     restart: always
     networks:
+      - ldap
       - reverse_proxy
-      - internal
     environment:
       - PHPLDAPADMIN_HTTPS=false
       - "PHPLDAPADMIN_LDAP_HOSTS=#PYTHON2BASH:[{'${DOMAIN_NAME}': [{'server': [{'host': 'openldap'}, {'tls': False}]},{'login': [{'bind_id': 'cn=admin,${LDAP_DC}'}]}]}]"
@@ -36,6 +36,7 @@ services:
       - traefik.http.routers.phpldapadmin.entrypoints=websecure
 
 networks:
-  internal:
+  ldap:
+    external: true
   reverse_proxy:
     external: true

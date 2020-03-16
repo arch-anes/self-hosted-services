@@ -6,8 +6,8 @@ services:
     restart: always
     domainname: ${DOMAIN_NAME}
     networks:
+      - ldap
       - reverse_proxy
-      - internal
     volumes:
       - ${STORAGE_LOCATION}/mailserver/data:/var/mail
       - ${STORAGE_LOCATION}/mailserver/state:/var/mail-state
@@ -66,6 +66,7 @@ services:
       - traefik.tcp.routers.imap-secure.service=imap
 
 networks:
-  internal:
+  ldap:
+    external: true
   reverse_proxy:
     external: true
