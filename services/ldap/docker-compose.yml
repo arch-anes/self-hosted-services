@@ -7,6 +7,8 @@ services:
     hostname: openldap
     networks:
       - ldap
+    ports:
+      - 389:389
     environment:
       - LDAP_TLS=false
       - LDAP_DOMAIN=${DOMAIN_NAME}
