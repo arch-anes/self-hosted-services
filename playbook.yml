@@ -25,12 +25,12 @@
   roles:
     - setup
     - traefik
+    - openldap
     - portainer
     - booksonic
     - calibre
     - emby
     - heimdall
-    - ldap
     - mailserver
     - mayanedms
     - nextcloud

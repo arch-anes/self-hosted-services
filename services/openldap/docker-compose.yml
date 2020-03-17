@@ -15,8 +15,8 @@ services:
     env_file:
       - .env
     volumes:
-      - ${STORAGE_LOCATION}/ldap/db:/var/lib/ldap
-      - ${STORAGE_LOCATION}/ldap/config:/etc/ldap/slapd.d
+      - ${STORAGE_LOCATION}/openldap/db:/var/lib/ldap
+      - ${STORAGE_LOCATION}/openldap/config:/etc/ldap/slapd.d
 
   phpLDAPadmin:
     image: osixia/phpldapadmin
