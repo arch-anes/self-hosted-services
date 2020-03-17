@@ -18,7 +18,6 @@ services:
       - PERMIT_DOCKER=network
       - ENABLE_SPAMASSASSIN=1
       - ENABLE_CLAMAV=1
-      - ENABLE_FAIL2BAN=1
       - ENABLE_POSTGREY=1
       - ONE_DIR=1
       - DMS_DEBUG=0
@@ -35,7 +34,6 @@ services:
     env_file:
       - .env
     cap_add:
-      - NET_ADMIN
       - SYS_PTRACE
     labels:
       - traefik.enable=true
