@@ -1,0 +1,9 @@
+- name: Copy project files
+  synchronize:
+    src: "{{playbook_dir}}/services"
+    dest: "~/self-hosted-services"
+
+- name: Create docker networks
+  docker_network:
+    name: "{{item}}"
+  loop: "{{docker_networks}}"
