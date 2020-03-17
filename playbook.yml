@@ -17,20 +17,23 @@
 
   environment:
     DOMAIN_NAME: "{{domain_name}}"
+    LDAP_DC: "{{ldap_dc}}"
+    LDAP_OU: "{{ldap_ou}}"
     STORAGE_LOCATION: "/storage"
     TZ: "America/Montreal"
 
   roles:
     - setup
     - traefik
+    - openldap
     - portainer
     - booksonic
     - calibre
     - emby
     - heimdall
-    - ldap
-    - mail
+    - mailserver
     - mayanedms
     - nextcloud
     - privatebin
+    - roundcube
     - syncthing

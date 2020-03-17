@@ -2,3 +2,5 @@
 remote_project_location: "~/self-hosted-services/services"
 remote_storage_location: "/storage"
 domain_name: "belfodil.icu"
+ldap_dc: "dc=belfodil,dc=icu"
+ldap_ou: "ou=Person"
