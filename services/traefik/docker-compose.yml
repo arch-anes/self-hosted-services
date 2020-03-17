@@ -10,6 +10,7 @@ services:
       - 80:80
       - 443:443
       - 25:25
+      - 465:465
       - 587:587
       - 143:143
       - 993:993
@@ -23,7 +24,8 @@ services:
       - --log.level=DEBUG
       - --entrypoints.websecure.address=:443
       - --entrypoints.web.address=:80
-      - --entrypoints.smtpsecure.address=:587
+      - --entrypoints.smtpsecure.address=:465
+      - --entrypoints.smtpauto.address=:587
       - --entrypoints.smtp.address=:25
       - --entrypoints.imapsecure.address=:993
       - --entrypoints.imap.address=:143

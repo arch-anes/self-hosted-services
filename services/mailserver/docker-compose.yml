@@ -55,7 +55,7 @@ services:
 
       - traefik.tcp.routers.smtp-secure.rule=HostSNI(`*`)
       - traefik.tcp.routers.smtp-secure.tls.certresolver=leresolver
-      - traefik.tcp.routers.smtp-secure.entrypoints=smtpsecure
+      - traefik.tcp.routers.smtp-secure.entrypoints=smtpsecure,smtpauto
       - traefik.tcp.routers.smtp-secure.service=smtp
 
       - traefik.tcp.routers.imap.rule=HostSNI(`*`)
