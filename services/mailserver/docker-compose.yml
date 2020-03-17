@@ -4,6 +4,7 @@ services:
   mailserver:
     image: tvial/docker-mailserver
     restart: always
+    hostname: mail
     domainname: ${DOMAIN_NAME}
     networks:
       - ldap
@@ -14,6 +15,7 @@ services:
       - ${STORAGE_LOCATION}/mailserver/logs:/var/log/mail
       - ${STORAGE_LOCATION}/mailserver/config:/tmp/docker-mailserver/
     environment:
+      - PERMIT_DOCKER=network
       - ENABLE_SPAMASSASSIN=1
       - ENABLE_CLAMAV=1
       - ENABLE_FAIL2BAN=1
