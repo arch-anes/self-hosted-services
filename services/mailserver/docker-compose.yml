@@ -1,0 +1,66 @@
+version: "3.7"
+
+services:
+  mailserver:
+    image: tvial/docker-mailserver
+    restart: always
+    hostname: mail
+    domainname: ${DOMAIN_NAME}
+    networks:
+      - ldap
+      - reverse_proxy
+    volumes:
+      - ${STORAGE_LOCATION}/mailserver/data:/var/mail
+      - ${STORAGE_LOCATION}/mailserver/state:/var/mail-state
+      - ${STORAGE_LOCATION}/mailserver/logs:/var/log/mail
+      - ${STORAGE_LOCATION}/mailserver/config:/tmp/docker-mailserver/
+    environment:
+      - PERMIT_DOCKER=network
+      - ENABLE_SPAMASSASSIN=1
+      - ENABLE_CLAMAV=1
+      - ENABLE_POSTGREY=1
+      - ONE_DIR=1
+      - DMS_DEBUG=0
+      - ENABLE_LDAP=1
+      - LDAP_SERVER_HOST=openldap
+      - LDAP_SEARCH_BASE=${LDAP_OU},${LDAP_DC}
+      - LDAP_BIND_DN=cn=admin,${LDAP_DC}
+      - ENABLE_SASLAUTHD=1
+      - SASLAUTHD_MECHANISMS=ldap
+      - SASLAUTHD_LDAP_SERVER=openldap
+      - SASLAUTHD_LDAP_BIND_DN=cn=admin,${LDAP_DC}
+      - SASLAUTHD_LDAP_SEARCH_BASE=${LDAP_OU},${LDAP_DC}
+      - POSTMASTER_ADDRESS=postmaster@${DOMAIN_NAME}
+    env_file:
+      - .env
+    cap_add:
+      - SYS_PTRACE
+    labels:
+      - traefik.enable=true
+
+      - traefik.tcp.services.smtp.loadbalancer.server.port=25
+      - traefik.tcp.services.imap.loadbalancer.server.port=143
+
+      - traefik.tcp.routers.smtp.rule=HostSNI(`*`)
+      - traefik.tcp.routers.smtp.entrypoints=smtp
+      - traefik.tcp.routers.smtp.service=smtp
+
+      - traefik.tcp.routers.smtp-secure.rule=HostSNI(`*`)
+      - traefik.tcp.routers.smtp-secure.tls.certresolver=leresolver
+      - traefik.tcp.routers.smtp-secure.entrypoints=smtpsecure,smtpauto
+      - traefik.tcp.routers.smtp-secure.service=smtp
+
+      - traefik.tcp.routers.imap.rule=HostSNI(`*`)
+      - traefik.tcp.routers.imap.entrypoints=imap
+      - traefik.tcp.routers.imap.service=imap
+
+      - traefik.tcp.routers.imap-secure.rule=HostSNI(`*`)
+      - traefik.tcp.routers.imap-secure.tls.certresolver=leresolver
+      - traefik.tcp.routers.imap-secure.entrypoints=imapsecure
+      - traefik.tcp.routers.imap-secure.service=imap
+
+networks:
+  ldap:
+    external: true
+  reverse_proxy:
+    external: true

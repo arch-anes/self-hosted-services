@@ -10,11 +10,10 @@ services:
       - 80:80
       - 443:443
       - 25:25
+      - 465:465
       - 587:587
       - 143:143
       - 993:993
-      - 389:389
-      - 636:636
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./acme.json:/acme.json
@@ -25,12 +24,11 @@ services:
       - --log.level=DEBUG
       - --entrypoints.websecure.address=:443
       - --entrypoints.web.address=:80
-      - --entrypoints.smtpsecure.address=:587
+      - --entrypoints.smtpsecure.address=:465
+      - --entrypoints.smtpauto.address=:587
       - --entrypoints.smtp.address=:25
       - --entrypoints.imapsecure.address=:993
       - --entrypoints.imap.address=:143
-      - --entrypoints.ldapsecure.address=:636
-      - --entrypoints.ldap.address=:389
       - --providers.docker
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=reverse_proxy
