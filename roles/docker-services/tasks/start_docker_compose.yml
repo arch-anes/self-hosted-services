@@ -1,4 +1,4 @@
 - name: "Start {{service_name}} docker-compose"
   docker_compose:
     pull: yes
-    project_src: "{{remote_project_location}}/{{service_name}}"
+    project_src: "{{remote_project_location}}/{{service_name|lower}}"

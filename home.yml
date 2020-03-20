@@ -22,16 +22,16 @@
     - role: docker-services
       vars:
         services:
-          - traefik
-          - openldap
-          - portainer
-          - booksonic
-          - calibre
-          - emby
-          - heimdall
+          - Traefik
+          - OpenLDAP
+          - Portainer
+          - Booksonic
+          - Calibre
+          - Emby
+          - Heimdall
           - mailserver
-          - mayanedms
-          - nextcloud
-          - privatebin
-          - roundcube
-          - syncthing
+          - MayanEDMS
+          - Nextcloud
+          - PrivateBin
+          - Roundcube
+          - Syncthing
