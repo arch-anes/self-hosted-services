@@ -16,7 +16,7 @@ services:
       - 993:993
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${STORAGE_LOCATION}/traefik/acme.json:/acme.json
+      - ${STORAGE_LOCATION}/traefik/acme:/acme
     env_file:
       - .env
     command:
@@ -34,7 +34,7 @@ services:
       - --providers.docker.network=reverse_proxy
       - --api
       - --certificatesresolvers.leresolver.acme.email=cert@belfodil.com
-      - --certificatesresolvers.leresolver.acme.storage=/acme.json
+      - --certificatesresolvers.leresolver.acme.storage=/acme/leresolver.json
       - --certificatesresolvers.leresolver.acme.dnsChallenge.provider=${DNS_CHALLENGE_PROVIDER}
       - --certificatesresolvers.leresolver.acme.dnsChallenge.delayBeforeCheck=0
     labels:
