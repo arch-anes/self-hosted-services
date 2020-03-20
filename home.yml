@@ -1,0 +1,27 @@
+---
+- name: Setup home services
+  hosts: home
+  gather_facts: no
+
+  environment:
+    DOMAIN_NAME: "{{domain_name}}"
+    LDAP_DC: "{{ldap_dc}}"
+    LDAP_OU: "{{ldap_ou}}"
+    STORAGE_LOCATION: "{{remote_storage_location}}"
+    TZ: "{{ lookup('env','TZ') }}"
+
+  roles:
+    - setup
+    - traefik
+    - openldap
+    - portainer
+    - booksonic
+    - calibre
+    - emby
+    - heimdall
+    - mailserver
+    - mayanedms
+    - nextcloud
+    - privatebin
+    - roundcube
+    - syncthing
