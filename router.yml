@@ -9,4 +9,7 @@
 
   roles:
     - setup
-    - pihole
+    - role: docker-services
+      vars:
+        services:
+          - pihole

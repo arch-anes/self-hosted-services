@@ -1,2 +1,5 @@
-- import_tasks: create_data_folder.yml
-- import_tasks: start_docker.yml
+- name: Setup docker services
+  include_tasks: setup_service.yml
+  vars:
+    service_name: "{{item}}"
+  loop: "{{services}}"

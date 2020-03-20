@@ -1,4 +1,0 @@
-- name: Start Docker
-  docker_compose:
-    pull: yes
-    project_src: "{{docker_compose_location}}"

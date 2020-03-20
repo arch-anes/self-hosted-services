@@ -12,16 +12,19 @@
 
   roles:
     - setup
-    - traefik
-    - openldap
-    - portainer
-    - booksonic
-    - calibre
-    - emby
-    - heimdall
-    - mailserver
-    - mayanedms
-    - nextcloud
-    - privatebin
-    - roundcube
-    - syncthing
+    - role: docker-services
+      vars:
+        services:
+          - traefik
+          - openldap
+          - portainer
+          - booksonic
+          - calibre
+          - emby
+          - heimdall
+          - mailserver
+          - mayanedms
+          - nextcloud
+          - privatebin
+          - roundcube
+          - syncthing
