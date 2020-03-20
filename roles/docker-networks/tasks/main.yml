@@ -1,0 +1,5 @@
+- name: Setup docker networks
+  include_tasks: create_network.yml
+  vars:
+    network_name: "{{item}}"
+  loop: "{{networks}}"

@@ -12,6 +12,13 @@
 
   roles:
     - setup
+
+    - role: docker-networks
+      vars:
+        networks:
+          - ldap
+          - reverse_proxy
+
     - role: docker-services
       vars:
         services:
