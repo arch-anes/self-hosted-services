@@ -1,2 +1,0 @@
-docker_compose_location: "{{remote_project_location}}/booksonic"
-docker_storage_location: "{{remote_storage_location}}/booksonic"

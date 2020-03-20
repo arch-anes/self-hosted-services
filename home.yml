@@ -1,0 +1,37 @@
+---
+- name: Setup home services
+  hosts: home
+  gather_facts: no
+
+  environment:
+    DOMAIN_NAME: "{{domain_name}}"
+    LDAP_DC: "{{ldap_dc}}"
+    LDAP_OU: "{{ldap_ou}}"
+    STORAGE_LOCATION: "{{remote_storage_location}}"
+    TZ: "{{ lookup('env','TZ') }}"
+
+  roles:
+    - setup
+
+    - role: docker-networks
+      vars:
+        networks:
+          - ldap
+          - reverse_proxy
+
+    - role: docker-services
+      vars:
+        services:
+          - Traefik
+          - OpenLDAP
+          - Portainer
+          - Booksonic
+          - Calibre
+          - Heimdall
+          - Jellyfin
+          - mailserver
+          - MayanEDMS
+          - Nextcloud
+          - PrivateBin
+          - Roundcube
+          - Syncthing

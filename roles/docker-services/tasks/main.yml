@@ -1,0 +1,5 @@
+- name: Setup docker services
+  include_tasks: setup_service.yml
+  vars:
+    service_name: "{{item}}"
+  loop: "{{services}}"

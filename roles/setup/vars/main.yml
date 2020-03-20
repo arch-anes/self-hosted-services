@@ -1,3 +1,0 @@
-docker_networks:
-  - ldap
-  - reverse_proxy

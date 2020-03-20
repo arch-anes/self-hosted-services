@@ -1,0 +1,15 @@
+---
+- name: Setup routing services
+  hosts: router
+  gather_facts: no
+
+  environment:
+    STORAGE_LOCATION: "{{remote_storage_location}}"
+    TZ: "{{ lookup('env','TZ') }}"
+
+  roles:
+    - setup
+    - role: docker-services
+      vars:
+        services:
+          - Pihole
