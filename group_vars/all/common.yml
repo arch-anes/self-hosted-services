@@ -1,6 +1,9 @@
 ---
 remote_project_location: "~/self-hosted-services/services"
 remote_storage_location: "/storage"
-domain_name: "belfodil.icu"
-ldap_dc: "dc=belfodil,dc=icu"
-ldap_ou: "ou=Person"
+env_vars:
+  TZ: "{{lookup('env','TZ')}}"
+  STORAGE_LOCATION: "{{remote_storage_location}}"
+  DOMAIN_NAME: "belfodil.icu"
+  LDAP_DC: "dc=belfodil,dc=icu"
+  LDAP_OU: "ou=Person"

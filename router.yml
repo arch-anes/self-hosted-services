@@ -3,9 +3,7 @@
   hosts: router
   gather_facts: no
 
-  environment:
-    STORAGE_LOCATION: "{{remote_storage_location}}"
-    TZ: "{{ lookup('env','TZ') }}"
+  environment: "{{env_vars}}"
 
   roles:
     - setup
