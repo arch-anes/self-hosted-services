@@ -5,6 +5,7 @@ services:
     image: mayanedms/mayanedms
     restart: always
     networks:
+      - ldap
       - reverse_proxy
       - internal
     volumes:
@@ -70,5 +71,7 @@ services:
 
 networks:
   internal:
+  ldap:
+    external: true
   reverse_proxy:
     external: true
