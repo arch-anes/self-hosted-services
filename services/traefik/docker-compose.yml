@@ -21,7 +21,6 @@ services:
       - .env
     command:
       - --global.sendanonymoususage=false
-      - --log.level=DEBUG
       - --entrypoints.websecure.address=:443
       - --entrypoints.web.address=:80
       - --entrypoints.smtpsecure.address=:465
