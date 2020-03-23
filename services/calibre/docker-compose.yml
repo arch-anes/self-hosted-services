@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  calibre:
+  app:
     image: linuxserver/calibre-web
     restart: always
     networks:

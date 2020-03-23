@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  heimdall:
+  app:
     image: linuxserver/heimdall
     restart: always
     networks:

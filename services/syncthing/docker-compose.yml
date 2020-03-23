@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  syncthing:
+  app:
     image: syncthing/syncthing
     restart: always
     networks:
