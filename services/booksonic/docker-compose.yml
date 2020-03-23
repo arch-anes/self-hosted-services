@@ -5,6 +5,7 @@ services:
     image: linuxserver/booksonic
     restart: always
     networks:
+      - ldap
       - reverse_proxy
     volumes:
       - ${STORAGE_LOCATION}/booksonic/config:/config
@@ -17,5 +18,7 @@ services:
       - traefik.http.services.booksonic.loadbalancer.server.port=4040
 
 networks:
+  ldap:
+    external: true
   reverse_proxy:
     external: true
