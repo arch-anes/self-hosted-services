@@ -26,6 +26,7 @@
           - Jellyfin
           - mailserver
           - MayanEDMS
+          - Netdata
           - Nextcloud
           - PrivateBin
           - Roundcube
