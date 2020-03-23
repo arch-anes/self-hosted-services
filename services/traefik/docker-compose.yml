@@ -32,7 +32,7 @@ services:
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=reverse_proxy
       - --api
-      - --certificatesresolvers.leresolver.acme.email=cert@belfodil.com
+      - --certificatesresolvers.leresolver.acme.email=cert@${DOMAIN_NAME}
       - --certificatesresolvers.leresolver.acme.storage=/acme/leresolver.json
       - --certificatesresolvers.leresolver.acme.dnsChallenge.provider=${DNS_CHALLENGE_PROVIDER}
       - --certificatesresolvers.leresolver.acme.dnsChallenge.delayBeforeCheck=0
