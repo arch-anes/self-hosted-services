@@ -5,59 +5,70 @@ services:
     image: mayanedms/mayanedms
     restart: always
     networks:
-      - mayan-bridge
       - reverse_proxy
+      - internal
     volumes:
-      - ${STORAGE_LOCATION}/mayanedms/media:/var/lib/mayan
+      - ${STORAGE_LOCATION}/mayanedms/app:/var/lib/mayan
     env_file:
       - .env
     environment:
-      - MAYAN_CELERY_BROKER_URL=redis://:$REDIS_PASSWORD@redis:6379/0
-      - MAYAN_CELERY_RESULT_BACKEND=redis://:$REDIS_PASSWORD@redis:6379/1
-      - MAYAN_DATABASES={'default':{'ENGINE':'django.db.backends.postgresql','NAME':'mayan','PASSWORD':'$POSTGRES_PASSWORD','USER':'mayan','HOST':'postgresql'}}
+      - MAYAN_CELERY_BROKER_URL=redis://:${MAYAN_REDIS_PASSWORD}@results:6379/0
+      - MAYAN_CELERY_RESULT_BACKEND=redis://:${MAYAN_REDIS_PASSWORD}@results:6379/1
+      - MAYAN_DATABASES="{'default':{'ENGINE':'django.db.backends.postgresql','NAME':'${MAYAN_DATABASE_DB}','PASSWORD':'${MAYAN_DATABASE_PASSWORD}','USER':'${MAYAN_DATABSE_USER}','HOST':'db'}}"
+      - MAYAN_DOCKER_WAIT="db:5432 results:6379"
+    depends_on:
+      - db
+      - results
     labels:
       - traefik.enable=true
       - traefik.http.routers.mayanedms.rule=Host(`mayanedms.${DOMAIN_NAME}`)
       - traefik.http.routers.mayanedms.tls.certresolver=leresolver
       - traefik.http.routers.mayanedms.entrypoints=websecure
-    depends_on:
-      - postgresql
-      - redis
+      - traefik.http.services.mayanedms.loadbalancer.server.port=8000
 
-  postgresql:
+  db:
     image: postgres:9.6-alpine
     networks:
-      - mayan-bridge
+      - internal
     restart: always
     env_file:
       - .env
     environment:
-      - POSTGRES_DB=mayan
-      - POSTGRES_USER=mayan
+      - POSTGRES_DB=${MAYAN_DATABASE_DB}
+      - POSTGRES_PASSWORD=${MAYAN_DATABASE_PASSWORD}
+      - POSTGRES_USER=${MAYAN_DATABSE_USER}
     volumes:
       - ${STORAGE_LOCATION}/mayanedms/db:/var/lib/postgresql/data
 
-  redis:
+  results:
     image: redis:5.0-alpine
     networks:
-      - mayan-bridge
+      - internal
     restart: always
     command:
       - redis-server
+      - --appendonly
+      - "no"
       - --databases
       - "2"
+      - --maxmemory
+      - "100mb"
+      - --maxclients
+      - "500"
       - --maxmemory-policy
-      - allkeys-lru
+      - "allkeys-lru"
       - --save
       - ""
-      - --requirepass $REDIS_PASSWORD
+      - --tcp-backlog
+      - "256"
+      - --requirepass
+      - "${MAYAN_REDIS_PASSWORD}"
     env_file:
       - .env
     volumes:
       - ${STORAGE_LOCATION}/mayanedms/redis:/data
 
 networks:
+  internal:
   reverse_proxy:
     external: true
-  mayan-bridge:
-    driver: bridge
