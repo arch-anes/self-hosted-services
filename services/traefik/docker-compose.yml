@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  traefik:
+  app:
     image: traefik
     restart: always
     networks:

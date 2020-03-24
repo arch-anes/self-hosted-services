@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  netdata:
+  app:
     image: netdata/netdata
     restart: always
     hostname: netdata.${DOMAIN_NAME}
