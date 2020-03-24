@@ -5,7 +5,6 @@ services:
     image: portainer/portainer
     restart: always
     networks:
-      - internal
       - reverse_proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -18,6 +17,5 @@ services:
       - traefik.http.services.portainer.loadbalancer.server.port=9000
 
 networks:
-  internal:
   reverse_proxy:
     external: true
