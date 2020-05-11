@@ -1,0 +1,50 @@
+version: "3.7"
+
+services:
+  db:
+    image: postgres:alpine
+    restart: always
+    networks:
+      - internal
+    volumes:
+      - ${STORAGE_LOCATION}/ttrss/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=ttrss
+    env_file:
+      - .env
+
+  # if `ERROR: relation "ttrss_version" does not exist`, then
+  # execute https://git.tt-rss.org/fox/tt-rss/raw/master/schema/ttrss_schema_pgsql.sql manually
+  app:
+    image: wangqiru/ttrss
+    restart: always
+    stdin_open: true
+    tty: true
+    command: sh -c 'sh /wait-for.sh $$DB_HOST:$$DB_PORT -- php /configure-db.php && exec s6-svscan /etc/s6/'
+    networks:
+      - reverse_proxy
+      - internal
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      - SELF_URL_PATH=https://ttrss.${DOMAIN_NAME}/
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=ttrss
+      - DB_USER=postgres
+      - DB_PASS=${POSTGRES_PASSWORD}
+      - ENABLE_PLUGINS=api_feedreader,auth_internal,fever
+      - FEED_LOG_QUIET=true
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.ttrss.rule=Host(`ttrss.${DOMAIN_NAME}`)
+      - traefik.http.routers.ttrss.tls.certresolver=leresolver
+      - traefik.http.routers.ttrss.entrypoints=websecure
+
+networks:
+  internal:
+  reverse_proxy:
+    external: true
