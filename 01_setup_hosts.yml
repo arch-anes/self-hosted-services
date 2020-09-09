@@ -12,7 +12,6 @@
           - { port: 80, proto: tcp, rule: allow, comment: "Allow HTTP" }
           - { port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
           - { port: 53, proto: any, rule: allow, comment: "Allow DNS" }
-          - { port: 389, proto: tcp, rule: allow, comment: "Allow LDAP" }
           - { port: 2377, proto: tcp, rule: allow, comment: "Allow Docker Swarm cluster management communications" }
           - { port: 7946, proto: any, rule: allow, comment: "Allow communication among Docker Swarm nodes" }
           - { port: 4789, proto: udp, rule: allow, comment: "Allow Docker Swarm overlay network traffic" }

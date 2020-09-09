@@ -5,5 +5,3 @@ env_vars:
   STORAGE_LOCATION: "/storage"
   DOMAIN_NAME: "belfodil.icu"
   LDAP_ORG: "belfodil"
-  LDAP_DC: "dc=belfodil,dc=icu"
-  LDAP_OU: "ou=Person"
