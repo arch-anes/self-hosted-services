@@ -1,3 +1,8 @@
+- name: Clean project files
+  file:
+    state: absent
+    path: "{{remote_stacks_location}}/"
+
 - name: Copy project files
   synchronize:
     src: "{{playbook_dir}}/stacks/"

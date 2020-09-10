@@ -23,7 +23,7 @@
       vars:
         stacks:
           - Traefik
-          - OpenLDAP
+          - Keycloak
           - Booksonic
           - Duplicati
           - Heimdall
