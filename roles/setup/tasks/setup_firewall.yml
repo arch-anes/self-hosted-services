@@ -1,0 +1,32 @@
+- name: Enable firewall, allow everything by default and disable logging
+  ufw:
+    state: enabled
+    default: allow
+    logging: "off"
+
+- name: Limit SSH trafic
+  ufw:
+    rule: limit
+    port: ssh
+    proto: tcp
+
+- name: Allow Docker Swarm cluster management communications
+  ufw:
+    rule: allow
+    port: "2377"
+    proto: tcp
+
+- name: Allow ommunication among Docker Swarm nodes
+  ufw:
+    rule: allow
+    port: "7946"
+
+- name: Allow Docker Swarm overlay network traffic
+  ufw:
+    rule: allow
+    port: "4789"
+    proto: udp
+
+- name: Deny everything by default
+  ufw:
+    default: deny
