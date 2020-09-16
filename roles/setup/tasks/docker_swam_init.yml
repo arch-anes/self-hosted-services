@@ -1,3 +1,0 @@
-- name: Init a new swarm with default parameters
-  docker_swarm:
-    state: present
