@@ -31,6 +31,7 @@ services:
       - --providers.docker
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=reverse_proxy
+      - --accesslog
       - --api
       - --certificatesresolvers.leresolver.acme.email=cert@${DOMAIN_NAME}
       - --certificatesresolvers.leresolver.acme.storage=/acme/leresolver.json
