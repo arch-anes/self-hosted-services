@@ -19,7 +19,6 @@
         services:
           - Traefik
           - OpenLDAP
-          - Portainer
           - Booksonic
           - Heimdall
           - Jellyfin
