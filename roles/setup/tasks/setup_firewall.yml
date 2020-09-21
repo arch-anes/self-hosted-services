@@ -10,6 +10,18 @@
     port: ssh
     proto: tcp
 
+- name: Allow HTTP
+  ufw:
+    rule: allow
+    port: "80"
+    proto: tcp
+
+- name: Allow HTTPS
+  ufw:
+    rule: allow
+    port: "443"
+    proto: tcp
+
 - name: Allow Docker Swarm cluster management communications
   ufw:
     rule: allow
