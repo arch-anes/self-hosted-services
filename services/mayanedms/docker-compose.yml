@@ -13,10 +13,10 @@ services:
     env_file:
       - .env
     environment:
-      - MAYAN_CELERY_BROKER_URL=redis://:${MAYAN_REDIS_PASSWORD}@results:6379/0
-      - MAYAN_CELERY_RESULT_BACKEND=redis://:${MAYAN_REDIS_PASSWORD}@results:6379/1
-      - MAYAN_DATABASES="{'default':{'ENGINE':'django.db.backends.postgresql','NAME':'${MAYAN_DATABASE_DB}','PASSWORD':'${MAYAN_DATABASE_PASSWORD}','USER':'${MAYAN_DATABSE_USER}','HOST':'db'}}"
-      - MAYAN_DOCKER_WAIT="db:5432 results:6379"
+      MAYAN_CELERY_BROKER_URL: redis://:${MAYAN_REDIS_PASSWORD}@results:6379/0
+      MAYAN_CELERY_RESULT_BACKEND: redis://:${MAYAN_REDIS_PASSWORD}@results:6379/1
+      MAYAN_DATABASES: "{'default':{'ENGINE':'django.db.backends.postgresql','NAME':'mayan','PASSWORD':'${MAYAN_DATABASE_PASSWORD}','USER':'mayan','HOST':'db'}}"
+      MAYAN_DOCKER_WAIT: "db:5432 results:6379"
     depends_on:
       - db
       - results
@@ -29,15 +29,15 @@ services:
 
   db:
     image: postgres:9.6-alpine
+    restart: always
     networks:
       - internal
-    restart: always
     env_file:
       - .env
     environment:
-      - POSTGRES_DB=${MAYAN_DATABASE_DB}
+      - POSTGRES_DB=mayan
       - POSTGRES_PASSWORD=${MAYAN_DATABASE_PASSWORD}
-      - POSTGRES_USER=${MAYAN_DATABSE_USER}
+      - POSTGRES_USER=mayan
     volumes:
       - ${STORAGE_LOCATION}/mayanedms/db:/var/lib/postgresql/data
 
