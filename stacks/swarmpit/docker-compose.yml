@@ -1,0 +1,65 @@
+version: "3"
+
+services:
+  app:
+    image: swarmpit/swarmpit
+    networks:
+      - internal
+      - reverse_proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - SWARMPIT_DB=http://couchdb:5984
+      - SWARMPIT_INFLUXDB=http://influxdb:8086
+    depends_on:
+      - couchdb
+      - influxdb
+    deploy:
+      placement:
+        constraints:
+          - node.role==manager
+          - node.labels.big==true
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.swarmpit.rule=Host(`swarmpit.${DOMAIN_NAME}`)
+        - traefik.http.routers.swarmpit.tls.certresolver=leresolver
+        - traefik.http.routers.swarmpit.entrypoints=websecure
+        - traefik.http.services.swarmpit.loadbalancer.server.port=8080
+
+  couchdb:
+    image: couchdb:2.3.0
+    networks:
+      - internal
+    volumes:
+      - ${STORAGE_LOCATION}/swarmpit/couchdb:/opt/couchdb/data
+    deploy:
+      placement:
+        constraints:
+          - node.labels.big==true
+
+  influxdb:
+    image: influxdb:1.7
+    networks:
+      - internal
+    volumes:
+      - ${STORAGE_LOCATION}/swarmpit/influxdb:/var/lib/influxdb
+    deploy:
+      placement:
+        constraints:
+          - node.labels.big==true
+
+  agent:
+    image: swarmpit/agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - internal
+    deploy:
+      mode: global
+      labels:
+        - swarmpit.agent=true
+
+networks:
+  internal:
+  reverse_proxy:
+    external: true
