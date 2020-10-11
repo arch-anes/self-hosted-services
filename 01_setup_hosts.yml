@@ -3,10 +3,21 @@
   hosts: all
   become: yes
 
-  environment: "{{env_vars}}"
-
   roles:
-    - role: setup_firewall
+    - role: weareinteractive.ufw
+      vars:
+        ufw_reset: no
+        ufw_rules:
+          - { port: 22, proto: tcp, rule: limit, comment: "Limit SSH" }
+          - { port: 80, proto: tcp, rule: allow, comment: "Allow HTTP" }
+          - { port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
+          - { port: 53, proto: any, rule: allow, comment: "Allow DNS" }
+          - { port: 389, proto: tcp, rule: allow, comment: "Allow LDAP" }
+          - { port: 2377, proto: tcp, rule: allow, comment: "Allow Docker Swarm cluster management communications" }
+          - { port: 7946, proto: any, rule: allow, comment: "Allow communication among Docker Swarm nodes" }
+          - { port: 4789, proto: udp, rule: allow, comment: "Allow Docker Swarm overlay network traffic" }
+          - { port: 22000, proto: tcp, rule: allow, comment: "Allow Syncthing" }
+          - { port: 21027, proto: udp, rule: allow, comment: "Allow Syncthing discovery broadcast" }
 
     - role: atosatto.docker-swarm
       vars:

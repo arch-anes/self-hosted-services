@@ -1,3 +1,4 @@
 ---
 roles:
   - name: atosatto.docker-swarm
+  - name: weareinteractive.ufw
