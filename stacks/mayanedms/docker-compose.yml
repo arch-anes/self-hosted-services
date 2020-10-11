@@ -1,19 +1,24 @@
-version: "3"
+version: "3.8"
 
 services:
   app:
     image: mayanedms/mayanedms
+    entrypoint: docker-entrypoint.sh
+    command: run_all
     networks:
       - ldap
       - reverse_proxy
       - internal
     volumes:
       - ${STORAGE_LOCATION}/mayanedms/app:/var/lib/mayan
+      - ./docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+    secrets:
+      - mayanedms_redis_password
+      - mayanedms_db_password
     environment:
-      MAYAN_CELERY_BROKER_URL: redis://:${MAYAN_REDIS_PASSWORD}@results:6379/0
-      MAYAN_CELERY_RESULT_BACKEND: redis://:${MAYAN_REDIS_PASSWORD}@results:6379/1
-      MAYAN_DATABASES: "{'default':{'ENGINE':'django.db.backends.postgresql','NAME':'mayan','PASSWORD':'${MAYAN_DATABASE_PASSWORD}','USER':'mayan','HOST':'db'}}"
-      MAYAN_DOCKER_WAIT: "db:5432 results:6379"
+      - MAYAN_REDIS_PASSWORD_FILE=/run/secrets/mayanedms_redis_password
+      - MAYAN_DATABASE_PASSWORD_FILE=/run/secrets/mayanedms_db_password
+      - MAYAN_DOCKER_WAIT=db:5432 results:6379
     depends_on:
       - db
       - results
@@ -32,12 +37,13 @@ services:
     image: postgres:12-alpine
     networks:
       - internal
-    environment:
-      - POSTGRES_DB=mayan
-      - POSTGRES_PASSWORD=${MAYAN_DATABASE_PASSWORD}
-      - POSTGRES_USER=mayan
     volumes:
       - ${STORAGE_LOCATION}/mayanedms/db:/var/lib/postgresql/data
+    secrets:
+      - mayanedms_db_password
+    environment:
+      - POSTGRES_DB=mayan
+      - POSTGRES_PASSWORD_FILE=/run/secrets/mayanedms_db_password
     deploy:
       placement:
         constraints:
@@ -45,32 +51,25 @@ services:
 
   results:
     image: redis:5.0-alpine
+    command: sh -c "redis-server --appendonly no --databases 2 --maxmemory 100mb --maxclients 500 --maxmemory-policy allkeys-lru --save --tcp-backlog 256 --requirepass $$(cat $$REDIS_PASS_FILE)"
     networks:
       - internal
-    command:
-      - redis-server
-      - --appendonly
-      - "no"
-      - --databases
-      - "2"
-      - --maxmemory
-      - "100mb"
-      - --maxclients
-      - "500"
-      - --maxmemory-policy
-      - "allkeys-lru"
-      - --save
-      - ""
-      - --tcp-backlog
-      - "256"
-      - --requirepass
-      - "${MAYAN_REDIS_PASSWORD}"
     volumes:
       - ${STORAGE_LOCATION}/mayanedms/redis:/data
+    secrets:
+      - mayanedms_redis_password
+    environment:
+      - REDIS_PASS_FILE=/run/secrets/mayanedms_redis_password
     deploy:
       placement:
         constraints:
           - node.labels.big==true
+
+secrets:
+  mayanedms_db_password:
+    external: true
+  mayanedms_redis_password:
+    external: true
 
 networks:
   internal:

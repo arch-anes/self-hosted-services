@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   openldap:
@@ -8,15 +8,18 @@ services:
       - ldap
     ports:
       - 389:389
-    environment:
-      - LDAP_TLS=false
-      - LDAP_DOMAIN=${DOMAIN_NAME}
-      - LDAP_ORGANISATION=${LDAP_ORGANISATION}
-      - LDAP_ADMIN_PASSWORD=${LDAP_ADMIN_PASSWORD}
-      - LDAP_CONFIG_PASSWORD=${LDAP_CONFIG_PASSWORD}
     volumes:
       - ${STORAGE_LOCATION}/openldap/db:/var/lib/ldap
       - ${STORAGE_LOCATION}/openldap/config:/etc/ldap/slapd.d
+    secrets:
+      - openldap_admin_password
+      - openldap_config_password
+    environment:
+      - LDAP_TLS=false
+      - LDAP_DOMAIN=${DOMAIN_NAME}
+      - LDAP_ORGANISATION=${LDAP_ORG}
+      - LDAP_ADMIN_PASSWORD_FILE=/run/secrets/openldap_admin_password
+      - LDAP_CONFIG_PASSWORD_FILE=/run/secrets/openldap_config_password
     deploy:
       placement:
         constraints:
@@ -42,6 +45,12 @@ services:
         - traefik.http.routers.phpldapadmin.tls.certresolver=leresolver
         - traefik.http.routers.phpldapadmin.entrypoints=websecure
         - traefik.http.services.phpldapadmin.loadbalancer.server.port=80
+
+secrets:
+  openldap_admin_password:
+    external: true
+  openldap_config_password:
+    external: true
 
 networks:
   ldap:
