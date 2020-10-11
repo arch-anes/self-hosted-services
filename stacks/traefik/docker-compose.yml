@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   app:
@@ -11,9 +11,11 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${STORAGE_LOCATION}/traefik/acme:/acme
+    secrets:
+      - traefik_basicauth
+      - traefik_cf_dns_api_token
     environment:
-      - CF_API_EMAIL=${CF_API_EMAIL}
-      - CF_API_KEY=${CF_API_KEY}
+      - CF_DNS_API_TOKEN_FILE=/run/secrets/traefik_cf_dns_api_token
     command:
       - --global.sendanonymoususage=false
       - --entrypoints.websecure.address=:443
@@ -26,7 +28,7 @@ services:
       - --api
       - --certificatesresolvers.leresolver.acme.email=cert@${DOMAIN_NAME}
       - --certificatesresolvers.leresolver.acme.storage=/acme/leresolver.json
-      - --certificatesresolvers.leresolver.acme.dnsChallenge.provider=${DNS_CHALLENGE_PROVIDER}
+      - --certificatesresolvers.leresolver.acme.dnsChallenge.provider=cloudflare
       - --certificatesresolvers.leresolver.acme.dnsChallenge.delayBeforeCheck=0
     deploy:
       mode: global
@@ -41,13 +43,19 @@ services:
         - traefik.http.routers.traefik.tls.certresolver=leresolver
         - traefik.http.routers.traefik.entrypoints=websecure
         - traefik.http.routers.traefik.middlewares=authtraefik
-        - traefik.http.middlewares.authtraefik.basicauth.users=${DASHBOARD_USER}:${DASHBOARD_PASSWORD}
+        - traefik.http.middlewares.authtraefik.basicauth.usersfile=/run/secrets/traefik_basicauth
 
         # global redirect to https
         - traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)
         - traefik.http.routers.http-catchall.entrypoints=web
         - traefik.http.routers.http-catchall.middlewares=redirect-to-https
         - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+
+secrets:
+  traefik_basicauth:
+    external: true
+  traefik_cf_dns_api_token:
+    external: true
 
 networks:
   reverse_proxy:

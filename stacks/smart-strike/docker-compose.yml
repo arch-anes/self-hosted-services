@@ -1,16 +1,18 @@
-version: "3"
+version: "3.8"
 
 services:
   app:
     image: archanes/smart-strike
     networks:
       - reverse_proxy
+    secrets:
+      - smart-strike_device_auth
+      - smart-strike_jwt_secret
+      - smart-strike_app_pass
     environment:
-      - DEVICE_HOST=${DEVICE_HOST}
-      - DEVICE_USER=${DEVICE_USER}
-      - DEVICE_PASS=${DEVICE_PASS}
-      - JWT_SECRET=${JWT_SECRET}
-      - APP_PASS=${APP_PASS}
+      - DEVICE_AUTH_FILE=/run/secrets/smart-strike_device_auth
+      - JWT_SECRET_FILE=/run/secrets/smart-strike_jwt_secret
+      - APP_PASS_FILE=/run/secrets/smart-strike_app_pass
     deploy:
       mode: global
       placement:
@@ -22,6 +24,14 @@ services:
         - traefik.http.routers.smart-strike.tls.certresolver=leresolver
         - traefik.http.routers.smart-strike.entrypoints=websecure
         - traefik.http.services.smart-strike.loadbalancer.server.port=3000
+
+secrets:
+  smart-strike_device_auth:
+    external: true
+  smart-strike_jwt_secret:
+    external: true
+  smart-strike_app_pass:
+    external: true
 
 networks:
   reverse_proxy:

@@ -1,4 +1,11 @@
 ---
+- name: Copy project files
+  hosts: all
+  gather_facts: no
+
+  roles:
+    - role: copy_project_files
+
 - name: Deploy stacks
   hosts: docker_swarm_manager[0]
   gather_facts: no
@@ -6,8 +13,6 @@
   environment: "{{env_vars}}"
 
   roles:
-    - role: copy_project_files
-
     - role: docker-networks
       vars:
         networks:

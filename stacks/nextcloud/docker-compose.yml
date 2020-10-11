@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   db:
@@ -7,11 +7,11 @@ services:
       - internal
     volumes:
       - ${STORAGE_LOCATION}/nextcloud/db:/var/lib/postgresql/data
+    secrets:
+      - nextcloud_db_password
     environment:
-      - POSTGRES_HOST=db
-      - POSTGRES_USER=postgres
       - POSTGRES_DB=nextcloud
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PASSWORD_FILE=/run/secrets/nextcloud_db_password
     deploy:
       placement:
         constraints:
@@ -26,11 +26,13 @@ services:
     volumes:
       - ${STORAGE_LOCATION}/nextcloud/app:/var/www/html
       - ${STORAGE_LOCATION}/nextcloud/data:/var/www/html/data
+    secrets:
+      - nextcloud_db_password
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_USER=postgres
       - POSTGRES_DB=nextcloud
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PASSWORD_FILE=/run/secrets/nextcloud_db_password
     depends_on:
       - db
     deploy:
@@ -43,6 +45,10 @@ services:
         - traefik.http.routers.nextcloud.tls.certresolver=leresolver
         - traefik.http.routers.nextcloud.entrypoints=websecure
         - traefik.http.services.nextcloud.loadbalancer.server.port=80
+
+secrets:
+  nextcloud_db_password:
+    external: true
 
 networks:
   internal:
