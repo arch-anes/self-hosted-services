@@ -1,4 +1,4 @@
 - name: "Deploy {{stack_display_name}} stack"
   command: bash -c "env $(cat .env 2>/dev/null | grep ^[A-Z] | xargs) docker stack deploy --compose-file docker-compose.yml {{stack_name}}"
   args:
-    chdir: "{{remote_project_location}}/{{stack_name}}"
+    chdir: "~/stacks/{{stack_name}}"
