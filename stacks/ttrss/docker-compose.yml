@@ -50,5 +50,6 @@ services:
 
 networks:
   internal:
+    internal: true
   reverse_proxy:
     external: true
