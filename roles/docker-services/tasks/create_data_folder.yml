@@ -1,4 +1,0 @@
-- name: "Create {{service_display_name}} data folder"
-  file:
-    path: "{{remote_storage_location}}/{{service_name}}"
-    state: directory

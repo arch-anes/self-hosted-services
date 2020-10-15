@@ -1,0 +1,4 @@
+- name: Copy project files
+  synchronize:
+    src: "{{playbook_dir}}/stacks"
+    dest: "~/self-hosted-services"

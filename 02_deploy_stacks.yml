@@ -1,0 +1,30 @@
+---
+- name: Deploy stacks
+  hosts: docker_swarm_manager[0]
+  gather_facts: no
+
+  environment: "{{env_vars}}"
+
+  roles:
+    - role: copy_project_files
+
+    - role: docker-networks
+      vars:
+        networks:
+          - ldap
+          - reverse_proxy
+
+    - role: docker-stacks
+      vars:
+        stacks:
+          - Traefik
+          - OpenLDAP
+          - Booksonic
+          - Heimdall
+          - Jellyfin
+          - MayanEDMS
+          - Nextcloud
+          - Pihole
+          - Smart Strike
+          - Syncthing
+          - TTRSS

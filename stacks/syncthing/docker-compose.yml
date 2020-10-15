@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  app:
+    image: syncthing/syncthing
+    networks:
+      - reverse_proxy
+    ports:
+      - 22000:22000
+      - 21027:21027/udp
+    volumes:
+      - ${STORAGE_LOCATION}/syncthing/config:/var/syncthing
+      - ${STORAGE_LOCATION}/syncthing/media:/Sync
+    deploy:
+      placement:
+        constraints:
+          - node.labels.big==true
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.syncthing.rule=Host(`syncthing.${DOMAIN_NAME}`)
+        - traefik.http.routers.syncthing.tls.certresolver=leresolver
+        - traefik.http.routers.syncthing.entrypoints=websecure
+        - traefik.http.services.syncthing.loadbalancer.server.port=8384
+
+networks:
+  reverse_proxy:
+    external: true

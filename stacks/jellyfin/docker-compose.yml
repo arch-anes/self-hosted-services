@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  app:
+    image: jellyfin/jellyfin
+    networks:
+      - ldap
+      - reverse_proxy
+    volumes:
+      - ${STORAGE_LOCATION}/jellyfin/config:/config
+      - ${STORAGE_LOCATION}/jellyfin/media:/media
+    deploy:
+      placement:
+        constraints:
+          - node.labels.big==true
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN_NAME}`)
+        - traefik.http.routers.jellyfin.tls.certresolver=leresolver
+        - traefik.http.routers.jellyfin.entrypoints=websecure
+        - traefik.http.services.jellyfin.loadbalancer.server.port=8096
+
+networks:
+  ldap:
+    external: true
+  reverse_proxy:
+    external: true

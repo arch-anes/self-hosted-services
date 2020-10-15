@@ -1,0 +1,19 @@
+---
+- name: Setup hosts
+  hosts: all
+  become: yes
+
+  environment: "{{env_vars}}"
+
+  roles:
+    - role: setup_firewall
+
+    - role: atosatto.docker-swarm
+      vars:
+        skip_repo: true
+        skip_containerd: true
+        skip_engine: true
+        skip_cli: true
+        skip_group: true
+        skip_docker_py: true
+        skip_docker_compose: true

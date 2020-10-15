@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  app:
+    image: archanes/smart-strike
+    networks:
+      - reverse_proxy
+    environment:
+      - DEVICE_HOST=${DEVICE_HOST}
+      - DEVICE_USER=${DEVICE_USER}
+      - DEVICE_PASS=${DEVICE_PASS}
+      - JWT_SECRET=${JWT_SECRET}
+      - APP_PASS=${APP_PASS}
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.local==true
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.smart-strike.rule=Host(`smart-strike.${DOMAIN_NAME}`)
+        - traefik.http.routers.smart-strike.tls.certresolver=leresolver
+        - traefik.http.routers.smart-strike.entrypoints=websecure
+        - traefik.http.services.smart-strike.loadbalancer.server.port=3000
+
+networks:
+  reverse_proxy:
+    external: true

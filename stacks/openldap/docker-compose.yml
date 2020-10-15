@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+  openldap:
+    image: osixia/openldap
+    hostname: openldap
+    networks:
+      - ldap
+    ports:
+      - 389:389
+    environment:
+      - LDAP_TLS=false
+      - LDAP_DOMAIN=${DOMAIN_NAME}
+      - LDAP_ORGANISATION=${LDAP_ORGANISATION}
+      - LDAP_ADMIN_PASSWORD=${LDAP_ADMIN_PASSWORD}
+      - LDAP_CONFIG_PASSWORD=${LDAP_CONFIG_PASSWORD}
+    volumes:
+      - ${STORAGE_LOCATION}/openldap/db:/var/lib/ldap
+      - ${STORAGE_LOCATION}/openldap/config:/etc/ldap/slapd.d
+    deploy:
+      placement:
+        constraints:
+          - node.labels.big==true
+
+  phpLDAPadmin:
+    image: osixia/phpldapadmin
+    networks:
+      - ldap
+      - reverse_proxy
+    environment:
+      - PHPLDAPADMIN_HTTPS=false
+      - "PHPLDAPADMIN_LDAP_HOSTS=#PYTHON2BASH:[{'${DOMAIN_NAME}': [{'server': [{'host': 'openldap'}, {'tls': False}]},{'login': [{'bind_id': 'cn=admin,${LDAP_DC}'}]}]}]"
+    depends_on:
+      - openldap
+    deploy:
+      placement:
+        constraints:
+          - node.labels.big==true
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.phpldapadmin.rule=Host(`ldap.${DOMAIN_NAME}`)
+        - traefik.http.routers.phpldapadmin.tls.certresolver=leresolver
+        - traefik.http.routers.phpldapadmin.entrypoints=websecure
+        - traefik.http.services.phpldapadmin.loadbalancer.server.port=80
+
+networks:
+  ldap:
+    external: true
+  reverse_proxy:
+    external: true

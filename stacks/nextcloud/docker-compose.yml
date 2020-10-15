@@ -1,0 +1,52 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:12-alpine
+    networks:
+      - internal
+    volumes:
+      - ${STORAGE_LOCATION}/nextcloud/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    deploy:
+      placement:
+        constraints:
+          - node.labels.big==true
+
+  app:
+    image: nextcloud:latest
+    networks:
+      - ldap
+      - reverse_proxy
+      - internal
+    volumes:
+      - ${STORAGE_LOCATION}/nextcloud/app:/var/www/html
+      - ${STORAGE_LOCATION}/nextcloud/data:/var/www/html/data
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    depends_on:
+      - db
+    deploy:
+      placement:
+        constraints:
+          - node.labels.big==true
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.nextcloud.rule=Host(`nextcloud.${DOMAIN_NAME}`)
+        - traefik.http.routers.nextcloud.tls.certresolver=leresolver
+        - traefik.http.routers.nextcloud.entrypoints=websecure
+        - traefik.http.services.nextcloud.loadbalancer.server.port=80
+
+networks:
+  internal:
+  ldap:
+    external: true
+  reverse_proxy:
+    external: true
