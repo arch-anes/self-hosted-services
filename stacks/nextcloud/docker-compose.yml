@@ -46,6 +46,7 @@ services:
 
 networks:
   internal:
+    internal: true
   ldap:
     external: true
   reverse_proxy:
