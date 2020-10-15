@@ -1,3 +1,0 @@
-- import_tasks: setup_firewall.yml
-  become: yes
-- import_tasks: copy_project_files.yml

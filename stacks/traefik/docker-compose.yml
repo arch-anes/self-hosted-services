@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+  app:
+    image: traefik
+    networks:
+      - reverse_proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${STORAGE_LOCATION}/traefik/acme:/acme
+    environment:
+      - CF_API_EMAIL=${CF_API_EMAIL}
+      - CF_API_KEY=${CF_API_KEY}
+    command:
+      - --global.sendanonymoususage=false
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.web.address=:80
+      - --providers.docker
+      - --providers.docker.swarmMode
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=reverse_proxy
+      - --accesslog
+      - --api
+      - --certificatesresolvers.leresolver.acme.email=cert@${DOMAIN_NAME}
+      - --certificatesresolvers.leresolver.acme.storage=/acme/leresolver.json
+      - --certificatesresolvers.leresolver.acme.dnsChallenge.provider=${DNS_CHALLENGE_PROVIDER}
+      - --certificatesresolvers.leresolver.acme.dnsChallenge.delayBeforeCheck=0
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN_NAME}`)
+        - traefik.http.routers.traefik.service=api@internal
+        - traefik.http.services.api@internal.loadbalancer.server.port=80
+        - traefik.http.routers.traefik.tls.certresolver=leresolver
+        - traefik.http.routers.traefik.entrypoints=websecure
+        - traefik.http.routers.traefik.middlewares=authtraefik
+        - traefik.http.middlewares.authtraefik.basicauth.users=${DASHBOARD_USER}:${DASHBOARD_PASSWORD}
+
+        # global redirect to https
+        - traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)
+        - traefik.http.routers.http-catchall.entrypoints=web
+        - traefik.http.routers.http-catchall.middlewares=redirect-to-https
+        - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+
+networks:
+  reverse_proxy:
+    external: true

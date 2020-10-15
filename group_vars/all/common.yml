@@ -1,5 +1,5 @@
 ---
-remote_project_location: "~/self-hosted-services/services"
+remote_project_location: "~/self-hosted-services/stacks"
 remote_storage_location: "/storage"
 env_vars:
   TZ: "{{lookup('env','TZ')}}"

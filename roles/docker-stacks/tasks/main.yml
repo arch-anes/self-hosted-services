@@ -1,0 +1,6 @@
+- name: Deploy docker stacks
+  include_tasks: deploy_docker_stack.yml
+  vars:
+    stack_display_name: "{{item}}"
+    stack_name: "{{item|lower|replace(' ', '-')}}"
+  loop: "{{stacks}}"

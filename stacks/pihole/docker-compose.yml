@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  app:
+    image: pihole/pihole
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      - 67:67/udp
+      - 8080:80/tcp
+      - 4430:443/tcp
+    volumes:
+      - ${STORAGE_LOCATION}/pihole/config:/etc/pihole
+      - ${STORAGE_LOCATION}/pihole/dnsmasq.d:/etc/dnsmasq.d
+    dns:
+      - 127.0.0.1
+      - 1.1.1.1
+    deploy:
+      placement:
+        constraints:
+          - node.labels.small==true
