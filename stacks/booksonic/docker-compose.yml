@@ -2,13 +2,15 @@ version: "3"
 
 services:
   app:
-    image: linuxserver/booksonic
+    image: linuxserver/booksonic-air
     networks:
       - ldap
       - reverse_proxy
     volumes:
       - ${STORAGE_LOCATION}/booksonic/config:/config
       - ${STORAGE_LOCATION}/booksonic/media:/media
+    environment:
+      - JAVA_OPTS=-Dserver.use-forward-headers=true
     deploy:
       placement:
         constraints:
