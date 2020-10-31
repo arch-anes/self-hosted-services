@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  app:
+    image: anexthesy/grocy
+    networks:
+      - ldap
+      - reverse_proxy
+    volumes:
+      - ${STORAGE_LOCATION}/grocy/config:/config
+    environment:
+      - PUID=1000
+      - PGID=1000
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+      placement:
+        constraints:
+          - node.labels.big==true
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.grocy.rule=Host(`grocy.${DOMAIN_NAME}`)
+        - traefik.http.routers.grocy.tls.certresolver=leresolver
+        - traefik.http.routers.grocy.entrypoints=websecure
+        - traefik.http.services.grocy.loadbalancer.server.port=80
+
+networks:
+  ldap:
+    external: true
+  reverse_proxy:
+    external: true
