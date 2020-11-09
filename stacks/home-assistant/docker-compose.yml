@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  app:
+    image: homeassistant/home-assistant
+    networks:
+      - reverse_proxy
+    volumes:
+      - ${STORAGE_LOCATION}/home-assistant/config:/config
+    deploy:
+      placement:
+        constraints:
+          - node.labels.big==true
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.home-assistant.rule=Host(`home-assistant.${DOMAIN_NAME}`)
+        - traefik.http.routers.home-assistant.entrypoints=websecure
+        - traefik.http.routers.home-assistant.tls=true
+        - traefik.http.routers.home-assistant.tls.certresolver=leresolver
+        - traefik.http.services.home-assistant.loadbalancer.server.port=8123
+
+networks:
+  reverse_proxy:
+    external: true
