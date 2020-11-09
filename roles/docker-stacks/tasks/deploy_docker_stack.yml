@@ -3,4 +3,4 @@
     state: present
     name: "{{stack_name}}"
     compose:
-      - "~/stacks/{{stack_name}}/docker-compose.yml"
+      - "{{remote_stacks_location}}/{{stack_name}}/docker-compose.yml"
