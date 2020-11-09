@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  app:
+    image: wallabag/wallabag
+    networks:
+      - reverse_proxy
+    volumes:
+      - ${STORAGE_LOCATION}/wallabag/data:/var/www/wallabag/data
+      - ${STORAGE_LOCATION}/wallabag/images:/var/www/wallabag/web/assets/images
+    environment:
+      - SYMFONY__ENV__DOMAIN_NAME=https://wallabag.${DOMAIN_NAME}
+    deploy:
+      resources:
+        limits:
+          cpus: "4.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+      placement:
+        constraints:
+          - node.labels.big==true
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.wallabag.rule=Host(`wallabag.${DOMAIN_NAME}`)
+        - traefik.http.routers.wallabag.tls.certresolver=leresolver
+        - traefik.http.routers.wallabag.entrypoints=websecure
+        - traefik.http.services.wallabag.loadbalancer.server.port=80
+
+networks:
+  reverse_proxy:
+    external: true
