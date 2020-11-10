@@ -25,6 +25,7 @@
           - Traefik
           - OpenLDAP
           - Booksonic
+          - Duplicati
           - Heimdall
           - Jellyfin
           - MayanEDMS
