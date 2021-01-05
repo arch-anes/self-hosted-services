@@ -13,6 +13,13 @@ services:
       - POSTGRES_DB=ttrss
       - POSTGRES_PASSWORD_FILE=/run/secrets/ttrss_db_password
     deploy:
+      resources:
+        limits:
+          cpus: "0.30"
+          memory: 256M
+        reservations:
+          cpus: "0.15"
+          memory: 128M
       placement:
         constraints:
           - node.labels.big==true
@@ -37,6 +44,13 @@ services:
       - ENABLE_PLUGINS=api_feedreader,auth_internal,fever
       - FEED_LOG_QUIET=true
     deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
       placement:
         constraints:
           - node.labels.big==true

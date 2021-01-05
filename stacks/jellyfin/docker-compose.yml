@@ -10,6 +10,13 @@ services:
       - ${STORAGE_LOCATION}/jellyfin/config:/config
       - ${STORAGE_LOCATION}/jellyfin/media:/media
     deploy:
+      resources:
+        limits:
+          cpus: "4.00"
+          memory: 4096M
+        reservations:
+          cpus: "1.00"
+          memory: 1024M
       placement:
         constraints:
           - node.labels.big==true

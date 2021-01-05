@@ -8,6 +8,13 @@ services:
     volumes:
       - ${STORAGE_LOCATION}/heimdall:/config
     deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
       placement:
         constraints:
           - node.labels.big==true

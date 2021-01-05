@@ -16,6 +16,13 @@ services:
       - 127.0.0.1
       - 1.1.1.1
     deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
       placement:
         constraints:
           - node.labels.small==true

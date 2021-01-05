@@ -15,6 +15,13 @@ services:
       - couchdb
       - influxdb
     deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
       placement:
         constraints:
           - node.role==manager
@@ -33,6 +40,13 @@ services:
     volumes:
       - ${STORAGE_LOCATION}/swarmpit/couchdb:/opt/couchdb/data
     deploy:
+      resources:
+        limits:
+          cpus: "0.30"
+          memory: 256M
+        reservations:
+          cpus: "0.15"
+          memory: 128M
       placement:
         constraints:
           - node.labels.big==true
@@ -44,6 +58,13 @@ services:
     volumes:
       - ${STORAGE_LOCATION}/swarmpit/influxdb:/var/lib/influxdb
     deploy:
+      resources:
+        limits:
+          cpus: "0.60"
+          memory: 512M
+        reservations:
+          cpus: "0.30"
+          memory: 128M
       placement:
         constraints:
           - node.labels.big==true
@@ -55,6 +76,13 @@ services:
     networks:
       - internal
     deploy:
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: 64M
+        reservations:
+          cpus: "0.05"
+          memory: 32M
       mode: global
       labels:
         - swarmpit.agent=true

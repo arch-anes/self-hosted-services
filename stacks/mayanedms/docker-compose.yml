@@ -23,6 +23,13 @@ services:
       - db
       - results
     deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 4096M
+        reservations:
+          cpus: "0.25"
+          memory: 2048M
       placement:
         constraints:
           - node.labels.big==true
@@ -45,6 +52,13 @@ services:
       - POSTGRES_DB=mayan
       - POSTGRES_PASSWORD_FILE=/run/secrets/mayanedms_db_password
     deploy:
+      resources:
+        limits:
+          cpus: "0.60"
+          memory: 512M
+        reservations:
+          cpus: "0.30"
+          memory: 128M
       placement:
         constraints:
           - node.labels.big==true
@@ -61,6 +75,13 @@ services:
     environment:
       - REDIS_PASS_FILE=/run/secrets/mayanedms_redis_password
     deploy:
+      resources:
+        limits:
+          cpus: "0.60"
+          memory: 512M
+        reservations:
+          cpus: "0.30"
+          memory: 128M
       placement:
         constraints:
           - node.labels.big==true
