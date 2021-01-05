@@ -21,6 +21,13 @@ services:
       - LDAP_ADMIN_PASSWORD_FILE=/run/secrets/openldap_admin_password
       - LDAP_CONFIG_PASSWORD_FILE=/run/secrets/openldap_config_password
     deploy:
+      resources:
+        limits:
+          cpus: "0.60"
+          memory: 512M
+        reservations:
+          cpus: "0.30"
+          memory: 128M
       placement:
         constraints:
           - node.labels.big==true
@@ -36,6 +43,13 @@ services:
     depends_on:
       - openldap
     deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
       placement:
         constraints:
           - node.labels.big==true

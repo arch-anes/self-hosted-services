@@ -13,6 +13,13 @@ services:
       - POSTGRES_DB=nextcloud
       - POSTGRES_PASSWORD_FILE=/run/secrets/nextcloud_db_password
     deploy:
+      resources:
+        limits:
+          cpus: "0.30"
+          memory: 256M
+        reservations:
+          cpus: "0.15"
+          memory: 128M
       placement:
         constraints:
           - node.labels.big==true
@@ -36,6 +43,13 @@ services:
     depends_on:
       - db
     deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
       placement:
         constraints:
           - node.labels.big==true

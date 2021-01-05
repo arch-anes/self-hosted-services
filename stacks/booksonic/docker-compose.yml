@@ -14,6 +14,13 @@ services:
       - PGID=1000
       - JAVA_OPTS=-Dserver.use-forward-headers=true
     deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
       placement:
         constraints:
           - node.labels.big==true

@@ -14,6 +14,13 @@ services:
       - JWT_SECRET_FILE=/run/secrets/smart-strike_jwt_secret
       - APP_PASS_FILE=/run/secrets/smart-strike_app_pass
     deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+        reservations:
+          cpus: "0.05"
+          memory: 32M
       mode: global
       placement:
         constraints:

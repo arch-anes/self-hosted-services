@@ -12,6 +12,13 @@ services:
       - ${STORAGE_LOCATION}/syncthing/config:/var/syncthing
       - ${STORAGE_LOCATION}/syncthing/media:/Sync
     deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
       placement:
         constraints:
           - node.labels.big==true
