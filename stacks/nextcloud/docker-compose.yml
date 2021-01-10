@@ -25,7 +25,7 @@ services:
           - node.labels.big==true
 
   app:
-    image: nextcloud:latest
+    image: nextcloud
     networks:
       - ldap
       - reverse_proxy
@@ -59,6 +59,9 @@ services:
         - traefik.http.routers.nextcloud.tls.certresolver=leresolver
         - traefik.http.routers.nextcloud.entrypoints=websecure
         - traefik.http.services.nextcloud.loadbalancer.server.port=80
+        - traefik.http.middlewares.nextcloud-redirectregex.redirectRegex.permanent=true
+        - traefik.http.middlewares.nextcloud-redirectregex.redirectRegex.regex=https://(.*)/.well-known/(card|cal)dav
+        - traefik.http.middlewares.nextcloud-redirectregex.redirectRegex.replacement=https://$$1/remote.php/dav/
 
 secrets:
   nextcloud_db_password:
