@@ -6,15 +6,14 @@
   roles:
     - role: weareinteractive.ufw
       vars:
-        ufw_reset: no
         ufw_rules:
-          - { port: 22, proto: tcp, rule: limit, comment: "Limit SSH" }
-          - { port: 80, proto: tcp, rule: allow, comment: "Allow HTTP" }
-          - { port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
-          - { port: 53, proto: any, rule: allow, comment: "Allow DNS" }
-          - { port: 2377, proto: tcp, rule: allow, comment: "Allow Docker Swarm cluster management communications" }
-          - { port: 7946, proto: any, rule: allow, comment: "Allow communication among Docker Swarm nodes" }
-          - { port: 4789, proto: udp, rule: allow, comment: "Allow Docker Swarm overlay network traffic" }
+          - { to_port: 22, proto: tcp, rule: limit, comment: "Limit SSH" }
+          - { to_port: 80, proto: tcp, rule: allow, comment: "Allow HTTP" }
+          - { to_port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
+          - { to_port: 53, proto: any, rule: allow, comment: "Allow DNS" }
+          - { to_port: 2377, proto: tcp, rule: allow, comment: "Allow Docker Swarm cluster management communications" }
+          - { to_port: 7946, proto: any, rule: allow, comment: "Allow communication among Docker Swarm nodes" }
+          - { to_port: 4789, proto: udp, rule: allow, comment: "Allow Docker Swarm overlay network traffic" }
 
     - role: atosatto.docker-swarm
       vars:
