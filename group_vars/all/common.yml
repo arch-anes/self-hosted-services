@@ -2,6 +2,6 @@
 remote_stacks_location: "~/stacks"
 env_vars:
   TZ: "{{lookup('env','TZ')}}"
-  STORAGE_LOCATION: "/storage"
-  DOMAIN_NAME: "belfodil.icu"
-  LDAP_ORG: "belfodil"
+  STORAGE_LOCATION: "{{storage}}"
+  DOMAIN_NAME: "{{fqdn}}"
+  LDAP_ORG: "{{organization|lower}}"

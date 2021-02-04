@@ -1,0 +1,5 @@
+{
+    "fqdn": "example.com",
+    "organization": "Example",
+    "storage": "/storage"
+}
