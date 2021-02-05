@@ -19,7 +19,11 @@ big_server swarm_labels='["big"]'
 big_server_2 swarm_labels='["local", "big"]'
 ```
 
+## Create custom config config
+
+Copy `config.json.example` to `config.json` and fill it with your values
+
 ## Deploy
 
 -   Run `ansible-galaxy install -r requirements.yml`
--   Run `ansible-playbook 0*.yml`
+-   Run `ansible-playbook -e @config.json 0*.yml`
