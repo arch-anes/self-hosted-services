@@ -19,6 +19,7 @@ docker_swarm_manager:
       vpn_ip: 10.10.10.1
       swarm_labels:
         - local
+        - dns
         - small
     big-manager:
       vpn_port: 3212

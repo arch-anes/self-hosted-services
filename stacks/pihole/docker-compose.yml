@@ -3,15 +3,19 @@ version: "3.8"
 services:
   app:
     image: pihole/pihole
+    networks:
+      - reverse_proxy
     ports:
       - 53:53/tcp
       - 53:53/udp
       - 67:67/udp
-      - 8080:80/tcp
-      - 4430:443/tcp
     volumes:
       - ${STORAGE_LOCATION}/pihole/config:/etc/pihole
       - ${STORAGE_LOCATION}/pihole/dnsmasq.d:/etc/dnsmasq.d
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - VIRTUAL_HOST=pihole.${DOMAIN_NAME}
     dns:
       - 127.0.0.1
       - 1.1.1.1
@@ -25,5 +29,14 @@ services:
           memory: 512M
       placement:
         constraints:
-          - node.labels.small==true
-          - node.labels.local==true
+          - node.labels.dns==true
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.pihole.rule=Host(`pihole.${DOMAIN_NAME}`)
+        - traefik.http.routers.pihole.tls.certresolver=leresolver
+        - traefik.http.routers.pihole.entrypoints=websecure
+        - traefik.http.services.pihole.loadbalancer.server.port=80
+
+networks:
+  reverse_proxy:
+    external: true
