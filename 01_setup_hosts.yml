@@ -11,9 +11,10 @@
           - { to_port: 80, proto: tcp, rule: allow, comment: "Allow HTTP" }
           - { to_port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
           - { to_port: 53, proto: any, rule: allow, comment: "Allow DNS" }
-          - { to_port: 2377, proto: tcp, rule: allow, comment: "Allow Docker Swarm cluster management communications" }
-          - { to_port: 7946, proto: any, rule: allow, comment: "Allow communication among Docker Swarm nodes" }
-          - { to_port: 4789, proto: udp, rule: allow, comment: "Allow Docker Swarm overlay network traffic" }
+          - { to_port: 6443, proto: tcp, rule: allow, comment: "Kubernetes API Server" }
+          - { to_port: 8472, proto: udp, rule: allow, comment: "Required only for Flannel VXLAN" }
+          - { to_port: 10250, proto: tcp, rule: allow, comment: "Kubelet metrics" }
+          - { to_port: "2379:2380", proto: tcp, rule: allow, comment: "Required only for HA with embedded etcd" }
 
     - role: atosatto.docker-swarm
       vars:
