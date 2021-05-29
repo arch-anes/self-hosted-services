@@ -22,5 +22,3 @@
         k3s_become_for_all: true
         k3s_registration_address: "{{cluster_address}}"
         k3s_etcd_datastore: true
-        k3s_server:
-          write-kubeconfig-mode: 0644
