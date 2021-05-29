@@ -11,6 +11,7 @@
 ```
 # There must be a minimum of 3 controllers and the number must be odd for etcd to work
 [k3s_cluster]
+# The primary control node must be the first element on the list
 aws-instance k3s_control_node=true
 raspi2 k3s_control_node=true
 raspi4 k3s_control_node=true
