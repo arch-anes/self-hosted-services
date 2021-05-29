@@ -1,4 +1,5 @@
 {
+    "cluster_address": "example.com",
     "fqdn": "example.com",
     "organization": "Example",
     "storage": "/storage"

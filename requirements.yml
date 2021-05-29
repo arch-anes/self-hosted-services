@@ -1,5 +1,4 @@
 ---
 roles:
-  - name: geerlingguy.docker
   - name: xanmanning.k3s
   - name: weareinteractive.ufw
