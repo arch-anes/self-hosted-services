@@ -19,3 +19,7 @@
     - role: xanmanning.k3s
       vars:
         k3s_release_version: latest
+        k3s_become_for_all: true
+        k3s_etcd_datastore: true
+        k3s_server:
+          write-kubeconfig-mode: 0644

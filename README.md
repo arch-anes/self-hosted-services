@@ -2,7 +2,6 @@
 
 ## Dependencies
 
--   docker-compose (remote only)
 -   ansible (controller only)
 -   openssh
 -   rsync
@@ -10,13 +9,13 @@
 ## Create inventory
 
 ```
-[docker_swarm_manager]
-raspi swarm_labels='["local", "small"]'
-big_server swarm_labels='["big"]'
-
-
-[docker_swarm_worker]
-big_server_2 swarm_labels='["local", "big"]'
+# There must be a minimum of 3 controllers and the number must be odd for etcd to work
+[k3s_cluster]
+aws-instance k3s_control_node=true
+raspi2 k3s_control_node=true
+raspi4 k3s_control_node=true
+big_server
+big_server_2
 ```
 
 ## Create custom config config
