@@ -15,7 +15,7 @@
           - { to_port: 7946, proto: any, rule: allow, comment: "Allow communication among Docker Swarm nodes" }
           - { to_port: 4789, proto: udp, rule: allow, comment: "Allow Docker Swarm overlay network traffic" }
 
-    - role: atosatto.docker-swarm
+    - role: abelfodil.ansible_dockerswarm
       vars:
         skip_repo: true
         skip_containerd: true
