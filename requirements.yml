@@ -1,4 +1,4 @@
 ---
 roles:
-  - name: atosatto.docker-swarm
+  - name: abelfodil.ansible_dockerswarm
   - name: weareinteractive.ufw
