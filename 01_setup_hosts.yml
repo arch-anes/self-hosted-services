@@ -14,7 +14,8 @@
           - { to_port: 6443, proto: tcp, rule: allow, comment: "Kubernetes API Server" }
           - { to_port: 8472, proto: udp, rule: allow, comment: "Required only for Flannel VXLAN" }
           - { to_port: 10250, proto: tcp, rule: allow, comment: "Kubelet metrics" }
-          - { to_port: "2379:2380", proto: tcp, rule: allow, comment: "Required only for HA with embedded etcd" }
+          - { to_port: 2379, proto: tcp, rule: allow, comment: "Required only for HA with embedded etcd" }
+          - { to_port: 2380, proto: tcp, rule: allow, comment: "Required only for HA with embedded etcd" }
 
     - role: xanmanning.k3s
       vars:
