@@ -33,11 +33,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "4.00"
           memory: 1024M
         reservations:
           cpus: "0.25"
-          memory: 512M
+          memory: 128M
       mode: global
       placement:
         constraints:
