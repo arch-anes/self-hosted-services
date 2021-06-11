@@ -3,6 +3,8 @@ version: "3.8"
 services:
   app:
     image: traefik
+    healthcheck:
+      test: traefik healthcheck --ping
     networks:
       - reverse_proxy
     ports:
@@ -26,6 +28,7 @@ services:
       - --providers.docker.network=reverse_proxy
       - --accesslog
       - --api
+      - --ping
       - --certificatesresolvers.leresolver.acme.email=cert@${DOMAIN_NAME}
       - --certificatesresolvers.leresolver.acme.storage=/acme/leresolver.json
       - --certificatesresolvers.leresolver.acme.dnsChallenge.provider=cloudflare
