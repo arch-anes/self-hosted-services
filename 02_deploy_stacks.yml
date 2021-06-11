@@ -1,9 +1,9 @@
 ---
 - name: Copy project files
   hosts: all
-  gather_facts: no
 
   roles:
+    - role: docker-stacks-dirs
     - role: copy_project_files
 
 - name: Deploy stacks
@@ -20,16 +20,3 @@
           - reverse_proxy
 
     - role: docker-stacks
-      vars:
-        stacks:
-          - Traefik
-          - Keycloak
-          - Booksonic
-          - Duplicati
-          - Heimdall
-          - Jellyfin
-          - Nextcloud
-          - Pihole
-          - Smart Strike
-          - Swarmpit
-          - TTRSS
