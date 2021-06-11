@@ -4,3 +4,4 @@
     name: "{{stack_name}}"
     compose:
       - "{{remote_stacks_location}}/{{stack_name}}/docker-compose.yml"
+  ignore_errors: yes
