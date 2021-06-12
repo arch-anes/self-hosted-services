@@ -10,20 +10,26 @@
   become: yes
 
   roles:
-    - role: weareinteractive.ufw
+    - name: Setup firewall rules
+      role: weareinteractive.ufw
       vars:
         ufw_rules:
           - { to_port: 22, proto: tcp, rule: limit, comment: "Limit SSH" }
           - { to_port: 80, proto: tcp, rule: allow, comment: "Allow HTTP" }
           - { to_port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
           - { to_port: 53, proto: any, rule: allow, comment: "Allow DNS" }
+          - { to_port: "3210:3215", proto: udp, rule: allow, comment: "VPNCloud" }
           - { to_port: 2377, proto: tcp, rule: allow, comment: "Allow Docker Swarm cluster management communications" }
           - { to_port: 7946, proto: any, rule: allow, comment: "Allow communication among Docker Swarm nodes" }
           - { to_port: 4789, proto: udp, rule: allow, comment: "Allow Docker Swarm overlay network traffic" }
 
-    - role: abelfodil.ansible_dockerswarm
+    - name: Create a VPNCloud mesh network
+      role: vpncloud
+
+    - name: Deploy Docker Swarm
+      role: abelfodil.ansible_dockerswarm
       vars:
-        docker_swarm_addr: "{{advertised_address}}"
+        docker_swarm_addr: "{{private_ip}}"
         skip_repo: true
         skip_containerd: true
         skip_engine: true
