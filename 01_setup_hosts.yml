@@ -1,4 +1,10 @@
 ---
+- name: Merge AWS EC2 hosts with Docker Swarm Managers
+  hosts: aws_ec2
+
+  roles:
+    - role: merge-aws-ec2
+
 - name: Setup hosts
   hosts: all
   become: yes

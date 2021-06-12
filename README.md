@@ -7,7 +7,9 @@
 -   openssh
 -   rsync
 
-## Create inventory
+## Create an inventory
+
+### Static
 
 ```yml
 docker_swarm_manager:
@@ -36,6 +38,19 @@ docker_swarm_worker:
         - big
 ```
 
+### Dynamic (AWS)
+
+```yml
+plugin: aws_ec2
+regions:
+  - us-east-1
+  - us-east-2
+filters:
+  instance-state-name: running
+  tag:Category:
+    - home-cloud
+```
+
 ## Create custom config config
 
 Copy `config.json.example` to `config.json` and fill it with your values
@@ -43,4 +58,4 @@ Copy `config.json.example` to `config.json` and fill it with your values
 ## Deploy
 
 -   Run `ansible-galaxy install -r requirements.yml`
--   Run `ansible-playbook -e @config.json -i inventory.yml 0*.yml`
+-   Run `env EC2_ACCESS_KEY=some_key EC2_SECRET_KEY=some_other_key ansible-playbook -e @config.json -i inventory_static.yml -i inventory_ec2.yml 0*.yml`
