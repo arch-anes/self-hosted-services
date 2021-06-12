@@ -14,17 +14,15 @@
 ```yml
 docker_swarm_manager:
   hosts:
-    aws-small-instance:
-      advertised_address: "42.42.42.42:2377"
-      swarm_labels:
-        - small
     raspi:
-      advertised_address: "42.42.42.40:2378"
+      vpn_port: 3211
+      vpn_ip: 10.10.10.1
       swarm_labels:
         - local
         - small
     big-manager:
-      advertised_address: "42.42.42.40:2379"
+      vpn_port: 3212
+      vpn_ip: 10.10.10.2
       swarm_labels:
         - local
         - big
@@ -32,7 +30,8 @@ docker_swarm_manager:
 docker_swarm_worker:
   hosts:
     big-worker:
-      advertised_address: "42.42.42.40:2380"
+      vpn_port: 3213
+      vpn_ip: 10.10.10.3
       swarm_labels:
         - local
         - big

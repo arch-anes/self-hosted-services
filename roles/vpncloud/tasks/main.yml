@@ -1,0 +1,29 @@
+- name: Generate random password for VPN connection
+  set_fact:
+    vpn_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+  when: "inventory_hostname == ansible_play_hosts[0]"
+
+- name: Propagate password to other hosts
+  set_fact:
+    vpn_password: "{{ hostvars[ansible_play_hosts[0]]['vpn_password'] }}"
+  when: "inventory_hostname != ansible_play_hosts[0]"
+
+- name: Get host public IP
+  ipify_facts:
+
+- name: Set host private IP address
+  set_fact:
+    listen_vpn_port: "{{vpn_port | default(3210)}}"
+    private_ip: "{{ vpn_ip | default('10.10.10.' + ((ansible_play_hosts_all.index(inventory_hostname) + 20) | string))}}"
+
+- name: Set peer list
+  set_fact:
+    peers: "{{ peers | default('') + ' -c ' + hostvars[item]['ipify_public_ip'] + ':' + hostvars[item]['listen_vpn_port'] }}"
+  loop: "{{ ansible_play_hosts }}"
+
+- name: Kill all running VPNCloud instances
+  shell: pkill -9 vpncloud
+  ignore_errors: yes
+
+- name: Launch VPNCloud
+  shell: "vpncloud --daemon --fix-rp-filter -p {{vpn_password}} --algorithm plain --ip {{private_ip}} -l {{listen_vpn_port}} --log-file /var/log/vpncloud.log {{peers}}"

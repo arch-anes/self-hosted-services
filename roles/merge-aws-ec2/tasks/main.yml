@@ -1,9 +1,5 @@
-- name: Get host public IP
-  ipify_facts:
-
-- name: Set facts
+- name: Set labels
   set_fact:
-    advertised_address: "{{ipify_public_ip}}:2377"
     swarm_labels:
       - small
 
