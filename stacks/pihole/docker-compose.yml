@@ -26,3 +26,4 @@ services:
       placement:
         constraints:
           - node.labels.small==true
+          - node.labels.local==true
