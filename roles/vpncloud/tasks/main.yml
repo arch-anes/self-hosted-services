@@ -21,9 +21,14 @@
     peers: "{{ peers | default('') + ' -c ' + hostvars[item]['ipify_public_ip'] + ':' + hostvars[item]['listen_vpn_port'] }}"
   loop: "{{ ansible_play_hosts }}"
 
-- name: Kill all running VPNCloud instances
-  shell: pkill -9 vpncloud
-  ignore_errors: yes
+- name: Create systemd service
+  template:
+    src: vpncloud.service.j2
+    dest: /usr/lib/systemd/system/vpncloud.service
 
-- name: Launch VPNCloud
-  shell: "vpncloud --daemon --fix-rp-filter -p {{vpn_password}} --algorithm plain --ip {{private_ip}} -l {{listen_vpn_port}} --log-file /var/log/vpncloud.log {{peers}}"
+- name: Start systemd service
+  systemd:
+    name: vpncloud
+    daemon_reload: yes
+    state: restarted
+    enabled: yes
