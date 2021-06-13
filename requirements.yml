@@ -1,4 +1,6 @@
 ---
+collections:
+  - name: amazon.aws
 roles:
   - name: abelfodil.ansible_dockerswarm
   - name: weareinteractive.ufw
