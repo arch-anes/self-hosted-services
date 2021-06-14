@@ -1,9 +1,9 @@
 - name: "Create {{stack_display_name}} stack directory"
   file:
-    path: "{{storage}}/{{stack_name}}/{{subfolder}}"
+    path: "{{storage}}/{{stack_name}}/{{(subfolder is mapping) | ternary((subfolder | first), subfolder)}}"
     state: directory
-    owner: "{{ansible_facts['env']['USER']}}"
-    group: "{{ansible_facts['env']['USER']}}"
+    owner: "{{(subfolder is mapping) | ternary(subfolder[(subfolder | first)], 1000)}}"
+    group: "{{(subfolder is mapping) | ternary(subfolder[(subfolder | first)], 1000)}}"
     mode: "0755"
   become: yes
   loop: "{{subfolders}}"
