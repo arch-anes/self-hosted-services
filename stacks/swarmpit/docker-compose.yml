@@ -5,6 +5,7 @@ services:
     image: swarmpit/swarmpit
     networks:
       - internal
+      - databases
       - reverse_proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -15,6 +16,7 @@ services:
       - couchdb
       - influxdb
     deploy:
+      replicas: 2
       resources:
         limits:
           cpus: "0.50"
@@ -23,51 +25,15 @@ services:
           cpus: "0.25"
           memory: 512M
       placement:
+        max_replicas_per_node: 1
         constraints:
           - node.role==manager
-          - node.labels.big==true
       labels:
         - traefik.enable=true
         - traefik.http.routers.swarmpit.rule=Host(`swarmpit.${DOMAIN_NAME}`)
         - traefik.http.routers.swarmpit.tls.certresolver=leresolver
         - traefik.http.routers.swarmpit.entrypoints=websecure
         - traefik.http.services.swarmpit.loadbalancer.server.port=8080
-
-  couchdb:
-    image: couchdb:2.3.0
-    networks:
-      - internal
-    volumes:
-      - ${STORAGE_LOCATION}/swarmpit/couchdb:/opt/couchdb/data
-    deploy:
-      resources:
-        limits:
-          cpus: "0.30"
-          memory: 256M
-        reservations:
-          cpus: "0.15"
-          memory: 128M
-      placement:
-        constraints:
-          - node.labels.big==true
-
-  influxdb:
-    image: influxdb:1.7
-    networks:
-      - internal
-    volumes:
-      - ${STORAGE_LOCATION}/swarmpit/influxdb:/var/lib/influxdb
-    deploy:
-      resources:
-        limits:
-          cpus: "0.60"
-          memory: 512M
-        reservations:
-          cpus: "0.30"
-          memory: 128M
-      placement:
-        constraints:
-          - node.labels.big==true
 
   agent:
     image: swarmpit/agent
@@ -91,4 +57,6 @@ networks:
   internal:
     internal: true
   reverse_proxy:
+    external: true
+  databases:
     external: true

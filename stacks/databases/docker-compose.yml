@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  couchdb:
+    image: bitnami/couchdb:2.3.1
+    command: bash -c 'export COUCHDB_CREATE_DATABASES=$$([[ $$SLOT == 1 ]] && echo yes || echo no) && /run.sh'
+    networks:
+      - databases
+    volumes:
+      - ${STORAGE_LOCATION}/databases/couchdb:/bitnami/couchdb
+    environment:
+      - COUCHDB_NODENAME=couchdb@{{.Node.Hostname}}
+      - SLOT={{.Task.Slot}}
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    deploy:
+      replicas: 5
+      resources:
+        limits:
+          cpus: "0.30"
+          memory: 256M
+        reservations:
+          cpus: "0.15"
+          memory: 128M
+      placement:
+        max_replicas_per_node: 1
+
+  influxdb:
+    image: influxdb:1.7
+    networks:
+      - databases
+    volumes:
+      - ${STORAGE_LOCATION}/databases/influxdb:/var/lib/influxdb
+    deploy:
+      resources:
+        limits:
+          cpus: "0.60"
+          memory: 512M
+        reservations:
+          cpus: "0.30"
+          memory: 128M
+          
+networks:
+  databases:
+    external: true

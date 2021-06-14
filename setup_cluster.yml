@@ -24,10 +24,14 @@
         networks:
           - ldap
           - reverse_proxy
+          - databases
         stacks:
           Booksonic:
             - config
             - media
+          Databases:
+            - couchdb: 1001
+            - influxdb
           Duplicati:
             - config
             - backups
