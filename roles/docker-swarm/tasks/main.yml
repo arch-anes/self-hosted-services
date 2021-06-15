@@ -1,0 +1,56 @@
+- name: Setup firewall
+  import_role:
+    name: weareinteractive.ufw
+  vars:
+    ufw_rules:
+      - { to_port: 2377, proto: tcp, rule: allow, comment: "Allow Docker Swarm cluster management communications" }
+      - { to_port: 7946, proto: any, rule: allow, comment: "Allow communication among Docker Swarm nodes" }
+      - { to_port: 4789, proto: udp, rule: allow, comment: "Allow Docker Swarm overlay network traffic" }
+  become: yes
+
+- name: Merge AWS EC2 hosts with Docker Swarm Managers
+  include_tasks: merge-ec2.yml
+
+- name: Deploy Docker Swarm
+  import_role:
+    name: abelfodil.ansible_dockerswarm
+  vars:
+    docker_swarm_addr: "{{private_ip}}"
+    skip_repo: true
+    skip_containerd: true
+    skip_engine: true
+    skip_cli: true
+    skip_group: true
+    skip_docker_py: true
+    skip_docker_compose: true
+  become: yes
+
+- name: Copy project files
+  include_tasks: copy_project_files.yml
+
+- name: Create Docker stacks directories
+  include_tasks: create_docker_stack_directory.yml
+  vars:
+    stack_display_name: "{{stack.key}}"
+    stack_name: "{{stack.key|lower|replace(' ', '-')}}"
+    subfolders: "{{stack.value}}"
+  loop: "{{stacks | dict2items}}"
+  loop_control:
+    loop_var: "stack"
+
+- name: Create Docker networks
+  include_tasks: create_network.yml
+  vars:
+    network_name: "{{item}}"
+  loop: "{{networks}}"
+  when: "inventory_hostname == groups.docker_swarm_manager[0]"
+
+- name: Deploy docker stacks
+  include_tasks: deploy_docker_stack.yml
+  vars:
+    stack_display_name: "{{stack.key}}"
+    stack_name: "{{stack.key|lower|replace(' ', '-')}}"
+  loop: "{{stacks | dict2items}}"
+  loop_control:
+    loop_var: "stack"
+  when: "inventory_hostname == groups.docker_swarm_manager[0]"

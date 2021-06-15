@@ -1,9 +1,0 @@
-- name: Create stacks directories
-  include_tasks: create_docker_stack_directory.yml
-  vars:
-    stack_display_name: "{{stack.key}}"
-    stack_name: "{{stack.key|lower|replace(' ', '-')}}"
-    subfolders: "{{stack.value}}"
-  loop: "{{stacks | dict2items}}"
-  loop_control:
-    loop_var: "stack"

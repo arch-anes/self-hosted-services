@@ -1,38 +1,6 @@
 ---
 ufw_packages: []
 remote_stacks_location: "~/stacks"
-stacks:
-  Booksonic:
-    - config
-    - media
-  Duplicati:
-    - config
-    - backups
-  Heimdall:
-    - ""
-  Jellyfin:
-    - config
-    - media
-  Keycloak:
-    - openldap_db
-    - openldap_config
-    - db
-  Nextcloud:
-    - db
-    - app
-    - data
-  Pihole:
-    - config
-    - dnsmasq.d
-  Smart Strike:
-    - ""
-  Swarmpit:
-    - couchdb
-    - influxdb
-  Traefik:
-    - acme
-  TTRSS:
-    - db
 env_vars:
   TZ: "{{lookup('env','TZ')}}"
   STORAGE_LOCATION: "{{storage}}"

@@ -4,6 +4,7 @@
   vars:
     ufw_rules:
       - { to_port: "3210:3214", proto: udp, rule: allow, comment: "VPNCloud (15 static peers)" }
+  become: yes
 
 - name: Generate random password for VPN connection
   set_fact:
@@ -32,6 +33,7 @@
   template:
     src: vpncloud.service.j2
     dest: /usr/lib/systemd/system/vpncloud.service
+  become: yes
 
 - name: Start systemd service
   systemd:
@@ -39,3 +41,4 @@
     daemon_reload: yes
     state: restarted
     enabled: yes
+  become: yes
