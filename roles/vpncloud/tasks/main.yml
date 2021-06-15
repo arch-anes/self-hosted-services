@@ -1,3 +1,10 @@
+- name: Setup firewall
+  import_role:
+    name: weareinteractive.ufw
+  vars:
+    ufw_rules:
+      - { to_port: "3210:3214", proto: udp, rule: allow, comment: "VPNCloud (15 static peers)" }
+
 - name: Generate random password for VPN connection
   set_fact:
     vpn_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"

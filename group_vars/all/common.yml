@@ -1,4 +1,5 @@
 ---
+ufw_packages: []
 remote_stacks_location: "~/stacks"
 stacks:
   Booksonic:
