@@ -1,0 +1,58 @@
+---
+- name: Setup cluster
+  hosts: all
+
+  environment: "{{env_vars}}"
+
+  roles:
+    - name: Setup basic firewall rules
+      role: weareinteractive.ufw
+      vars:
+        ufw_rules:
+          - { to_port: 22, proto: tcp, rule: limit, comment: "Limit SSH" }
+          - { to_port: 80, proto: tcp, rule: allow, comment: "Allow HTTP" }
+          - { to_port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
+          - { to_port: 53, proto: any, rule: allow, comment: "Allow DNS" }
+      become: yes
+
+    - name: Create a VPNCloud mesh network
+      role: vpncloud
+
+    - name: Deploy Docker Swarm
+      role: docker-swarm
+      vars:
+        networks:
+          - ldap
+          - reverse_proxy
+        stacks:
+          Booksonic:
+            - config
+            - media
+          Duplicati:
+            - config
+            - backups
+          Heimdall:
+            - ""
+          Jellyfin:
+            - config
+            - media
+          Keycloak:
+            - openldap_db
+            - openldap_config
+            - db
+          Nextcloud:
+            - db
+            - app
+            - data
+          Pihole:
+            - config
+            - dnsmasq.d
+          Smart Strike:
+            - ""
+          Swarmpit:
+            - couchdb
+            - influxdb
+          Traefik:
+            - acme
+          TTRSS:
+            - db

@@ -1,7 +1,8 @@
-- name: Set labels
+- name: Set swarm labels
   set_fact:
     swarm_labels:
       - small
+  when: "inventory_hostname in groups.aws_ec2"
 
 - name: Add AWS hosts to Docker Swarm Managers
   add_host:
