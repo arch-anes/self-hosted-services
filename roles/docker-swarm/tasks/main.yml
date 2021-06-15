@@ -25,6 +25,9 @@
     skip_docker_compose: true
   become: yes
 
+- name: Template stacks configs
+  include_tasks: template-stack-config.yml
+
 - name: Copy project files
   include_tasks: copy_project_files.yml
 

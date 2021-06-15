@@ -1,6 +1,7 @@
 ---
 ufw_packages: []
 remote_stacks_location: "~/stacks"
+local_stacks_location: "{{playbook_dir}}/stacks"
 env_vars:
   TZ: "{{lookup('env','TZ')}}"
   STORAGE_LOCATION: "{{storage}}"
