@@ -5,5 +5,5 @@
 
 - name: Copy project files
   synchronize:
-    src: "{{playbook_dir}}/stacks/"
+    src: "{{local_stacks_location}}/"
     dest: "{{remote_stacks_location}}"
