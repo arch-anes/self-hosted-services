@@ -4,7 +4,6 @@
     state: directory
     owner: "{{(subfolder is mapping) | ternary(subfolder[(subfolder | first)], 1000)}}"
     group: "{{(subfolder is mapping) | ternary(subfolder[(subfolder | first)], 1000)}}"
-    mode: "0755"
   become: yes
   loop: "{{subfolders}}"
   loop_control:
