@@ -31,8 +31,7 @@
           Duplicati:
             - config
             - backups
-          Homer:
-            - ""
+          Homer: []
           Jellyfin:
             - config
             - media
@@ -47,8 +46,7 @@
           Pihole:
             - config
             - dnsmasq.d
-          Smart Strike:
-            - ""
+          Smart Strike: []
           Swarmpit:
             - couchdb
             - influxdb
