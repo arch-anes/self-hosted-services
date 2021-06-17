@@ -32,6 +32,7 @@
           Databases:
             - couchdb: 1001
             - influxdb
+            - postgresql: 1001
           Duplicati:
             - config
             - backups

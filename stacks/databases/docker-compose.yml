@@ -39,6 +39,68 @@ services:
           cpus: "0.30"
           memory: 128M
           
+  postgres-repmgr:
+    image: docker.io/bitnami/postgresql-repmgr:12
+    hostname: pg-{{.Task.Slot}}
+    networks:
+      - postgres
+    secrets:
+      - databases_postgresql_postgres_password
+      - databases_postgresql_repmgr_password
+    volumes:
+      - ${STORAGE_LOCATION}/databases/postgresql:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD_FILE=/run/secrets/databases_postgresql_postgres_password
+      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=2
+      - REPMGR_PASSWORD_FILE=/run/secrets/databases_postgresql_repmgr_password
+      - REPMGR_PRIMARY_HOST=pg-1
+      - REPMGR_PARTNER_NODES=pg-1,pg-2,pg-3,pg-4,pg-5 # This is determined by the number of replicas
+      - REPMGR_NODE_NAME=pg-{{.Task.Slot}}
+      - REPMGR_NODE_NETWORK_NAME=pg-{{.Task.Slot}}
+    deploy:
+      replicas: 5
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.15"
+          memory: 128M
+      placement:
+        max_replicas_per_node: 1
+
+  postgresql:
+    image: docker.io/bitnami/pgpool:4
+    healthcheck:
+      test: /opt/bitnami/scripts/pgpool/healthcheck.sh
+    networks:
+      - postgres
+      - databases
+    secrets:
+      - databases_postgresql_postgres_password
+      - databases_postgresql_admin_password
+    environment:
+      - PGPOOL_BACKEND_NODES=0:pg-1:5432,1:pg-2:5432,2:pg-3:5432,3:pg-4:5432,4:pg-5:5432 # This is determined by the number of replicas
+      - PGPOOL_SR_CHECK_USER=postgres
+      - PGPOOL_SR_CHECK_PASSWORD_FILE=/run/secrets/databases_postgresql_postgres_password
+      - PGPOOL_ENABLE_LDAP=no
+      - PGPOOL_POSTGRES_USERNAME=postgres
+      - PGPOOL_POSTGRES_PASSWORD_FILE=/run/secrets/databases_postgresql_postgres_password
+      - PGPOOL_ADMIN_USERNAME=admin
+      - PGPOOL_ADMIN_PASSWORD_FILE=/run/secrets/databases_postgresql_admin_password
+      - PGPOOL_ENABLE_LOAD_BALANCING=yes
+      - PGPOOL_AUTO_FAILBACK=yes
+
+secrets:
+  databases_postgresql_postgres_password:
+    external: true
+  databases_postgresql_admin_password:
+    external: true
+  databases_postgresql_repmgr_password:
+    external: true
+
 networks:
+  postgres:
+    internal: true
   databases:
     external: true
