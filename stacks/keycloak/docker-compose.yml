@@ -36,51 +36,25 @@ services:
         constraints:
           - node.labels.big==true
 
-  db:
-    image: postgres:12-alpine
-    networks:
-      - internal
-    volumes:
-      - ${STORAGE_LOCATION}/keycloak/db:/var/lib/postgresql/data
-    secrets:
-      - keycloak_db_password
-    environment:
-      - POSTGRES_DB=keycloak
-      - POSTGRES_PASSWORD_FILE=/run/secrets/keycloak_db_password
-    deploy:
-      resources:
-        limits:
-          cpus: "0.30"
-          memory: 256M
-        reservations:
-          cpus: "0.15"
-          memory: 128M
-      placement:
-        constraints:
-          - node.labels.big==true
-
   app:
     # When using LDAP, check "Enable the LDAPv3 Password Modify Extended Operation"
     image: quay.io/keycloak/keycloak
-    depends_on:
-      - db
     networks:
-      - internal
       - ldap
       - reverse_proxy
+      - databases
     secrets:
-      - keycloak_db_password
-      - keycloak_admin_user
+      - postgresql_postgres_password
       - keycloak_admin_password
     environment:
       - DB_VENDOR=POSTGRES
-      - DB_ADDR=db
+      - DB_ADDR=postgresql
       - DB_DATABASE=keycloak
       - DB_USER=postgres
       - DB_SCHEMA=public
-      - DB_PASSWORD_FILE=/run/secrets/keycloak_db_password
+      - DB_PASSWORD_FILE=/run/secrets/postgresql_postgres_password
       - PROXY_ADDRESS_FORWARDING=true
-      - KEYCLOAK_USER_FILE=/run/secrets/keycloak_admin_user
+      - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD_FILE=/run/secrets/keycloak_admin_password
     deploy:
       resources:
@@ -101,9 +75,7 @@ services:
         - traefik.http.services.keycloak.loadbalancer.server.port=8080
 
 secrets:
-  keycloak_db_password:
-    external: true
-  keycloak_admin_user:
+  postgresql_postgres_password:
     external: true
   keycloak_admin_password:
     external: true
@@ -113,8 +85,8 @@ secrets:
     external: true
 
 networks:
-  internal:
-    internal: true
+  databases:
+    external: true
   ldap:
     external: true
   reverse_proxy:

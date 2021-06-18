@@ -1,0 +1,112 @@
+version: "3.8"
+
+services:          
+  postgres-repmgr:
+    image: docker.io/bitnami/postgresql-repmgr:12
+    hostname: pg-{{.Task.Slot}}
+    networks:
+      - postgres
+    secrets:
+      - postgresql_postgres_password
+      - postgresql_repmgr_password
+      - postgresql_client_password
+    volumes:
+      - ${STORAGE_LOCATION}/postgresql/data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=client
+      - POSTGRESQL_PASSWORD_FILE=/run/secrets/postgresql_client_password
+      - POSTGRESQL_POSTGRES_PASSWORD_FILE=/run/secrets/postgresql_postgres_password
+      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=1
+      - POSTGRESQL_CLUSTER_APP_NAME=pg-{{.Task.Slot}}
+      - REPMGR_PASSWORD_FILE=/run/secrets/postgresql_repmgr_password
+      - REPMGR_PRIMARY_HOST=pg-1
+      - REPMGR_PARTNER_NODES=pg-1,pg-2,pg-3,pg-4,pg-5 # This is determined by the number of replicas
+      - REPMGR_NODE_NAME=pg-{{.Task.Slot}}
+      - REPMGR_NODE_NETWORK_NAME=pg-{{.Task.Slot}}
+    deploy:
+      replicas: 5
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.15"
+          memory: 128M
+      placement:
+        max_replicas_per_node: 1
+
+  postgresql:
+    image: docker.io/bitnami/pgpool:4
+    healthcheck:
+      test: /opt/bitnami/scripts/pgpool/healthcheck.sh
+    networks:
+      - postgres
+      - databases
+    secrets:
+      - postgresql_postgres_password
+      - postgresql_client_password
+      - postgresql_admin_password
+    environment:
+      - PGPOOL_BACKEND_NODES=0:pg-1:5432,1:pg-2:5432,2:pg-3:5432,3:pg-4:5432,4:pg-5:5432 # This is determined by the number of replicas
+      - PGPOOL_BACKEND_APPLICATION_NAMES=0:pg-1:5432,1:pg-2:5432,2:pg-3:5432,3:pg-4:5432,4:pg-5:5432
+      - PGPOOL_SR_CHECK_USER=client
+      - PGPOOL_SR_CHECK_PASSWORD_FILE=/run/secrets/postgresql_client_password
+      - PGPOOL_POSTGRES_USERNAME=postgres
+      - PGPOOL_POSTGRES_PASSWORD_FILE=/run/secrets/postgresql_postgres_password
+      - PGPOOL_ADMIN_USERNAME=admin
+      - PGPOOL_ADMIN_PASSWORD_FILE=/run/secrets/postgresql_admin_password
+      - PGPOOL_ENABLE_LOAD_BALANCING=yes
+      - PGPOOL_AUTO_FAILBACK=yes
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.15"
+          memory: 128M
+
+  pgadmin:
+    image: dpage/pgadmin4
+    networks:
+      - reverse_proxy
+      - databases
+    # volumes:
+    #   - ${STORAGE_LOCATION}/duplicati/config:/config
+    #   - ${STORAGE_LOCATION}/duplicati/backups:/backups
+    #   - ${STORAGE_LOCATION}:/source:ro
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@${DOMAIN_NAME}
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.pgadmin.rule=Host(`pgadmin.${DOMAIN_NAME}`)
+        - traefik.http.routers.pgadmin.tls.certresolver=leresolver
+        - traefik.http.routers.pgadmin.entrypoints=websecure
+        - traefik.http.services.pgadmin.loadbalancer.server.port=80
+
+secrets:
+  postgresql_client_password:
+    external: true
+  postgresql_postgres_password:
+    external: true
+  postgresql_admin_password:
+    external: true
+  postgresql_repmgr_password:
+    external: true
+
+networks:
+  postgres:
+    internal: true
+  databases:
+    external: true
+  reverse_proxy:
+    external: true

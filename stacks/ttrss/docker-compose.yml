@@ -1,46 +1,21 @@
 version: "3.8"
 
 services:
-  db:
-    image: postgres:12-alpine
-    networks:
-      - internal
-    volumes:
-      - ${STORAGE_LOCATION}/ttrss/db:/var/lib/postgresql/data
-    secrets:
-      - ttrss_db_password
-    environment:
-      - POSTGRES_DB=ttrss
-      - POSTGRES_PASSWORD_FILE=/run/secrets/ttrss_db_password
-    deploy:
-      resources:
-        limits:
-          cpus: "0.30"
-          memory: 256M
-        reservations:
-          cpus: "0.15"
-          memory: 128M
-      placement:
-        constraints:
-          - node.labels.big==true
-
   # if `ERROR: relation "ttrss_version" does not exist`, then
   # execute https://git.tt-rss.org/fox/tt-rss/raw/master/schema/ttrss_schema_pgsql.sql manually
   app:
     image: wangqiru/ttrss
     stdin_open: true
     tty: true
-    depends_on:
-      - db
     networks:
       - reverse_proxy
-      - internal
+      - databases
     secrets:
-      - ttrss_db_password
+      - postgresql_postgres_password
     environment:
       - SELF_URL_PATH=https://ttrss.${DOMAIN_NAME}/
-      - DB_HOST=db
-      - DB_PASS_FILE=/run/secrets/ttrss_db_password
+      - DB_HOST=postgresql
+      - DB_PASS_FILE=/run/secrets/postgresql_postgres_password
       - ENABLE_PLUGINS=api_feedreader,auth_internal,fever
       - FEED_LOG_QUIET=true
     deploy:
@@ -51,9 +26,6 @@ services:
         reservations:
           cpus: "0.25"
           memory: 512M
-      placement:
-        constraints:
-          - node.labels.big==true
       labels:
         - traefik.enable=true
         - traefik.http.routers.ttrss.rule=Host(`ttrss.${DOMAIN_NAME}`)
@@ -62,11 +34,11 @@ services:
         - traefik.http.services.ttrss.loadbalancer.server.port=80
 
 secrets:
-  ttrss_db_password:
+  postgresql_postgres_password:
     external: true
 
 networks:
-  internal:
-    internal: true
   reverse_proxy:
+    external: true
+  databases:
     external: true

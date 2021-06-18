@@ -24,6 +24,7 @@
         networks:
           - ldap
           - reverse_proxy
+          - databases
         stacks:
           Booksonic:
             - config
@@ -38,19 +39,18 @@
           Keycloak:
             - openldap_db
             - openldap_config
-            - db
           Nextcloud:
-            - db
             - app
             - data
           Pihole:
             - config
             - dnsmasq.d
+          Postgresql:
+            - data: 1001
           Smart Strike: []
           Swarmpit:
             - couchdb
             - influxdb
           Traefik:
             - acme
-          TTRSS:
-            - db
+          TTRSS: []

@@ -1,47 +1,22 @@
 version: "3.8"
 
 services:
-  db:
-    image: postgres:12-alpine
-    networks:
-      - internal
-    volumes:
-      - ${STORAGE_LOCATION}/nextcloud/db:/var/lib/postgresql/data
-    secrets:
-      - nextcloud_db_password
-    environment:
-      - POSTGRES_DB=nextcloud
-      - POSTGRES_PASSWORD_FILE=/run/secrets/nextcloud_db_password
-    deploy:
-      resources:
-        limits:
-          cpus: "0.30"
-          memory: 256M
-        reservations:
-          cpus: "0.15"
-          memory: 128M
-      placement:
-        constraints:
-          - node.labels.big==true
-
   app:
     image: nextcloud
     networks:
       - ldap
       - reverse_proxy
-      - internal
+      - databases
     volumes:
       - ${STORAGE_LOCATION}/nextcloud/app:/var/www/html
       - ${STORAGE_LOCATION}/nextcloud/data:/var/www/html/data
     secrets:
-      - nextcloud_db_password
+      - postgresql_postgres_password
     environment:
-      - POSTGRES_HOST=db
+      - POSTGRES_HOST=postgresql
       - POSTGRES_USER=postgres
       - POSTGRES_DB=nextcloud
-      - POSTGRES_PASSWORD_FILE=/run/secrets/nextcloud_db_password
-    depends_on:
-      - db
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgresql_postgres_password
     deploy:
       resources:
         limits:
@@ -64,12 +39,12 @@ services:
         - traefik.http.middlewares.nextcloud-redirectregex.redirectRegex.replacement=https://$$1/remote.php/dav/
 
 secrets:
-  nextcloud_db_password:
+  postgresql_postgres_password:
     external: true
 
 networks:
-  internal:
-    internal: true
+  databases:
+    external: true
   ldap:
     external: true
   reverse_proxy:
