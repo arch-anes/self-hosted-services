@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  app:
+    image: archanes/cloudflare-ddns
+    secrets:
+      - traefik_cf_dns_api_token
+    environment:
+      - CF_API_KEY_FILE=/run/secrets/traefik_cf_dns_api_token
+      - ZONES=${DOMAIN_NAME}
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+        reservations:
+          cpus: "0.25"
+          memory: 64M
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+
+secrets:
+  traefik_cf_dns_api_token:
+    external: true
