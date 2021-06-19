@@ -28,6 +28,7 @@
           Booksonic:
             - config
             - media
+          DDNS: []
           Duplicati:
             - config
             - backups
