@@ -57,3 +57,11 @@
   loop_control:
     loop_var: "stack"
   when: "inventory_hostname == groups.docker_swarm_manager[0]"
+
+- name: Prune Docker resources
+  docker_prune:
+    containers: yes
+    images: yes
+    networks: yes
+    volumes: yes
+    builder_cache: yes
