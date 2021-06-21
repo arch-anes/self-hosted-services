@@ -15,7 +15,6 @@
   import_role:
     name: abelfodil.ansible_dockerswarm
   vars:
-    docker_swarm_addr: "{{private_ip}}"
     skip_repo: true
     skip_containerd: true
     skip_engine: true
