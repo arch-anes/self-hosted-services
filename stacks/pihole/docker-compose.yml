@@ -13,9 +13,10 @@ services:
       - ${STORAGE_LOCATION}/pihole/config:/etc/pihole
       - ${STORAGE_LOCATION}/pihole/dnsmasq.d:/etc/dnsmasq.d
     environment:
-      - PUID=1000
-      - PGID=1000
       - VIRTUAL_HOST=pihole.${DOMAIN_NAME}
+      - PIHOLE_DNS_=1.1.1.1;8.8.8.8
+      - DNSSEC=true
+      - QUERY_LOGGING=false
     dns:
       - 127.0.0.1
       - 1.1.1.1
