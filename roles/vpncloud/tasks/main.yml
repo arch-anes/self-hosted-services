@@ -19,10 +19,22 @@
 - name: Get host public IP
   ipify_facts:
 
-- name: Set host private IP address
+- name: Retain current private IP address
   set_fact:
     listen_vpn_port: "{{vpn_port | default(3210)}}"
-    private_ip: "{{ vpn_ip | default('10.10.10.' + ((ansible_play_hosts_all.index(inventory_hostname) + 20) | string))}}"
+    private_ip: "{{ (vpn_ip | default(ansible_vpncloud0.ipv4.address)) | default() }}"
+
+- name: Find new private IP address
+  block:
+    - command: "{{role_path}}/find_available_ips.py -n {{ansible_play_hosts|length}} --taken_ips {{hostvars | json_query('*.private_ip') | quote}}"
+      delegate_to: localhost
+      register: available_private_ips
+      run_once: true
+
+    - set_fact:
+        private_ip: "{{(available_private_ips.stdout | from_json).ips[ansible_play_hosts_all.index(inventory_hostname)]}}"
+
+  when: "private_ip == ''"
 
 - name: Set peer list
   set_fact:
