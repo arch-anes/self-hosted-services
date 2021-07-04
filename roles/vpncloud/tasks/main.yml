@@ -3,7 +3,7 @@
     name: weareinteractive.ufw
   vars:
     ufw_rules:
-      - { to_port: "3210:3214", proto: udp, rule: allow, comment: "VPNCloud (15 static peers)" }
+      - { to_port: "3210:3214", proto: udp, rule: allow, comment: "VPNCloud (5 static peers)" }
   become: yes
 
 - name: Generate random password for VPN connection
