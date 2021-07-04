@@ -14,9 +14,11 @@
           - { to_port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
           - { to_port: 53, proto: any, rule: allow, comment: "Allow DNS" }
       become: yes
+      when: not skip_firewall
 
     - name: Create a VPNCloud mesh network
       role: vpncloud
+      when: not skip_vpn_setup
 
     - name: Deploy Docker Swarm
       role: docker-swarm
