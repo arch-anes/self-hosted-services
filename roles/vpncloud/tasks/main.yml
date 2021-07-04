@@ -33,7 +33,7 @@
 - name: Set peer list
   set_fact:
     peers: "{{ peers | default('') + ' -c ' + item.0 + ':' + item.1 }}"
-  with_together: 
+  with_together:
     - "{{ hostvars | json_query('*.ipify_public_ip') }}"
     - "{{ hostvars | json_query('*.listen_vpn_port') }}"
   run_once: true
@@ -51,3 +51,8 @@
     state: restarted
     enabled: yes
   become: yes
+
+- name: Wait for all hosts to be up
+  shell: "ping -c 1 -w 600 {{item}}"
+  loop: "{{ hostvars | json_query('*.private_ip') }}"
+  run_once: true
