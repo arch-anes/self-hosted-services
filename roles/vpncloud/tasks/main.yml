@@ -5,6 +5,7 @@
     ufw_rules:
       - { to_port: "3210:3214", proto: udp, rule: allow, comment: "VPNCloud (5 static peers)" }
   become: yes
+  when: not skip_firewall
 
 - name: Generate random password for VPN connection
   set_fact:
@@ -56,3 +57,4 @@
   shell: "ping -c 1 -w 600 {{item}}"
   loop: "{{ hostvars | json_query('*.private_ip') }}"
   run_once: true
+  when: not skip_wait_vpn_host

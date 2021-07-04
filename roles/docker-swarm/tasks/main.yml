@@ -7,22 +7,25 @@
       - { to_port: 7946, proto: any, rule: allow, comment: "Allow communication among Docker Swarm nodes" }
       - { to_port: 4789, proto: udp, rule: allow, comment: "Allow Docker Swarm overlay network traffic" }
   become: yes
+  when: not skip_firewall
 
-- name: Merge AWS EC2 hosts with Docker Swarm Managers
-  include_tasks: merge-ec2.yml
+- block:
+  - name: Merge AWS EC2 hosts with Docker Swarm Managers
+    include_tasks: merge-ec2.yml
 
-- name: Deploy Docker Swarm
-  import_role:
-    name: abelfodil.ansible_dockerswarm
-  vars:
-    skip_repo: true
-    skip_containerd: true
-    skip_engine: true
-    skip_cli: true
-    skip_group: true
-    skip_docker_py: true
-    skip_docker_compose: true
-  become: yes
+  - name: Deploy Docker Swarm
+    import_role:
+      name: abelfodil.ansible_dockerswarm
+    vars:
+      skip_repo: true
+      skip_containerd: true
+      skip_engine: true
+      skip_cli: true
+      skip_group: true
+      skip_docker_py: true
+      skip_docker_compose: true
+    become: yes
+  when: not skip_swarm_setup
 
 - name: Template stacks configs
   include_tasks: template-stack-config.yml
@@ -39,6 +42,7 @@
   loop: "{{stacks | dict2items}}"
   loop_control:
     loop_var: "stack"
+  when: not skip_stack_dir
 
 - name: Create Docker networks
   include_tasks: create_network.yml
@@ -64,3 +68,4 @@
     networks: yes
     volumes: yes
     builder_cache: yes
+  when: not skip_docker_prune
