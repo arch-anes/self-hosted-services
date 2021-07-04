@@ -9,12 +9,7 @@
 - name: Generate random password for VPN connection
   set_fact:
     vpn_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
-  when: "inventory_hostname == ansible_play_hosts[0]"
-
-- name: Propagate password to other hosts
-  set_fact:
-    vpn_password: "{{ hostvars[ansible_play_hosts[0]]['vpn_password'] }}"
-  when: "inventory_hostname != ansible_play_hosts[0]"
+  run_once: true
 
 - name: Get host public IP
   ipify_facts:
