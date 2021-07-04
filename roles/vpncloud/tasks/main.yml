@@ -28,7 +28,7 @@
 
     - set_fact:
         private_ip: "{{(available_private_ips.stdout | from_json).ips[ansible_play_hosts_all.index(inventory_hostname)]}}"
-  when: "private_ip == ''"
+      when: "private_ip == ''"
 
 - name: Set peer list
   set_fact:
