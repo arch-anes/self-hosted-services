@@ -1,5 +1,7 @@
-- name: Create Homer config
-  template:
-    src: homer.config.yml.j2
-    dest: "{{local_stacks_location}}/homer/config.yml"
+- block:
+    - name: Create Homer config
+      template:
+        src: homer.config.yml.j2
+        dest: "{{local_stacks_location}}/homer/config.yml"
   delegate_to: localhost
+  run_once: true
