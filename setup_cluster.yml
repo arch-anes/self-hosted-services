@@ -21,7 +21,7 @@
     - name: Deploy Docker Swarm
       role: docker-swarm
       vars:
-        docker_swarm_addr: "{{ansible_vpncloud0.ipv4.address}}"
+        docker_swarm_addr: "{{ private_ip | default(ansible_vpncloud0.ipv4.address) }}"
         networks:
           - ldap
           - reverse_proxy
