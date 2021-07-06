@@ -27,23 +27,6 @@
     become: yes
   when: not skip_swarm_setup
 
-- name: Template stacks configs
-  include_tasks: template-stack-config.yml
-
-- name: Copy project files
-  include_tasks: copy_project_files.yml
-
-- name: Create Docker stacks directories
-  include_tasks: create_docker_stack_directory.yml
-  vars:
-    stack_display_name: "{{stack.key}}"
-    stack_name: "{{stack.key|lower|replace(' ', '-')}}"
-    subfolders: "{{stack.value}}"
-  loop: "{{stacks | dict2items}}"
-  loop_control:
-    loop_var: "stack"
-  when: not skip_stack_dir
-
 - name: Create Docker networks
   include_tasks: create_network.yml
   vars:
@@ -51,15 +34,20 @@
   loop: "{{networks}}"
   when: "inventory_hostname == groups.docker_swarm_manager[0]"
 
+- name: Template stacks configs
+  include_tasks: template-stack-config.yml
+
+- name: Copy project files
+  include_tasks: copy_project_files.yml
+
 - name: Deploy docker stacks
   include_tasks: deploy_docker_stack.yml
   vars:
-    stack_display_name: "{{stack.key}}"
-    stack_name: "{{stack.key|lower|replace(' ', '-')}}"
-  loop: "{{stacks | dict2items}}"
+    stack_display_name: "{{stack}}"
+    stack_name: "{{stack|lower|replace(' ', '-')}}"
+  loop: "{{stacks}}"
   loop_control:
     loop_var: "stack"
-  when: "inventory_hostname == groups.docker_swarm_manager[0]"
 
 - name: Prune Docker resources
   docker_prune:

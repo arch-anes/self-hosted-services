@@ -8,7 +8,6 @@ skip_firewall: false
 skip_vpn_setup: false
 skip_wait_vpn_host: false
 skip_swarm_setup: false
-skip_stack_dir: false
 skip_docker_prune: false
 
 env_vars:
