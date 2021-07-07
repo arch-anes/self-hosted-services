@@ -25,7 +25,6 @@ services:
       placement:
         constraints:
           - node.role==manager
-          - node.labels.big==true
       labels:
         - traefik.enable=true
         - traefik.http.routers.swarmpit.rule=Host(`swarmpit.${DOMAIN_NAME}`)
