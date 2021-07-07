@@ -1,25 +1,25 @@
-- name: Fetch {{stack_display_name}} stack directories
-  shell: "grep -Po '(?<=\\${STORAGE_LOCATION}\\/).*(?=:)' '{{playbook_dir}}/stacks/{{stack_name}}/docker-compose.yml' || true"
+- name: Fetch {{ stack_display_name }} stack directories
+  shell: "grep -Po '(?<=\\${STORAGE_LOCATION}\\/).*(?=:)' '{{ playbook_dir }}/stacks/{{ stack_name }}/docker-compose.yml' || true"
   delegate_to: localhost
   run_once: true
   register: stack_directories
 
-- name: "Create {{stack_display_name}} stack directories"
+- name: "Create {{ stack_display_name }} stack directories"
   file:
-    path: "{{storage}}/{{subfolder}}"
+    path: "{{ storage }}/{{ subfolder }}"
     state: directory
     owner: "1000"
     group: "1000"
   become: yes
-  loop: "{{stack_directories.stdout_lines}}"
+  loop: "{{ stack_directories.stdout_lines }}"
   loop_control:
     loop_var: "subfolder"
 
-- name: "Deploy {{stack_display_name}} stack"
+- name: "Deploy {{ stack_display_name }} stack"
   docker_stack:
     state: present
-    name: "{{stack_name}}"
+    name: "{{ stack_name }}"
     compose:
-      - "{{remote_stacks_location}}/{{stack_name}}/docker-compose.yml"
+      - "{{ remote_stacks_location }}/{{ stack_name }}/docker-compose.yml"
   ignore_errors: yes
   when: "inventory_hostname == groups.docker_swarm_manager[0]"

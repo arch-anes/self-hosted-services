@@ -30,8 +30,8 @@
 - name: Create Docker networks
   include_tasks: create_network.yml
   vars:
-    network_name: "{{item}}"
-  loop: "{{networks}}"
+    network_name: "{{ item }}"
+  loop: "{{ networks }}"
   when: "inventory_hostname == groups.docker_swarm_manager[0]"
 
 - name: Template stacks configs
@@ -43,9 +43,9 @@
 - name: Deploy docker stacks
   include_tasks: deploy_docker_stack.yml
   vars:
-    stack_display_name: "{{stack}}"
-    stack_name: "{{stack|lower|replace(' ', '-')}}"
-  loop: "{{stacks}}"
+    stack_display_name: "{{ stack }}"
+    stack_name: "{{ stack|lower|replace(' ', '-') }}"
+  loop: "{{ stacks }}"
   loop_control:
     loop_var: "stack"
 
