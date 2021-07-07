@@ -1,4 +1,4 @@
-- name: "Create {{network_name}} docker network"
+- name: "Create {{ network_name }} docker network"
   docker_network:
-    name: "{{network_name|lower}}"
+    name: "{{ network_name|lower }}"
     driver: overlay

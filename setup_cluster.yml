@@ -2,7 +2,7 @@
 - name: Setup cluster
   hosts: all
 
-  environment: "{{env_vars}}"
+  environment: "{{ env_vars }}"
 
   roles:
     - name: Setup basic firewall rules

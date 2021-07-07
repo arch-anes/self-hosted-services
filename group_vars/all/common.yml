@@ -2,7 +2,7 @@
 ufw_packages: []
 
 remote_stacks_location: "~/stacks"
-local_stacks_location: "{{playbook_dir}}/stacks"
+local_stacks_location: "{{ playbook_dir }}/stacks"
 
 skip_firewall: false
 skip_vpn_setup: false
@@ -11,7 +11,7 @@ skip_swarm_setup: false
 skip_docker_prune: false
 
 env_vars:
-  TZ: "{{lookup('env','TZ')}}"
-  STORAGE_LOCATION: "{{storage}}"
-  DOMAIN_NAME: "{{fqdn}}"
-  LDAP_ORG: "{{organization|lower}}"
+  TZ: "{{ lookup('env','TZ') }}"
+  STORAGE_LOCATION: "{{ storage }}"
+  DOMAIN_NAME: "{{ fqdn }}"
+  LDAP_ORG: "{{ organization|lower }}"

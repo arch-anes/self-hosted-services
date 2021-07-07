@@ -13,7 +13,7 @@
 - name: Add AWS hosts to Docker Swarm Managers
   add_host:
     groups: docker_swarm_manager
-    hostname: "{{item}}"
+    hostname: "{{ item }}"
     inventory_dir: "{{ hostvars[item].inventory_dir }}"
   when: ("ram0" not in hostvars[item].ansible_devices)
   with_items: "{{ groups.aws_ec2 }}"
