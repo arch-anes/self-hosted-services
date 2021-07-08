@@ -37,7 +37,7 @@ services:
     networks:
       - internal
     volumes:
-      - ${STORAGE_LOCATION}/swarmpit/couchdb:/opt/couchdb/data
+      - ${STORAGE_LOCATION}/swarmpit/couchdb:/opt/couchdb/data # owner: 5984
     deploy:
       resources:
         limits:
@@ -55,7 +55,7 @@ services:
     networks:
       - internal
     volumes:
-      - ${STORAGE_LOCATION}/swarmpit/influxdb:/var/lib/influxdb
+      - ${STORAGE_LOCATION}/swarmpit/influxdb:/var/lib/influxdb # owner: 1000
     deploy:
       resources:
         limits:

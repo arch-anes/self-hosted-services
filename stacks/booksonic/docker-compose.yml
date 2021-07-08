@@ -7,8 +7,8 @@ services:
       - ldap
       - reverse_proxy
     volumes:
-      - ${STORAGE_LOCATION}/booksonic/config:/config
-      - ${STORAGE_LOCATION}/booksonic/media:/media
+      - ${STORAGE_LOCATION}/booksonic/config:/config # owner: 1000
+      - ${STORAGE_LOCATION}/booksonic/media:/media # owner: 1000
     environment:
       - PUID=1000
       - PGID=1000

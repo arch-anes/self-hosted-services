@@ -6,7 +6,7 @@ services:
     networks:
       - internal
     volumes:
-      - ${STORAGE_LOCATION}/nextcloud/db:/var/lib/postgresql/data
+      - ${STORAGE_LOCATION}/nextcloud/db:/var/lib/postgresql/data # owner: 70
     secrets:
       - nextcloud_db_password
     environment:
@@ -31,8 +31,8 @@ services:
       - reverse_proxy
       - internal
     volumes:
-      - ${STORAGE_LOCATION}/nextcloud/app:/var/www/html
-      - ${STORAGE_LOCATION}/nextcloud/data:/var/www/html/data
+      - ${STORAGE_LOCATION}/nextcloud/app:/var/www/html # owner: 33
+      - ${STORAGE_LOCATION}/nextcloud/data:/var/www/html/data # owner: 33
     secrets:
       - nextcloud_db_password
     environment:

@@ -6,7 +6,7 @@ services:
     networks:
       - internal
     volumes:
-      - ${STORAGE_LOCATION}/ttrss/db:/var/lib/postgresql/data
+      - ${STORAGE_LOCATION}/ttrss/db:/var/lib/postgresql/data # owner: 70
     secrets:
       - ttrss_db_password
     environment:
