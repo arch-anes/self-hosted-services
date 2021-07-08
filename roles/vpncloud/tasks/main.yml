@@ -31,13 +31,18 @@
         private_ip: "{{ (available_private_ips.stdout | from_json).ips[ansible_play_hosts_all.index(inventory_hostname)] }}"
       when: "private_ip == ''"
 
-- name: Set peer list
+- name: Set advertised address
   set_fact:
-    peers: "{{ peers | default('') + ' -c ' + item.0 + ':' + item.1 }}"
-  with_together:
-    - "{{ hostvars | json_query('*.ipify_public_ip') }}"
-    - "{{ hostvars | json_query('*.listen_vpn_port') }}"
+    advertised_address: "{{ ipify_public_ip }}:{{ listen_vpn_port }}"
+
+- name: Set all peer list
+  set_fact:
+    all_peers: "-c {{ hostvars | json_query('*.advertised_address') | join(' -c ') }}"
   run_once: true
+
+- name: Omit self from peer list
+  set_fact:
+    peers: "{{ all_peers |  regex_replace('-c ' + advertised_address, '') }}"
 
 - name: Create systemd service
   template:
