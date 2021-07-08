@@ -16,10 +16,11 @@ services:
         reservations:
           cpus: "0.25"
           memory: 64M
-      mode: global
       placement:
         constraints:
           - node.role == manager
+        preferences:
+          - spread: node.labels.local
 
 secrets:
   traefik_cf_dns_api_token:
