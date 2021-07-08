@@ -10,8 +10,8 @@ services:
       - 53:53/udp
       - 67:67/udp
     volumes:
-      - ${STORAGE_LOCATION}/pihole/config:/etc/pihole
-      - ${STORAGE_LOCATION}/pihole/dnsmasq.d:/etc/dnsmasq.d
+      - ${STORAGE_LOCATION}/pihole/config:/etc/pihole # owner: 33
+      - ${STORAGE_LOCATION}/pihole/dnsmasq.d:/etc/dnsmasq.d # owner: 33
     environment:
       - VIRTUAL_HOST=pihole.${DOMAIN_NAME}
       - PIHOLE_DNS_=1.1.1.1;8.8.8.8

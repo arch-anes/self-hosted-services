@@ -12,7 +12,7 @@ services:
       - 443:443
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${STORAGE_LOCATION}/traefik/acme:/acme
+      - ${STORAGE_LOCATION}/traefik/acme:/acme # owner: 1000
     secrets:
       - traefik_basicauth
       - traefik_cf_dns_api_token

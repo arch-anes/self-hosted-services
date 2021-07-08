@@ -9,8 +9,8 @@ services:
     ports:
       - 389:389
     volumes:
-      - ${STORAGE_LOCATION}/keycloak/openldap_db:/var/lib/ldap
-      - ${STORAGE_LOCATION}/keycloak/openldap_config:/etc/ldap/slapd.d
+      - ${STORAGE_LOCATION}/keycloak/openldap_db:/var/lib/ldap # owner: 1000
+      - ${STORAGE_LOCATION}/keycloak/openldap_config:/etc/ldap/slapd.d # owner: 1000
       - ./custom-ldap-config:/container/service/slapd/assets/config/bootstrap/ldif/custom
     secrets:
       - keycloak_openldap_admin_password
@@ -41,7 +41,7 @@ services:
     networks:
       - internal
     volumes:
-      - ${STORAGE_LOCATION}/keycloak/db:/var/lib/postgresql/data
+      - ${STORAGE_LOCATION}/keycloak/db:/var/lib/postgresql/data # owner: 70
     secrets:
       - keycloak_db_password
     environment:

@@ -7,8 +7,8 @@ services:
       - ldap
       - reverse_proxy
     volumes:
-      - ${STORAGE_LOCATION}/jellyfin/config:/config
-      - ${STORAGE_LOCATION}/jellyfin/media:/media
+      - ${STORAGE_LOCATION}/jellyfin/config:/config # owner: 1000
+      - ${STORAGE_LOCATION}/jellyfin/media:/media # owner: 1000
     deploy:
       resources:
         limits:

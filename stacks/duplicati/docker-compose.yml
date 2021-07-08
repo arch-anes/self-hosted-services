@@ -6,8 +6,8 @@ services:
     networks:
       - reverse_proxy
     volumes:
-      - ${STORAGE_LOCATION}/duplicati/config:/config
-      - ${STORAGE_LOCATION}/duplicati/backups:/backups
+      - ${STORAGE_LOCATION}/duplicati/config:/config # owner: 1000
+      - ${STORAGE_LOCATION}/duplicati/backups:/backups # owner: 1000
       - ${STORAGE_LOCATION}:/source:ro
     tmpfs: /backups
     environment:
