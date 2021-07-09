@@ -8,7 +8,7 @@ Wants=network-online.target
 Type=forking
 Restart=always
 RestartSec=5s
-ExecStart=/usr/bin/vpncloud --daemon --fix-rp-filter -p {{ vpn_password }} --algorithm plain --ip {{ private_ip }} -l {{ listen_vpn_port }} --log-file /var/log/vpncloud.log {{ peers }}
+ExecStart=/usr/bin/vpncloud --peer-timeout 5 --keepalive 2 --daemon --fix-rp-filter -p {{ vpn_password }} --algorithm plain --ip {{ private_ip }} -l {{ listen_vpn_port }} --log-file /var/log/vpncloud.log {{ peers }}
 
 [Install]
 WantedBy=multi-user.target
