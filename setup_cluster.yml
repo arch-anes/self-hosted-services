@@ -16,14 +16,14 @@
       become: yes
       when: not skip_firewall
 
-    - name: Create a VPNCloud mesh network
-      role: vpncloud
+    - name: Create a VPN mesh network
+      role: vpn
       when: not skip_vpn_setup
 
     - name: Deploy Docker Swarm
       role: docker-swarm
       vars:
-        docker_swarm_addr: "{{ private_ip | default(ansible_vpncloud0.ipv4.address) }}"
+        docker_swarm_addr: "{{ private_ip | default(ansible_wg0.ipv4.address) }}"
         networks:
           - ldap
           - reverse_proxy
