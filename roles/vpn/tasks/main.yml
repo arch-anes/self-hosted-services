@@ -1,0 +1,46 @@
+- name: Setup firewall
+  import_role:
+    name: weareinteractive.ufw
+  vars:
+    ufw_rules:
+      - { to_port: "3210:3214", proto: udp, rule: allow, comment: "VPN (5 static peers)" }
+  become: yes
+  when: not skip_firewall
+
+- name: Get host public IP
+  ipify_facts:
+
+- name: Retain current private IP address
+  set_fact:
+    listen_vpn_port: "{{ vpn_port | default(3210) }}"
+    private_ip: "{{ (vpn_ip | default(ansible_wg0.ipv4.address)) | default() }}"
+
+- name: Find new private IP address
+  block:
+    - shell: "{{ role_path }}/find_available_ips.py -n {{ ansible_play_hosts|length }} --taken_ips {{ hostvars | json_query('*.private_ip') | quote }}"
+      delegate_to: localhost
+      register: available_private_ips
+      run_once: true
+
+    - set_fact:
+        private_ip: "{{ (available_private_ips.stdout | from_json).ips[ansible_play_hosts_all.index(inventory_hostname)] }}"
+      when: "private_ip == ''"
+
+- name: Set WireGuard configuration variables
+  set_fact:
+    wireguard_address: "{{ private_ip }}/24"
+    wireguard_port: "{{ listen_vpn_port }}"
+    wireguard_endpoint: "{{ ipify_public_ip }}"
+
+- name: Setup WireGuard VPN
+  import_role:
+    name: githubixx.ansible_role_wireguard
+  vars:
+    wireguard_service_state: "restarted"
+  become: yes
+
+- name: Wait for all hosts to be up
+  shell: "ping -c 1 -w 600 {{ item }}"
+  loop: "{{ hostvars | json_query('*.private_ip') }}"
+  run_once: true
+  when: not skip_wait_vpn_host

@@ -2,5 +2,6 @@
 collections:
   - name: amazon.aws
 roles:
+  - name: githubixx.ansible_role_wireguard
   - name: abelfodil.ansible_dockerswarm
   - name: weareinteractive.ufw
