@@ -8,6 +8,7 @@ services:
     environment:
       - CF_API_KEY_FILE=/run/secrets/traefik_cf_dns_api_token
       - ZONES=${DOMAIN_NAME}
+      - UNIQUE=yes
     deploy:
       resources:
         limits:
