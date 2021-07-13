@@ -28,6 +28,10 @@ services:
 
   app:
     image: nextcloud:22
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/cron.php"]
+      interval: 5m
+      start_period: 5m
     networks:
       - ldap
       - reverse_proxy
