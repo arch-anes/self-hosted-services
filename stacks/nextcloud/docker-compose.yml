@@ -27,7 +27,7 @@ services:
           - node.labels.big==true
 
   app:
-    image: nextcloud
+    image: nextcloud:22
     networks:
       - ldap
       - reverse_proxy
