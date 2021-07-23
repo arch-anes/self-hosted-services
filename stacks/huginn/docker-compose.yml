@@ -1,0 +1,95 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:12-alpine
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+    networks:
+      - internal
+    volumes:
+      - ${STORAGE_LOCATION}/huginn/db:/var/lib/postgresql/data # owner: 70
+    secrets:
+      - huginn_db_password
+    environment:
+      - POSTGRES_DB=huginn
+      - POSTGRES_PASSWORD_FILE=/run/secrets/huginn_db_password
+    deploy:
+      resources:
+        limits:
+          cpus: "0.30"
+          memory: 256M
+        reservations:
+          cpus: "0.15"
+          memory: 128M
+      placement:
+        constraints:
+          - node.labels.big==true
+
+  app:
+    image: huginn/huginn
+    entrypoint: /docker-entrypoint.sh
+    command: /scripts/init
+    networks:
+      - reverse_proxy
+      - internal
+    secrets:
+      - huginn_db_password
+      - smtp_host
+      - smtp_username
+      - smtp_password
+      - huginn_invitation_code
+    volumes:
+      - ./docker-entrypoint.sh:/docker-entrypoint.sh
+    environment:
+      - DATABASE_USERNAME=postgres
+      - DATABASE_NAME=huginn
+      - DATABASE_PASSWORD_FILE=/run/secrets/huginn_db_password
+      - DATABASE_ADAPTER=postgresql
+      - DATABASE_HOST=db
+      - SMTP_DOMAIN=${DOMAIN_NAME}
+      - SMTP_USER_NAME_FILE=/run/secrets/smtp_username
+      - SMTP_PASSWORD_FILE=/run/secrets/smtp_password
+      - SMTP_SERVER_FILE=/run/secrets/smtp_host
+      - SMTP_AUTHENTICATION=login
+      - EMAIL_FROM_ADDRESS=huginn@${DOMAIN_NAME}
+      - RAILS_ENV=production
+      - DOMAIN=${DOMAIN_NAME}
+      - INVITATION_CODE_FILE=/run/secrets/huginn_invitation_code
+    depends_on:
+      - db
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+      placement:
+        constraints:
+          - node.labels.big==true
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.huginn.rule=Host(`huginn.${DOMAIN_NAME}`)
+        - traefik.http.routers.huginn.tls.certresolver=leresolver
+        - traefik.http.routers.huginn.entrypoints=websecure
+        - traefik.http.services.huginn.loadbalancer.server.port=3000
+
+secrets:
+  huginn_db_password:
+    external: true
+  smtp_username:
+    external: true
+  smtp_password:
+    external: true
+  smtp_host:
+    external: true
+  huginn_invitation_code:
+    external: true
+
+networks:
+  internal:
+    internal: true
+  reverse_proxy:
+    external: true
