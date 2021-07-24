@@ -28,6 +28,8 @@ services:
 
   app:
     image: nextcloud:22
+    entrypoint: /docker-entrypoint.sh
+    command: apache2-foreground
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/cron.php"]
       interval: 5m
@@ -39,13 +41,25 @@ services:
     volumes:
       - ${STORAGE_LOCATION}/nextcloud/app:/var/www/html # owner: 33
       - ${STORAGE_LOCATION}/nextcloud/data:/var/www/html/data # owner: 33
+      - ./docker-entrypoint.sh:/docker-entrypoint.sh
     secrets:
       - nextcloud_db_password
+      - smtp_host
+      - smtp_username
+      - smtp_password
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_USER=postgres
       - POSTGRES_DB=nextcloud
       - POSTGRES_PASSWORD_FILE=/run/secrets/nextcloud_db_password
+      - SMTP_HOST_FILE=/run/secrets/smtp_host
+      - SMTP_NAME_FILE=/run/secrets/smtp_username
+      - SMTP_PASSWORD_FILE=/run/secrets/smtp_password
+      - SMTP_SECURE=tls
+      - SMTP_PORT=587
+      - SMTP_AUTHTYPE=login
+      - MAIL_FROM_ADDRESS=nextcloud
+      - MAIL_DOMAIN=${DOMAIN_NAME}
     depends_on:
       - db
     deploy:
@@ -71,6 +85,12 @@ services:
 
 secrets:
   nextcloud_db_password:
+    external: true
+  smtp_username:
+    external: true
+  smtp_password:
+    external: true
+  smtp_host:
     external: true
 
 networks:
