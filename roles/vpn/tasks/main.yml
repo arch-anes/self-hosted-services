@@ -1,9 +1,13 @@
+- name: Set VPN port
+  set_fact:
+    listen_vpn_port: "{{ vpn_port | default(3210) }}"
+
 - name: Setup firewall
   import_role:
     name: weareinteractive.ufw
   vars:
     ufw_rules:
-      - { to_port: "3210:3214", proto: udp, rule: allow, comment: "VPN (5 static peers)" }
+      - { to_port: "{{ listen_vpn_port }}", proto: udp, rule: allow, comment: "VPN" }
   become: yes
   when: not skip_firewall
 
@@ -12,7 +16,6 @@
 
 - name: Retain current private IP address
   set_fact:
-    listen_vpn_port: "{{ vpn_port | default(3210) }}"
     private_ip: "{{ (vpn_ip | default(ansible_wg0.ipv4.address)) | default() }}"
 
 - name: Find new private IP address
