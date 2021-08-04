@@ -6,7 +6,6 @@ local_stacks_location: "{{ playbook_dir }}/stacks"
 
 skip_firewall: false
 skip_vpn_setup: false
-skip_wait_vpn_host: false
 skip_swarm_setup: false
 skip_docker_prune: false
 

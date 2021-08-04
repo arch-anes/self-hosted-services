@@ -42,8 +42,7 @@
     wireguard_service_state: "restarted"
   become: yes
 
-- name: Wait for all hosts to be up
+- name: Ensure all hosts to are up
   shell: "ping -c 1 -w 600 {{ item }}"
   loop: "{{ hostvars | json_query('*.private_ip') }}"
   run_once: true
-  when: not skip_wait_vpn_host
