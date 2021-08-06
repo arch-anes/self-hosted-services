@@ -37,7 +37,7 @@
 
 - name: Setup WireGuard VPN
   import_role:
-    name: githubixx.ansible_role_wireguard
+    name: abelfodil.ansible_role_wireguard
   vars:
     wireguard_service_state: "restarted"
   become: yes
