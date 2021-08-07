@@ -1,0 +1,23 @@
+{
+	"name": "Self-hosted services devcontainer",
+	"build": {
+		"dockerfile": "./Dockerfile",
+		"context": ".."
+	},
+	"runArgs": [
+		"--env-file",
+		".devcontainer/.env",
+	],
+	"remoteUser": "vscode",
+	"mounts": [
+		"type=bind,source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh"
+	],
+	"extensions": [
+		"redhat.vscode-yaml",
+		"visualstudioexptteam.vscodeintellicode",
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"mads-hartmann.bash-ide-vscode",
+		"ms-azuretools.vscode-docker"
+	]
+}

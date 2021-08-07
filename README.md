@@ -57,5 +57,4 @@ Copy `config.json.example` to `config.json` and fill it with your values
 
 ## Deploy
 
--   Run `ansible-galaxy install -r requirements.yml`
--   Run `env EC2_ACCESS_KEY=some_key EC2_SECRET_KEY=some_other_key ansible-playbook -e @config.json -i inventory_static.yml -i inventory_ec2.yml setup_cluster.yml`
+Run `ansible-playbook -e @config.json -i inventory_static.yml -i inventory_ec2.yml setup_cluster.yml`
