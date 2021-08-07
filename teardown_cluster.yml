@@ -1,0 +1,10 @@
+---
+- name: Teardown cluster
+  hosts: all
+  roles:
+    - name: Uninstall k3s
+      role: xanmanning.k3s
+      vars:
+        k3s_state: uninstalled
+        k3s_become_for_all: true
+      become: yes

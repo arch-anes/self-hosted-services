@@ -1,0 +1,182 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextcloud
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 80
+  selector:
+    app: nextcloud
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: nextcloud-redirect
+spec:
+  redirectRegex:
+    permanent: true
+    regex: "https://(.*)/.well-known/(card|cal)dav"
+    replacement: "https://${1}/remote.php/dav/"
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nextcloud
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`nextcloud.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: nextcloud
+          port: 80
+      middlewares:
+        - name: nextcloud-redirect
+  tls:
+    secretName: wilcard-main-domain-tls
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nextcloud
+type: Opaque
+# stringData:
+#   db_password: "somepassword"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud
+  labels:
+    app: nextcloud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nextcloud
+  template:
+    metadata:
+      labels:
+        app: nextcloud
+    spec:
+      affinity:
+        nodeAffinity:
+          # Only on NAS nodes
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nas
+                    operator: In
+                    values:
+                      - "true"
+      containers:
+        - name: redis
+          image: redis:6-alpine
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "0.25"
+            limits:
+              memory: "256Mi"
+              cpu: "0.5"
+          volumeMounts:
+            - name: redis
+              mountPath: /data
+        - name: db
+          image: postgres:12-alpine
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "0.25"
+            limits:
+              memory: "256Mi"
+              cpu: "0.5"
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud
+                  key: db_password
+            - name: POSTGRES_DB
+              value: "nextcloud"
+          volumeMounts:
+            - name: db
+              mountPath: /var/lib/postgresql/data
+        - name: app
+          image: nextcloud:22
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.25"
+            limits:
+              memory: "1024Mi"
+              cpu: "2.00"
+          env:
+            - name: REDIS_HOST
+              value: "localhost"
+            - name: POSTGRES_HOST
+              value: "localhost"
+            - name: POSTGRES_DB
+              value: "nextcloud"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud
+                  key: db_password
+            - name: SMTP_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: hostname
+            - name: SMTP_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: username
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: password
+            - name: SMTP_SECURE
+              value: "tls"
+            - name: SMTP_PORT
+              value: "587"
+            - name: SMTP_AUTHTYPE
+              value: "login"
+            - name: MAIL_FROM_ADDRESS
+              value: "nextcloud"
+            - name: MAIL_DOMAIN
+              value: "${DOMAIN_NAME}"
+          ports:
+            - name: web
+              containerPort: 80
+          volumeMounts:
+            - name: app
+              mountPath: /var/www/html
+            - name: data
+              mountPath: /var/www/html/data
+      volumes:
+        - name: app
+          hostPath:
+            path: /storage/nextcloud/app
+        - name: data
+          hostPath:
+            path: /storage/nextcloud/data
+        - name: db
+          hostPath:
+            path: /storage/nextcloud/db
+        - name: redis
+          hostPath:
+            path: /storage/nextcloud/redis

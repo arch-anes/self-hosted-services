@@ -1,0 +1,119 @@
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: cloudflare-issuer
+  namespace: kube-system
+spec:
+  acme:
+    privateKeySecretRef:
+      name: cloudflare-issuer
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: cert@${DOMAIN_NAME}
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare
+              key: token
+        selector: {}
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wilcard-main-domain
+spec:
+  secretName: wilcard-main-domain-tls
+  issuerRef:
+    name: cloudflare-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - "${DOMAIN_NAME}"
+    - "*.${DOMAIN_NAME}"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    logs:
+      access:
+        enabled: true
+    deployment:
+      kind: DaemonSet
+    affinity:
+      nodeAffinity:
+        # Only on public nodes
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: public
+                  operator: In
+                  values:
+                    - "true"
+    globalArguments:
+      - "--global.sendanonymoususage=false"
+    ingressRoute:
+      dashboard:
+        enabled: false
+    ports:
+      web:
+        redirectTo: websecure
+      websecure:
+        tls:
+          enabled: true
+    env:
+      - name: CF_DNS_API_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: cloudflare
+            key: token
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "0.25"
+      limits:
+        memory: "512Mi"
+        cpu: "2.00"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: traefik-dashboard
+type: Opaque
+# stringData:
+#   credentials: "admin:$2y$12$8KtQ4SQb6QpebcgYvMPjwOv3Jz9ojkNq8FVWZmk5q1BW9BoEX2aAy" # admin:admin by default, bcrypted password: https://bcrypt-generator.com/
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-dashboard
+spec:
+  basicAuth:
+    secret: "traefik-dashboard"
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`traefik.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: api@internal
+          kind: TraefikService
+      middlewares:
+        - name: traefik-dashboard
+  tls:
+    secretName: wilcard-main-domain-tls

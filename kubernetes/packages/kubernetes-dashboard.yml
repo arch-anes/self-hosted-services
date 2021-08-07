@@ -1,0 +1,23 @@
+---
+repo:
+  name: kubernetes-dashboard
+  repo_url: https://kubernetes.github.io/dashboard/
+
+package:
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+  chart_ref: kubernetes-dashboard/kubernetes-dashboard
+  chart_version: v4.3.2
+  values:
+    protocolHttp: true
+    extraArgs:
+      - --enable-insecure-login
+    metricsScraper:
+      enabled: true
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "0.25"
+      limits:
+        memory: "256Mi"
+        cpu: "2.00"

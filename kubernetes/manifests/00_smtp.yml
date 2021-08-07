@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: smtp
+type: Opaque
+# stringData:
+#   hostname: "somehost"
+#   username: "someuser"
+#   password: "somepass"

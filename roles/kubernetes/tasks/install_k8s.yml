@@ -1,0 +1,47 @@
+- name: Install Kubernetes
+  block:
+    - name: Setup firewall
+      import_role:
+        name: weareinteractive.ufw
+      vars:
+        ufw_rules:
+          - { to_port: 6443, proto: tcp, rule: allow, comment: "Kubernetes API Server" }
+          - { to_port: 8472, proto: udp, rule: allow, comment: "Required only for Flannel VXLAN" }
+          - { to_port: 10250, proto: tcp, rule: allow, comment: "Kubelet metrics" }
+          - { to_port: "2379:2380", proto: tcp, rule: allow, comment: "Required only for HA with embedded etcd" }
+      become: yes
+      when: not skip_firewall
+
+    - name: Set k3s node facts
+      set_fact:
+        k3s_runtime_config:
+          with-node-id: true
+          node-ip: "{{ advertised_address }}"
+          node-external-ip: "{{ advertised_address }}"
+          flannel-iface: "wg0"
+          node-label: "{{ labels }}"
+
+    - name: Set k3s node facts (temporary fix)
+      set_fact:
+        k3s_agent: "{{ k3s_runtime_config }}"
+        k3s_server: "{{ k3s_runtime_config }}"
+
+    - name: Install and deploy k3s
+      import_role:
+        name: xanmanning.k3s
+      vars:
+        k3s_release_version: v1.21.3+k3s1
+        k3s_become_for_all: true
+        k3s_etcd_datastore: true
+      become: yes
+
+    - name: Install k9s
+      import_role:
+        name: andrewrothstein.k9s
+      when: k3s_control_node
+
+    - name: Install Helm
+      import_role:
+        name: andrewrothstein.kubernetes-helm
+      when: k3s_control_node
+  when: not skip_k8s_setup

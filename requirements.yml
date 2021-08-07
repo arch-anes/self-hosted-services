@@ -3,5 +3,7 @@ collections:
   - name: amazon.aws
 roles:
   - name: abelfodil.ansible_role_wireguard
-  - name: abelfodil.ansible_dockerswarm
   - name: weareinteractive.ufw
+  - name: xanmanning.k3s
+  - name: andrewrothstein.k9s
+  - name: andrewrothstein.kubernetes-helm

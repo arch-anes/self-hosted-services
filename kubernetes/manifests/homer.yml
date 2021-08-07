@@ -1,0 +1,152 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homer
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 8080
+  selector:
+    app: homer
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: homer
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: homer
+          port: 8080
+  tls:
+    secretName: wilcard-main-domain-tls
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homer
+data:
+  config.yml: |
+    ---
+    title: "Dashboard"
+    subtitle: "Homer"
+    logo: "logo.png"
+
+    header: true
+    footer: false
+
+    services:
+      - name: "Media"
+        icon: "fas fa-video"
+        items:
+          - name: "Nextcloud"
+            logo: "https://github.com/nextcloud/server/raw/0450e47f8dda26d19a0a252ddd5a117fddfa6885/core/img/logo/logo.png"
+            url: "https://nextcloud.${DOMAIN_NAME}"
+          - name: "Jellyfin"
+            logo: "https://github.com/jellyfin/jellyfin/raw/cd36b8067fcf80c5ebb47bdd9bea0047d1fe3aef/Emby.Dlna/Images/logo240.png"
+            url: "https://jellyfin.${DOMAIN_NAME}"
+          - name: "Booksonic"
+            logo: "https://booksonic.org/assets/img/booksonic.png"
+            url: "https://booksonic.${DOMAIN_NAME}"
+
+      - name: "Feed"
+        icon: "fas fa-rss"
+        items:
+          - name: "tt-rss"
+            logo: "https://git.tt-rss.org/repo-avatars/3-9e1f83d2fac71ea097eeaf1776137cde"
+            url: "https://ttrss.${DOMAIN_NAME}"
+
+      - name: "Home automation"
+        icon: "fas fa-home"
+        items:
+          - name: "Smart Strike"
+            url: "https://smart-strike.${DOMAIN_NAME}"
+
+      - name: "Database"
+        icon: "fas fa-database"
+        items:
+          - name: "Keycloak"
+            logo: "https://upload.wikimedia.org/wikipedia/commons/2/29/Keycloak_Logo.png"
+            url: "https://keycloak.${DOMAIN_NAME}"
+
+      - name: "Administration"
+        icon: "fas fa-tools"
+        items:
+          - name: "Kubernetes"
+            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Kubernetes_logo_without_workmark.svg/247px-Kubernetes_logo_without_workmark.svg.png"
+            url: "https://kubernetes.${DOMAIN_NAME}"
+          - name: "PiHole"
+            logo: "https://camo.githubusercontent.com/9426a93d32aa9f5ad757b2befcdb762a270d344efd6b8d287a2cea2c4c2233b8/68747470733a2f2f70692d686f6c652e6769746875622e696f2f67726170686963732f566f727465782f566f727465785f776974685f576f72646d61726b2e737667"
+            url: "https://pihole.${DOMAIN_NAME}"
+          - name: "Duplicati"
+            logo: "https://raw.githubusercontent.com/duplicati/duplicati/184dfeae7860cd34019baf3d3ca635bf6b79dfbe/Duplicati/Server/webroot/img/logo.png"
+            url: "https://duplicati.${DOMAIN_NAME}"
+
+      - name: "Monitoring"
+        icon: "fas fa-heartbeat"
+        items:
+          - name: "Traefik"
+            logo: "https://github.com/traefik/traefik/raw/0a3e40332a86cc061bf16d8895b10defeb999171/docs/content/assets/img/traefik.logo.png"
+            url: "https://traefik.${DOMAIN_NAME}"
+          - name: "Huginn"
+            logo: "https://camo.githubusercontent.com/198521c8a76f1a87b04042e7ed5ce864caf8b033ef3a655ca48cd1114291f7e4/68747470733a2f2f7261772e6769746875622e636f6d2f687567696e6e2f687567696e6e2f6d61737465722f6d656469612f687567696e6e2d6c6f676f2e706e67"
+            url: "https://huginn.${DOMAIN_NAME}"
+
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  annotations:
+    reloader.stakater.com/auto: "true"
+  name: homer
+  labels:
+    app: homer
+spec:
+  selector:
+    matchLabels:
+      app: homer
+  template:
+    metadata:
+      labels:
+        app: homer
+    spec:
+      affinity:
+        nodeAffinity:
+          # Only on public nodes
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: public
+                    operator: In
+                    values:
+                      - "true"
+      containers:
+        - name: homer
+          image: b4bz/homer
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "0.25"
+            limits:
+              memory: "64Mi"
+              cpu: "0.25"
+          ports:
+            - name: web
+              containerPort: 8080
+          volumeMounts:
+            - name: config
+              mountPath: /www/assets/config.yml
+              subPath: config.yml
+      volumes:
+        - name: config
+          configMap:
+            name: homer

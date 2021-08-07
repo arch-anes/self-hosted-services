@@ -1,0 +1,152 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: huginn
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 3000
+  selector:
+    app: huginn
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: huginn
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`huginn.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: huginn
+          port: 3000
+  tls:
+    secretName: wilcard-main-domain-tls
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: huginn
+type: Opaque
+# stringData:
+#   db_password: "somepassword"
+#   invitation_code: "somecode"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: huginn
+  labels:
+    app: huginn
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: huginn
+  template:
+    metadata:
+      labels:
+        app: huginn
+    spec:
+      affinity:
+        nodeAffinity:
+          # Only on NAS nodes
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nas
+                    operator: In
+                    values:
+                      - "true"
+      containers:
+        - name: db
+          image: postgres:12-alpine
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "0.25"
+            limits:
+              memory: "256Mi"
+              cpu: "0.5"
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: huginn
+                  key: db_password
+            - name: POSTGRES_DB
+              value: "huginn"
+          ports:
+            - name: db
+              containerPort: 5432
+          volumeMounts:
+            - name: db
+              mountPath: /var/lib/postgresql/data
+        - name: app
+          image: huginn/huginn
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.25"
+            limits:
+              memory: "1024Mi"
+              cpu: "2.00"
+          env:
+            - name: RAILS_ENV
+              value: "production"
+            - name: INVITATION_CODE
+              valueFrom:
+                secretKeyRef:
+                  name: huginn
+                  key: invitation_code
+            - name: DATABASE_ADAPTER
+              value: "postgresql"
+            - name: DATABASE_HOST
+              value: "localhost"
+            - name: DATABASE_NAME
+              value: "huginn"
+            - name: DATABASE_USERNAME
+              value: "postgres"
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: huginn
+                  key: db_password
+            - name: SMTP_SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: hostname
+            - name: SMTP_USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: username
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: password
+            - name: SMTP_AUTHENTICATION
+              value: "login"
+            - name: EMAIL_FROM_ADDRESS
+              value: "huginn@${DOMAIN_NAME}"
+            - name: SMTP_DOMAIN
+              value: "${DOMAIN_NAME}"
+            - name: DOMAIN
+              value: "${DOMAIN_NAME}"
+          ports:
+            - name: web
+              containerPort: 3000
+      volumes:
+        - name: db
+          hostPath:
+            path: /storage/huginn/db

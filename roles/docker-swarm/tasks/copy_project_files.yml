@@ -1,9 +1,0 @@
-- name: Clean project files
-  file:
-    state: absent
-    path: "{{ remote_stacks_location }}/"
-
-- name: Copy project files
-  synchronize:
-    src: "{{ local_stacks_location }}/"
-    dest: "{{ remote_stacks_location }}"

@@ -1,0 +1,94 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: duplicati
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 8200
+  selector:
+    app: duplicati
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: duplicati
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`duplicati.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: duplicati
+          port: 8200
+  tls:
+    secretName: wilcard-main-domain-tls
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: duplicati
+  labels:
+    app: duplicati
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: duplicati
+  template:
+    metadata:
+      labels:
+        app: duplicati
+    spec:
+      affinity:
+        nodeAffinity:
+          # Only on NAS nodes
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nas
+                    operator: In
+                    values:
+                      - "true"
+      containers:
+        - name: app
+          image: linuxserver/duplicati
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.25"
+            limits:
+              memory: "1024Mi"
+              cpu: "1.00"
+          ports:
+            - name: web
+              containerPort: 8200
+          env:
+            - name: PUID
+              value: "0"
+            - name: PGID
+              value: "0"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: backups
+              mountPath: /backups
+            - name: storage
+              mountPath: /source
+              readOnly: true
+      volumes:
+        - name: config
+          hostPath:
+            path: /storage/duplicati/config
+        - name: backups
+          hostPath:
+            path: /storage/duplicati/backups
+        - name: storage
+          hostPath:
+            path: /storage

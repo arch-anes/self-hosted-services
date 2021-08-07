@@ -1,0 +1,26 @@
+- name: Deploy packages and manifests
+  block:
+    - name: Install Helm packages
+      include_tasks: install_helm_package.yml
+      with_fileglob: "{{ packages_location }}/*"
+      loop_control:
+        loop_var: package_file
+
+    - name: Deploy Kubernetes manifests
+      block:
+        - name: Generate aggregate manifest file
+          shell: "cat {{ manifests_location }}/*.yml | env DOMAIN_NAME={{ fqdn }} envsubst '$DOMAIN_NAME' > {{ aggregate_manifest_location }}"
+          delegate_to: localhost
+          run_once: yes
+          become: no
+
+        - name: Copy aggregate file to remote
+          copy:
+            src: "{{ aggregate_manifest_location }}"
+            dest: "{{ remote_manifest_location }}"
+            mode: "0600"
+
+        - name: Apply aggregate manifest
+          shell: "kubectl apply -f {{ remote_manifest_location }}"
+  become: yes
+  run_once: yes

@@ -1,16 +1,14 @@
 ---
 ufw_packages: []
 
-remote_stacks_location: "~/stacks"
-local_stacks_location: "{{ playbook_dir }}/stacks"
+kubernetes_project_location: "{{ playbook_dir }}/kubernetes"
+manifests_location: "{{ kubernetes_project_location }}/manifests"
+packages_location: "{{ kubernetes_project_location }}/packages"
+aggregate_manifest_location: "{{ kubernetes_project_location }}/manifest.yml"
+remote_manifest_location: "/manifest.yml"
 
 skip_firewall: false
 skip_vpn_setup: false
-skip_swarm_setup: false
-skip_docker_prune: false
+skip_k8s_setup: false
 
-env_vars:
-  TZ: "{{ lookup('env','TZ') }}"
-  STORAGE_LOCATION: "{{ storage }}"
-  DOMAIN_NAME: "{{ fqdn }}"
-  LDAP_ORG: "{{ organization|lower }}"
+fqdn: "example.com"

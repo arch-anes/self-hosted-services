@@ -1,9 +1,9 @@
 ---
 - name: Setup cluster
+  any_errors_fatal: true
   hosts: all
-
-  environment: "{{ env_vars }}"
-
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
   roles:
     - name: Setup basic firewall rules
       role: weareinteractive.ufw
@@ -20,24 +20,7 @@
       role: vpn
       when: not skip_vpn_setup
 
-    - name: Deploy Docker Swarm
-      role: docker-swarm
+    - name: Deploy Kubernetes cluster
+      role: kubernetes
       vars:
-        docker_swarm_addr: "{{ private_ip | default(ansible_wg0.ipv4.address) }}"
-        networks:
-          - ldap
-          - reverse_proxy
-        stacks:
-          - Booksonic
-          - DDNS
-          - Duplicati
-          - Homer
-          - Huginn
-          - Jellyfin
-          - Keycloak
-          - Nextcloud
-          - Pihole
-          - Smart Strike
-          - Swarmpit
-          - Traefik
-          - TTRSS
+        advertised_address: "{{ private_ip | default(ansible_wg0.ipv4.address) }}"

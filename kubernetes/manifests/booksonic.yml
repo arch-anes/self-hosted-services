@@ -1,0 +1,90 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: booksonic
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 4040
+  selector:
+    app: booksonic
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: booksonic
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`booksonic.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: booksonic
+          port: 4040
+  tls:
+    secretName: wilcard-main-domain-tls
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: booksonic
+  labels:
+    app: booksonic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: booksonic
+  template:
+    metadata:
+      labels:
+        app: booksonic
+    spec:
+      affinity:
+        nodeAffinity:
+          # Only on NAS nodes
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nas
+                    operator: In
+                    values:
+                      - "true"
+      containers:
+        - name: app
+          image: linuxserver/booksonic-air
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.25"
+            limits:
+              memory: "2048Mi"
+              cpu: "1.00"
+          ports:
+            - name: web
+              containerPort: 4040
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: JAVA_OPTS
+              value: "-Dserver.use-forward-headers=true"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: media
+              mountPath: /media
+      volumes:
+        - name: config
+          hostPath:
+            path: /storage/booksonic/config
+        - name: media
+          hostPath:
+            path: /storage/booksonic/media

@@ -1,0 +1,20 @@
+- name: Install Helm package
+  block:
+    - set_fact:
+        package_info: "{{ lookup('file', package_file) | from_yaml }}"
+
+    - name: Add repository
+      community.kubernetes.helm_repository:
+        name: "{{ package_info['repo']['name'] }}"
+        repo_url: "{{ package_info['repo']['repo_url'] }}"
+
+    - name: Install package
+      community.kubernetes.helm:
+        name: "{{ package_info['package']['name'] }}"
+        namespace: "{{ package_info['package']['namespace'] }}"
+        chart_ref: "{{ package_info['package']['chart_ref'] }}"
+        chart_version: "{{ package_info['package']['chart_version'] }}"
+        values: "{{ package_info['package']['values'] }}"
+        update_repo_cache: yes
+        create_namespace: yes
+        wait: yes

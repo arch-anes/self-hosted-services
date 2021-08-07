@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ddns
+  namespace: kube-system
+  labels:
+    app: ddns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ddns
+  template:
+    metadata:
+      labels:
+        app: ddns
+    spec:
+      affinity:
+        nodeAffinity:
+          # Prefer local nodes
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: local
+                    operator: In
+                    values:
+                      - "true"
+          # Only on public nodes
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: public
+                    operator: In
+                    values:
+                      - "true"
+      containers:
+        - name: db
+          image: archanes/cloudflare-ddns
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "0.25"
+            limits:
+              memory: "64Mi"
+              cpu: "0.5"
+          env:
+            - name: CF_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cloudflare
+                  key: token
+            - name: ZONES
+              value: "${DOMAIN_NAME}"
+            - name: UNIQUE
+              value: "yes"
