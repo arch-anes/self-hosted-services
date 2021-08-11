@@ -13,6 +13,7 @@
 
 - name: Get host public IP
   ipify_facts:
+  when: public_ip is not defined
 
 - name: Retain current private IP address
   set_fact:
@@ -33,7 +34,7 @@
   set_fact:
     wireguard_address: "{{ private_ip }}/24"
     wireguard_port: "{{ listen_vpn_port }}"
-    wireguard_endpoint: "{{ ipify_public_ip }}"
+    wireguard_endpoint: "{{ public_ip | default(ipify_public_ip) }}"
 
 - name: Setup WireGuard VPN
   import_role:
