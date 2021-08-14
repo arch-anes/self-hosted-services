@@ -6,7 +6,3 @@ RUN mkdir -p /etc/ansible && touch /etc/ansible/ansible.cfg && \
     echo "[defaults]" > /etc/ansible/ansible.cfg && \
     echo "strategy_plugins = /usr/local/lib/python3.8/dist-packages/ansible_mitogen/plugins/strategy" >> /etc/ansible/ansible.cfg  && \
     echo "strategy = mitogen_linear" >> /etc/ansible/ansible.cfg
-
-USER vscode
-COPY requirements.yml requirements.yml
-RUN ansible-galaxy install -r requirements.yml

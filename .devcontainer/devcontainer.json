@@ -2,7 +2,6 @@
 	"name": "Self-hosted services devcontainer",
 	"build": {
 		"dockerfile": "./Dockerfile",
-		"context": ".."
 	},
 	"runArgs": [
 		"--env-file",
@@ -12,6 +11,7 @@
 	"mounts": [
 		"type=bind,source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh"
 	],
+	"postCreateCommand": "ansible-galaxy install -r requirements.yml",
 	"extensions": [
 		"redhat.vscode-yaml",
 		"visualstudioexptteam.vscodeintellicode",
