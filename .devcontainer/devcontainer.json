@@ -5,6 +5,7 @@
 		"dockerfile": "./Dockerfile",
 	},
 	"runArgs": [
+		"--privileged",
 		"--env-file",
 		".devcontainer/.env",
 	],

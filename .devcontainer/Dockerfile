@@ -8,6 +8,8 @@ RUN sudo curl https://baltocdn.com/helm/signing.asc | sudo apt-key add - && \
 
 RUN apt-get update && apt-get install -y apt-transport-https python3-pip gettext-base kubectl helm && pip3 install ansible==3.4.0 mitogen==0.3.0rc1 boto3 ansible-lint
 
+RUN apt-get update && apt-get install -y vagrant virtualbox yamllint && pip3 install molecule==3.4.0 molecule-vagrant==0.6.3 python-vagrant
+
 RUN mkdir -p /etc/ansible
 COPY .devcontainer/ansible.cfg /etc/ansible/ansible.cfg
 

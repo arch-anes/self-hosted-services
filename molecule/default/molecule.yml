@@ -1,0 +1,67 @@
+---
+dependency:
+  name: galaxy
+  options:
+    role-file: ../../requirements.yml
+    requirements-file: ../../requirements.yml
+driver:
+  name: vagrant
+lint: |
+  set -e
+  yamllint . -s -f colored
+  ansible-lint --exclude ${HOME}/.ansible/roles/
+platforms:
+  - name: replica1
+    box: abelfodil/ubuntu2004-dotfiles
+    memory: 2048
+    cpus: 2
+    instance_raw_config_args:
+      - 'vm.network "public_network", ip: "192.168.42.1"'
+  - name: replica2
+    box: abelfodil/ubuntu2004-dotfiles
+    memory: 2048
+    cpus: 2
+    instance_raw_config_args:
+      - 'vm.network "public_network", ip: "192.168.42.2"'
+  - name: replica3
+    box: abelfodil/ubuntu2004-dotfiles
+    memory: 2048
+    cpus: 2
+    instance_raw_config_args:
+      - 'vm.network "public_network", ip: "192.168.42.3"'
+  - name: replica4
+    box: abelfodil/ubuntu2004-dotfiles
+    memory: 2048
+    cpus: 2
+    instance_raw_config_args:
+      - 'vm.network "public_network", ip: "192.168.42.4"'
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      replica1:
+        public_ip: "192.168.42.1"
+        k3s_control_node: true
+        labels:
+          - local=true
+          - public=true
+      replica2:
+        public_ip: "192.168.42.2"
+        k3s_control_node: true
+        labels:
+          - dns=true
+      replica3:
+        public_ip: "192.168.42.3"
+        k3s_control_node: true
+        labels:
+          - nas=true
+      replica4:
+        public_ip: "192.168.42.4"
+        labels: []
+  playbooks:
+    converge: converge.yml
+    # verify: ../default/verify.yml
+# verifier:
+#   name: ansible
+#   lint:
+#     name: ansible-lint

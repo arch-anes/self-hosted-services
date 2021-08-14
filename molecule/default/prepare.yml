@@ -1,0 +1,9 @@
+---
+- name: Prepare
+  hosts: all
+  tasks:
+    - name: Ensure all hosts to are up
+      command: "ping -c 1 -w 600 {{ item }}"
+      loop: "{{ hostvars | json_query('*.public_ip') }}"
+      run_once: true
+      changed_when: false

@@ -1,0 +1,14 @@
+# code: language=ansible
+
+---
+- name: Setup cluster
+  import_playbook: ../../setup_cluster.yml
+
+- hosts: all
+  tasks:
+    - name: Force all notified handlers to run
+      meta: flush_handlers
+
+    - name: Wait for convergence
+      pause:
+        seconds: "30"
