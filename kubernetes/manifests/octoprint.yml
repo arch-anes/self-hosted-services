@@ -1,0 +1,127 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: octoprint
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 5000
+    - protocol: TCP
+      name: webcam
+      port: 8080
+  selector:
+    app: octoprint
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: octoprint-webcam
+type: Opaque
+# stringData:
+#   credentials: "admin:$2y$12$8KtQ4SQb6QpebcgYvMPjwOv3Jz9ojkNq8FVWZmk5q1BW9BoEX2aAy" # admin:admin by default, bcrypted password: https://bcrypt-generator.com/
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: octoprint-webcam
+spec:
+  basicAuth:
+    secret: "octoprint-webcam"
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: octoprint
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`octoprint.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: octoprint
+          port: 5000
+    - match: Host(`octoprint-webcam.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: octoprint
+          port: 8080
+      middlewares:
+        - name: octoprint-webcam
+  tls:
+    secretName: wilcard-main-domain-tls
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: octoprint
+  labels:
+    app: octoprint
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: octoprint
+  template:
+    metadata:
+      labels:
+        app: octoprint
+    spec:
+      affinity:
+        nodeAffinity:
+          # Only on printer nodes
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: printer
+                    operator: In
+                    values:
+                      - "true"
+      containers:
+        - name: app
+          image: octoprint/octoprint
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.25"
+            limits:
+              memory: "2048Mi"
+              cpu: "4.00"
+          ports:
+            - name: web
+              containerPort: 5000
+            - name: webcam
+              containerPort: 8080
+          env:
+            - name: ENABLE_MJPG_STREAMER
+              value: "true"
+            - name: MJPG_STREAMER_INPUT
+              value: "-fps 30 -r 1920x1080"
+            - name: OCTOPRINT_PORT
+              value: "5000"
+          volumeMounts:
+            - name: octoprint
+              mountPath: /octoprint
+            - name: printer
+              mountPath: /dev/ttyUSB0
+            - name: webcam
+              mountPath: /dev/video0
+      volumes:
+        - name: octoprint
+          hostPath:
+            path: /storage/octoprint
+        - name: printer
+          hostPath:
+            path: /dev/ttyUSB0
+        - name: webcam
+          hostPath:
+            path: /dev/video0
