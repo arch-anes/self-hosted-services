@@ -10,6 +10,8 @@ lint: |
   set -e
   yamllint . -s -f colored
   ansible-lint --exclude ${HOME}/.ansible/roles/
+  datree publish policies.yaml
+  datree test kubernetes/manifests/*.yml --ignore-missing-schemas
 platforms:
   - name: replica1
     box: abelfodil/ubuntu2004-dotfiles

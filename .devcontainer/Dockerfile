@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y apt-transport-https python3-pip gettext
 
 RUN apt-get update && apt-get install -y vagrant virtualbox yamllint && pip3 install molecule==3.4.0 molecule-vagrant==0.6.3 python-vagrant
 
+RUN curl https://get.datree.io | /bin/bash
+
 RUN mkdir -p /etc/ansible
 COPY .devcontainer/ansible.cfg /etc/ansible/ansible.cfg
 

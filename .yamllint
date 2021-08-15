@@ -3,6 +3,7 @@ extends: default
 
 ignore: |
   inventory*.yml
+  policies.yaml
 
 rules:
   line-length: disable
