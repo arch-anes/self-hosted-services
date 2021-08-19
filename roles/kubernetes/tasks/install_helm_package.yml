@@ -1,15 +1,13 @@
-- name: Install Helm package
+- name: "Install {{ package_file | basename }} Helm package"
   block:
     - set_fact:
         package_info: "{{ lookup('file', package_file) | from_yaml }}"
 
-    - name: Add repository
-      community.kubernetes.helm_repository:
+    - community.kubernetes.helm_repository:
         name: "{{ package_info['repo']['name'] }}"
         repo_url: "{{ package_info['repo']['repo_url'] }}"
 
-    - name: Install package
-      community.kubernetes.helm:
+    - community.kubernetes.helm:
         name: "{{ package_info['package']['name'] }}"
         namespace: "{{ package_info['package']['namespace'] }}"
         chart_ref: "{{ package_info['package']['chart_ref'] }}"

@@ -1,10 +1,18 @@
 - name: Deploy packages and manifests
   block:
-    - name: Install Helm packages
-      include_tasks: install_helm_package.yml
-      with_fileglob: "{{ packages_location }}/*"
-      loop_control:
-        loop_var: package_file
+    - name: Install packages
+      block:
+        - name: "Install Helm packages"
+          include_tasks: install_helm_package.yml
+          with_fileglob: "{{ packages_location }}/*.yml"
+          loop_control:
+            loop_var: package_file
+
+        - name: "Install URL packages"
+          shell: "kubectl apply -f {{ lookup('file', package_file) }}"
+          with_fileglob: "{{ packages_location }}/*.url"
+          loop_control:
+            loop_var: package_file
 
     - name: Deploy Kubernetes manifests
       block:
