@@ -43,15 +43,14 @@ spec:
     logs:
       access:
         enabled: true
-    deployment:
-      kind: DaemonSet
     affinity:
       nodeAffinity:
-        # Only on public nodes
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-            - matchExpressions:
-                - key: public
+        # Prefer local nodes
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+                - key: local
                   operator: In
                   values:
                     - "true"
@@ -79,6 +78,19 @@ spec:
       limits:
         memory: "512Mi"
         cpu: "2.00"
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 10
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            targetAverageUtilization: 60
+        - type: Resource
+          resource:
+            name: memory
+            targetAverageUtilization: 60
 
 ---
 apiVersion: v1
