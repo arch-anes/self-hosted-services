@@ -106,7 +106,7 @@ data:
 
 ---
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
   annotations:
     reloader.stakater.com/auto: "true"
@@ -114,6 +114,7 @@ metadata:
   labels:
     app: homer
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: homer
@@ -122,22 +123,12 @@ spec:
       labels:
         app: homer
     spec:
-      affinity:
-        nodeAffinity:
-          # Only on public nodes
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: public
-                    operator: In
-                    values:
-                      - "true"
       containers:
         - name: homer
           image: b4bz/homer
           resources:
             requests:
-              memory: "64Mi"
+              memory: "32Mi"
               cpu: "0.25"
             limits:
               memory: "64Mi"
@@ -153,3 +144,23 @@ spec:
         - name: config
           configMap:
             name: homer
+
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: homer
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: homer
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
