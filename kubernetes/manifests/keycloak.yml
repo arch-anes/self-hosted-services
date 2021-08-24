@@ -52,14 +52,6 @@ data:
 
 ---
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: ldap
-# data:
-#   organization: "Example Inc."
-
----
-apiVersion: v1
 kind: Secret
 metadata:
   name: openldap
@@ -67,6 +59,7 @@ type: Opaque
 # stringData:
 #   admin_password: "admin"
 #   config_password: "config"
+#   organization: "Example Inc."
 
 ---
 apiVersion: v1
@@ -130,8 +123,8 @@ spec:
               value: "${DOMAIN_NAME}"
             - name: LDAP_ORGANISATION
               valueFrom:
-                configMapKeyRef:
-                  name: ldap
+                secretKeyRef:
+                  name: openldap
                   key: organization
             - name: LDAP_ADMIN_PASSWORD
               valueFrom:
