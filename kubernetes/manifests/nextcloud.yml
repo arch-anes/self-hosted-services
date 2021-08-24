@@ -87,7 +87,7 @@ spec:
               cpu: "0.25"
             limits:
               memory: "256Mi"
-              cpu: "0.5"
+              cpu: "1.00"
           volumeMounts:
             - name: redis
               mountPath: /data
@@ -98,8 +98,8 @@ spec:
               memory: "128Mi"
               cpu: "0.25"
             limits:
-              memory: "256Mi"
-              cpu: "0.5"
+              memory: "512Mi"
+              cpu: "1.00"
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -118,8 +118,8 @@ spec:
               memory: "512Mi"
               cpu: "0.25"
             limits:
-              memory: "1024Mi"
-              cpu: "2.00"
+              memory: "4096Mi"
+              cpu: "4.00"
           env:
             - name: REDIS_HOST
               value: "localhost"
