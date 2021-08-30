@@ -36,7 +36,7 @@ spec:
                     values:
                       - "true"
       containers:
-        - name: db
+        - name: app
           image: archanes/cloudflare-ddns
           resources:
             requests:
