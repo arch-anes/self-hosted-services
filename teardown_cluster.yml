@@ -1,3 +1,5 @@
+# code: language=ansible
+
 ---
 - name: Teardown cluster
   hosts: all

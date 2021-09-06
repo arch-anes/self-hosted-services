@@ -1,3 +1,5 @@
+# code: language=ansible
+
 - name: Set VPN port
   set_fact:
     listen_vpn_port: "{{ vpn_port | default(3210) }}"

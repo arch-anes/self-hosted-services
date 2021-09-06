@@ -21,6 +21,7 @@
 		"ms-azuretools.vscode-docker",
 		"wholroyd.jinja",
 		"ms-kubernetes-tools.vscode-kubernetes-tools",
-		"redhat.ansible"
+		"redhat.ansible",
+		"chrislajoie.vscode-modelines"
 	]
 }

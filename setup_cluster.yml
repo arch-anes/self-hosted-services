@@ -1,3 +1,5 @@
+# code: language=ansible
+
 ---
 - name: Setup cluster
   any_errors_fatal: true

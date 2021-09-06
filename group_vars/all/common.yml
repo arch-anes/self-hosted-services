@@ -1,3 +1,5 @@
+# code: language=ansible
+
 ---
 ufw_packages: []
 

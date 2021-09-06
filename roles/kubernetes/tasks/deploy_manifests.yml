@@ -1,3 +1,5 @@
+# code: language=ansible
+
 - name: Deploy packages and manifests
   block:
     - name: Install packages

@@ -1,3 +1,5 @@
+# code: language=ansible
+
 ---
 collections:
   - name: amazon.aws

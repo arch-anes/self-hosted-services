@@ -1,3 +1,5 @@
+# code: language=ansible
+
 - block:
     - name: Fix sudo unresolved host issue
       shell:
