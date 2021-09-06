@@ -18,6 +18,9 @@
 		"ms-python.python",
 		"ms-python.vscode-pylance",
 		"mads-hartmann.bash-ide-vscode",
-		"ms-azuretools.vscode-docker"
+		"ms-azuretools.vscode-docker",
+		"wholroyd.jinja",
+		"ms-kubernetes-tools.vscode-kubernetes-tools",
+		"redhat.ansible"
 	]
 }
