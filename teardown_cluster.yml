@@ -9,4 +9,4 @@
       vars:
         k3s_state: uninstalled
         k3s_become_for_all: true
-      become: yes
+      become: true

@@ -4,7 +4,7 @@
     - name: Fix sudo unresolved host issue
       shell:
         cmd: export FILE=/etc/hosts && export LINE="127.0.1.1 $(hostname)" && grep -qF "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"
-      become: yes
+      become: true
 
     - name: Add hosts to control plane and set labels
       set_fact:

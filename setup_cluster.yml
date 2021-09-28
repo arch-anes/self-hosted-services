@@ -15,7 +15,7 @@
           - { to_port: 80, proto: tcp, rule: allow, comment: "Allow HTTP" }
           - { to_port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
           - { to_port: 53, proto: any, rule: allow, comment: "Allow DNS" }
-      become: yes
+      become: true
       when: not skip_firewall
 
     - name: Create a VPN mesh network

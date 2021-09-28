@@ -11,7 +11,7 @@
           - { to_port: 8472, proto: udp, rule: allow, comment: "Required only for Flannel VXLAN" }
           - { to_port: 10250, proto: tcp, rule: allow, comment: "Kubelet metrics" }
           - { to_port: "2379:2380", proto: tcp, rule: allow, comment: "Required only for HA with embedded etcd" }
-      become: yes
+      become: true
       when: not skip_firewall
 
     - name: Set k3s node facts
@@ -32,7 +32,7 @@
       block:
         - name: Populate service facts
           service_facts:
-          become: yes
+          become: true
 
         - name: Mark eligible nodes
           set_fact:
@@ -57,7 +57,7 @@
         k3s_become_for_all: true
         k3s_etcd_datastore: true
         k3s_use_unsupported_config: true
-      become: yes
+      become: true
 
     - name: "Correctly set arm64 variables"
       set_fact:

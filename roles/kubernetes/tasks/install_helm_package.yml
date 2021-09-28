@@ -15,6 +15,6 @@
         chart_ref: "{{ package_info['package']['chart_ref'] }}"
         chart_version: "{{ package_info['package']['chart_version'] }}"
         values: "{{ package_info['package']['values'] }}"
-        update_repo_cache: yes
-        create_namespace: yes
-        wait: yes
+        update_repo_cache: true
+        create_namespace: true
+        wait: true

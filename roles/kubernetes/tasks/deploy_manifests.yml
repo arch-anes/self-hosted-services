@@ -21,8 +21,8 @@
         - name: Generate aggregate manifest file
           shell: "cat {{ manifests_location }}/*.yml | env DOMAIN_NAME={{ fqdn }} envsubst '$DOMAIN_NAME' > {{ aggregate_manifest_location }}"
           delegate_to: localhost
-          run_once: yes
-          become: no
+          run_once: true
+          become: false
 
         - name: Copy aggregate file to remote
           copy:
@@ -32,5 +32,5 @@
 
         - name: Apply aggregate manifest
           shell: "kubectl apply -f {{ remote_manifest_location }}"
-  become: yes
-  run_once: yes
+  become: true
+  run_once: true

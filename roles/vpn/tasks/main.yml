@@ -10,7 +10,7 @@
   vars:
     ufw_rules:
       - { to_port: "{{ listen_vpn_port }}", proto: udp, rule: allow, comment: "VPN" }
-  become: yes
+  become: true
   when: not skip_firewall
 
 - name: Get host public IP
@@ -43,7 +43,7 @@
     name: abelfodil.ansible_role_wireguard
   vars:
     wireguard_service_state: "restarted"
-  become: yes
+  become: true
 
 - name: Ensure all hosts to are up
   shell: "ping -c 1 -w 600 {{ item }}"
