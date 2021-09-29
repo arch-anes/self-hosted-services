@@ -3,14 +3,14 @@
 
 - name: "Install {{ package_file | basename }} Helm package"
   block:
-    - set_fact:
+    - set_fact:  # noqa unnamed-task
         package_info: "{{ lookup('file', package_file) | from_yaml }}"
 
-    - community.kubernetes.helm_repository:
+    - community.kubernetes.helm_repository:  # noqa unnamed-task
         name: "{{ package_info['repo']['name'] }}"
         repo_url: "{{ package_info['repo']['repo_url'] }}"
 
-    - community.kubernetes.helm:
+    - community.kubernetes.helm:  # noqa unnamed-task
         name: "{{ package_info['package']['name'] }}"
         namespace: "{{ package_info['package']['namespace'] }}"
         chart_ref: "{{ package_info['package']['chart_ref'] }}"

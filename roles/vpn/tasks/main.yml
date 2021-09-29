@@ -24,15 +24,15 @@
 
 - name: Find new private IP address
   block:
-    - command: "{{ role_path }}/find_available_ips.py -n {{ ansible_play_hosts|length }} --taken_ips {{ hostvars | json_query('*.private_ip') | quote }}"
+    - command: "{{ role_path }}/find_available_ips.py -n {{ ansible_play_hosts|length }} --taken_ips {{ hostvars | json_query('*.private_ip') | quote }}"  # noqa unnamed-task
       delegate_to: localhost
       register: available_private_ips
       run_once: true
       changed_when: false
 
-    - set_fact:
+    - set_fact:  # noqa unnamed-task
         private_ip: "{{ (available_private_ips.stdout | from_json).ips[ansible_play_hosts_all.index(inventory_hostname)] }}"
-      when: "private_ip == ''"
+      when: "private_ip == ''"  # noqa empty-string-compare
 
 - name: Set WireGuard configuration variables
   set_fact:
