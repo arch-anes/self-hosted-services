@@ -12,7 +12,7 @@
             loop_var: package_file
 
         - name: "Install URL packages"
-          shell: "kubectl apply -f {{ lookup('file', package_file) }}"
+          command: "kubectl apply -f {{ lookup('file', package_file) }}"
           with_fileglob: "{{ packages_location }}/*.url"
           loop_control:
             loop_var: package_file
@@ -32,6 +32,6 @@
             mode: "0600"
 
         - name: Apply aggregate manifest
-          shell: "kubectl apply -f {{ remote_manifest_location }}"
+          command: "kubectl apply -f {{ remote_manifest_location }}"
   become: true
   run_once: true
