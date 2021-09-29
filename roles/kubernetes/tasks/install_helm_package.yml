@@ -1,4 +1,5 @@
 # code: language=ansible
+---
 
 - name: "Install {{ package_file | basename }} Helm package"
   block:

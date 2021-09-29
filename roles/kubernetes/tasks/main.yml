@@ -1,4 +1,5 @@
 # code: language=ansible
+---
 
 - name: Add AWS EC2 hosts to k3s control node
   include_tasks: merge-ec2.yml
