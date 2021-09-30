@@ -43,9 +43,10 @@
 - name: Setup WireGuard VPN
   import_role:
     name: abelfodil.ansible_role_wireguard
-  vars:
-    wireguard_service_state: "restarted"
   become: true
+
+- name: Force all notified handlers to run
+  meta: flush_handlers
 
 - name: Ensure all hosts to are up
   command: "ping -c 1 -w 600 {{ item }}"
