@@ -1,6 +1,5 @@
 FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-20.04
 
-
 RUN sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
@@ -10,4 +9,9 @@ RUN sudo curl https://baltocdn.com/helm/signing.asc | sudo apt-key add - && \
 RUN apt-get update && apt-get install -y apt-transport-https python3-pip gettext-base kubectl helm && pip3 install ansible==3.4.0 mitogen==0.3.0rc1 boto3 ansible-lint
 
 RUN mkdir -p /etc/ansible
-COPY ansible.cfg /etc/ansible/ansible.cfg
+COPY .devcontainer/ansible.cfg /etc/ansible/ansible.cfg
+
+USER vscode
+
+COPY requirements.yml /tmp/requirements.yml
+RUN ansible-galaxy install -r /tmp/requirements.yml
