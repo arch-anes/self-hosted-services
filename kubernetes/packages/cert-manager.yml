@@ -7,7 +7,7 @@ package:
   name: cert-manager
   namespace: kube-system
   chart_ref: jetstack/cert-manager
-  chart_version: v1.5.0
+  chart_version: v1.5.3
   values:
     installCRDs: true
     prometheus:
