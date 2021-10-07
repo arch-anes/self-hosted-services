@@ -1,0 +1,15 @@
+---
+repo:
+  name: nfd
+  repo_url: https://kubernetes-sigs.github.io/node-feature-discovery/charts
+
+package:
+  name: node-feature-discovery
+  namespace: node-feature-discovery
+  chart_ref: nfd/node-feature-discovery
+  chart_version: v0.9.0
+  values:
+    worker:
+      nodeSelector:
+        # nfd crashes on ARM for an unknown reason
+        kubernetes.io/arch: amd64
