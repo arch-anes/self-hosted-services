@@ -7,7 +7,7 @@ package:
   name: kubernetes-dashboard
   namespace: kubernetes-dashboard
   chart_ref: kubernetes-dashboard/kubernetes-dashboard
-  chart_version: v4.3.2
+  chart_version: v5.0.2
   values:
     protocolHttp: true
     extraArgs:
