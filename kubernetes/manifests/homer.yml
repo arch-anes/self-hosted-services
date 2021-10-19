@@ -57,6 +57,8 @@ data:
           - name: "Booksonic"
             logo: "https://booksonic.org/assets/img/booksonic.png"
             url: "https://booksonic.${DOMAIN_NAME}"
+          - name: "aria2"
+            url: "https://aria2.${DOMAIN_NAME}"
 
       - name: "Feed"
         icon: "fas fa-rss"

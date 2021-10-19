@@ -1,0 +1,174 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aria2
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 80
+  selector:
+    app: aria2
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: aria2
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`aria2.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: aria2
+          port: 80
+  tls:
+    secretName: wilcard-main-domain-tls
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aria2
+data:
+  vpn: "mullvad"
+  countries: "Austria,Brazil,Bulgaria,Denmark,Estonia,Finland,Hungary,Italy,Luxembourg,Moldova,Netherlands,Norway,Poland,Singapore,Spain,Sweden,Switzerland"
+
+---
+# For mullvad:
+#  Create a Mullvad private key
+#  Derive public key from private key using `wg pubkey < privatekey > publickey`
+#  Get Wireguard IP using `curl https://api.mullvad.net/wg/ -d account=youraccountnumber --data-urlencode pubkey="yourpublickey"`
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aria2
+type: Opaque
+# stringData:
+#   username: "someuser"
+#   password: "somepassword"
+#   rpc_secret: "somecode"
+#   wireguard_key: "somekey"
+#   wireguard_address: "123.123.123.123/32"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aria2
+  labels:
+    app: aria2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aria2
+  template:
+    metadata:
+      labels:
+        app: aria2
+    spec:
+      affinity:
+        nodeAffinity:
+          # Only on NAS nodes
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nas
+                    operator: In
+                    values:
+                      - "true"
+      containers:
+        - name: vpn
+          image: qmcgaw/gluetun
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.25"
+            limits:
+              memory: "1024Mi"
+              cpu: "1.00"
+          env:
+            - name: VPN_TYPE
+              value: "wireguard"
+            - name: VPNSP
+              valueFrom:
+                configMapKeyRef:
+                  name: aria2
+                  key: vpn
+            - name: COUNTRY
+              valueFrom:
+                configMapKeyRef:
+                  name: aria2
+                  key: countries
+            - name: WIREGUARD_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aria2
+                  key: wireguard_key
+            - name: WIREGUARD_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: aria2
+                  key: wireguard_address
+        - name: app
+          image: wahyd4/aria2-ui
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "1.00"
+            limits:
+              memory: "1024Mi"
+              cpu: "5.00"
+          ports:
+            - name: web
+              containerPort: 80
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: ENABLE_AUTH
+              value: "true"
+            - name: ENABLE_RCLONE
+              value: "false"
+            - name: DOMAIN
+              value: "http://aria2.${DOMAIN_NAME}"
+            - name: ARIA2_EXTERNAL_PORT
+              value: "443"
+            - name: ARIA2_USER
+              valueFrom:
+                secretKeyRef:
+                  name: aria2
+                  key: username
+            - name: ARIA2_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: aria2
+                  key: password
+            - name: RPC_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: aria2
+                  key: rpc_secret
+          volumeMounts:
+            - name: config
+              mountPath: /app/conf
+            - name: media
+              mountPath: /data
+      volumes:
+        - name: config
+          hostPath:
+            path: /storage/aria2/config
+        - name: media
+          hostPath:
+            path: /storage/aria2/media
