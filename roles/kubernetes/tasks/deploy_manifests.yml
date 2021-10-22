@@ -16,6 +16,7 @@
           with_fileglob: "{{ packages_location }}/*.url"
           loop_control:
             loop_var: package_file
+          changed_when: false
 
     - name: Deploy Kubernetes manifests
       block:
@@ -34,5 +35,6 @@
 
         - name: Apply aggregate manifest
           command: "kubectl apply -f {{ remote_manifest_location }}"
+          changed_when: false
   become: true
   run_once: true
