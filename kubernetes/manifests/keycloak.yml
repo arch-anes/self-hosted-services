@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: keycloak
+  namespace: default
 spec:
   ports:
     - protocol: TCP
@@ -19,6 +20,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: keycloak
+  namespace: default
 spec:
   entryPoints:
     - web
@@ -37,6 +39,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: custom-ldap-config
+  namespace: default
 data:
   load-pkbdf2.ldif: |
     dn: cn=module{0},cn=config
@@ -55,6 +58,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: openldap
+  namespace: default
 type: Opaque
 # stringData:
 #   admin_password: "admin"
@@ -66,6 +70,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: keycloak
+  namespace: default
 type: Opaque
 # stringData:
 #   db_password: "somepassword"
@@ -77,6 +82,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: keycloak
+  namespace: default
   labels:
     app: keycloak
 spec:

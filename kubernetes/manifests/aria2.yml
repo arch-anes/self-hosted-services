@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: aria2
+  namespace: default
 spec:
   ports:
     - protocol: TCP
@@ -16,6 +17,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: aria2
+  namespace: default
 spec:
   entryPoints:
     - web
@@ -34,6 +36,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: aria2
+  namespace: default
 data:
   vpn: "mullvad"
   countries: "Austria,Brazil,Bulgaria,Denmark,Estonia,Finland,Hungary,Italy,Luxembourg,Moldova,Netherlands,Norway,Poland,Singapore,Spain,Sweden,Switzerland"
@@ -47,6 +50,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: aria2
+  namespace: default
 type: Opaque
 # stringData:
 #   username: "someuser"
@@ -60,6 +64,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: aria2
+  namespace: default
   labels:
     app: aria2
 spec:

@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: smart-strike
+  namespace: default
 spec:
   ports:
     - protocol: TCP
@@ -16,6 +17,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: smart-strike
+  namespace: default
 spec:
   entryPoints:
     - web
@@ -34,6 +36,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: smart-strike
+  namespace: default
 type: Opaque
 # stringData:
 #   device_auth: '{"host": "example.com", "user": "some-device-user", "pass": "some-device-password"}'
@@ -45,6 +48,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: smart-strike
+  namespace: default
   labels:
     app: smart-strike
 spec:
