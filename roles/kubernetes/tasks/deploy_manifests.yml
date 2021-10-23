@@ -24,6 +24,7 @@
           delegate_to: localhost
           run_once: true
           become: false
+          changed_when: false
 
         - name: Copy aggregate file to remote
           copy:
