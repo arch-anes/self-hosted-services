@@ -6,7 +6,7 @@ RUN sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://
 RUN sudo curl https://baltocdn.com/helm/signing.asc | sudo apt-key add - && \
     echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
 
-RUN apt-get update && apt-get install -y apt-transport-https python3-pip gettext-base kubectl helm && pip3 install ansible==3.4.0 mitogen==0.3.0rc1 boto3 ansible-lint
+RUN apt-get update && apt-get install -y apt-transport-https python3-pip gettext-base kubectl helm && pip3 install ansible==3.4.0 boto3 ansible-lint
 
 RUN apt-get update && apt-get install -y vagrant virtualbox yamllint && pip3 install molecule==3.4.0 molecule-vagrant==0.6.3 python-vagrant
 
