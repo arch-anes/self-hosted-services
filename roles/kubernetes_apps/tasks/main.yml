@@ -1,0 +1,19 @@
+# code: language=ansible
+---
+
+- name: Setup firewall
+  import_role:
+    name: weareinteractive.ufw
+  vars:
+    ufw_rules:
+      - { to_port: 53, proto: any, rule: allow, comment: "Allow DNS" }
+      - { to_port: 80, proto: tcp, rule: allow, comment: "Allow HTTP" }
+      - { to_port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
+  become: true
+  when: not skip_firewall
+
+- include_tasks: deploy_manifests.yml
+  # Workaround for https://github.com/ansible/ansible/issues/11496
+  when:
+    - k3s_control_node is defined
+    - k3s_control_node

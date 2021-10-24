@@ -7,22 +7,16 @@
   environment:
     KUBECONFIG: /etc/rancher/k3s/k3s.yaml
   roles:
-    - name: Setup basic firewall rules
-      role: weareinteractive.ufw
-      vars:
-        ufw_rules:
-          - { to_port: 22, proto: tcp, rule: allow, comment: "Allow SSH" }
-          - { to_port: 80, proto: tcp, rule: allow, comment: "Allow HTTP" }
-          - { to_port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
-          - { to_port: 53, proto: any, rule: allow, comment: "Allow DNS" }
-      become: true
-      when: not skip_firewall
+    - name: Preprocess cloud nodes
+      role: cloud_nodes
 
     - name: Create a VPN mesh network
       role: vpn
       when: not skip_vpn_setup
 
     - name: Deploy Kubernetes cluster
-      role: kubernetes
-      vars:
-        advertised_address: "{{ private_ip | default(ansible_wg0.ipv4.address) }}"
+      role: kubernetes_cluster
+      when: not skip_k8s_setup
+
+    - name: Deploy Kubernetes applications
+      role: kubernetes_apps

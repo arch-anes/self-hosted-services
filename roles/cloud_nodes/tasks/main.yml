@@ -1,7 +1,8 @@
 # code: language=ansible
 ---
 
-- block:
+- name: Add AWS EC2 hosts to k3s control node
+  block:
     - name: Fix sudo unresolved host issue
       shell: 'export FILE=/etc/hosts && export LINE="127.0.1.1 $(hostname)" && grep -qF "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"'
       become: true
