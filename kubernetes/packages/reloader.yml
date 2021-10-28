@@ -13,5 +13,5 @@ metadata:
 spec:
   chart: reloader
   repo: https://stakater.github.io/stakater-charts
-  version: 0.0.99
+  version: 0.0.102
   targetNamespace: reloader
