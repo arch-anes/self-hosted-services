@@ -1,8 +1,6 @@
 # code: language=ansible
 
 ---
-ufw_packages: []
-
 kubernetes_project_location: "{{ playbook_dir }}/kubernetes"
 
 skip_firewall: false

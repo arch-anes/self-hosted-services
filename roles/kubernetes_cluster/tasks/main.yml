@@ -3,14 +3,13 @@
 
 - name: Setup firewall
   import_role:
-    name: weareinteractive.ufw
+    name: firewall
   vars:
-    ufw_rules:
+    rules:
       - { to_port: 6443, proto: tcp, rule: allow, comment: "Kubernetes API Server" }
       - { to_port: 8472, proto: udp, rule: allow, comment: "Required only for Flannel VXLAN" }
       - { to_port: 10250, proto: tcp, rule: allow, comment: "Kubelet metrics" }
       - { to_port: "2379:2380", proto: tcp, rule: allow, comment: "Required only for HA with embedded etcd" }
-  become: true
   when: not skip_firewall
 
 - name: Set k3s node facts

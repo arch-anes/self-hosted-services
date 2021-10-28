@@ -3,13 +3,12 @@
 
 - name: Setup firewall
   import_role:
-    name: weareinteractive.ufw
+    name: firewall
   vars:
-    ufw_rules:
+    rules:
       - { to_port: 53, proto: any, rule: allow, comment: "Allow DNS" }
       - { to_port: 80, proto: tcp, rule: allow, comment: "Allow HTTP" }
       - { to_port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
-  become: true
   when: not skip_firewall
 
 # Workaround for https://github.com/ansible/ansible/issues/44145

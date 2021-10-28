@@ -1,0 +1,10 @@
+# code: language=ansible
+---
+- name: Applying ufw rules
+  community.general.ufw:
+    to_port: "{{ item.to_port | default(omit) }}"
+    proto: "{{ item.proto | default(omit) }}"
+    rule: "{{ item.rule | default(omit) }}"
+    comment: "{{ item.comment | default(omit) }}"
+  with_items: "{{ rules }}"
+  become: true
