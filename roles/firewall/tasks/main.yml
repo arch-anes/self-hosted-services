@@ -8,3 +8,7 @@
     comment: "{{ item.comment | default(omit) }}"
   with_items: "{{ rules }}"
   become: true
+  retries: 3
+  delay: 10
+  register: result
+  until: result is not failed
