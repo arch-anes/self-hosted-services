@@ -1,14 +1,15 @@
 ---
-repo:
-  name: jetstack
-  repo_url: https://charts.jetstack.io
-
-package:
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
   name: cert-manager
   namespace: kube-system
-  chart_ref: jetstack/cert-manager
-  chart_version: v1.5.3
-  values:
+spec:
+  chart: cert-manager
+  repo: https://charts.jetstack.io
+  version: 1.5.3
+  targetNamespace: kube-system
+  valuesContent: |-
     installCRDs: true
     prometheus:
       enabled: false

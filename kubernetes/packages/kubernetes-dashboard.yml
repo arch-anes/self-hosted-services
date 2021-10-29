@@ -1,14 +1,21 @@
 ---
-repo:
+apiVersion: v1
+kind: Namespace
+metadata:
   name: kubernetes-dashboard
-  repo_url: https://kubernetes.github.io/dashboard/
 
-package:
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
   name: kubernetes-dashboard
-  namespace: kubernetes-dashboard
-  chart_ref: kubernetes-dashboard/kubernetes-dashboard
-  chart_version: v5.0.2
-  values:
+  namespace: kube-system
+spec:
+  chart: kubernetes-dashboard
+  repo: https://kubernetes.github.io/dashboard
+  version: 5.0.2
+  targetNamespace: kubernetes-dashboard
+  valuesContent: |-
     protocolHttp: true
     extraArgs:
       - --enable-insecure-login

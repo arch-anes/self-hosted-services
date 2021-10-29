@@ -1,14 +1,21 @@
 ---
-repo:
-  name: nfd
-  repo_url: https://kubernetes-sigs.github.io/node-feature-discovery/charts
-
-package:
+apiVersion: v1
+kind: Namespace
+metadata:
   name: node-feature-discovery
-  namespace: node-feature-discovery
-  chart_ref: nfd/node-feature-discovery
-  chart_version: v0.9.0
-  values:
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: node-feature-discovery
+  namespace: kube-system
+spec:
+  chart: node-feature-discovery
+  repo: https://kubernetes-sigs.github.io/node-feature-discovery/charts
+  version: 0.9.0
+  targetNamespace: node-feature-discovery
+  valuesContent: |-
     master:
       resources:
         requests:

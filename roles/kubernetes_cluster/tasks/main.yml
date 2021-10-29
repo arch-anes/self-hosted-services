@@ -61,19 +61,3 @@
     k3s_etcd_datastore: true
     k3s_use_unsupported_config: true
   become: true
-
-- name: "Correctly set arm64 variables"
-  set_fact:
-    k9s_arch: "arm64"
-    kubernetes_helm_arch: "arm64"
-  when: ansible_architecture == "aarch64"
-
-- name: Install k9s
-  import_role:
-    name: andrewrothstein.k9s
-  when: k3s_control_node
-
-- name: Install Helm
-  import_role:
-    name: andrewrothstein.kubernetes-helm
-  when: k3s_control_node
