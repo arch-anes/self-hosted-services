@@ -46,16 +46,6 @@ spec:
     secretName: wilcard-main-domain-tls
 
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: nextcloud
-  namespace: default
-type: Opaque
-# stringData:
-#   db_password: "somepassword"
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -96,26 +86,6 @@ spec:
           volumeMounts:
             - name: redis
               mountPath: /data
-        - name: db
-          image: postgres:12-alpine
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "0.25"
-            limits:
-              memory: "512Mi"
-              cpu: "1.00"
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: nextcloud
-                  key: db_password
-            - name: POSTGRES_DB
-              value: "nextcloud"
-          volumeMounts:
-            - name: db
-              mountPath: /var/lib/postgresql/data
         - name: app
           image: nextcloud:22
           resources:
@@ -129,7 +99,7 @@ spec:
             - name: REDIS_HOST
               value: "localhost"
             - name: POSTGRES_HOST
-              value: "localhost"
+              value: "postgresql"
             - name: POSTGRES_DB
               value: "nextcloud"
             - name: POSTGRES_USER
@@ -137,8 +107,8 @@ spec:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: nextcloud
-                  key: db_password
+                  name: postgresql
+                  key: postgres_password
             - name: SMTP_HOST
               valueFrom:
                 secretKeyRef:
@@ -179,9 +149,6 @@ spec:
         - name: data
           hostPath:
             path: /storage/nextcloud/data
-        - name: db
-          hostPath:
-            path: /storage/nextcloud/db
         - name: redis
           hostPath:
             path: /storage/nextcloud/redis

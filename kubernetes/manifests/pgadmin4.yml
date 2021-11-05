@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ttrss
+  name: pgadmin4
   namespace: default
 spec:
   ports:
@@ -10,69 +10,77 @@ spec:
       name: web
       port: 80
   selector:
-    app: ttrss
+    app: pgadmin4
 
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: ttrss
+  name: pgadmin4
   namespace: default
 spec:
   entryPoints:
     - web
     - websecure
   routes:
-    - match: Host(`ttrss.${DOMAIN_NAME}`)
+    - match: Host(`pgadmin4.${DOMAIN_NAME}`)
       kind: Rule
       services:
-        - name: ttrss
+        - name: pgadmin4
           port: 80
   tls:
     secretName: wilcard-main-domain-tls
 
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pgadmin4
+  namespace: default
+type: Opaque
+# stringData:
+#   email: "example@example.com"
+#   password: "somepassword"
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ttrss
+  name: pgadmin4
   namespace: default
   labels:
-    app: ttrss
+    app: pgadmin4
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ttrss
+      app: pgadmin4
   template:
     metadata:
       labels:
-        app: ttrss
+        app: pgadmin4
     spec:
       containers:
         - name: app
-          image: wangqiru/ttrss
+          image: dpage/pgadmin4
+          env:
+            - name: PGADMIN_DEFAULT_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: pgadmin4
+                  key: email
+            - name: PGADMIN_DEFAULT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pgadmin4
+                  key: password
           resources:
             requests:
-              memory: "512Mi"
+              memory: "128Mi"
               cpu: "0.25"
             limits:
               memory: "1024Mi"
-              cpu: "0.5"
-          env:
-            - name: DB_PASS
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql
-                  key: postgres_password
-            - name: SELF_URL_PATH
-              value: "https://ttrss.${DOMAIN_NAME}/"
-            - name: DB_HOST
-              value: "postgresql"
-            - name: ENABLE_PLUGINS
-              value: "api_feedreader,auth_internal,fever"
-            - name: FEED_LOG_QUIET
-              value: "true"
+              cpu: "1.00"
           ports:
             - name: web
               containerPort: 80

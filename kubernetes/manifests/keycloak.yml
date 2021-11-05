@@ -73,7 +73,6 @@ metadata:
   namespace: default
 type: Opaque
 # stringData:
-#   db_password: "somepassword"
 #   admin_username: "admin"
 #   admin_password: "admin"
 
@@ -152,29 +151,6 @@ spec:
               mountPath: /var/lib/ldap
             - name: openldap-config
               mountPath: /etc/ldap/slapd.d
-        - name: db
-          image: postgres:12-alpine
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "0.25"
-            limits:
-              memory: "256Mi"
-              cpu: "0.5"
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: keycloak
-                  key: db_password
-            - name: POSTGRES_DB
-              value: "keycloak"
-          ports:
-            - name: db
-              containerPort: 5432
-          volumeMounts:
-            - name: db
-              mountPath: /var/lib/postgresql/data
         # When using LDAP, check "Enable the LDAPv3 Password Modify Extended Operation"
         - name: app
           image: quay.io/keycloak/keycloak
@@ -189,7 +165,7 @@ spec:
             - name: DB_VENDOR
               value: "POSTGRES"
             - name: DB_ADDR
-              value: "localhost"
+              value: "postgresql"
             - name: DB_DATABASE
               value: "keycloak"
             - name: DB_USER
@@ -197,8 +173,8 @@ spec:
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: keycloak
-                  key: db_password
+                  name: postgresql
+                  key: postgres_password
             - name: PROXY_ADDRESS_FORWARDING
               value: "true"
             - name: KEYCLOAK_USER
@@ -227,6 +203,3 @@ spec:
         - name: openldap-config
           hostPath:
             path: /storage/keycloak/openldap_config
-        - name: db
-          hostPath:
-            path: /storage/keycloak/db

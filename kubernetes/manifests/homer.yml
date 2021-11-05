@@ -89,6 +89,9 @@ data:
           - name: "Keycloak"
             logo: "https://upload.wikimedia.org/wikipedia/commons/2/29/Keycloak_Logo.png"
             url: "https://keycloak.${DOMAIN_NAME}"
+          - name: "pgAdmin4"
+            logo: "https://www.pgadmin.org/static/docs/pgadmin4-dev/docs/en_US/_build/html/_images/logo-right-128.png"
+            url: "https://pgadmin4.${DOMAIN_NAME}"
 
       - name: "Administration"
         icon: "fas fa-tools"

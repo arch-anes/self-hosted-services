@@ -39,7 +39,6 @@ metadata:
   namespace: default
 type: Opaque
 # stringData:
-#   db_password: "somepassword"
 #   invitation_code: "somecode"
 
 ---
@@ -60,40 +59,7 @@ spec:
       labels:
         app: huginn
     spec:
-      affinity:
-        nodeAffinity:
-          # Only on NAS nodes
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: nas
-                    operator: In
-                    values:
-                      - "true"
       containers:
-        - name: db
-          image: postgres:12-alpine
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "0.25"
-            limits:
-              memory: "256Mi"
-              cpu: "0.5"
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: huginn
-                  key: db_password
-            - name: POSTGRES_DB
-              value: "huginn"
-          ports:
-            - name: db
-              containerPort: 5432
-          volumeMounts:
-            - name: db
-              mountPath: /var/lib/postgresql/data
         - name: app
           image: huginn/huginn
           resources:
@@ -114,7 +80,7 @@ spec:
             - name: DATABASE_ADAPTER
               value: "postgresql"
             - name: DATABASE_HOST
-              value: "localhost"
+              value: "postgresql"
             - name: DATABASE_NAME
               value: "huginn"
             - name: DATABASE_USERNAME
@@ -122,8 +88,8 @@ spec:
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: huginn
-                  key: db_password
+                  name: postgresql
+                  key: postgres_password
             - name: SMTP_SERVER
               valueFrom:
                 secretKeyRef:
@@ -150,7 +116,3 @@ spec:
           ports:
             - name: web
               containerPort: 3000
-      volumes:
-        - name: db
-          hostPath:
-            path: /storage/huginn/db
