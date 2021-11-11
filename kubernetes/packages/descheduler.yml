@@ -1,0 +1,50 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: descheduler
+  namespace: kube-system
+spec:
+  chart: descheduler
+  repo: https://kubernetes-sigs.github.io/descheduler
+  version: 0.22.1
+  targetNamespace: kube-system
+  valuesContent: |-
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: "0.25"
+      limits:
+        memory: 256Mi
+        cpu: "1.00"
+    deschedulerPolicy:
+      strategies:
+        RemovePodsHavingTooManyRestarts:
+          enabled: true
+          params:
+            podsHavingTooManyRestarts:
+              podRestartThreshold: 50
+              includingInitContainers: true
+        RemoveDuplicates:
+          enabled: true
+        RemovePodsViolatingNodeTaints:
+          enabled: true
+        RemovePodsViolatingNodeAffinity:
+          enabled: true
+          params:
+            nodeAffinityType:
+              - requiredDuringSchedulingIgnoredDuringExecution
+        RemovePodsViolatingInterPodAntiAffinity:
+          enabled: true
+        LowNodeUtilization:
+          enabled: true
+          params:
+            nodeResourceUtilizationThresholds:
+              thresholds:
+                cpu: 20
+                memory: 20
+                pods: 20
+              targetThresholds:
+                cpu: 50
+                memory: 50
+                pods: 50
