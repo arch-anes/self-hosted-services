@@ -1,0 +1,13 @@
+# code: language=ansible
+---
+
+- name: Install Ubuntu packages
+  apt:
+    pkg:
+      - resolvconf
+      - rsync
+      - ufw
+      - wireguard
+    update_cache: true
+  become: true
+  when: ansible_distribution == 'Ubuntu'

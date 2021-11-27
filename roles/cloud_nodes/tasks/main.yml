@@ -1,17 +1,11 @@
 # code: language=ansible
 ---
 
-- name: Add AWS EC2 hosts to k3s control node
-  block:
-    - name: Fix sudo unresolved host issue
-      shell: 'export FILE=/etc/hosts && export LINE="127.0.1.1 $(hostname)" && grep -qF "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"'
-      become: true
-
-    - name: Add hosts to control plane and set labels
-      set_fact:
-        k3s_control_node: true
-        labels:
-          - public=true
+- name: Add EC2 hosts to control plane and set labels
+  set_fact:
+    k3s_control_node: true
+    labels:
+      - public=true
   when:
     - groups.aws_ec2 is defined
     - inventory_hostname in groups.aws_ec2

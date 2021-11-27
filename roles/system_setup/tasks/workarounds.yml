@@ -1,0 +1,24 @@
+# code: language=ansible
+---
+
+- name: Fix sudo unresolved host issue  # noqa risky-shell-pipe
+  shell: 'export FILE=/etc/hosts && export LINE="127.0.1.1 $(hostname)" && grep -qF "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"'
+  become: true
+  changed_when: false
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Fix DNS resolution issue
+  block:
+    - name: Write DNS resolution config  # noqa risky-shell-pipe
+      shell: 'export FILE=/etc/resolvconf/resolv.conf.d/head && export LINE="nameserver 1.1.1.1" && grep -qF "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"'
+      changed_when: false
+
+    - name: Restart DNS configuration manager service
+      service:
+        name: resolvconf
+        state: restarted
+
+    - name: Update /etc/resolv.conf
+      command: "resolvconf -u"
+  become: true
+  when: ansible_distribution == 'Ubuntu'

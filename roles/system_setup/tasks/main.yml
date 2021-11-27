@@ -1,0 +1,14 @@
+# code: language=ansible
+---
+
+- include_tasks: packages.yml
+
+- include_tasks: workarounds.yml
+
+- name: Setup firewall
+  import_role:
+    name: firewall
+  vars:
+    rules:
+      - { to_port: 22, proto: tcp, rule: allow, comment: "Allow SSH" }
+  when: not skip_firewall
