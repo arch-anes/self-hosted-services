@@ -47,3 +47,11 @@
   when:
     - k3s_control_node is defined
     - k3s_control_node
+
+- name: Extract Kubernetes Dashboard password
+  include_tasks: extract_dashboard_password.yml
+  # Workaround for https://github.com/ansible/ansible/issues/11496
+  when:
+    - display_k8s_dashboard_password
+    - k3s_control_node is defined
+    - k3s_control_node

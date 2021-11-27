@@ -6,5 +6,6 @@ kubernetes_project_location: "{{ playbook_dir }}/kubernetes"
 skip_firewall: false
 skip_vpn_setup: false
 skip_k8s_setup: false
+display_k8s_dashboard_password: false
 
 fqdn: "example.com"

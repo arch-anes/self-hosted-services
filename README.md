@@ -51,4 +51,4 @@ filters:
 
 ## Deploy
 
-Run `ansible-playbook setup_cluster.yml -i inventory_static.yml -i inventory_ec2.yml -e fqdn=example.com `
+Run `ansible-playbook setup_cluster.yml -i inventory_static.yml -i inventory_ec2.yml -e fqdn=example.com -e display_k8s_dashboard_password=true`
