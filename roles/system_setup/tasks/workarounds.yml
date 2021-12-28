@@ -19,6 +19,6 @@
         state: restarted
 
     - name: Update /etc/resolv.conf
-      command: "resolvconf -u"
+      command: "/usr/sbin/resolvconf -u"
   become: true
   when: ansible_distribution == 'Ubuntu'
