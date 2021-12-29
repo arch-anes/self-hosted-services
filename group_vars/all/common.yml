@@ -3,6 +3,7 @@
 ---
 kubernetes_project_location: "{{ playbook_dir }}/kubernetes"
 
+skip_system_setup: false
 skip_firewall: false
 skip_vpn_setup: false
 skip_k8s_setup: false

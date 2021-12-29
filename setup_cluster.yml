@@ -9,6 +9,7 @@
   roles:
     - name: Setup system
       role: system_setup
+      when: not skip_system_setup
 
     - name: Preprocess cloud nodes
       role: cloud_nodes
