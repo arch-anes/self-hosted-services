@@ -1,0 +1,113 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: epicgames-freegames
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 3000
+  selector:
+    app: epicgames-freegames
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: epicgames-freegames
+  namespace: default
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`epicgames-freegames.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: epicgames-freegames
+          port: 3000
+  tls:
+    secretName: wilcard-main-domain-tls
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: epicgames-freegames
+  namespace: default
+type: Opaque
+# stringData:
+#   epic_email: "someemail"
+#   epic_password: "somepass"
+#   epic_totp: "sometoken"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: epicgames-freegames
+  namespace: default
+  labels:
+    app: epicgames-freegames
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: epicgames-freegames
+  template:
+    metadata:
+      labels:
+        app: epicgames-freegames
+    spec:
+      affinity:
+        nodeAffinity:
+          # Only on nas nodes
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nas
+                    operator: In
+                    values:
+                      - "true"
+      containers:
+        - name: app
+          image: charlocharlie/epicgames-freegames
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "0.25"
+            limits:
+              memory: "256Mi"
+              cpu: "1.00"
+          ports:
+            - name: web
+              containerPort: 3000
+          env:
+            - name: EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: epicgames-freegames
+                  key: epic_email
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: epicgames-freegames
+                  key: epic_password
+            - name: TOTP
+              valueFrom:
+                secretKeyRef:
+                  name: epicgames-freegames
+                  key: epic_totp
+            - name: BASE_URL
+              value: "https://epicgames-freegames.${DOMAIN_NAME}"
+            - name: RUN_ON_STARTUP
+              value: "true"
+          volumeMounts:
+            - name: config
+              mountPath: /usr/app/config
+      volumes:
+        - name: config
+          hostPath:
+            path: /storage/epicgames-freegames/config
