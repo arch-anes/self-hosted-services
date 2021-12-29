@@ -20,5 +20,6 @@
 
     - name: Update /etc/resolv.conf
       command: "/usr/sbin/resolvconf -u"
+      changed_when: false
   become: true
   when: ansible_distribution == 'Ubuntu'
