@@ -13,10 +13,10 @@
       shell: 'export FILE=/etc/resolvconf/resolv.conf.d/head && export LINE="nameserver 1.1.1.1" && grep -qF "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"'
       changed_when: false
 
-    - name: Restart DNS configuration manager service
+    - name: Start DNS configuration manager service
       service:
         name: resolvconf
-        state: restarted
+        state: started
 
     - name: Update /etc/resolv.conf
       command: "/usr/sbin/resolvconf -u"
