@@ -100,6 +100,34 @@ spec:
                 secretKeyRef:
                   name: epicgames-freegames
                   key: epic_totp
+            - name: SMTP_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: hostname
+            - name: SMTP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: username
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: password
+            - name: SMTP_SECURE
+              value: "true"
+            - name: SMTP_PORT
+              value: "465"
+            - name: EMAIL_SENDER_NAME
+              value: "Epic Games Free Games"
+            - name: EMAIL_SENDER_ADDRESS
+              value: "epicgames_freegames@${DOMAIN_NAME}"
+            - name: EMAIL_RECIPIENT_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: epicgames-freegames
+                  key: epic_email
             - name: BASE_URL
               value: "https://epicgames-freegames.${DOMAIN_NAME}"
             - name: RUN_ON_STARTUP
