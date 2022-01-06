@@ -55,7 +55,7 @@
   import_role:
     name: xanmanning.k3s
   vars:
-    k3s_release_version: v1.21.8+k3s1
+    k3s_release_version: v1.21
     k3s_become: true
     k3s_etcd_datastore: true
     k3s_use_unsupported_config: true
