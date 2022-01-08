@@ -1,12 +1,40 @@
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ddclient-scripts
+  namespace: kube-system
+data:
+  init-ddclient-config: |
+    #!/usr/bin/with-contenv bash
+
+    echo "Writing config to /ddclient.conf"
+
+    cat <<EOT > /ddclient.conf
+
+    daemon=300 # check every 300 seconds
+    syslog=yes
+    pid=/var/run/ddclient/ddclient.pid
+    ssl=yes
+
+    use=web, web=checkip.amazonaws.com
+
+    wildcard=yes
+
+    protocol=cloudflare, zone=$DOMAIN, ttl=1, password='$API_KEY' $DOMAIN
+
+    EOT
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ddns
+  name: ddclient
   namespace: kube-system
   labels:
-    app: ddns
+    app: ddclient
   annotations:
+    reloader.stakater.com/auto: "true"
     keel.sh/policy: minor
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
@@ -14,11 +42,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ddns
+      app: ddclient
   template:
     metadata:
       labels:
-        app: ddns
+        app: ddclient
     spec:
       affinity:
         nodeAffinity:
@@ -41,7 +69,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: oznu/cloudflare-ddns
+          image: lscr.io/linuxserver/ddclient
           resources:
             requests:
               memory: "64Mi"
@@ -55,5 +83,18 @@ spec:
                 secretKeyRef:
                   name: cloudflare
                   key: token
-            - name: ZONE
+            - name: DOMAIN
               value: "${DOMAIN_NAME}"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+          volumeMounts:
+            - name: scripts
+              mountPath: /custom-cont-init.d/init-ddclient-config
+              subPath: init-ddclient-config
+      volumes:
+        - name: scripts
+          configMap:
+            name: ddclient-scripts
+            defaultMode: 0744
