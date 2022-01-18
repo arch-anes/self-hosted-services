@@ -41,7 +41,7 @@
 
 - name: Setup WireGuard VPN
   import_role:
-    name: abelfodil.ansible_role_wireguard
+    name: githubixx.ansible_role_wireguard
   become: true
 
 - name: Force all notified handlers to run
