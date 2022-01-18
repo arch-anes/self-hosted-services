@@ -4,5 +4,5 @@
 collections:
   - name: amazon.aws
 roles:
-  - name: abelfodil.ansible_role_wireguard
+  - name: githubixx.ansible_role_wireguard
   - name: xanmanning.k3s
