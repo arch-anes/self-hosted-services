@@ -60,6 +60,9 @@ spec:
     ingressRoute:
       dashboard:
         enabled: false
+    providers:
+      kubernetesCRD:
+        allowCrossNamespace: true
     ports:
       web:
         redirectTo: websecure
