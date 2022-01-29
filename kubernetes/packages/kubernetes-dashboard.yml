@@ -13,7 +13,7 @@ metadata:
 spec:
   chart: kubernetes-dashboard
   repo: https://kubernetes.github.io/dashboard
-  version: 5.0.4
+  version: 5.1.1
   targetNamespace: kubernetes-dashboard
   valuesContent: |-
     protocolHttp: true
