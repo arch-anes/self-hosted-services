@@ -6,6 +6,10 @@ metadata:
   namespace: kube-system
   labels:
     app: ddns
+  annotations:
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@midnight"
 spec:
   replicas: 1
   selector:

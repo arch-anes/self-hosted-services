@@ -1,0 +1,79 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keel
+  namespace: kube-system
+type: Opaque
+# stringData:
+#   BASIC_AUTH_USER: "admin"
+#   BASIC_AUTH_PASSWORD: "somepasswd"
+#   MAIL_SMTP_SERVER: "example.com"
+#   MAIL_SMTP_PORT: "587"
+#   MAIL_SMTP_USER: "exampleuser"
+#   MAIL_SMTP_PASS: "examplepassword"
+#   MAIL_TO: "hello@example.com"
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: keel
+  namespace: default
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`keel.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: keel
+          namespace: kube-system
+          port: 9300
+  tls:
+    secretName: wilcard-main-domain-tls
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: keel
+  namespace: kube-system
+spec:
+  chart: keel
+  repo: https://charts.keel.sh
+  version: 0.9.10
+  targetNamespace: kube-system
+  valuesContent: |-
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 64Mi
+    image:
+      repository: keelhq/keel
+      tag: latest
+    helmProvider:
+      enabled: true
+      version: "v3"
+    secret:
+      name: keel
+      create: false
+    basicauth:
+      enabled: true
+      user: admin
+      password: password
+    mail:
+      enabled: true
+      from: keel@${DOMAIN_NAME}
+    service:
+      enabled: true
+      type: ClusterIP
+      externalPort: 9300
+    keel:
+      policy: all
+      trigger: poll
+      pollSchedule: "@midnight"

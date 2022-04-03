@@ -4,6 +4,10 @@ kind: DaemonSet
 metadata:
   name: amdgpu-device-plugin-daemonset
   namespace: kube-system
+  annotations:
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@midnight"
 spec:
   selector:
     matchLabels:

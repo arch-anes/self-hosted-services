@@ -51,6 +51,10 @@ metadata:
   namespace: default
   labels:
     app: smart-strike
+  annotations:
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@midnight"
 spec:
   selector:
     matchLabels:

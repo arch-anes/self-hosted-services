@@ -102,6 +102,9 @@ data:
           - name: "Kubernetes"
             logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Kubernetes_logo_without_workmark.svg/247px-Kubernetes_logo_without_workmark.svg.png"
             url: "https://kubernetes.${DOMAIN_NAME}"
+          - name: "Keel"
+            logo: "https://keel.sh/img/logo_small.png"
+            url: "https://keel.${DOMAIN_NAME}"
           - name: "PiHole"
             logo: "https://camo.githubusercontent.com/9426a93d32aa9f5ad757b2befcdb762a270d344efd6b8d287a2cea2c4c2233b8/68747470733a2f2f70692d686f6c652e6769746875622e696f2f67726170686963732f566f727465782f566f727465785f776974685f576f72646d61726b2e737667"
             url: "https://pihole.${DOMAIN_NAME}"
@@ -123,12 +126,15 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    reloader.stakater.com/auto: "true"
   name: homer
   namespace: default
   labels:
     app: homer
+  annotations:
+    reloader.stakater.com/auto: "true"
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@midnight"
 spec:
   replicas: 1
   selector:

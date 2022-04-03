@@ -50,6 +50,10 @@ metadata:
   namespace: default
   labels:
     app: pgadmin4
+  annotations:
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@midnight"
 spec:
   replicas: 1
   selector:

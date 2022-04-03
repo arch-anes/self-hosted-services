@@ -61,6 +61,10 @@ metadata:
   namespace: default
   labels:
     app: postgresql
+  annotations:
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@midnight"
 spec:
   replicas: 1
   selector:
