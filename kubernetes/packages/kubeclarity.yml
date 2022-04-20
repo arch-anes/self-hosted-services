@@ -1,24 +1,4 @@
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: kubeclarity
-  namespace: default
-type: Opaque
-# stringData:
-#   credentials: "admin:$2y$12$8KtQ4SQb6QpebcgYvMPjwOv3Jz9ojkNq8FVWZmk5q1BW9BoEX2aAy" # admin:admin by default, bcrypted password: https://bcrypt-generator.com/
-
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: kubeclarity
-  namespace: default
-spec:
-  basicAuth:
-    secret: "kubeclarity"
-
----
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
@@ -36,7 +16,7 @@ spec:
           namespace: kubeclarity
           port: 8080
       middlewares:
-        - name: kubeclarity
+        - name: services-admin-authentication
   tls:
     secretName: wilcard-main-domain-tls
 
