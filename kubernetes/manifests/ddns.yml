@@ -41,7 +41,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: archanes/cloudflare-ddns
+          image: oznu/cloudflare-ddns
           resources:
             requests:
               memory: "64Mi"
@@ -50,12 +50,10 @@ spec:
               memory: "64Mi"
               cpu: "0.5"
           env:
-            - name: CF_API_KEY
+            - name: API_KEY
               valueFrom:
                 secretKeyRef:
                   name: cloudflare
                   key: token
-            - name: ZONES
+            - name: ZONE
               value: "${DOMAIN_NAME}"
-            - name: UNIQUE
-              value: "yes"
