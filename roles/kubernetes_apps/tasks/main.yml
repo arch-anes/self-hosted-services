@@ -11,39 +11,18 @@
       - { to_port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
   when: not skip_firewall
 
-# Workaround for https://github.com/ansible/ansible/issues/44145
-- name: Set Helm deployment settings
-  ansible.builtin.set_fact:
-    folder: "{{ kubernetes_project_location }}/packages"
-    output_file: "packages.yml"
-  delegate_to: localhost
-  run_once: true
-
 - name: Deploy Helm packages
-  include_tasks: apply_folder_manifests.yml
-  # Workaround for https://github.com/ansible/ansible/issues/11496
+  import_tasks: apply_folder_manifests.yml
+  vars:
+    name: "packages"
   when:
     - k3s_control_node is defined
     - k3s_control_node
 
-- name: Wait for Helm packages to install
-  include_tasks: wait_for_jobs.yml
-  # Workaround for https://github.com/ansible/ansible/issues/11496
-  when:
-    - k3s_control_node is defined
-    - k3s_control_node
-
-# Workaround for https://github.com/ansible/ansible/issues/44145
-- name: Set applications deployment settings
-  ansible.builtin.set_fact:
-    folder: "{{ kubernetes_project_location }}/manifests"
-    output_file: "manifests.yml"
-  delegate_to: localhost
-  run_once: true
-
-- name: Apply applications manifests
-  include_tasks: apply_folder_manifests.yml
-  # Workaround for https://github.com/ansible/ansible/issues/11496
+- name: Deploy Applications packages
+  import_tasks: apply_folder_manifests.yml
+  vars:
+    name: "manifests"
   when:
     - k3s_control_node is defined
     - k3s_control_node
