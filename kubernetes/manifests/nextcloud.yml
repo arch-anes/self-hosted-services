@@ -78,18 +78,6 @@ spec:
                     values:
                       - "true"
       containers:
-        - name: redis
-          image: redis:6-alpine
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "0.25"
-            limits:
-              memory: "256Mi"
-              cpu: "1.00"
-          volumeMounts:
-            - name: redis
-              mountPath: /data
         - name: app
           image: nextcloud:23
           resources:
@@ -101,7 +89,7 @@ spec:
               cpu: "4.00"
           env:
             - name: REDIS_HOST
-              value: "localhost"
+              value: "redis"
             - name: POSTGRES_HOST
               value: "postgresql"
             - name: POSTGRES_DB
@@ -153,6 +141,3 @@ spec:
         - name: data
           hostPath:
             path: /storage/nextcloud/data
-        - name: redis
-          hostPath:
-            path: /storage/nextcloud/redis
