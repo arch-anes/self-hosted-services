@@ -3,25 +3,25 @@
 - name: Apply folder manifests
   block:
     - name: Set facts
-      set_fact:
+      ansible.builtin.set_fact:
         local_aggregate: "{{ kubernetes_project_location }}/{{ output_file }}"
         remote_aggregate: "/tmp/{{ output_file }}"
 
     - name: Generate aggregate manifest file
-      shell: "cat {{ folder }}/*.yml | env DOMAIN_NAME={{ fqdn }} envsubst '$DOMAIN_NAME' > {{ local_aggregate }}"
+      ansible.builtin.shell: "cat {{ folder }}/*.yml | env DOMAIN_NAME={{ fqdn }} envsubst '$DOMAIN_NAME' > {{ local_aggregate }}"
       delegate_to: localhost
       run_once: true
       become: false
       changed_when: false
 
     - name: Copy aggregate file to remote
-      copy:
+      ansible.builtin.copy:
         src: "{{ local_aggregate }}"
         dest: "{{ remote_aggregate }}"
         mode: "0600"
 
     - name: Apply aggregate manifest
-      command: "kubectl apply -f {{ remote_aggregate }}"
+      ansible.builtin.command: "kubectl apply -f {{ remote_aggregate }}"
       changed_when: false
   become: true
   run_once: true

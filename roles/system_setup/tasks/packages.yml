@@ -2,7 +2,7 @@
 ---
 
 - name: Install Ubuntu packages
-  apt:
+  ansible.builtin.apt:
     pkg:
       - resolvconf
       - rsync

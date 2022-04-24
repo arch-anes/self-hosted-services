@@ -7,8 +7,8 @@
 - hosts: all
   tasks:
     - name: Force all notified handlers to run
-      meta: flush_handlers
+      ansible.builtin.meta: flush_handlers
 
     - name: Wait for convergence
-      pause:
+      ansible.builtin.pause:
         seconds: "30"

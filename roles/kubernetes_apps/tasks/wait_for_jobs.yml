@@ -1,7 +1,7 @@
 # code: language=ansible
 ---
 - name: Wait for packages to install
-  command: "kubectl wait --for=condition=complete jobs --all --all-namespaces --timeout=2m"
+  ansible.builtin.command: "kubectl wait --for=condition=complete jobs --all --all-namespaces --timeout=2m"
   changed_when: false
   become: true
   run_once: true

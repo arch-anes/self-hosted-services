@@ -2,7 +2,7 @@
 ---
 
 - name: Setup firewall
-  import_role:
+  ansible.builtin.import_role:
     name: firewall
   vars:
     rules:
@@ -13,7 +13,7 @@
 
 # Workaround for https://github.com/ansible/ansible/issues/44145
 - name: Set Helm deployment settings
-  set_fact:
+  ansible.builtin.set_fact:
     folder: "{{ kubernetes_project_location }}/packages"
     output_file: "packages.yml"
   delegate_to: localhost
@@ -35,7 +35,7 @@
 
 # Workaround for https://github.com/ansible/ansible/issues/44145
 - name: Set applications deployment settings
-  set_fact:
+  ansible.builtin.set_fact:
     folder: "{{ kubernetes_project_location }}/manifests"
     output_file: "manifests.yml"
   delegate_to: localhost
