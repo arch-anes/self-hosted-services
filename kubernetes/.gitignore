@@ -1,2 +1,5 @@
+core.yml
+core-services.yml
 manifests.yml
 packages.yml
+services.yml

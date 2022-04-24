@@ -1,4 +1,35 @@
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kubernetes-dashboard
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kubernetes-dashboard
+  namespace: kube-system
+spec:
+  chart: kubernetes-dashboard
+  repo: https://kubernetes.github.io/dashboard
+  version: 5.4.1
+  targetNamespace: kubernetes-dashboard
+  valuesContent: |-
+    protocolHttp: true
+    extraArgs:
+      - --enable-insecure-login
+    metricsScraper:
+      enabled: true
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "0.25"
+      limits:
+        memory: "256Mi"
+        cpu: "2.00"
+
+---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:

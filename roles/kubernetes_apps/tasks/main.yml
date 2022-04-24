@@ -11,18 +11,16 @@
       - { to_port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
   when: not skip_firewall
 
-- name: Deploy Helm packages
-  import_tasks: apply_folder_manifests.yml
-  vars:
-    name: "packages"
-  when:
-    - k3s_control_node is defined
-    - k3s_control_node
-
-- name: Deploy Applications packages
-  import_tasks: apply_folder_manifests.yml
-  vars:
-    name: "manifests"
+- name: Deploy manifests
+  block:
+    - name: Deploy {{ item }} manifests
+      include_tasks: apply_folder_manifests.yml
+      vars:
+        name: "{{ item }}"
+      with_items:
+        - core
+        - core-services
+        - services
   when:
     - k3s_control_node is defined
     - k3s_control_node
