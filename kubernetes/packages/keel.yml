@@ -76,4 +76,4 @@ spec:
     keel:
       policy: all
       trigger: poll
-      pollSchedule: "@midnight"
+      pollSchedule: "@weekly"

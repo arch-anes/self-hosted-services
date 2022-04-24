@@ -53,7 +53,7 @@ metadata:
   annotations:
     keel.sh/policy: minor
     keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@midnight"
+    keel.sh/pollSchedule: "@weekly"
 spec:
   replicas: 1
   selector:
