@@ -1,0 +1,111 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ldap-user-manager
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 80
+  selector:
+    app: ldap-user-manager
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ldap-user-manager
+  namespace: default
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`ldap-user-manager.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: ldap-user-manager
+          port: 80
+  tls:
+    secretName: wilcard-main-domain-tls
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ldap-user-manager
+  namespace: default
+  labels:
+    app: ldap-user-manager
+  annotations:
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@weekly"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ldap-user-manager
+  template:
+    metadata:
+      labels:
+        app: ldap-user-manager
+    spec:
+      containers:
+        - name: app
+          image: wheelybird/ldap-user-manager
+          env:
+            - name: LDAP_URI
+              value: ldap://openldap
+            - name: LDAP_BASE_DN
+              value: ${DOMAIN_DC}
+            - name: LDAP_ADMINS_GROUP
+              value: admins
+            - name: LDAP_ADMIN_BIND_DN
+              value: "cn=admin,${DOMAIN_DC}"
+            - name: LDAP_ADMIN_BIND_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: openldap
+                  key: admin_password
+            - name: LDAP_IGNORE_CERT_ERRORS
+              value: "TRUE"
+            - name: LDAP_REQUIRE_STARTTLS
+              value: "FALSE"
+            - name: PASSWORD_HASH
+              value: "SHA512CRYPT"
+            - name: EMAIL_DOMAIN
+              value: "${DOMAIN_NAME}"
+            - name: NO_HTTPS
+              value: "true"
+            - name: SMTP_HOST_PORT
+              value: "465"
+            - name: SMTP_USE_TLS
+              value: "true"
+            - name: SMTP_HOSTNAME
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: hostname
+            - name: SMTP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: username
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: password
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "0.25"
+            limits:
+              memory: "1024Mi"
+              cpu: "1.00"
+          ports:
+            - name: web
+              containerPort: 80

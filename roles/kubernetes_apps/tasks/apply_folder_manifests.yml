@@ -7,9 +7,10 @@
         local_aggregate: "{{ kubernetes_project_location }}/{{ name }}.yml"
         remote_aggregate: "/tmp/{{ name }}.yml"
         manifests_folder: "{{ kubernetes_project_location }}/{{ name }}"
+        domain_dc: "dc={{ fqdn.split(\".\")[0] | lower }},dc={{ fqdn.split(\".\")[1] | lower }}"
 
     - name: Generate aggregate manifest file
-      ansible.builtin.shell: "cat {{ manifests_folder }}/*.yml | env DOMAIN_NAME={{ fqdn }} envsubst '$DOMAIN_NAME' > {{ local_aggregate }}"
+      ansible.builtin.shell: "cat {{ manifests_folder }}/*.yml | env DOMAIN_NAME={{ fqdn }} DOMAIN_DC={{ domain_dc }} envsubst '$DOMAIN_NAME $DOMAIN_DC' > {{ local_aggregate }}"
       delegate_to: localhost
       run_once: true
       become: false
