@@ -113,6 +113,8 @@ data:
       - name: "Administration"
         icon: "fas fa-tools"
         items:
+          - name: "Authelia"
+            logo: "https://www.authelia.com/docs/images/authelia-title.png"
           - name: "pgAdmin4"
             logo: "https://www.pgadmin.org/static/docs/pgadmin4-dev/docs/en_US/_build/html/_images/logo-right-128.png"
             url: "https://pgadmin4.${DOMAIN_NAME}"

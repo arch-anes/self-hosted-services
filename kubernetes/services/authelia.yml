@@ -1,0 +1,137 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: authelia
+  namespace: default
+type: Opaque
+# stringData:
+#   JWT_TOKEN: "some_token"
+#   LDAP_PASSWORD: "somepass"
+#   STORAGE_PASSWORD: "postgrespass"
+#   REDIS_PASSWORD: "redispass"
+#   SMTP_PASSWORD: "smtppass"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: authelia
+  namespace: kube-system
+spec:
+  chart: authelia
+  repo: https://charts.authelia.com
+  version: 0.8.58
+  targetNamespace: default
+  valuesContent: |-
+    domain: ${DOMAIN_NAME}
+    secret:
+      existingSecret: authelia
+    configMap:
+      theme: dark
+      authentication_backend:
+        # TODO: use postgresql as ldap backend ldap-pg
+        ldap:
+          enabled: true
+          implementation: custom
+          url: ldap://openldap
+          base_dn: ${DOMAIN_DC}
+          user: cn=admin,${DOMAIN_DC}
+          additional_users_dn: ou=people
+          users_filter: (&({username_attribute}={input})(objectClass=person))
+          additional_groups_dn: ou=groups
+          groups_filter: (&(uniquemember={dn})(objectclass=groupOfUniqueNames))
+          group_name_attribute: cn
+      password_policy:
+        zxcvbn:
+          enabled: true
+          min_score: 3
+      access_control:
+        default_policy: bypass
+      notifier:
+        smtp:
+          enabled: true
+          enabledSecret: true
+          host: email-smtp.us-east-2.amazonaws.com
+          port: 587
+          timeout: 5s
+          username: AKIAUQFYJWFFK2Q3JANX
+          sender: authelia@${DOMAIN_NAME}
+      session:
+        redis:
+          enabled: true
+          enabledSecret: true
+          host: redis
+          port: 6379
+      storage:
+        postgres:
+          enabled: true
+          enabledSecret: true
+          host: postgresql
+          port: 5432
+          database: authelia
+          schema: public
+          username: postgres
+          ssl:
+            mode: disable
+            root_certificate: ""
+            certificate: ""
+            key: ""
+          timeout: 5s
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: authelia
+  namespace: default
+spec:
+  tls:
+    - hosts:
+        - authelia.${DOMAIN_NAME}
+      secretName: ${DOMAIN_NAME}-tls
+  rules:
+    - host: authelia.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: authelia
+                port:
+                  number: 80
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: authelia
+  namespace: default
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`authelia.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: authelia
+          port: 80
+  tls:
+    secretName: wilcard-main-domain-tls
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: authelia
+spec:
+  forwardAuth:
+    address: http://authelia:9091/api/verify?rd=https://authelia.${DOMAIN_NAME}/'
+    trustForwardHeader: true
+    authResponseHeaders:
+      - Remote-User
+      - Remote-Groups
+      - Remote-Name
+      - Remote-Email
