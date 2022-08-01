@@ -34,5 +34,5 @@ metadata:
   namespace: kube-system
 spec:
   chart: kubeclarity
-  repo: https://cisco-open.github.io/kubei
+  repo: https://openclarity.github.io/kubeclarity
   targetNamespace: kubeclarity
