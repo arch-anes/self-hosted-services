@@ -13,7 +13,7 @@ metadata:
 spec:
   chart: node-feature-discovery
   repo: https://kubernetes-sigs.github.io/node-feature-discovery/charts
-  version: 0.9.0
+  version: 0.11.1
   targetNamespace: node-feature-discovery
   valuesContent: |-
     master:
