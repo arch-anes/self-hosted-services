@@ -32,9 +32,3 @@ spec:
         limits:
           cpu: 100m
           memory: 128Mi
-      nodeSelector:
-        # nfd crashes on ARM for an unknown reason
-        kubernetes.io/arch: amd64
-      config: |-
-        core:
-          sleepInterval: 60m
