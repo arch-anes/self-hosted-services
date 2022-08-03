@@ -14,25 +14,25 @@ lint: |
   datree test kubernetes/**/*.yml --ignore-missing-schemas --schema-version "1.24.0"
 platforms:
   - name: replica1
-    box: ubuntu/focal64
+    box: ubuntu/jammy64
     memory: 2048
     cpus: 2
     instance_raw_config_args:
       - 'vm.network "public_network", ip: "192.168.42.1"'
   - name: replica2
-    box: ubuntu/focal64
+    box: ubuntu/jammy64
     memory: 2048
     cpus: 2
     instance_raw_config_args:
       - 'vm.network "public_network", ip: "192.168.42.2"'
   - name: replica3
-    box: ubuntu/focal64
+    box: ubuntu/jammy64
     memory: 2048
     cpus: 2
     instance_raw_config_args:
       - 'vm.network "public_network", ip: "192.168.42.3"'
   - name: replica4
-    box: ubuntu/focal64
+    box: ubuntu/jammy64
     memory: 2048
     cpus: 2
     instance_raw_config_args:
