@@ -31,7 +31,7 @@
 
     - ansible.builtin.set_fact:  # noqa unnamed-task
         private_ip: "{{ (available_private_ips.stdout | from_json).ips[ansible_play_hosts_all.index(inventory_hostname)] }}"
-      when: "private_ip == ''"  # noqa empty-string-compare
+      when: "private_ip == ''"  # noqa empty-string-compare var-spacing
 
 - name: Set WireGuard configuration variables
   ansible.builtin.set_fact:
