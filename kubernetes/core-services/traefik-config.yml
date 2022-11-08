@@ -90,11 +90,15 @@ spec:
         - type: Resource
           resource:
             name: cpu
-            targetAverageUtilization: 60
+            target:
+              type: Utilization
+              averageUtilization: 60
         - type: Resource
           resource:
             name: memory
-            targetAverageUtilization: 60
+            target:
+              type: Utilization
+              averageUtilization: 60
 
 ---
 apiVersion: traefik.containo.us/v1alpha1
