@@ -33,20 +33,6 @@ spec:
 
 ---
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: aria2
-  namespace: default
-data:
-  vpn: "mullvad"
-  countries: "Austria,Brazil,Bulgaria,Denmark,Estonia,Finland,Hungary,Italy,Luxembourg,Moldova,Netherlands,Norway,Poland,Singapore,Spain,Sweden,Switzerland"
-
----
-# For mullvad:
-#  Create a Mullvad private key
-#  Derive public key from private key using `wg pubkey < privatekey > publickey`
-#  Get Wireguard IP using `curl https://api.mullvad.net/wg/ -d account=youraccountnumber --data-urlencode pubkey="yourpublickey"`
-apiVersion: v1
 kind: Secret
 metadata:
   name: aria2
@@ -56,7 +42,10 @@ type: Opaque
 #   username: "someuser"
 #   password: "somepassword"
 #   rpc_secret: "somecode"
-#   wireguard_key: "somekey"
+#   vpn_endpoint_ip: "1.2.3.4"
+#   vpn_endpoint_port: "51820"
+#   wireguard_public_key: "somekey"
+#   wireguard_private_key: "somekey"
 #   wireguard_address: "123.123.123.123/32"
 
 ---
@@ -109,22 +98,29 @@ spec:
           env:
             - name: VPN_TYPE
               value: "wireguard"
-            - name: VPNSP
+            - name: VPN_SERVICE_PROVIDER
+              value: "custom"
+            - name: VPN_ENDPOINT_IP
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: aria2
-                  key: vpn
-            - name: COUNTRY
+                  key: vpn_endpoint_ip
+            - name: VPN_ENDPOINT_PORT
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: aria2
-                  key: countries
+                  key: vpn_endpoint_port
+            - name: WIREGUARD_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aria2
+                  key: wireguard_public_key
             - name: WIREGUARD_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
                   name: aria2
-                  key: wireguard_key
-            - name: WIREGUARD_ADDRESS
+                  key: wireguard_private_key
+            - name: WIREGUARD_ADDRESSES
               valueFrom:
                 secretKeyRef:
                   name: aria2
