@@ -7,9 +7,9 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - protocol: TCP
+    - protocol: UDP
       name: web
-      port: 25565
+      port: 19132
       nodePort: 30778
   selector:
     app: minecraft
@@ -47,7 +47,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: itzg/minecraft-server
+          image: itzg/minecraft-bedrock-server
           stdin: true
           tty: true
           resources:
@@ -60,11 +60,9 @@ spec:
           env:
             - name: EULA
               value: "TRUE"
-            - name: VERSION
-              value: "1.19.4"
           ports:
             - name: web
-              containerPort: 25565
+              containerPort: 19132
           volumeMounts:
             - name: minecraft
               mountPath: /data
