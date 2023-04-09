@@ -1,0 +1,74 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      name: web
+      port: 25565
+      nodePort: 30778
+  selector:
+    app: minecraft
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft
+  namespace: default
+  labels:
+    app: minecraft
+  annotations:
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@weekly"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minecraft
+  template:
+    metadata:
+      labels:
+        app: minecraft
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nas
+                    operator: In
+                    values:
+                      - "true"
+      containers:
+        - name: app
+          image: itzg/minecraft-server
+          stdin: true
+          tty: true
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.25"
+            limits:
+              memory: "2048Mi"
+              cpu: "4.00"
+          env:
+            - name: EULA
+              value: "TRUE"
+            - name: VERSION
+              value: "1.19.4"
+          ports:
+            - name: web
+              containerPort: 25565
+          volumeMounts:
+            - name: minecraft
+              mountPath: /data
+      volumes:
+        - name: minecraft
+          hostPath:
+            path: /storage/minecraft
