@@ -17,10 +17,9 @@
       changed_when: false
 
     - name: Copy aggregate file to remote
-      ansible.builtin.copy:
+      ansible.posix.synchronize:
         src: "{{ local_aggregate }}"
         dest: "{{ remote_aggregate }}"
-        mode: "0600"
 
     - name: Apply aggregate manifest
       ansible.builtin.command: "kubectl apply -f {{ remote_aggregate }}"
