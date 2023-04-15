@@ -37,3 +37,14 @@ spec:
   repo: https://openclarity.github.io/kubeclarity
   version: 2.15.1
   targetNamespace: kubeclarity
+  valuesContent: |-
+    kubeclarity-postgresql:
+      enabled: false
+    kubeclarity-postgresql-external:
+      enabled: true
+      auth:
+        existingSecret: postgresql
+        username: postgres
+        host: postgresql.default
+        port: 5432
+        database: kubeclarity
