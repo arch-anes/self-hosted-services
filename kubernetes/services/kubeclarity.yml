@@ -35,4 +35,5 @@ metadata:
 spec:
   chart: kubeclarity
   repo: https://openclarity.github.io/kubeclarity
+  version: 2.15.1
   targetNamespace: kubeclarity
