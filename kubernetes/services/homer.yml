@@ -63,6 +63,9 @@ data:
           - name: "aria2"
             logo: "https://raw.githubusercontent.com/mayswind/AriaNg/fb142ad720ff258f8bc42f28d2adcafdc9dcce57/src/tileicon.png"
             url: "https://aria2.${DOMAIN_NAME}"
+          - name: "Jackett"
+            logo: "https://raw.githubusercontent.com/Jackett/Jackett/6bd50685418a98e5f7b20d3ec276e20c31a1ac30/src/Jackett.Common/Content/jacket_medium.png"
+            url: "https://jackett.${DOMAIN_NAME}"
 
       - name: "Feed"
         icon: "fas fa-rss"
