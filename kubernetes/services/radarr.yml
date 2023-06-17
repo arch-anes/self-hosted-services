@@ -84,12 +84,17 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-            - name: media
+            - name: downloads
               mountPath: /downloads
+            - name: jellyfin
+              mountPath: /jellyfin
       volumes:
         - name: config
           hostPath:
             path: /storage/radarr/config
-        - name: media
+        - name: downloads
           hostPath:
             path: /storage/radarr/downloads
+        - name: jellyfin
+          hostPath:
+            path: /storage/jellyfin/media

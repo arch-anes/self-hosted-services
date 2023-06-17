@@ -173,12 +173,12 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /app/conf
-            - name: media
+            - name: downloads
               mountPath: /data
       volumes:
         - name: config
           hostPath:
             path: /storage/aria2/config
-        - name: media
+        - name: downloads
           hostPath:
-            path: /storage/aria2/media
+            path: /storage/aria2/downloads
