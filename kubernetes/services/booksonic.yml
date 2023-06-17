@@ -65,7 +65,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: linuxserver/booksonic-air
+          image: lscr.io/linuxserver/booksonic-air
           resources:
             requests:
               memory: "512Mi"
