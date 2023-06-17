@@ -14,8 +14,8 @@
   when: not skip_firewall
 
 - name: Get host public IP
-  ansible.builtin.ipify_facts:
   when: public_ip is not defined
+  community.general.ipify_facts:
 
 - name: Retain current private IP address
   ansible.builtin.set_fact:
@@ -23,7 +23,7 @@
 
 - name: Find new private IP address
   block:
-    - ansible.builtin.command: "{{ role_path }}/find_available_ips.py -n {{ ansible_play_hosts|length }} --taken_ips {{ hostvars | json_query('*.private_ip') | quote }}"  # noqa unnamed-task
+    - ansible.builtin.command: "{{ role_path }}/find_available_ips.py -n {{ ansible_play_hosts | length }} --taken_ips {{ hostvars | json_query('*.private_ip') | quote }}"  # noqa unnamed-task
       delegate_to: localhost
       register: available_private_ips
       run_once: true

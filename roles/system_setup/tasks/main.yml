@@ -1,9 +1,11 @@
 # code: language=ansible
 ---
 
-- include_tasks: packages.yml
+- name: Setup packages
+  ansible.builtin.include_tasks: packages.yml
 
-- include_tasks: workarounds.yml
+- name: Apply Workarounds
+  ansible.builtin.include_tasks: workarounds.yml
 
 - name: Setup firewall
   ansible.builtin.import_role:

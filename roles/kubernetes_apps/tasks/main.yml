@@ -14,21 +14,21 @@
   when: not skip_firewall
 
 - name: Deploy manifests
+  when:
+    - k3s_control_node is defined
+    - k3s_control_node
   block:
-    - name: Deploy {{ item }} manifests
-      include_tasks: apply_folder_manifests.yml
+    - name: Deploy manifests - {{ item }}
+      ansible.builtin.include_tasks: apply_folder_manifests.yml
       vars:
         name: "{{ item }}"
       with_items:
         - core
         - core-services
         - services
-  when:
-    - k3s_control_node is defined
-    - k3s_control_node
 
 - name: Extract Kubernetes Dashboard password
-  include_tasks: extract_dashboard_password.yml
+  ansible.builtin.include_tasks: extract_dashboard_password.yml
   # Workaround for https://github.com/ansible/ansible/issues/11496
   when:
     - display_k8s_dashboard_password

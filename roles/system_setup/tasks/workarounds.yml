@@ -8,6 +8,8 @@
   when: ansible_distribution == 'Ubuntu'
 
 - name: Fix DNS resolution issue
+  become: true
+  when: ansible_distribution == 'Ubuntu'
   block:
     - name: Write DNS resolution config  # noqa risky-shell-pipe
       ansible.builtin.shell: 'export FILE=/etc/resolvconf/resolv.conf.d/head && export LINE="nameserver 1.1.1.1" && grep -qF "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"'
@@ -21,5 +23,3 @@
     - name: Update /etc/resolv.conf
       ansible.builtin.command: "/usr/sbin/resolvconf -u"
       changed_when: false
-  become: true
-  when: ansible_distribution == 'Ubuntu'
