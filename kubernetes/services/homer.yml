@@ -66,6 +66,9 @@ data:
           - name: "Jackett"
             logo: "https://raw.githubusercontent.com/Jackett/Jackett/6bd50685418a98e5f7b20d3ec276e20c31a1ac30/src/Jackett.Common/Content/jacket_medium.png"
             url: "https://jackett.${DOMAIN_NAME}"
+          - name: "Sonarr"
+            logo: "https://raw.githubusercontent.com/Sonarr/Sonarr/1f785dd30ddf6f1ae61b171afc12ce691c100ee2/Logo/256.png"
+            url: "https://sonarr.${DOMAIN_NAME}"
 
       - name: "Feed"
         icon: "fas fa-rss"

@@ -1,0 +1,95 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarr
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 8989
+  selector:
+    app: sonarr
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sonarr
+  namespace: default
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`sonarr.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: sonarr
+          port: 8989
+  tls:
+    secretName: wilcard-main-domain-tls
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarr
+  namespace: default
+  labels:
+    app: sonarr
+  annotations:
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@weekly"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonarr
+  template:
+    metadata:
+      labels:
+        app: sonarr
+    spec:
+      affinity:
+        nodeAffinity:
+          # Only on NAS nodes
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nas
+                    operator: In
+                    values:
+                      - "true"
+      containers:
+        - name: app
+          image: lscr.io/linuxserver/sonarr:latest
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.25"
+            limits:
+              memory: "2048Mi"
+              cpu: "1.00"
+          ports:
+            - name: web
+              containerPort: 8989
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: media
+              mountPath: /downloads
+      volumes:
+        - name: config
+          hostPath:
+            path: /storage/sonarr/config
+        - name: media
+          hostPath:
+            path: /storage/sonarr/downloads
