@@ -90,7 +90,7 @@ data:
           - name: "ldap-user-manager"
             url: "https://ldap-user-manager.${DOMAIN_NAME}"
           - name: "phpLDAPadmin"
-            logo: "https://raw.githubusercontent.com/leenooks/phpLDAPadmin/master/htdocs/images/default/logo.png"
+            logo: "https://raw.githubusercontent.com/leenooks/phpLDAPadmin/c907180882107aa1947147e7dcb108ed4ea48019/public/images/logo.png"
             url: "https://phpldapadmin.${DOMAIN_NAME}"
           - name: "pgAdmin4"
             logo: "https://www.pgadmin.org/static/docs/pgadmin4-dev/docs/en_US/_build/html/_images/logo-right-128.png"
