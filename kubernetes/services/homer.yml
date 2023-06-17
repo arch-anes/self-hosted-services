@@ -69,6 +69,9 @@ data:
           - name: "Sonarr"
             logo: "https://raw.githubusercontent.com/Sonarr/Sonarr/1f785dd30ddf6f1ae61b171afc12ce691c100ee2/Logo/256.png"
             url: "https://sonarr.${DOMAIN_NAME}"
+          - name: "Radarr"
+            logo: "https://raw.githubusercontent.com/Radarr/Radarr/e4429d2919f73d8ffd1389614c74e58b9a447c50/Logo/256.png"
+            url: "https://radarr.${DOMAIN_NAME}"
 
       - name: "Feed"
         icon: "fas fa-rss"
