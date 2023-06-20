@@ -94,7 +94,7 @@ spec:
             path: /storage/radarr/config
         - name: downloads
           hostPath:
-            path: /storage/radarr/downloads
+            path: /storage/aria2/downloads
         - name: jellyfin
           hostPath:
             path: /storage/jellyfin/media

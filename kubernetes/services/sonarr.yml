@@ -94,7 +94,7 @@ spec:
             path: /storage/sonarr/config
         - name: downloads
           hostPath:
-            path: /storage/sonarr/downloads
+            path: /storage/aria2/downloads
         - name: jellyfin
           hostPath:
             path: /storage/jellyfin/media
