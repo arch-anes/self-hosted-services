@@ -39,8 +39,6 @@ metadata:
   namespace: default
 type: Opaque
 # stringData:
-#   username: "someusername"
-#   password: "somepassword"
 #   database_connection: "host=postgresql port=5432 user=postgres dbname=gotify password=somepassword sslmode=disable"
 
 ---
@@ -86,13 +84,3 @@ spec:
                 secretKeyRef:
                   name: gotify
                   key: database_connection
-            - name: GOTIFY_DEFAULTUSER_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: gotify
-                  key: username
-            - name: GOTIFY_DEFAULTUSER_PASS
-              valueFrom:
-                secretKeyRef:
-                  name: gotify
-                  key: password
