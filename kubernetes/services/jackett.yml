@@ -84,12 +84,7 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-            - name: downloads
-              mountPath: /downloads
       volumes:
         - name: config
           hostPath:
             path: /storage/jackett/config
-        - name: downloads
-          hostPath:
-            path: /storage/jackett/downloads
