@@ -40,8 +40,6 @@ metadata:
 type: Opaque
 # stringData:
 #   epic_email: "someemail"
-#   epic_password: "somepass"
-#   epic_totp: "sometoken"
 
 ---
 apiVersion: apps/v1
@@ -77,7 +75,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: charlocharlie/epicgames-freegames
+          image: ghcr.io/claabs/epicgames-freegames-node
           resources:
             requests:
               memory: "64Mi"
@@ -94,16 +92,6 @@ spec:
                 secretKeyRef:
                   name: epicgames-freegames
                   key: epic_email
-            - name: PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: epicgames-freegames
-                  key: epic_password
-            - name: TOTP
-              valueFrom:
-                secretKeyRef:
-                  name: epicgames-freegames
-                  key: epic_totp
             - name: SMTP_HOST
               valueFrom:
                 secretKeyRef:
