@@ -1,0 +1,98 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gotify
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 80
+  selector:
+    app: gotify
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gotify
+  namespace: default
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`gotify.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: gotify
+          port: 80
+  tls:
+    secretName: wilcard-main-domain-tls
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gotify
+  namespace: default
+type: Opaque
+# stringData:
+#   username: "someusername"
+#   password: "somepassword"
+#   database_connection: "host=postgresql port=5432 user=postgres dbname=gotify password=somepassword sslmode=disable"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gotify
+  namespace: default
+  labels:
+    app: gotify
+  annotations:
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@weekly"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gotify
+  template:
+    metadata:
+      labels:
+        app: gotify
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/gotify/server
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "0.25"
+            limits:
+              memory: "256Mi"
+              cpu: "1.00"
+          ports:
+            - name: web
+              containerPort: 80
+          env:
+            - name: GOTIFY_DATABASE_DIALECT
+              value: "postgres"
+            - name: GOTIFY_DATABASE_CONNECTION
+              valueFrom:
+                secretKeyRef:
+                  name: gotify
+                  key: database_connection
+            - name: GOTIFY_DEFAULTUSER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: gotify
+                  key: username
+            - name: GOTIFY_DEFAULTUSER_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: gotify
+                  key: password
