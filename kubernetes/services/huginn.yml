@@ -65,7 +65,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: huginn/huginn
+          image: ghcr.io/huginn/huginn
           resources:
             requests:
               memory: "512Mi"
