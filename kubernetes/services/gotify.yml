@@ -84,3 +84,10 @@ spec:
                 secretKeyRef:
                   name: gotify
                   key: database_connection
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+      volumes:
+        - name: data
+          hostPath:
+            path: /storage/gotify/data
