@@ -1,0 +1,98 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodemation
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 5678
+  selector:
+    app: nodemation
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nodemation
+  namespace: default
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`n8n.${DOMAIN_NAME}`)
+      kind: Rule
+      services:
+        - name: nodemation
+          port: 5678
+  tls:
+    secretName: wilcard-main-domain-tls
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nodemation
+  namespace: default
+type: Opaque
+# stringData:
+#   invitation_code: "somecode"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodemation
+  namespace: default
+  labels:
+    app: nodemation
+  annotations:
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@weekly"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodemation
+  template:
+    metadata:
+      labels:
+        app: nodemation
+    spec:
+      containers:
+        - name: app
+          image: docker.n8n.io/n8nio/n8n
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.25"
+            limits:
+              memory: "1024Mi"
+              cpu: "2.00"
+          env:
+            - name: N8N_DIAGNOSTICS_ENABLED
+              value: "false"
+            - name: N8N_VERSION_NOTIFICATIONS_ENABLED
+              value: "false"
+            - name: N8N_TEMPLATES_ENABLED
+              value: "false"
+            - name: DB_TYPE
+              value: "postgresdb"
+            - name: DB_POSTGRESDB_HOST
+              value: "postgresql"
+            - name: DB_POSTGRESDB_DATABASE
+              value: "n8n"
+            - name: DB_POSTGRESDB_USER
+              value: "postgres"
+            - name: DB_POSTGRESDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql
+                  key: postgres_password
+          ports:
+            - name: web
+              containerPort: 5678
