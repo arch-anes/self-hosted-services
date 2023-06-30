@@ -42,14 +42,9 @@ metadata:
   namespace: default
 type: Opaque
 # stringData:
-#   username: "someuser"
-#   password: "somepassword"
-#   rpc_secret: "somecode"
-#   vpn_endpoint_ip: "1.2.3.4"
-#   vpn_endpoint_port: "51820"
-#   wireguard_public_key: "somekey"
+#   vpn_service_provider: "someprovider"
 #   wireguard_private_key: "somekey"
-#   wireguard_address: "123.123.123.123/32"
+#   server_countries: "somecountry1,somecountry2"
 
 ---
 apiVersion: apps/v1
@@ -99,35 +94,25 @@ spec:
               memory: "1024Mi"
               cpu: "1.00"
           env:
+            - name: UPDATER_PERIOD
+              value: "24h"
             - name: VPN_TYPE
               value: "wireguard"
             - name: VPN_SERVICE_PROVIDER
-              value: "custom"
-            - name: VPN_ENDPOINT_IP
               valueFrom:
                 secretKeyRef:
                   name: aria2
-                  key: vpn_endpoint_ip
-            - name: VPN_ENDPOINT_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: aria2
-                  key: vpn_endpoint_port
-            - name: WIREGUARD_PUBLIC_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: aria2
-                  key: wireguard_public_key
+                  key: vpn_service_provider
             - name: WIREGUARD_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
                   name: aria2
                   key: wireguard_private_key
-            - name: WIREGUARD_ADDRESSES
+            - name: SERVER_COUNTRIES
               valueFrom:
                 secretKeyRef:
                   name: aria2
-                  key: wireguard_address
+                  key: server_countries
         - name: app
           image: wahyd4/aria2-ui
           resources:
@@ -165,11 +150,6 @@ spec:
                 secretKeyRef:
                   name: aria2
                   key: password
-            - name: RPC_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: aria2
-                  key: rpc_secret
           volumeMounts:
             - name: config
               mountPath: /app/conf
