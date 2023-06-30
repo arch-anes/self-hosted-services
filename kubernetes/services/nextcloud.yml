@@ -79,7 +79,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: nextcloud:23
+          image: nextcloud:27
           resources:
             requests:
               memory: "512Mi"
