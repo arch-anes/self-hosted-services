@@ -13,6 +13,16 @@ spec:
     app: redis
 
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis
+  namespace: default
+type: Opaque
+# stringData:
+#   redis_password: "somepassword"
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -36,7 +46,12 @@ spec:
     spec:
       containers:
         - name: redis
-          image: redis:6-alpine
+          image: redis:7-alpine
+          command:
+            - redis-server
+          args:
+            - --requirepass
+            - $(REDIS_PASSWORD)
           resources:
             requests:
               memory: "128Mi"
@@ -44,6 +59,12 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "1.00"
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: redis_password
           ports:
             - name: redis
               containerPort: 6379

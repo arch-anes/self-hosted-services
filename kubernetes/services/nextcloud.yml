@@ -90,6 +90,11 @@ spec:
           env:
             - name: REDIS_HOST
               value: "redis"
+            - name: REDIS_HOST_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: redis_password
             - name: POSTGRES_HOST
               value: "postgresql"
             - name: POSTGRES_DB
