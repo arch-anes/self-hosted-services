@@ -39,7 +39,7 @@ metadata:
   namespace: default
 type: Opaque
 # stringData:
-#   invitation_code: "somecode"
+#   encryption_key: "somekey"
 
 ---
 apiVersion: apps/v1
@@ -93,6 +93,11 @@ spec:
                 secretKeyRef:
                   name: postgresql
                   key: postgres_password
+            - name: N8N_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: nodemation
+                  key: encryption_key
           ports:
             - name: web
               containerPort: 5678
