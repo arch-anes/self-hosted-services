@@ -42,6 +42,8 @@ metadata:
   namespace: default
 type: Opaque
 # stringData:
+#   username: "someuser"
+#   password: "somepass"
 #   vpn_service_provider: "someprovider"
 #   wireguard_private_key: "somekey"
 #   server_countries: "somecountry1,somecountry2"
