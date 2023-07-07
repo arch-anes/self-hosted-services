@@ -32,16 +32,6 @@ spec:
     secretName: wilcard-main-domain-tls
 
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: gotify
-  namespace: default
-type: Opaque
-# stringData:
-#   database_connection: "host=postgresql port=5432 user=postgres dbname=gotify password=somepassword sslmode=disable"
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -79,11 +69,13 @@ spec:
           env:
             - name: GOTIFY_DATABASE_DIALECT
               value: "postgres"
-            - name: GOTIFY_DATABASE_CONNECTION
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: gotify
-                  key: database_connection
+                  name: postgresql
+                  key: postgres_password
+            - name: GOTIFY_DATABASE_CONNECTION
+              value: host=postgresql port=5432 user=postgres dbname=gotify password=$(POSTGRES_PASSWORD) sslmode=disable
           volumeMounts:
             - name: data
               mountPath: /app/data
