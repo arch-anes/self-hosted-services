@@ -67,9 +67,9 @@ data:
       - name: "Feed"
         icon: "fas fa-rss"
         items:
-          - name: "tt-rss"
-            logo: "https://git.tt-rss.org/fox/tt-rss.git/plain/images/favicon-72px.png"
-            url: "https://ttrss.${DOMAIN_NAME}"
+          - name: "Miniflux"
+            logo: "https://raw.githubusercontent.com/miniflux/v2/06c37a132f6a90a30db12ad3f263cc6a97678d4a/ui/static/bin/maskable-icon-192.png"
+            url: "https://miniflux.${DOMAIN_NAME}"
           - name: "Gotify"
             logo: "https://raw.githubusercontent.com/gotify/logo/87aef9091f51644eaccf78e7b67f8ce94271efeb/gotify-logo.png"
             url: "https://gotify.${DOMAIN_NAME}"
