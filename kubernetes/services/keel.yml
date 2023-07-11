@@ -43,7 +43,7 @@ metadata:
 spec:
   chart: keel
   repo: https://charts.keel.sh
-  version: 1.0.1
+  version: 1.0.2
   targetNamespace: kube-system
   valuesContent: |-
     resources:
