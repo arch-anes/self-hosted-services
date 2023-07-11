@@ -13,7 +13,7 @@ metadata:
 spec:
   chart: kubernetes-dashboard
   repo: https://kubernetes.github.io/dashboard
-  version: 6.0.7
+  version: 7.0.2
   targetNamespace: kubernetes-dashboard
   valuesContent: |-
     protocolHttp: true
@@ -28,6 +28,10 @@ spec:
       limits:
         memory: "256Mi"
         cpu: "2.00"
+    nginx:
+      enabled: false
+    cert-manager:
+      enabled: false
 
 ---
 apiVersion: traefik.containo.us/v1alpha1
@@ -43,9 +47,16 @@ spec:
     - match: Host(`kubernetes.${DOMAIN_NAME}`)
       kind: Rule
       services:
-        - name: kubernetes-dashboard
+        - name: kubernetes-dashboard-web
           namespace: kubernetes-dashboard
-          port: 443
+          port: 8000
+          scheme: http
+    - match: Host(`kubernetes.${DOMAIN_NAME}`) && PathPrefix(`/api`)
+      kind: Rule
+      services:
+        - name: kubernetes-dashboard-api
+          namespace: kubernetes-dashboard
+          port: 9000
           scheme: http
   tls:
     secretName: wilcard-main-domain-tls
