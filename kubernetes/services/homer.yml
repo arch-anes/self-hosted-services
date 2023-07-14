@@ -127,6 +127,9 @@ data:
       - name: "Monitoring"
         icon: "fas fa-heartbeat"
         items:
+          - name: "Speedtest Tracker"
+            logo: "https://raw.githubusercontent.com/henrywhitaker3/Speedtest-Tracker/8cb2e8a3236850b4a07e887ac376c0d4d5e804f4/public/icons/fav/ms-icon-310x310.png"
+            url: "https://speedtest.${DOMAIN_NAME}"
           - name: "Traefik"
             logo: "https://github.com/traefik/traefik/raw/0a3e40332a86cc061bf16d8895b10defeb999171/docs/content/assets/img/traefik.logo.png"
             url: "https://traefik.${DOMAIN_NAME}"
