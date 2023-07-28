@@ -54,6 +54,44 @@ data:
     fi
 
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgresql
+  namespace: default
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /storage/postgresql
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: nas
+              operator: In
+              values:
+                - "true"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: local-storage
+  volumeName: "postgresql"
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -75,16 +113,6 @@ spec:
       labels:
         app: postgresql
     spec:
-      affinity:
-        nodeAffinity:
-          # Only on NAS nodes
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: nas
-                    operator: In
-                    values:
-                      - "true"
       containers:
         - name: db
           image: postgres:15-alpine
@@ -114,8 +142,8 @@ spec:
               subPath: create-multiple-postgresql-databases.sh
       volumes:
         - name: db
-          hostPath:
-            path: /storage/postgresql
+          persistentVolumeClaim:
+            claimName: postgresql
         - name: scripts
           configMap:
             name: postgresql-scripts
