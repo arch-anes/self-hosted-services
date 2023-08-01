@@ -1,0 +1,49 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flaresolverr
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 8191
+  selector:
+    app: flaresolverr
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flaresolverr
+  namespace: default
+  labels:
+    app: flaresolverr
+  annotations:
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@daily"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flaresolverr
+  template:
+    metadata:
+      labels:
+        app: flaresolverr
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/flaresolverr/flaresolverr
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "0.25"
+            limits:
+              memory: "512Mi"
+              cpu: "1.00"
+          ports:
+            - name: web
+              containerPort: 8191
