@@ -87,7 +87,7 @@ spec:
                       - "true"
       containers:
         - name: db
-          image: postgres:15-alpine
+          image: postgres:15-bookworm
           resources:
             requests:
               memory: "128Mi"
