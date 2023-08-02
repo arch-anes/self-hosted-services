@@ -44,7 +44,7 @@ data:
     subtitle: "Homer"
     logo: "logo.png"
 
-    header: true
+    header: false
     footer: false
 
     services:
