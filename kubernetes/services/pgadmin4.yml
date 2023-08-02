@@ -78,6 +78,13 @@ spec:
                 secretKeyRef:
                   name: pgadmin4
                   key: password
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql
+                  key: postgres_password
+            - name: PGADMIN_CONFIG_CONFIG_DATABASE_URI
+              value: "\"postgresql://postgres:$(POSTGRES_PASSWORD)@postgresql:5432/pgadmin4\""
           resources:
             requests:
               memory: "128Mi"
