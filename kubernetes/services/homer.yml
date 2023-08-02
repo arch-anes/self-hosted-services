@@ -73,9 +73,13 @@ data:
           - name: "Gotify"
             logo: "https://raw.githubusercontent.com/gotify/logo/87aef9091f51644eaccf78e7b67f8ce94271efeb/gotify-logo.png"
             url: "https://gotify.${DOMAIN_NAME}"
-          - name: "Jackett"
-            logo: "https://raw.githubusercontent.com/Jackett/Jackett/6bd50685418a98e5f7b20d3ec276e20c31a1ac30/src/Jackett.Common/Content/jacket_medium.png"
-            url: "https://jackett.${DOMAIN_NAME}"
+          
+      - name: "Arr"
+        icon: "fas fa-ship"
+        items:
+          - name: "Prowlarr"
+            logo: "https://raw.githubusercontent.com/Prowlarr/Prowlarr/bc53fab96623c91783360cd9d3abce12e6c4f38a/Logo/256.png"
+            url: "https://prowlarr.${DOMAIN_NAME}"
           - name: "Sonarr"
             logo: "https://raw.githubusercontent.com/Sonarr/Sonarr/1f785dd30ddf6f1ae61b171afc12ce691c100ee2/Logo/256.png"
             url: "https://sonarr.${DOMAIN_NAME}"
