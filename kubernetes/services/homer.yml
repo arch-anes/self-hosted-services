@@ -100,16 +100,12 @@ data:
             logo: "https://d33wubrfki0l68.cloudfront.net/b8db213a4d85ebec7b82272cacb727a05a9a1475/96e9f/_images/n8n-docs-icon.svg"
             url: "https://n8n.${DOMAIN_NAME}"
 
-      - name: "Database"
-        icon: "fas fa-database"
+      - name: "Administration"
+        icon: "fas fa-tools"
         items:
           - name: "pgAdmin4"
             logo: "https://www.pgadmin.org/static/docs/pgadmin4-dev/docs/en_US/_build/html/_images/logo-right-128.png"
             url: "https://pgadmin4.${DOMAIN_NAME}"
-
-      - name: "Administration"
-        icon: "fas fa-tools"
-        items:
           - name: "Kubernetes"
             logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Kubernetes_logo_without_workmark.svg/247px-Kubernetes_logo_without_workmark.svg.png"
             url: "https://kubernetes.${DOMAIN_NAME}"
