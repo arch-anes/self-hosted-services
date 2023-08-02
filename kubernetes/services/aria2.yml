@@ -119,11 +119,11 @@ spec:
           image: wahyd4/aria2-ui
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "1.00"
+              memory: "128Mi"
+              cpu: "0.25"
             limits:
               memory: "1024Mi"
-              cpu: "5.00"
+              cpu: "1.00"
           ports:
             - name: web
               containerPort: 80
