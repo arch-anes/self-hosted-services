@@ -1,19 +1,33 @@
 ---
-apiVersion: ceph.rook.io/v1
-kind: CephCluster
+apiVersion: v1
+kind: Namespace
 metadata:
   name: storage-cluster
-  namespace: default
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: storage-cluster
+  namespace: kube-system
 spec:
-  cephVersion:
-    image: quay.io/ceph/ceph:v17.2.6
-  dataDirHostPath: /storage/cluster
-  mon:
-    count: 1
-    allowMultiplePerNode: false
-  dashboard:
-    enabled: true
-  storage:
-    useAllNodes: true
-    useAllDevices: true
-    deviceFilter: /dev/mapper/cstorage
+  chart: rook-ceph-cluster
+  repo: https://charts.rook.io/release
+  version: 1.12.1
+  targetNamespace: storage-cluster
+  valuesContent: |-
+    pspEnable: true
+    clusterName: storage-cluster
+    cephClusterSpec:
+      cephVersion:
+        image: quay.io/ceph/ceph:v17.2.6
+      dataDirHostPath: /storage/cluster
+      mon:
+        count: 2
+        allowMultiplePerNode: false
+      dashboard:
+        enabled: true
+      storage:
+        useAllNodes: true
+        useAllDevices: true
+        deviceFilter: /dev/mapper/cstorage

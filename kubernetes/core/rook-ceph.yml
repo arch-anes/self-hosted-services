@@ -17,17 +17,3 @@ spec:
   targetNamespace: rook-ceph
   valuesContent: |-
     pspEnable: true
-
----
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
-metadata:
-  name: rook-ceph-cluster
-  namespace: kube-system
-spec:
-  chart: rook-ceph-cluster
-  repo: https://charts.rook.io/release
-  version: 1.12.1
-  targetNamespace: default
-  valuesContent: |-
-    pspEnable: true
