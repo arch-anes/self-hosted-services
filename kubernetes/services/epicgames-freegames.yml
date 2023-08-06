@@ -51,6 +51,7 @@ metadata:
   labels:
     app: epicgames-freegames
   annotations:
+    reloader.stakater.com/auto: "true"
     keel.sh/policy: minor
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
@@ -64,16 +65,6 @@ spec:
       labels:
         app: epicgames-freegames
     spec:
-      affinity:
-        nodeAffinity:
-          # Only on nas nodes
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: nas
-                    operator: In
-                    values:
-                      - "true"
       containers:
         - name: app
           image: ghcr.io/claabs/epicgames-freegames-node
@@ -104,10 +95,3 @@ spec:
               value: "https://epicgames-freegames.${DOMAIN_NAME}"
             - name: RUN_ON_STARTUP
               value: "true"
-          volumeMounts:
-            - name: config
-              mountPath: /usr/app/config
-      volumes:
-        - name: config
-          hostPath:
-            path: /storage/epicgames-freegames/config
