@@ -126,6 +126,9 @@ data:
       - name: "Monitoring"
         icon: "fas fa-heartbeat"
         items:
+          - name: "Netdata"
+            logo: "https://raw.githubusercontent.com/netdata/netdata/483d8481a5a5edf72630068534feb1a4d228ed0b/web/gui/v1/images/favicon-196x196.png"
+            url: "https://netdata.${DOMAIN_NAME}"
           - name: "Speedtest Tracker"
             logo: "https://raw.githubusercontent.com/henrywhitaker3/Speedtest-Tracker/8cb2e8a3236850b4a07e887ac376c0d4d5e804f4/public/icons/fav/ms-icon-310x310.png"
             url: "https://speedtest.${DOMAIN_NAME}"

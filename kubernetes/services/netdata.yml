@@ -1,0 +1,55 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: netdata
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: netdata
+  namespace: kube-system
+spec:
+  chart: netdata
+  repo: https://netdata.github.io/helmchart/
+  version: 3.7.65
+  targetNamespace: netdata
+  valuesContent: |-
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: traefik
+        kubernetes.io/tls-acme: "false"
+        traefik.ingress.kubernetes.io/router.middlewares: default-services-admin-authentication@kubernetescrd
+      path: /
+      pathType: Prefix
+      hosts:
+        - netdata.${DOMAIN_NAME}
+      tls:
+        - secretName: wilcard-main-domain-tls
+          hosts:
+            - netdata.${DOMAIN_NAME}
+    parent:
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+      env:
+        DO_NOT_TRACK: 1
+    child:
+      resources:
+        requests:
+          cpu: 250m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 256Mi
+      env:
+        DO_NOT_TRACK: 1
+    k8sState:
+      env:
+        DO_NOT_TRACK: 1
