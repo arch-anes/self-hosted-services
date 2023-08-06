@@ -55,17 +55,17 @@ spec:
     spec:
       affinity:
         nodeAffinity:
-          # Only on nas nodes
+          # Only on public nodes
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: nas
+                  - key: public
                     operator: In
                     values:
                       - "true"
       containers:
         - name: app
-          image: henrywhitaker3/speedtest-tracker
+          image: ghcr.io/alexjustesen/speedtest-tracker
           resources:
             requests:
               memory: "64Mi"
@@ -81,14 +81,18 @@ spec:
               value: "1000"
             - name: PGID
               value: "1000"
-            - name: OOKLA_EULA_GDPR
-              value: "true"
-            - name: AUTH
-              value: "true"
-          volumeMounts:
-            - name: config
-              mountPath: /config
-      volumes:
-        - name: config
-          hostPath:
-            path: /storage/speedtest/config
+            - name: DB_CONNECTION
+              value: pgsql
+            - name: DB_HOST
+              value: postgresql
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_DATABASE
+              value: speedtest_tracker
+            - name: DB_USERNAME
+              value: postgres
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql
+                  key: postgres_password
