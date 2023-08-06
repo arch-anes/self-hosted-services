@@ -13,23 +13,27 @@ spec:
     app: booksonic
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: booksonic
   namespace: default
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`booksonic.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: booksonic
-          port: 4040
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - booksonic.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: booksonic.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: booksonic
+                port:
+                  name: web
 
 ---
 apiVersion: apps/v1

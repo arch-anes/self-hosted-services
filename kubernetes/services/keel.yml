@@ -15,24 +15,27 @@ type: Opaque
 #   MAIL_TO: "hello@example.com"
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: keel
-  namespace: default
+  namespace: kube-system
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`keel.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: keel
-          namespace: kube-system
-          port: 9300
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - keel.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: keel.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keel
+                port:
+                  name: keel
 
 ---
 apiVersion: helm.cattle.io/v1

@@ -13,23 +13,27 @@ spec:
     app: miniflux
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: miniflux
   namespace: default
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`miniflux.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: miniflux
-          port: 8080
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - miniflux.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: miniflux.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: miniflux
+                port:
+                  name: web
 
 ---
 apiVersion: v1

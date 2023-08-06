@@ -13,23 +13,27 @@ spec:
     app: nodemation
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: nodemation
   namespace: default
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`n8n.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: nodemation
-          port: 5678
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - n8n.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: n8n.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nodemation
+                port:
+                  name: web
 
 ---
 apiVersion: v1

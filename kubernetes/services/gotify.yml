@@ -13,23 +13,27 @@ spec:
     app: gotify
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: gotify
   namespace: default
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`gotify.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: gotify
-          port: 80
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - gotify.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: gotify.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gotify
+                port:
+                  name: web
 
 ---
 apiVersion: apps/v1

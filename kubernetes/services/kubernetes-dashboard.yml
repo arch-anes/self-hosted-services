@@ -13,53 +13,55 @@ metadata:
 spec:
   chart: kubernetes-dashboard
   repo: https://kubernetes.github.io/dashboard
-  version: 7.0.2
+  version: 7.0.3
   targetNamespace: kubernetes-dashboard
   valuesContent: |-
-    protocolHttp: true
-    extraArgs:
-      - --enable-insecure-login
-    metricsScraper:
-      enabled: true
-    resources:
-      requests:
-        memory: "128Mi"
-        cpu: "0.25"
-      limits:
-        memory: "256Mi"
-        cpu: "2.00"
+    app:
+      settings:
+        global:
+          clusterName: "Home"
+          defaultNamespace: "default"
+          itemsPerPage: 50
+          labelsLimit: 10
+          logsAutoRefreshTimeInterval: 5
+          resourceAutoRefreshTimeInterval: 5
+          disableAccessDeniedNotifications: false
+      ingress:
+        enabled: false
     nginx:
       enabled: false
     cert-manager:
       enabled: false
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: kubernetes-dashboard
-  namespace: default
+  namespace: kubernetes-dashboard
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`kubernetes.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: kubernetes-dashboard-web
-          namespace: kubernetes-dashboard
-          port: 8000
-          scheme: http
-    - match: Host(`kubernetes.${DOMAIN_NAME}`) && PathPrefix(`/api`)
-      kind: Rule
-      services:
-        - name: kubernetes-dashboard-api
-          namespace: kubernetes-dashboard
-          port: 9000
-          scheme: http
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - kubernetes.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: kubernetes.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kubernetes-dashboard-web
+                port:
+                  name: web
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: kubernetes-dashboard-api
+                port:
+                  name: api
 
 ---
 apiVersion: v1

@@ -13,23 +13,27 @@ spec:
     app: homer
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: homer
   namespace: default
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: homer
-          port: 8080
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - ${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: ${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: homer
+                port:
+                  name: web
 
 ---
 apiVersion: v1

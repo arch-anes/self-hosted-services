@@ -36,30 +36,36 @@ spec:
     secret: "octoprint-webcam"
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: octoprint
   namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: default-octoprint-webcam@kubernetescrd
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`octoprint.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: octoprint
-          port: 5000
-    - match: Host(`octoprint-webcam.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: octoprint
-          port: 8080
-      middlewares:
-        - name: octoprint-webcam
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - octoprint.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: octoprint.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: octoprint
+                port:
+                  name: web
+          - path: /webcam
+            pathType: Prefix
+            backend:
+              service:
+                name: octoprint
+                port:
+                  name: webcam
 
 ---
 apiVersion: apps/v1

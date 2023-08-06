@@ -25,25 +25,29 @@ spec:
     replacement: "https://${1}/remote.php/dav/"
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: nextcloud
   namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: default-nextcloud-redirect@kubernetescrd
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`nextcloud.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: nextcloud
-          port: 80
-      middlewares:
-        - name: nextcloud-redirect
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - nextcloud.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: nextcloud.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nextcloud
+                port:
+                  name: web
 
 ---
 apiVersion: apps/v1

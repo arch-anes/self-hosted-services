@@ -13,23 +13,27 @@ spec:
     app: jellyfin
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: jellyfin
   namespace: default
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`jellyfin.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: jellyfin
-          port: 8096
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - jellyfin.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: jellyfin.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jellyfin
+                port:
+                  name: web
 
 ---
 apiVersion: apps/v1

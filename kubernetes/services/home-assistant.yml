@@ -13,23 +13,27 @@ spec:
     app: home-assistant
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: home-assistant
   namespace: default
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`home-assistant.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: home-assistant
-          port: 8123
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - home-assistant.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: home-assistant.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: home-assistant
+                port:
+                  name: web
 
 ---
 apiVersion: apps/v1

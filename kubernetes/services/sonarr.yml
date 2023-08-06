@@ -13,23 +13,27 @@ spec:
     app: sonarr
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: sonarr
   namespace: default
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`sonarr.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: sonarr
-          port: 8989
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - sonarr.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: sonarr.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sonarr
+                port:
+                  name: web
 
 ---
 apiVersion: apps/v1

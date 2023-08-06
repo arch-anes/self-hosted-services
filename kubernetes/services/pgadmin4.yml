@@ -13,23 +13,27 @@ spec:
     app: pgadmin4
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: pgadmin4
   namespace: default
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`pgadmin4.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: pgadmin4
-          port: 80
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - pgadmin4.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: pgadmin4.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pgadmin4
+                port:
+                  name: web
 
 ---
 apiVersion: v1
@@ -84,7 +88,7 @@ spec:
                   name: postgresql
                   key: postgres_password
             - name: PGADMIN_CONFIG_CONFIG_DATABASE_URI
-              value: "\"postgresql://postgres:$(POSTGRES_PASSWORD)@postgresql:5432/pgadmin4\""
+              value: '"postgresql://postgres:$(POSTGRES_PASSWORD)@postgresql:5432/pgadmin4"'
           resources:
             requests:
               memory: "128Mi"

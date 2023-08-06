@@ -1,24 +1,27 @@
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: kubeclarity
-  namespace: default
+  namespace: kubeclarity
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: default-services-admin-authentication@kubernetescrd
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`kubeclarity.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: kubeclarity-kubeclarity
-          namespace: kubeclarity
-          port: 8080
-      middlewares:
-        - name: services-admin-authentication
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - kubeclarity.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: kubeclarity.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kubeclarity-kubeclarity
+                port:
+                  name: backend
 
 ---
 apiVersion: v1

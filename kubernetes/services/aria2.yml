@@ -16,23 +16,27 @@ spec:
     app: aria2
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: aria2
   namespace: default
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`aria2.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: aria2
-          port: 80
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - aria2.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: aria2.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aria2
+                port:
+                  name: web
 
 ---
 apiVersion: v1

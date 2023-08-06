@@ -13,23 +13,27 @@ spec:
     app: epicgames-freegames
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: epicgames-freegames
   namespace: default
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`epicgames-freegames.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: epicgames-freegames
-          port: 3000
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - epicgames-freegames.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: epicgames-freegames.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: epicgames-freegames
+                port:
+                  name: web
 
 ---
 apiVersion: v1

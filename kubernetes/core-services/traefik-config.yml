@@ -59,7 +59,15 @@ spec:
       - "--global.sendanonymoususage=false"
     ingressRoute:
       dashboard:
-        enabled: false
+        enabled: true
+        matchRule: Host(`traefik.${DOMAIN_NAME}`)
+        middlewares:
+          - name: default-services-admin-authentication@kubernetescrd
+        entryPoints:
+          - web
+          - websecure
+        tls:
+          secretName: wilcard-main-domain-tls
     providers:
       kubernetesCRD:
         allowCrossNamespace: true
@@ -99,24 +107,3 @@ spec:
             target:
               type: Utilization
               averageUtilization: 60
-
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
-metadata:
-  name: traefik-dashboard
-  namespace: default
-spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`traefik.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: api@internal
-          kind: TraefikService
-      middlewares:
-        - name: services-admin-authentication
-  tls:
-    secretName: wilcard-main-domain-tls

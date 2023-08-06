@@ -13,23 +13,27 @@ spec:
     app: prowlarr
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: prowlarr
   namespace: default
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`prowlarr.${DOMAIN_NAME}`)
-      kind: Rule
-      services:
-        - name: prowlarr
-          port: 9696
   tls:
-    secretName: wilcard-main-domain-tls
+    - hosts:
+        - prowlarr.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: prowlarr.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prowlarr
+                port:
+                  name: web
 
 ---
 apiVersion: v1
