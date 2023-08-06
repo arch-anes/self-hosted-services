@@ -91,11 +91,11 @@ spec:
               value: '"postgresql://postgres:$(POSTGRES_PASSWORD)@postgresql:5432/pgadmin4"'
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "0.25"
+              memory: 128Mi
+              cpu: 125m
             limits:
-              memory: "1024Mi"
-              cpu: "1.00"
+              memory: 256Mi
+              cpu: 250m
           ports:
             - name: web
               containerPort: 80

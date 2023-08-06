@@ -94,11 +94,11 @@ spec:
                 - NET_ADMIN
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "0.25"
+              memory: 512Mi
+              cpu: 250m
             limits:
-              memory: "1024Mi"
-              cpu: "1.00"
+              memory: 1Gi
+              cpu: 1000m
           env:
             - name: UPDATER_PERIOD
               value: "24h"
@@ -123,11 +123,11 @@ spec:
           image: wahyd4/aria2-ui
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "0.25"
+              memory: 128Mi
+              cpu: 250m
             limits:
-              memory: "1024Mi"
-              cpu: "1.00"
+              memory: 1Gi
+              cpu: 1000m
           ports:
             - name: web
               containerPort: 80

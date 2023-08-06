@@ -72,11 +72,11 @@ spec:
           image: lscr.io/linuxserver/booksonic-air
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "0.25"
+              memory: 512Mi
+              cpu: 250m
             limits:
-              memory: "2048Mi"
-              cpu: "1.00"
+              memory: 1Gi
+              cpu: 1000m
           ports:
             - name: web
               containerPort: 4040

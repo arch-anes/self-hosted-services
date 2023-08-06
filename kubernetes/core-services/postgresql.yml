@@ -90,11 +90,11 @@ spec:
           image: postgres:15-bookworm
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "0.25"
+              memory: 128Mi
+              cpu: 250m
             limits:
-              memory: "2048Mi"
-              cpu: "3.0"
+              memory: 1Gi
+              cpu: 2000m
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:

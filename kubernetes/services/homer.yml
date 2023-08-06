@@ -167,11 +167,11 @@ spec:
           image: b4bz/homer
           resources:
             requests:
-              memory: "32Mi"
-              cpu: "0.25"
+              memory: 32Mi
+              cpu: 125m
             limits:
-              memory: "64Mi"
-              cpu: "0.25"
+              memory: 64Mi
+              cpu: 250m
           ports:
             - name: web
               containerPort: 8080

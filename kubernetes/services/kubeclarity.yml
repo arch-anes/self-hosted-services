@@ -27,6 +27,13 @@ spec:
         port: 5432
         database: kubeclarity
     kubeclarity:
+      resources:
+        requests:
+          memory: 64Mi
+          cpu: 125m
+        limits:
+          memory: 128Mi
+          cpu: 250m
       ingress:
         enabled: true
         annotations:
@@ -37,3 +44,11 @@ spec:
         - secretName: wilcard-main-domain-tls
           hosts:
             - kubeclarity.${DOMAIN_NAME}
+    kubeclarity-sbom-db:
+      resources:
+        requests:
+          memory: 64Mi
+          cpu: 125m
+        limits:
+          memory: 128Mi
+          cpu: 250m

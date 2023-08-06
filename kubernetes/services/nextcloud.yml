@@ -86,11 +86,11 @@ spec:
           image: nextcloud:27
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "0.25"
+              memory: 128Mi
+              cpu: 250m
             limits:
-              memory: "4096Mi"
-              cpu: "4.00"
+              memory: 2Gi
+              cpu: 2000m
           env:
             - name: REDIS_HOST
               value: "redis"

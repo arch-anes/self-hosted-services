@@ -73,11 +73,11 @@ spec:
           image: miniflux/miniflux
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "0.25"
+              memory: 128Mi
+              cpu: 125m
             limits:
-              memory: "1024Mi"
-              cpu: "0.5"
+              memory: 256Mi
+              cpu: 500m
           env:
             - name: RUN_MIGRATIONS
               value: "1"

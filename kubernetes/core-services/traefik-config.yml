@@ -85,11 +85,11 @@ spec:
             key: token
     resources:
       requests:
-        memory: "128Mi"
-        cpu: "0.25"
+        memory: 128Mi
+        cpu: 125m
       limits:
-        memory: "512Mi"
-        cpu: "2.00"
+        memory: 256Mi
+        cpu: 1000m
     autoscaling:
       enabled: true
       minReplicas: 1

@@ -106,11 +106,11 @@ spec:
             privileged: true
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "0.25"
+              memory: 512Mi
+              cpu: 250m
             limits:
-              memory: "2048Mi"
-              cpu: "4.00"
+              memory: 2Gi
+              cpu: 4000m
           ports:
             - name: web
               containerPort: 5000

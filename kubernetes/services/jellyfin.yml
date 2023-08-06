@@ -72,11 +72,11 @@ spec:
           image: jellyfin/jellyfin
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "0.25"
+              memory: 512Mi
+              cpu: 250m
             limits:
-              memory: "4096Mi"
-              cpu: "6.00"
+              memory: 4Gi
+              cpu: 4000m
           ports:
             - name: web
               containerPort: 8096

@@ -72,11 +72,11 @@ spec:
           image: docker.n8n.io/n8nio/n8n
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "0.25"
+              memory: 128Mi
+              cpu: 250m
             limits:
-              memory: "1024Mi"
-              cpu: "2.00"
+              memory: 256Mi
+              cpu: 500m
           env:
             - name: N8N_DIAGNOSTICS_ENABLED
               value: "false"

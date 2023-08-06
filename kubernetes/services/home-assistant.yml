@@ -72,11 +72,11 @@ spec:
           image: ghcr.io/home-assistant/home-assistant:stable
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "0.25"
+              memory: 256Mi
+              cpu: 250m
             limits:
-              memory: "2048Mi"
-              cpu: "2.00"
+              memory: 1Gi
+              cpu: 1000m
           ports:
             - name: web
               containerPort: 8123

@@ -52,11 +52,11 @@ spec:
           tty: true
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "0.25"
+              memory: 512Mi
+              cpu: 1000m
             limits:
-              memory: "2048Mi"
-              cpu: "4.00"
+              memory: 2Gi
+              cpu: 4000m
           env:
             - name: EULA
               value: "TRUE"

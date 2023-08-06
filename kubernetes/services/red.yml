@@ -59,11 +59,11 @@ spec:
           image: phasecorex/red-discordbot:full
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "0.25"
+              memory: 512Mi
+              cpu: 250m
             limits:
-              memory: "2Gi"
-              cpu: "2.00"
+              memory: 1Gi
+              cpu: 1000m
           env:
             - name: TOKEN
               valueFrom:
