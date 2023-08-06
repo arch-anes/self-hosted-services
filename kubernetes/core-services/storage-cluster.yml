@@ -1,0 +1,17 @@
+---
+apiVersion: ceph.rook.io/v1
+kind: CephCluster
+metadata:
+  name: storage-cluster
+  namespace: default
+spec:
+  cephVersion:
+    image: quay.io/ceph/ceph:v17.2.6
+  dataDirHostPath: /storage/cluster
+  mon:
+    count: 1
+    allowMultiplePerNode: false
+  storage:
+    useAllNodes: true
+    useAllDevices: true
+    deviceFilter: /dev/mapper/cstorage
