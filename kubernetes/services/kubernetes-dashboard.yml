@@ -32,6 +32,8 @@ spec:
       enabled: false
     cert-manager:
       enabled: false
+    metrics-server:
+      enabled: false
 
 ---
 apiVersion: networking.k8s.io/v1
