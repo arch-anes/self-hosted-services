@@ -15,29 +15,6 @@ type: Opaque
 #   MAIL_TO: "hello@example.com"
 
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: keel
-  namespace: kube-system
-spec:
-  tls:
-    - hosts:
-        - keel.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
-  rules:
-    - host: keel.${DOMAIN_NAME}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: keel
-                port:
-                  name: keel
-
----
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -80,3 +57,13 @@ spec:
       policy: all
       trigger: poll
       pollSchedule: "@weekly"
+    ingress:
+      enabled: true
+      hosts:
+        - host: keel.${DOMAIN_NAME}
+          paths:
+            - /
+      tls:
+        - secretName: wilcard-main-domain-tls
+          hosts:
+            - keel.${DOMAIN_NAME}

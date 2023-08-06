@@ -1,29 +1,4 @@
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: kubeclarity
-  namespace: kubeclarity
-  annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: default-services-admin-authentication@kubernetescrd
-spec:
-  tls:
-    - hosts:
-        - kubeclarity.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
-  rules:
-    - host: kubeclarity.${DOMAIN_NAME}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: kubeclarity-kubeclarity
-                port:
-                  name: backend
-
----
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -51,3 +26,14 @@ spec:
         host: postgresql.default
         port: 5432
         database: kubeclarity
+    kubeclarity:
+      ingress:
+        enabled: true
+        annotations:
+          traefik.ingress.kubernetes.io/router.middlewares: default-services-admin-authentication@kubernetescrd
+        hosts:
+          - host: kubeclarity.${DOMAIN_NAME}
+        tls:
+        - secretName: wilcard-main-domain-tls
+          hosts:
+            - kubeclarity.${DOMAIN_NAME}
