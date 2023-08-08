@@ -39,10 +39,33 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: octoprint
+  name: octoprint-webcam
   namespace: default
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: default-octoprint-webcam@kubernetescrd
+spec:
+  tls:
+    - hosts:
+        - octoprint.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: octoprint.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /webcam
+            pathType: Prefix
+            backend:
+              service:
+                name: octoprint
+                port:
+                  name: webcam
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: octoprint
+  namespace: default
 spec:
   tls:
     - hosts:
@@ -59,13 +82,6 @@ spec:
                 name: octoprint
                 port:
                   name: web
-          - path: /webcam
-            pathType: Prefix
-            backend:
-              service:
-                name: octoprint
-                port:
-                  name: webcam
 
 ---
 apiVersion: apps/v1
