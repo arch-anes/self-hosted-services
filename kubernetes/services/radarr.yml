@@ -147,8 +147,6 @@ spec:
             - name: scripts
               mountPath: /custom-cont-init.d/create-config.sh
               subPath: create-config.sh
-            - name: downloads
-              mountPath: /downloads
             - name: jellyfin
               mountPath: /jellyfin
       volumes:
@@ -156,9 +154,6 @@ spec:
           configMap:
             name: radarr-scripts
             defaultMode: 0744
-        - name: downloads
-          hostPath:
-            path: /storage/aria2/downloads
         - name: jellyfin
           hostPath:
             path: /storage/jellyfin/media

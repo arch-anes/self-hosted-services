@@ -167,4 +167,4 @@ spec:
             path: /storage/aria2/config
         - name: downloads
           hostPath:
-            path: /storage/aria2/downloads
+            path: /storage/jellyfin/media/Downloads
