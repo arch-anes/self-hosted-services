@@ -1,12 +1,6 @@
 # code: language=ansible
 ---
 
-- name: Fix sudo unresolved host issue  # noqa risky-shell-pipe
-  ansible.builtin.shell: 'export FILE=/etc/hosts && export LINE="127.0.1.1 $(hostname)" && grep -qF "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"'
-  become: true
-  changed_when: false
-  when: ansible_distribution == 'Ubuntu'
-
 - name: Fix DNS resolution issue
   become: true
   when: ansible_distribution == 'Ubuntu'
