@@ -42,7 +42,7 @@ metadata:
   name: prowlarr-scripts
   namespace: default
 data:
-  create-prowlarr-config.sh: |
+  create-config.sh: |
     #!/bin/bash
 
     set -e
@@ -138,8 +138,8 @@ spec:
                   key: postgres_password
           volumeMounts:
             - name: scripts
-              mountPath: /custom-cont-init.d/create-prowlarr-config.sh
-              subPath: create-prowlarr-config.sh
+              mountPath: /custom-cont-init.d/create-config.sh
+              subPath: create-config.sh
       volumes:
         - name: scripts
           configMap:
