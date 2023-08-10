@@ -5,6 +5,16 @@ metadata:
   name: netdata
 
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: netdata
+  namespace: netdata
+type: Opaque
+# stringData:
+#   GOTIFY_TOKEN: "sometoken"
+
+---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -40,6 +50,18 @@ spec:
           memory: 1Gi
       env:
         DO_NOT_TRACK: 1
+      envFrom:
+        - secretRef:
+            name: netdata
+      configs:
+        health:
+          enabled: true
+          path: /etc/netdata/health_alarm_notify.conf
+          data: |
+            SEND_EMAIL="NO"
+            SEND_GOTIFY="YES"
+            GOTIFY_APP_URL="https://gotify.${DOMAIN_NAME}"
+            GOTIFY_APP_TOKEN="${GOTIFY_TOKEN}"
     child:
       resources:
         requests:
