@@ -34,6 +34,54 @@ spec:
                 name: radarr
                 port:
                   name: web
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: radarr-scripts
+  namespace: default
+data:
+  create-config.sh: |
+    #!/bin/bash
+
+    set -e
+    set -u
+
+    cat <<EOCONF > /config/config.xml
+    <Config>
+      <BindAddress>*</BindAddress>
+      <Port>7878</Port>
+      <SslPort>9898</SslPort>
+      <EnableSsl>False</EnableSsl>
+      <LaunchBrowser>True</LaunchBrowser>
+      <ApiKey>$API_KEY</ApiKey>
+      <AuthenticationMethod>Forms</AuthenticationMethod>
+      <Branch>master</Branch>
+      <LogLevel>info</LogLevel>
+      <SslCertPath></SslCertPath>
+      <SslCertPassword></SslCertPassword>
+      <UrlBase></UrlBase>
+      <InstanceName>Radarr</InstanceName>
+      <UpdateMechanism>Docker</UpdateMechanism>
+      <Theme>dark</Theme>
+      <PostgresUser>postgres</PostgresUser>
+      <PostgresPassword>$POSTGRES_PASSWORD</PostgresPassword>
+      <PostgresPort>5432</PostgresPort>
+      <PostgresHost>postgresql</PostgresHost>
+    </Config>
+    EOCONF
+
+    chown $PUID:$PGID /config/config.xml
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: radarr
+  namespace: default
+type: Opaque
+# stringData:
+#   api_key: "somekey"
 
 ---
 apiVersion: apps/v1
@@ -85,17 +133,29 @@ spec:
               value: "1000"
             - name: PGID
               value: "1000"
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: radarr
+                  key: api_key
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql
+                  key: postgres_password
           volumeMounts:
-            - name: config
-              mountPath: /config
+            - name: scripts
+              mountPath: /custom-cont-init.d/create-config.sh
+              subPath: create-config.sh
             - name: downloads
               mountPath: /downloads
             - name: jellyfin
               mountPath: /jellyfin
       volumes:
-        - name: config
-          hostPath:
-            path: /storage/radarr/config
+        - name: scripts
+          configMap:
+            name: radarr-scripts
+            defaultMode: 0744
         - name: downloads
           hostPath:
             path: /storage/aria2/downloads
