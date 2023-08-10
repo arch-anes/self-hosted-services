@@ -1,15 +1,26 @@
 # code: language=ansible
 
 ---
-# https://stackoverflow.com/a/61974725
-- name: Enable cgroups in Raspberry Pi machines
+- name: Configure Raspberry Pi machine
   when: is_raspberry_pi
   become: true
-  ansible.builtin.replace:
-    path: /boot/firmware/cmdline.txt
-    regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
-    replace: '\1 {{ item }}'
-  with_items:
-    - "cgroup_enable=cpuset"
-    - "cgroup_enable=memory"
-    - "cgroup_memory=1"
+  block:
+    # https://stackoverflow.com/a/61974725
+    - name: Enable cgroups
+      ansible.builtin.replace:
+        path: /boot/firmware/cmdline.txt
+        regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
+        replace: '\1 {{ item }}'
+      with_items:
+        - "cgroup_enable=cpuset"
+        - "cgroup_enable=memory"
+        - "cgroup_memory=1"
+
+    - name: Enable watchdog
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/system.conf
+        line: RuntimeWatchdogSec=15
+
+    - name: Reload systemd
+      ansible.builtin.systemd_service:
+        daemon_reload: true
