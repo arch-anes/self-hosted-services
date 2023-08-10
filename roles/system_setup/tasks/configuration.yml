@@ -1,0 +1,15 @@
+# code: language=ansible
+
+---
+# https://stackoverflow.com/a/61974725
+- name: Enable cgroups in Raspberry Pi machines
+  when: is_raspberry_pi
+  become: true
+  ansible.builtin.replace:
+    path: /boot/firmware/cmdline.txt
+    regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
+    replace: '\1 {{ item }}'
+  with_items:
+    - "cgroup_enable=cpuset"
+    - "cgroup_enable=memory"
+    - "cgroup_memory=1"

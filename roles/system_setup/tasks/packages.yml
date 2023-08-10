@@ -2,12 +2,21 @@
 ---
 
 - name: Install Ubuntu packages
-  ansible.builtin.apt:
-    pkg:
-      - resolvconf
-      - rsync
-      - ufw
-      - wireguard
-    update_cache: true
   become: true
   when: ansible_distribution == 'Ubuntu'
+  block:
+    - name: Install common packages
+      ansible.builtin.apt:
+        pkg:
+          - resolvconf
+          - rsync
+          - ufw
+          - wireguard
+        update_cache: true
+
+    - name: Install Raspberry Pi specific packages
+      when: is_raspberry_pi
+      ansible.builtin.apt:
+        pkg:
+          - linux-modules-extra-raspi
+        update_cache: true
