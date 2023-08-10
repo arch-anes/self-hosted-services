@@ -5,9 +5,10 @@
   become: true
   when: ansible_distribution == 'Ubuntu'
   block:
-    - name: Write DNS resolution config  # noqa risky-shell-pipe
-      ansible.builtin.shell: 'export FILE=/etc/resolvconf/resolv.conf.d/head && export LINE="nameserver 1.1.1.1" && grep -qF "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"'
-      changed_when: false
+    - name: Write DNS resolution config
+      ansible.builtin.lineinfile:
+        line: nameserver 1.1.1.1
+        dest: /etc/resolvconf/resolv.conf.d/head
 
     - name: Start DNS configuration manager service
       ansible.builtin.service:
