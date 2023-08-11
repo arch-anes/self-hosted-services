@@ -1,122 +1,43 @@
 ---
-apiVersion: v1
-kind: Service
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
 metadata:
-  name: postgresql
+  name: home-postgresql
+provisioner: rancher.io/local-path
+parameters:
+  nodePath: /storage/persistent-storage
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+
+---
+apiVersion: acid.zalan.do/v1
+kind: postgresql
+metadata:
+  name: home-postgresql
   namespace: default
 spec:
-  ports:
-    - protocol: TCP
-      name: db
-      port: 5432
-  selector:
-    app: postgresql
-
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: postgresql
-  namespace: default
-type: Opaque
-# stringData:
-#   postgres_password: "somepassword"
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: postgresql-scripts
-  namespace: default
-data:
-  create-multiple-postgresql-databases.sh: |
-    #!/bin/bash
-
-    set -e
-    set -u
-
-    function create_user_and_database() {
-      local database=$1
-      echo "  Creating user and database '$database'"
-      psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
-          CREATE USER $database;
-          CREATE DATABASE $database;
-          GRANT ALL PRIVILEGES ON DATABASE $database TO $database;
-    EOSQL
-    }
-
-    if [ -n "$POSTGRES_MULTIPLE_DATABASES" ]; then
-      echo "Multiple database creation requested: $POSTGRES_MULTIPLE_DATABASES"
-      for db in $(echo $POSTGRES_MULTIPLE_DATABASES | tr ',' ' '); do
-        create_user_and_database $db
-      done
-      echo "Multiple databases created"
-    fi
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: postgresql
-  namespace: default
-  labels:
-    app: postgresql
-  annotations:
-    keel.sh/policy: minor
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@weekly"
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgresql
-  template:
-    metadata:
-      labels:
-        app: postgresql
-    spec:
-      affinity:
-        nodeAffinity:
-          # Only on NAS nodes
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: nas
-                    operator: In
-                    values:
-                      - "true"
-      containers:
-        - name: db
-          image: postgres:15-bookworm
-          resources:
-            requests:
-              memory: 128Mi
-              cpu: 250m
-            limits:
-              memory: 1Gi
-              cpu: 2000m
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql
-                  key: postgres_password
-            - name: POSTGRES_MULTIPLE_DATABASES
-              value: "gotify,miniflux,n8n,nextcloud,pgadmin4,prowlarr-log,prowlarr-main,radarr-log,radarr-main,readarr-cache,readarr-log,readarr-main,speedtest_tracker"
-          ports:
-            - name: db
-              containerPort: 5432
-          volumeMounts:
-            - name: db
-              mountPath: /var/lib/postgresql/data
-            - name: scripts
-              mountPath: /docker-entrypoint-initdb.d/create-multiple-postgresql-databases.sh
-              subPath: create-multiple-postgresql-databases.sh
-      volumes:
-        - name: db
-          hostPath:
-            path: /storage/postgresql
-        - name: scripts
-          configMap:
-            name: postgresql-scripts
-            defaultMode: 0744
+  teamId: home
+  postgresql:
+    version: "15"
+  numberOfInstances: 3
+  volume:
+    size: 5Gi
+    storageClass: home-postgresql
+  users:
+    postgres:
+      - superuser
+      - createdb
+  databases:
+    gotify: postgres
+    miniflux: postgres
+    n8n: postgres
+    nextcloud: postgres
+    pgadmin4: postgres
+    prowlarr-log: postgres
+    prowlarr-main: postgres
+    radarr-log: postgres
+    radarr-main: postgres
+    readarr-cache: postgres
+    readarr-log: postgres
+    readarr-main: postgres
+    speedtest_tracker: postgres

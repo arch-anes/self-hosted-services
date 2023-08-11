@@ -1,0 +1,27 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: postgres-operator
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: postgres-operator
+  namespace: kube-system
+spec:
+  chart: postgres-operator
+  repo: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+  version: 1.10.0
+  targetNamespace: postgres-operator
+  valuesContent: |-
+    configKubernetes:
+      enable_cross_namespace_secret: true
+    resources:
+      limits:
+        cpu: 500m
+        memory: 500Mi
+      requests:
+        cpu: 100m
+        memory: 250Mi
