@@ -76,7 +76,7 @@ spec:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgresql
-                  key: postgres_password
+                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  key: password
             - name: GOTIFY_DATABASE_CONNECTION
               value: host=postgresql port=5432 user=postgres dbname=gotify password=$(POSTGRES_PASSWORD) sslmode=disable

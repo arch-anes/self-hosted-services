@@ -100,8 +100,8 @@ spec:
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgresql
-                  key: postgres_password
+                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  key: password
             - name: DB_VECTOR_EXTENSION
               value: "pgvector"
           ports:

@@ -109,8 +109,8 @@ spec:
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgresql
-                  key: postgres_password
+                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  key: password
             - name: APP_URL
               value: https://speedtest.${DOMAIN_NAME}
             - name: APP_KEY

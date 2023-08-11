@@ -95,8 +95,8 @@ spec:
             - name: DB_POSTGRESDB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgresql
-                  key: postgres_password
+                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  key: password
             - name: N8N_ENCRYPTION_KEY
               valueFrom:
                 secretKeyRef:
