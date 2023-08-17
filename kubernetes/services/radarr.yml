@@ -92,6 +92,7 @@ metadata:
   labels:
     app: radarr
   annotations:
+    reloader.stakater.com/auto: "true"
     keel.sh/policy: minor
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
