@@ -102,7 +102,7 @@ spec:
                   name: postgresql
                   key: postgres_password
             - name: POSTGRES_MULTIPLE_DATABASES
-              value: "gotify,miniflux,n8n,nextcloud,pgadmin4,prowlarr-log,prowlarr-main,radarr-log,radarr-main,speedtest_tracker"
+              value: "gotify,miniflux,n8n,nextcloud,pgadmin4,prowlarr-log,prowlarr-main,radarr-log,radarr-main,readarr-cache,readarr-log,readarr-main,speedtest_tracker"
           ports:
             - name: db
               containerPort: 5432

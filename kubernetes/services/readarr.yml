@@ -1,0 +1,160 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: readarr
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 8787
+  selector:
+    app: readarr
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: readarr
+  namespace: default
+spec:
+  tls:
+    - hosts:
+        - readarr.${DOMAIN_NAME}
+      secretName: wilcard-main-domain-tls
+  rules:
+    - host: readarr.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: readarr
+                port:
+                  name: web
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: readarr-scripts
+  namespace: default
+data:
+  create-config.sh: |
+    #!/bin/bash
+
+    set -e
+    set -u
+
+    cat <<EOCONF > /config/config.xml
+    <Config>
+      <BindAddress>*</BindAddress>
+      <Port>8787</Port>
+      <SslPort>6868</SslPort>
+      <EnableSsl>False</EnableSsl>
+      <LaunchBrowser>True</LaunchBrowser>
+      <ApiKey>$API_KEY</ApiKey>
+      <AuthenticationMethod>Forms</AuthenticationMethod>
+      <Branch>develop</Branch>
+      <LogLevel>info</LogLevel>
+      <SslCertPath></SslCertPath>
+      <SslCertPassword></SslCertPassword>
+      <UrlBase></UrlBase>
+      <InstanceName>Readarr</InstanceName>
+      <UpdateMechanism>Docker</UpdateMechanism>
+      <Theme>dark</Theme>
+      <PostgresUser>postgres</PostgresUser>
+      <PostgresPassword>$POSTGRES_PASSWORD</PostgresPassword>
+      <PostgresPort>5432</PostgresPort>
+      <PostgresHost>postgresql</PostgresHost>
+    </Config>
+    EOCONF
+
+    chown $PUID:$PGID /config/config.xml
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: readarr
+  namespace: default
+type: Opaque
+# stringData:
+#   api_key: "somekey"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: readarr
+  namespace: default
+  labels:
+    app: readarr
+  annotations:
+    reloader.stakater.com/auto: "true"
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@weekly"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: readarr
+  template:
+    metadata:
+      labels:
+        app: readarr
+    spec:
+      affinity:
+        nodeAffinity:
+          # Only on NAS nodes
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nas
+                    operator: In
+                    values:
+                      - "true"
+      containers:
+        - name: app
+          image: lscr.io/linuxserver/readarr:develop
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 250m
+            limits:
+              memory: 1Gi
+              cpu: 1000m
+          ports:
+            - name: web
+              containerPort: 8787
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: readarr
+                  key: api_key
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql
+                  key: postgres_password
+          volumeMounts:
+            - name: scripts
+              mountPath: /custom-cont-init.d/create-config.sh
+              subPath: create-config.sh
+            - name: jellyfin
+              mountPath: /jellyfin
+      volumes:
+        - name: scripts
+          configMap:
+            name: readarr-scripts
+            defaultMode: 0744
+        - name: jellyfin
+          hostPath:
+            path: /storage/jellyfin/media
