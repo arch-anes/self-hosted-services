@@ -1,54 +1,8 @@
 # code: language=ansible
 ---
 
-- name: Set VPN port
-  ansible.builtin.set_fact:
-    listen_vpn_port: "{{ vpn_port | default(3210) }}"
+- name: Setup P2P VPN
+  ansible.builtin.include_tasks: setup.yml
 
-- name: Setup firewall
-  ansible.builtin.import_role:
-    name: firewall
-  vars:
-    rules:
-      - { to_port: "{{ listen_vpn_port }}", proto: udp, rule: allow, comment: "VPN" }
-  when: not skip_firewall
-
-- name: Get host public IP
-  when: public_ip is not defined
-  community.general.ipify_facts:
-
-- name: Retain current private IP address
-  ansible.builtin.set_fact:
-    private_ip: "{{ (vpn_ip | default(ansible_wg0.ipv4.address)) | default() }}"
-
-- name: Find new private IP address
-  block:
-    - ansible.builtin.command: "{{ role_path }}/find_available_ips.py -n {{ ansible_play_hosts | length }} --taken_ips {{ hostvars | json_query('*.private_ip') | quote }}"  # noqa unnamed-task
-      delegate_to: localhost
-      register: available_private_ips
-      run_once: true
-      changed_when: false
-
-    - ansible.builtin.set_fact:  # noqa unnamed-task
-        private_ip: "{{ (available_private_ips.stdout | from_json).ips[ansible_play_hosts_all.index(inventory_hostname)] }}"
-      when: "private_ip == ''"  # noqa empty-string-compare var-spacing
-
-- name: Set WireGuard configuration variables
-  ansible.builtin.set_fact:
-    wireguard_address: "{{ private_ip }}/24"
-    wireguard_port: "{{ listen_vpn_port }}"
-    wireguard_endpoint: "{{ public_ip | default(ipify_public_ip) }}"
-
-- name: Setup WireGuard VPN
-  ansible.builtin.import_role:
-    name: githubixx.ansible_role_wireguard
-  become: true
-
-- name: Force all notified handlers to run
-  ansible.builtin.meta: flush_handlers
-
-- name: Ensure all hosts to are up
-  ansible.builtin.command: "ping -c 1 -w 600 {{ item }}"
-  loop: "{{ hostvars | json_query('*.private_ip') }}"
-  run_once: true
-  changed_when: false
+- name: Setup periodic DNS re-resolution
+  ansible.builtin.include_tasks: dns.yml

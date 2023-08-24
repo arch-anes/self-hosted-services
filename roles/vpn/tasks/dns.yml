@@ -1,0 +1,44 @@
+# code: language=ansible
+---
+
+# Taken from https://wiki.archlinux.org/title/WireGuard#Endpoint_with_changing_IP
+
+- name: Create Wireguard reresolve DNS systemd service
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/wireguard_reresolve-dns.service
+    mode: 0644
+    force: true
+    content: |
+      [Unit]
+      Description=Reresolve DNS of all WireGuard endpoints
+      Wants=network-online.target
+      After=network-online.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/bin/sh -c 'for i in /etc/wireguard/*.conf; do /usr/share/doc/wireguard-tools/examples/reresolve-dns/reresolve-dns.sh "$i"; done'
+
+- name: Create Wireguard reresolve DNS systemd timer
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/wireguard_reresolve-dns.timer
+    mode: 0644
+    force: true
+    content: |
+      [Unit]
+      Description=Periodically reresolve DNS of all WireGuard endpoints
+
+      [Timer]
+      OnCalendar=*:*:0/30
+
+      [Install]
+      WantedBy=timers.target
+
+- name: Enable Wireguard reresolve DNS systemd timer
+  become: true
+  ansible.builtin.systemd_service:
+    name: wireguard_reresolve-dns.timer
+    state: started
+    daemon_reload: true
+    enabled: true
