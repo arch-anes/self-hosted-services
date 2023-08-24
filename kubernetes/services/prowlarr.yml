@@ -70,7 +70,7 @@ data:
       <PostgresPassword>$POSTGRES_PASSWORD</PostgresPassword>
       <PostgresPort>5432</PostgresPort>
       <PostgresHost>postgresql</PostgresHost>
-    </Config> 
+    </Config>
     EOCONF
 
     chown $PUID:$PGID /config/config.xml
