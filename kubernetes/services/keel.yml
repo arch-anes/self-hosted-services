@@ -1,9 +1,15 @@
 ---
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: keel
+
+---
+apiVersion: v1
 kind: Secret
 metadata:
   name: keel
-  namespace: kube-system
+  namespace: keel
 type: Opaque
 # stringData:
 #   BASIC_AUTH_USER: "admin"
@@ -24,7 +30,7 @@ spec:
   chart: keel
   repo: https://charts.keel.sh
   version: 1.0.2
-  targetNamespace: kube-system
+  targetNamespace: keel
   valuesContent: |-
     resources:
       requests:
