@@ -72,6 +72,22 @@ spec:
           memory: 512Mi
       env:
         DO_NOT_TRACK: 1
+      extraVolumes:
+        - name: smartd
+          hostPath:
+            path: /var/lib/smartmontools
+      extraVolumeMounts:
+        - name: smartd
+          mountPath: /var/log/smartd
+          readOnly: true
+          mountPropagation: HostToContainer
+      configs:
+        smartd:
+          enabled: true
+          path: /etc/netdata/python.d/smartd_log.conf
+          data: |
+            local:
+              log_path : '/var/log/smartd/'
     k8sState:
       env:
         DO_NOT_TRACK: 1
