@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: helm-dashboard
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: helm-dashboard
+  namespace: kube-system
+spec:
+  chart: helm-dashboard
+  repo: https://helm-charts.komodor.io
+  version: 0.1.10
+  targetNamespace: helm-dashboard
+  valuesContent: |-
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 125m
+      limits:
+        memory: 512Mi
+        cpu: 1000m
+    ingress:
+      enabled: true
+      annotations:
+        traefik.ingress.kubernetes.io/router.middlewares: default-services-admin-authentication@kubernetescrd
+      tls:
+        - hosts:
+            - helm.${DOMAIN_NAME}
+          secretName: wilcard-main-domain-tls
+      hosts:
+        - host: helm.${DOMAIN_NAME}
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+
