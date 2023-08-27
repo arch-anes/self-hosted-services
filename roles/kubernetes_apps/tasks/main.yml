@@ -24,7 +24,6 @@
         name: "{{ item }}"
       with_items:
         - core
-        - core-services
         - services
 
 - name: Extract Kubernetes Dashboard password
