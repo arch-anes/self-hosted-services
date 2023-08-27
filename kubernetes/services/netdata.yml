@@ -31,7 +31,7 @@ spec:
       annotations:
         kubernetes.io/ingress.class: traefik
         kubernetes.io/tls-acme: "false"
-        traefik.ingress.kubernetes.io/router.middlewares: default-services-admin-authentication@kubernetescrd
+        traefik.ingress.kubernetes.io/router.middlewares: kube-system-cluster-admin-authentication@kubernetescrd
       path: /
       pathType: Prefix
       hosts:

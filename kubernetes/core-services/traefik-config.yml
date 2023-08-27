@@ -62,7 +62,7 @@ spec:
         enabled: true
         matchRule: Host(`traefik.${DOMAIN_NAME}`)
         middlewares:
-          - name: default-services-admin-authentication@kubernetescrd
+          - name: kube-system-cluster-admin-authentication@kubernetescrd
         entryPoints:
           - web
           - websecure
