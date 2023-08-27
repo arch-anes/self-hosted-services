@@ -1,10 +1,4 @@
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: node-feature-discovery
-
----
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -14,7 +8,7 @@ spec:
   chart: node-feature-discovery
   repo: https://kubernetes-sigs.github.io/node-feature-discovery/charts
   version: 0.13.2
-  targetNamespace: node-feature-discovery
+  targetNamespace: kube-system
   valuesContent: |-
     master:
       resources:

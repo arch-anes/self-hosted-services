@@ -1,15 +1,9 @@
 ---
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: netdata
-
----
-apiVersion: v1
 kind: Secret
 metadata:
   name: netdata
-  namespace: netdata
+  namespace: default
 type: Opaque
 # stringData:
 #   GOTIFY_TOKEN: "sometoken"
@@ -19,12 +13,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: netdata
-  namespace: kube-system
+  namespace: default
 spec:
   chart: netdata
   repo: https://netdata.github.io/helmchart/
   version: 3.7.65
-  targetNamespace: netdata
+  targetNamespace: default
   valuesContent: |-
     ingress:
       enabled: true
