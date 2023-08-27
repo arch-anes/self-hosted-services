@@ -77,12 +77,6 @@ spec:
       websecure:
         tls:
           enabled: true
-    env:
-      - name: CF_DNS_API_TOKEN
-        valueFrom:
-          secretKeyRef:
-            name: cloudflare
-            key: token
     resources:
       requests:
         memory: 128Mi
