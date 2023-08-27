@@ -45,7 +45,7 @@ spec:
   tls:
     - hosts:
         - kubernetes.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: kubernetes.${DOMAIN_NAME}
       http:

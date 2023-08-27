@@ -22,7 +22,7 @@ spec:
   tls:
     - hosts:
         - radarr.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: radarr.${DOMAIN_NAME}
       http:

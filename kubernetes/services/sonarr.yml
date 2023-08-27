@@ -22,7 +22,7 @@ spec:
   tls:
     - hosts:
         - sonarr.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: sonarr.${DOMAIN_NAME}
       http:

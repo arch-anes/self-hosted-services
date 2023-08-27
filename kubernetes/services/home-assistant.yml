@@ -22,7 +22,7 @@ spec:
   tls:
     - hosts:
         - home-assistant.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: home-assistant.${DOMAIN_NAME}
       http:

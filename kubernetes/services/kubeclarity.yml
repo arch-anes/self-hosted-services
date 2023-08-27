@@ -41,7 +41,7 @@ spec:
         hosts:
           - host: kubeclarity.${DOMAIN_NAME}
         tls:
-        - secretName: wilcard-main-domain-tls
+        - secretName: ${DOMAIN_NAME}-tls
           hosts:
             - kubeclarity.${DOMAIN_NAME}
     kubeclarity-sbom-db:

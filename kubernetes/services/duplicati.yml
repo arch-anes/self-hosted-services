@@ -22,7 +22,7 @@ spec:
   tls:
     - hosts:
         - duplicati.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: duplicati.${DOMAIN_NAME}
       http:

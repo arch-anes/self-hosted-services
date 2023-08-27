@@ -25,7 +25,7 @@ metadata:
   name: wilcard-main-domain
   namespace: default
 spec:
-  secretName: wilcard-main-domain-tls
+  secretName: ${DOMAIN_NAME}-tls
   issuerRef:
     name: cloudflare-issuer
     kind: ClusterIssuer
@@ -67,7 +67,7 @@ spec:
           - web
           - websecure
         tls:
-          secretName: wilcard-main-domain-tls
+          secretName: ${DOMAIN_NAME}-tls
     providers:
       kubernetesCRD:
         allowCrossNamespace: true

@@ -36,7 +36,7 @@ spec:
   tls:
     - hosts:
         - nextcloud.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: nextcloud.${DOMAIN_NAME}
       http:

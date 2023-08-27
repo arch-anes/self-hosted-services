@@ -30,7 +30,7 @@ spec:
       tls:
         - hosts:
             - helm.${DOMAIN_NAME}
-          secretName: wilcard-main-domain-tls
+          secretName: ${DOMAIN_NAME}-tls
       hosts:
         - host: helm.${DOMAIN_NAME}
           paths:

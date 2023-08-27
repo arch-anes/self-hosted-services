@@ -22,7 +22,7 @@ spec:
   tls:
     - hosts:
         - pgadmin4.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: pgadmin4.${DOMAIN_NAME}
       http:

@@ -52,7 +52,7 @@ spec:
   tls:
     - hosts:
         - pihole.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: pihole.${DOMAIN_NAME}
       http:

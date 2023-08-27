@@ -70,6 +70,6 @@ spec:
           paths:
             - /
       tls:
-        - secretName: wilcard-main-domain-tls
+        - secretName: ${DOMAIN_NAME}-tls
           hosts:
             - keel.${DOMAIN_NAME}

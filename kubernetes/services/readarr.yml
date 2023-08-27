@@ -22,7 +22,7 @@ spec:
   tls:
     - hosts:
         - readarr.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: readarr.${DOMAIN_NAME}
       http:

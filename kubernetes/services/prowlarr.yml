@@ -22,7 +22,7 @@ spec:
   tls:
     - hosts:
         - prowlarr.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: prowlarr.${DOMAIN_NAME}
       http:

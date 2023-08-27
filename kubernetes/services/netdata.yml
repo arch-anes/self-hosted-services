@@ -37,7 +37,7 @@ spec:
       hosts:
         - netdata.${DOMAIN_NAME}
       tls:
-        - secretName: wilcard-main-domain-tls
+        - secretName: ${DOMAIN_NAME}-tls
           hosts:
             - netdata.${DOMAIN_NAME}
     parent:

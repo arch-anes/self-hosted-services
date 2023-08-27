@@ -47,7 +47,7 @@ spec:
   tls:
     - hosts:
         - octoprint.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: octoprint.${DOMAIN_NAME}
       http:
@@ -70,7 +70,7 @@ spec:
   tls:
     - hosts:
         - octoprint.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: octoprint.${DOMAIN_NAME}
       http:

@@ -22,7 +22,7 @@ spec:
   tls:
     - hosts:
         - speedtest.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: speedtest.${DOMAIN_NAME}
       http:

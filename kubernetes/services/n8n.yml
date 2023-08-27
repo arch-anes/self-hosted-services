@@ -22,7 +22,7 @@ spec:
   tls:
     - hosts:
         - n8n.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: n8n.${DOMAIN_NAME}
       http:

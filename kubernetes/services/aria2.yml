@@ -25,7 +25,7 @@ spec:
   tls:
     - hosts:
         - aria2.${DOMAIN_NAME}
-      secretName: wilcard-main-domain-tls
+      secretName: ${DOMAIN_NAME}-tls
   rules:
     - host: aria2.${DOMAIN_NAME}
       http:
