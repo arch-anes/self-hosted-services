@@ -81,7 +81,7 @@ spec:
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: cloudflare
+                  name: ${DOMAIN_NAME}-cloudflare
                   key: token
             - name: DOMAIN
               value: "${DOMAIN_NAME}"

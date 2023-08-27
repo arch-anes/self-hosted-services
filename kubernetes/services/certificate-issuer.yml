@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ${DOMAIN_NAME}-cloudflare
+  namespace: kube-system
+type: Opaque
+# stringData:
+#   token: "sometoken"
+
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: ${DOMAIN_NAME}-issuer
+  namespace: kube-system
+spec:
+  acme:
+    privateKeySecretRef:
+      name: ${DOMAIN_NAME}-issuer
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: cert@${DOMAIN_NAME}
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: ${DOMAIN_NAME}-cloudflare
+              key: token
+        selector: {}
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ${DOMAIN_NAME}
+  namespace: default
+spec:
+  secretName: ${DOMAIN_NAME}-tls
+  issuerRef:
+    name: ${DOMAIN_NAME}-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - "${DOMAIN_NAME}"
+    - "*.${DOMAIN_NAME}"

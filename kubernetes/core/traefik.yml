@@ -1,37 +1,22 @@
 ---
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
+apiVersion: v1
+kind: Secret
 metadata:
-  name: cloudflare-issuer
+  name: cluster-admin-credentials
   namespace: kube-system
-spec:
-  acme:
-    privateKeySecretRef:
-      name: cloudflare-issuer
-    server: https://acme-v02.api.letsencrypt.org/directory
-    email: cert@${DOMAIN_NAME}
-    solvers:
-      - dns01:
-          cloudflare:
-            apiTokenSecretRef:
-              name: cloudflare
-              key: token
-        selector: {}
+type: Opaque
+# stringData:
+#   credentials: "admin:$2y$12$8KtQ4SQb6QpebcgYvMPjwOv3Jz9ojkNq8FVWZmk5q1BW9BoEX2aAy" # admin:admin by default, bcrypted password: https://bcrypt-generator.com/
 
 ---
-apiVersion: cert-manager.io/v1
-kind: Certificate
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
 metadata:
-  name: wilcard-main-domain
-  namespace: default
+  name: cluster-admin-authentication
+  namespace: kube-system
 spec:
-  secretName: ${DOMAIN_NAME}-tls
-  issuerRef:
-    name: cloudflare-issuer
-    kind: ClusterIssuer
-  dnsNames:
-    - "${DOMAIN_NAME}"
-    - "*.${DOMAIN_NAME}"
+  basicAuth:
+    secret: "cluster-admin-credentials"
 
 ---
 apiVersion: helm.cattle.io/v1
