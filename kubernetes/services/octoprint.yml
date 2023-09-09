@@ -153,6 +153,8 @@ spec:
         - name: printer
           hostPath:
             path: /dev/ttyUSB0
+            type: CharDevice
         - name: webcam
           hostPath:
             path: /dev/video0
+            type: CharDevice
