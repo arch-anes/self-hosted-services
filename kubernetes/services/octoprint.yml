@@ -46,13 +46,13 @@ metadata:
 spec:
   tls:
     - hosts:
-        - octoprint.${DOMAIN_NAME}
+        - octoprint-webcam.${DOMAIN_NAME}
       secretName: ${DOMAIN_NAME}-tls
   rules:
-    - host: octoprint.${DOMAIN_NAME}
+    - host: octoprint-webcam.${DOMAIN_NAME}
       http:
         paths:
-          - path: /webcam
+          - path: /
             pathType: Prefix
             backend:
               service:
