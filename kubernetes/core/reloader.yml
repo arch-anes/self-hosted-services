@@ -7,5 +7,5 @@ metadata:
 spec:
   chart: reloader
   repo: https://stakater.github.io/stakater-charts
-  version: 1.0.39
+  version: 1.0.51
   targetNamespace: kube-system
