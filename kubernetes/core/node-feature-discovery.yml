@@ -7,7 +7,7 @@ metadata:
 spec:
   chart: node-feature-discovery
   repo: https://kubernetes-sigs.github.io/node-feature-discovery/charts
-  version: 0.13.3
+  version: 0.14.3
   targetNamespace: kube-system
   valuesContent: |-
     master:
