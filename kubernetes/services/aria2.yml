@@ -126,8 +126,8 @@ spec:
               memory: 128Mi
               cpu: 250m
             limits:
-              memory: 1Gi
-              cpu: 1000m
+              memory: 2Gi
+              cpu: 2000m
           ports:
             - name: web
               containerPort: 80
