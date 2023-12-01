@@ -10,7 +10,6 @@
       - { to_port: 80, proto: tcp, rule: allow, comment: "Allow HTTP" }
       - { to_port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
       - { to_port: 30777, proto: any, rule: allow, comment: "Allow Terraria" }
-      - { to_port: 30778, proto: any, rule: allow, comment: "Allow Minecraft" }
   when: not skip_firewall
 
 - name: Deploy manifests
