@@ -11,8 +11,8 @@
 - name: Configure RaspberryPi hosts
   ansible.builtin.include_tasks: raspi.yml
 
-- name: Apply Workarounds
-  ansible.builtin.include_tasks: workarounds.yml
+- name: Setup DNS
+  ansible.builtin.include_tasks: dns.yml
 
 - name: Setup firewall
   ansible.builtin.import_role:

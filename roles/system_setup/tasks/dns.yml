@@ -1,0 +1,35 @@
+# code: language=ansible
+---
+
+- name: Setup DNS resolution
+  become: true
+  when: ansible_distribution == 'Ubuntu'
+  block:
+    - name: Create systemd-resolved drop-in config folder
+      ansible.builtin.file:
+        path: /etc/systemd/resolved.conf.d
+        state: directory
+        mode: 0755
+
+    - name: Write DNS resolution config
+      ansible.builtin.blockinfile:
+        dest: /etc/systemd/resolved.conf.d/00_cloudflare.conf
+        create: true
+        mode: 0644
+        content: |
+          [Resolve]
+          DNS=1.1.1.1
+          FallbackDNS=1.0.0.1
+
+    - name: Restart DNS server to apply configuration
+      ansible.builtin.service:
+        name: systemd-resolved
+        state: restarted
+
+    # TODO: make stub server work
+    - name: Bypass systemd-resolved stub server
+      ansible.builtin.file:
+        src: /run/systemd/resolve/resolv.conf
+        dest: /etc/resolv.conf
+        force: true
+        state: link

@@ -8,7 +8,6 @@
     - name: Install common packages
       ansible.builtin.apt:
         pkg:
-          - resolvconf
           - rsync
           - smartmontools
           - ufw
