@@ -11,37 +11,6 @@ type: Opaque
 #   admin-password: "pgpoolpassowrd"
 
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: postgresql-cluster-scripts
-  namespace: default
-data:
-  create-multiple-postgresql-databases.sh: |
-    #!/bin/bash
-
-    set -e
-    set -u
-
-    function create_user_and_database() {
-      local database=$1
-      echo "  Creating user and database '$database'"
-      psql -v ON_ERROR_STOP=1 --username "$PGPOOL_POSTGRES_USERNAME" <<-EOSQL
-          CREATE USER $database;
-          CREATE DATABASE $database;
-          GRANT ALL PRIVILEGES ON DATABASE $database TO $database;
-    EOSQL
-    }
-
-    if [ -n "$POSTGRES_MULTIPLE_DATABASES" ]; then
-      echo "Multiple database creation requested: $POSTGRES_MULTIPLE_DATABASES"
-      for db in $(echo $POSTGRES_MULTIPLE_DATABASES | tr ',' ' '); do
-        create_user_and_database $db
-      done
-      echo "Multiple databases created"
-    fi
-
----
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -80,6 +49,33 @@ spec:
           memory: 1Gi
           cpu: 2000m
       existingSecret: postgresql-cluster
+      extraEnvVars:
+        - name: POSTGRES_MULTIPLE_DATABASES
+          value: "gotify,miniflux,n8n,nextcloud,pgadmin4,prowlarr-log,prowlarr-main,radarr-log,radarr-main,readarr-cache,readarr-log,readarr-main,speedtest_tracker"
+      initdbScriptsCM:
+        create-multiple-postgresql-databases.sh: |
+          #!/bin/bash
+
+          set -e
+          set -u
+
+          function create_user_and_database() {
+            local database=$1
+            echo "  Creating user and database '$database'"
+            psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
+                CREATE USER $database;
+                CREATE DATABASE $database;
+                GRANT ALL PRIVILEGES ON DATABASE $database TO $database;
+          EOSQL
+          }
+
+          if [ -n "$POSTGRES_MULTIPLE_DATABASES" ]; then
+            echo "Multiple database creation requested: $POSTGRES_MULTIPLE_DATABASES"
+            for db in $(echo $POSTGRES_MULTIPLE_DATABASES | tr ',' ' '); do
+              create_user_and_database $db
+            done
+            echo "Multiple databases created"
+          fi
     witness:
       create: true
       replicaCount: 1
@@ -109,9 +105,5 @@ spec:
           memory: 1Gi
           cpu: 2000m
       existingSecret: postgresql-cluster
-      extraEnvVars:
-        - name: POSTGRES_MULTIPLE_DATABASES
-          value: "gotify,miniflux,n8n,nextcloud,pgadmin4,prowlarr-log,prowlarr-main,radarr-log,radarr-main,readarr-cache,readarr-log,readarr-main,speedtest_tracker"
-      initdbScriptsCM: postgresql-cluster-scripts
     persistence:
       storageClass: persistent
