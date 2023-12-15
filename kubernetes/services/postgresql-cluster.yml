@@ -23,9 +23,6 @@ spec:
   targetNamespace: default
   # valuesContent:
   valuesContent: |-
-    # global:
-    #   postgresql:
-    #     existingSecret: "postgresql-cluster"
     fullnameOverride: cluster
     postgresql:
       image:
@@ -52,7 +49,7 @@ spec:
       extraEnvVars:
         - name: POSTGRES_MULTIPLE_DATABASES
           value: "gotify,miniflux,n8n,nextcloud,pgadmin4,prowlarr-log,prowlarr-main,radarr-log,radarr-main,readarr-cache,readarr-log,readarr-main,speedtest_tracker"
-      initdbScriptsCM:
+      initdbScripts:
         create-multiple-postgresql-databases.sh: |
           #!/bin/bash
 
