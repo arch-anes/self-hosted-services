@@ -62,6 +62,7 @@
   become: true
 
 - name: Install k9s
+  when: k3s_control_node | default(false)
   block:
     - name: Download k9s installer
       ansible.builtin.get_url:
