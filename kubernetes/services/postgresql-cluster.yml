@@ -6,9 +6,39 @@ metadata:
   namespace: default
 type: Opaque
 # stringData:
-#   password: "postgrespassowrd"
-#   repmgr-password: "repmgrpassowrd"
-#   admin-password: "pgpoolpassowrd"
+#   postgres-password: "postgrespassowrd"
+#   replication-password: "replicationpassword"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgresql-cluster-scripts
+  namespace: default
+data:
+  create-multiple-postgresql-databases.sh: |
+    #!/bin/bash
+
+    set -e
+    set -u
+
+    export PGPASSWORD="$POSTGRES_PASSWORD"
+
+    function create_database() {
+      local database=$1
+      echo "Creating database '$database'"
+      psql -v ON_ERROR_STOP=1 --username postgres <<-EOSQL
+          CREATE DATABASE "$database";
+    EOSQL
+    }
+
+    if [ -n "$POSTGRES_MULTIPLE_DATABASES" ]; then
+      echo "Multiple database creation requested: $POSTGRES_MULTIPLE_DATABASES"
+      for db in $(echo $POSTGRES_MULTIPLE_DATABASES | tr ',' ' '); do
+        create_database $db
+      done
+      echo "Multiple databases created"
+    fi
 
 ---
 apiVersion: helm.cattle.io/v1
@@ -17,17 +47,23 @@ metadata:
   name: postgresql-cluster
   namespace: default
 spec:
-  chart: postgresql-ha
+  chart: postgresql
   repo: https://charts.bitnami.com/bitnami
-  version: 12.3.2
+  version: 13.2.24
   targetNamespace: default
   # valuesContent:
   valuesContent: |-
-    fullnameOverride: cluster
-    postgresql:
-      image:
-        tag: "16"
-      replicaCount: 2
+    image:
+      tag: "16"
+    architecture: replication
+    global:
+      storageClass: persistent
+      postgresql:
+        auth:
+          existingSecret: postgresql-cluster
+    primary:
+      podLabels:
+        postgresqlType: primary
       affinity:
         nodeAffinity:
           # Only on storage nodes
@@ -38,6 +74,15 @@ spec:
                     operator: In
                     values:
                       - "true"
+        podAntiAffinity:
+          # Only when replica pod is not present
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: postgresqlType
+                    operator: In
+                    values:
+                      - replica
       resources:
         requests:
           memory: 128Mi
@@ -45,55 +90,34 @@ spec:
         limits:
           memory: 1Gi
           cpu: 2000m
-      existingSecret: postgresql-cluster
+      # existingSecret: postgresql-cluster
       extraEnvVars:
         - name: POSTGRES_MULTIPLE_DATABASES
           value: "gotify,miniflux,n8n,nextcloud,pgadmin4,prowlarr-log,prowlarr-main,radarr-log,radarr-main,readarr-cache,readarr-log,readarr-main,speedtest_tracker"
-      initdbScripts:
-        create-multiple-postgresql-databases.sh: |
-          #!/bin/bash
-
-          set -e
-          set -u
-
-          function create_user_and_database() {
-            local database=$1
-            echo "  Creating user and database '$database'"
-            psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
-                CREATE USER $database;
-                CREATE DATABASE $database;
-                GRANT ALL PRIVILEGES ON DATABASE $database TO $database;
-          EOSQL
-          }
-
-          if [ -n "$POSTGRES_MULTIPLE_DATABASES" ]; then
-            echo "Multiple database creation requested: $POSTGRES_MULTIPLE_DATABASES"
-            for db in $(echo $POSTGRES_MULTIPLE_DATABASES | tr ',' ' '); do
-              create_user_and_database $db
-            done
-            echo "Multiple databases created"
-          fi
-    witness:
-      create: true
-      replicaCount: 1
+      initdb:
+        scriptsConfigMap: postgresql-cluster-scripts
+    readReplicas:
+      podLabels:
+        postgresqlType: replica
       affinity:
         nodeAffinity:
           # Only on storage nodes
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: witness
+                  - key: storage
                     operator: In
                     values:
                       - "true"
-      resources:
-        requests:
-          memory: 128Mi
-          cpu: 250m
-        limits:
-          memory: 512Mi
-          cpu: 1000m
-    pgpool:
+        podAntiAffinity:
+          # Only when primary pod is not present
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: postgresqlType
+                    operator: In
+                    values:
+                      - primary
       resources:
         requests:
           memory: 128Mi
@@ -101,6 +125,3 @@ spec:
         limits:
           memory: 1Gi
           cpu: 2000m
-      existingSecret: postgresql-cluster
-    persistence:
-      storageClass: persistent
