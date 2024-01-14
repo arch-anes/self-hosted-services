@@ -98,7 +98,7 @@ data:
             logo: "https://www.home-assistant.io/images/favicon-192x192-full.png"
             url: "https://home-assistant.${DOMAIN_NAME}"
           - name: "OctoPrint"
-            logo: "https://camo.githubusercontent.com/627be7fc67195b626b298af9b9677d7c58e698c67305e54324cffbe06130d4a4/68747470733a2f2f6f63746f7072696e742e6f72672f6173736574732f696d672f6c6f676f2e706e67"
+            logo: "https://raw.githubusercontent.com/OctoPrint/OctoPrint/a93b4d397248dc406a75e634c1326fb1b8ddcb63/docs/images/octoprint-logo.png"
             url: "https://octoprint.${DOMAIN_NAME}"
           - name: "n8n"
             logo: "https://d33wubrfki0l68.cloudfront.net/b8db213a4d85ebec7b82272cacb727a05a9a1475/96e9f/_images/n8n-docs-icon.svg"
@@ -123,7 +123,7 @@ data:
             logo: "https://keel.sh/img/logo_small.png"
             url: "https://keel.${DOMAIN_NAME}"
           - name: "PiHole"
-            logo: "https://camo.githubusercontent.com/9426a93d32aa9f5ad757b2befcdb762a270d344efd6b8d287a2cea2c4c2233b8/68747470733a2f2f70692d686f6c652e6769746875622e696f2f67726170686963732f566f727465782f566f727465785f776974685f576f72646d61726b2e737667"
+            logo: "https://upload.wikimedia.org/wikipedia/en/thumb/1/15/Pi-hole_vector_logo.svg/800px-Pi-hole_vector_logo.svg.png"
             url: "https://pihole.${DOMAIN_NAME}"
 
       - name: "Monitoring"
