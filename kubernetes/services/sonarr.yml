@@ -34,6 +34,56 @@ spec:
                 name: sonarr
                 port:
                   name: web
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sonarr-scripts
+  namespace: default
+data:
+  create-config.sh: |
+    #!/bin/bash
+
+    set -e
+    set -u
+
+    cat <<EOCONF > /config/config.xml
+    <Config>
+        <LogLevel>info</LogLevel>
+        <EnableSsl>False</EnableSsl>
+        <Port>8989</Port>
+        <SslPort>9898</SslPort>
+        <UrlBase></UrlBase>
+        <BindAddress>*</BindAddress>
+        <ApiKey>1ae5e11152dc4b28bfd5703de4f1b9cd</ApiKey>
+        <AuthenticationMethod>Forms</AuthenticationMethod>
+        <UpdateMechanism>Docker</UpdateMechanism>
+        <LaunchBrowser>True</LaunchBrowser>
+        <Branch>main</Branch>
+        <InstanceName>Sonarr</InstanceName>
+        <SyslogPort>514</SyslogPort>
+        <AnalyticsEnabled>False</AnalyticsEnabled>
+        <AuthenticationRequired>Enabled</AuthenticationRequired>
+        <SslCertPath></SslCertPath>
+        <SslCertPassword></SslCertPassword>
+        <PostgresUser>postgres</PostgresUser>
+        <PostgresPassword>$POSTGRES_PASSWORD</PostgresPassword>
+        <PostgresPort>5432</PostgresPort>
+        <PostgresHost>postgresql</PostgresHost>
+    </Config>
+    EOCONF
+
+    chown $PUID:$PGID /config/config.xml
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sonarr
+  namespace: default
+type: Opaque
+# stringData:
+#   api_key: "somekey"
 
 ---
 apiVersion: apps/v1
@@ -44,6 +94,7 @@ metadata:
   labels:
     app: sonarr
   annotations:
+    reloader.stakater.com/auto: "true"
     keel.sh/policy: minor
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
@@ -85,15 +136,27 @@ spec:
               value: "1000"
             - name: PGID
               value: "1000"
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sonarr
+                  key: api_key
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql
+                  key: postgres_password
           volumeMounts:
-            - name: config
-              mountPath: /config
+            - name: scripts
+              mountPath: /custom-cont-init.d/create-config.sh
+              subPath: create-config.sh
             - name: jellyfin
               mountPath: /jellyfin
       volumes:
-        - name: config
-          hostPath:
-            path: /storage/sonarr/config
+        - name: scripts
+          configMap:
+            name: sonarr-scripts
+            defaultMode: 0744
         - name: jellyfin
           hostPath:
             path: /storage/jellyfin/media
