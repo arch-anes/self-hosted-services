@@ -61,9 +61,9 @@ data:
           - name: "Jellyfin"
             logo: "https://github.com/jellyfin/jellyfin/raw/cd36b8067fcf80c5ebb47bdd9bea0047d1fe3aef/Emby.Dlna/Images/logo240.png"
             url: "https://jellyfin.${DOMAIN_NAME}"
-          - name: "aria2"
-            logo: "https://raw.githubusercontent.com/mayswind/AriaNg/fb142ad720ff258f8bc42f28d2adcafdc9dcce57/src/tileicon.png"
-            url: "https://aria2.${DOMAIN_NAME}"
+          - name: "Transmission"
+            logo: "https://raw.githubusercontent.com/transmission/transmission/0ce4adf07ce4b6cfabf81e2d027f96197bb9a305/web/assets/img/logo.png"
+            url: "https://transmission.${DOMAIN_NAME}"
 
       - name: "Feed"
         icon: "fas fa-rss"

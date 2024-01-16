@@ -2,39 +2,36 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: aria2
+  name: transmission
   namespace: default
 spec:
   ports:
     - protocol: TCP
       name: web
-      port: 80
-    - protocol: TCP
-      name: rpc
-      port: 6800
+      port: 9091
   selector:
-    app: aria2
+    app: transmission
 
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: aria2
+  name: transmission
   namespace: default
 spec:
   tls:
     - hosts:
-        - aria2.${DOMAIN_NAME}
+        - transmission.${DOMAIN_NAME}
       secretName: ${DOMAIN_NAME}-tls
   rules:
-    - host: aria2.${DOMAIN_NAME}
+    - host: transmission.${DOMAIN_NAME}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: aria2
+                name: transmission
                 port:
                   name: web
 
@@ -54,7 +51,7 @@ type: Opaque
 apiVersion: v1
 kind: Secret
 metadata:
-  name: aria2
+  name: transmission
   namespace: default
 type: Opaque
 # stringData:
@@ -65,10 +62,10 @@ type: Opaque
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: aria2
+  name: transmission
   namespace: default
   labels:
-    app: aria2
+    app: transmission
   annotations:
     reloader.stakater.com/auto: "true"
     keel.sh/policy: minor
@@ -78,11 +75,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: aria2
+      app: transmission
   template:
     metadata:
       labels:
-        app: aria2
+        app: transmission
     spec:
       affinity:
         nodeAffinity:
@@ -130,7 +127,7 @@ spec:
                   name: gluetun
                   key: server_countries
         - name: app
-          image: wahyd4/aria2-ui
+          image: lscr.io/linuxserver/transmission:latest
           resources:
             requests:
               memory: 128Mi
@@ -140,41 +137,26 @@ spec:
               cpu: 2000m
           ports:
             - name: web
-              containerPort: 80
-            - name: rpc
-              containerPort: 6800
+              containerPort: 9091
           env:
             - name: PUID
               value: "1000"
             - name: PGID
               value: "1000"
-            - name: ENABLE_AUTH
-              value: "true"
-            - name: ENABLE_RCLONE
-              value: "false"
-            - name: DOMAIN
-              value: "http://aria2.${DOMAIN_NAME}"
-            - name: ARIA2_EXTERNAL_PORT
-              value: "443"
-            - name: ARIA2_USER
+            - name: USER
               valueFrom:
                 secretKeyRef:
-                  name: aria2
+                  name: transmission
                   key: username
-            - name: ARIA2_PWD
+            - name: PASS
               valueFrom:
                 secretKeyRef:
-                  name: aria2
+                  name: transmission
                   key: password
           volumeMounts:
-            - name: config
-              mountPath: /app/conf
             - name: downloads
-              mountPath: /data
+              mountPath: /downloads
       volumes:
-        - name: config
-          hostPath:
-            path: /storage/aria2/config
         - name: downloads
           hostPath:
             path: /storage/jellyfin/media/Downloads
