@@ -42,15 +42,24 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
+  name: gluetun
+  namespace: default
+type: Opaque
+# stringData:
+#   vpn_service_provider: "someprovider"
+#   wireguard_private_key: "somekey"
+#   server_countries: "somecountry1,somecountry2"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
   name: aria2
   namespace: default
 type: Opaque
 # stringData:
 #   username: "someuser"
 #   password: "somepass"
-#   vpn_service_provider: "someprovider"
-#   wireguard_private_key: "somekey"
-#   server_countries: "somecountry1,somecountry2"
 
 ---
 apiVersion: apps/v1
@@ -108,17 +117,17 @@ spec:
             - name: VPN_SERVICE_PROVIDER
               valueFrom:
                 secretKeyRef:
-                  name: aria2
+                  name: gluetun
                   key: vpn_service_provider
             - name: WIREGUARD_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
-                  name: aria2
+                  name: gluetun
                   key: wireguard_private_key
             - name: SERVER_COUNTRIES
               valueFrom:
                 secretKeyRef:
-                  name: aria2
+                  name: gluetun
                   key: server_countries
         - name: app
           image: wahyd4/aria2-ui
