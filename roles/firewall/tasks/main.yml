@@ -6,7 +6,7 @@
     proto: "{{ item.proto | default(omit) }}"
     rule: "{{ item.rule | default(omit) }}"
     comment: "{{ item.comment | default(omit) }}"
-  with_items: "{{ rules }}"
+  with_items: "{{ firewall_rules }}"
   become: true
   retries: 3
   delay: 10

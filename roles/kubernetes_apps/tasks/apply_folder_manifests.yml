@@ -6,9 +6,9 @@
   block:
     - name: Set facts
       ansible.builtin.set_fact:
-        local_aggregate: "{{ kubernetes_project_location }}/{{ name }}.yml"
-        remote_aggregate: "/tmp/{{ name }}.yml"
-        manifests_folder: "{{ kubernetes_project_location }}/{{ name }}"
+        local_aggregate: "{{ kubernetes_project_location }}/{{ folder_name }}.yml"
+        remote_aggregate: "/tmp/{{ folder_name }}.yml"
+        manifests_folder: "{{ kubernetes_project_location }}/{{ folder_name }}"
 
     - name: Generate aggregate manifest file
       ansible.builtin.shell: "set -o pipefail && cat {{ manifests_folder }}/*.yml | env DOMAIN_NAME={{ fqdn }} envsubst '$DOMAIN_NAME' > {{ local_aggregate }}"

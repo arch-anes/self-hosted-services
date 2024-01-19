@@ -5,7 +5,7 @@
   ansible.builtin.import_role:
     name: firewall
   vars:
-    rules:
+    firewall_rules:
       - { to_port: 6443, proto: tcp, rule: allow, comment: "Kubernetes API Server" }
       - { to_port: 8472, proto: udp, rule: allow, comment: "Required only for Flannel VXLAN" }
       - { to_port: 10250, proto: tcp, rule: allow, comment: "Kubelet metrics" }

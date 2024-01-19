@@ -18,6 +18,6 @@
   ansible.builtin.import_role:
     name: firewall
   vars:
-    rules:
+    firewall_rules:
       - { to_port: 22, proto: tcp, rule: allow, comment: "Allow SSH" }
   when: not skip_firewall

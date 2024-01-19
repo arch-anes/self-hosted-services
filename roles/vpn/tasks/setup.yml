@@ -9,7 +9,7 @@
   ansible.builtin.import_role:
     name: firewall
   vars:
-    rules:
+    firewall_rules:
       - { to_port: "{{ listen_vpn_port }}", proto: udp, rule: allow, comment: "VPN" }
   when: not skip_firewall
 
@@ -23,15 +23,15 @@
 
 - name: Find new private IP address
   block:
-    - ansible.builtin.command: "{{ role_path }}/find_available_ips.py -n {{ ansible_play_hosts | length }} --taken_ips {{ hostvars | json_query('*.private_ip') | quote }}"  # noqa unnamed-task
+    - ansible.builtin.command: "{{ role_path }}/find_available_ips.py -n {{ ansible_play_hosts | length }} --taken_ips {{ hostvars | json_query('*.private_ip') | quote }}"  # noqa name[missing]
       delegate_to: localhost
       register: available_private_ips
       run_once: true
       changed_when: false
 
-    - ansible.builtin.set_fact:  # noqa unnamed-task
+    - ansible.builtin.set_fact:  # noqa name[missing]
         private_ip: "{{ (available_private_ips.stdout | from_json).ips[ansible_play_hosts_all.index(inventory_hostname)] }}"
-      when: "private_ip == ''"  # noqa empty-string-compare var-spacing
+      when: "private_ip == ''"  # noqa empty-string-compare jinja[spacing]
 
 - name: Set WireGuard configuration variables
   ansible.builtin.set_fact:

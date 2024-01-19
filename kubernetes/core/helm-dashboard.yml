@@ -30,4 +30,3 @@ spec:
           paths:
             - path: /
               pathType: ImplementationSpecific
-

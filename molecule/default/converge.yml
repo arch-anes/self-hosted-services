@@ -4,7 +4,8 @@
 - name: Setup cluster
   import_playbook: ../../setup_cluster.yml
 
-- hosts: all
+- name: Converge
+  hosts: all
   tasks:
     - name: Force all notified handlers to run
       ansible.builtin.meta: flush_handlers
