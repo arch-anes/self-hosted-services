@@ -83,6 +83,10 @@ spec:
               value: "1"
             - name: CREATE_ADMIN
               value: "1"
+            - name: CLEANUP_ARCHIVE_UNREAD_DAYS
+              value: "-1"
+            - name: CLEANUP_ARCHIVE_READ_DAYS
+              value: "-1"
             - name: ADMIN_USERNAME
               valueFrom:
                 secretKeyRef:
