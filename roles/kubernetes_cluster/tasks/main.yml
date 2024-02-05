@@ -30,27 +30,6 @@
     k3s_agent: "{{ k3s_runtime_config }}"
     k3s_server: "{{ k3s_runtime_config }}"
 
-- name: Elect previously running control delegate
-  block:
-    - name: Populate service facts
-      ansible.builtin.service_facts:
-      become: true
-
-    - name: Mark eligible nodes
-      ansible.builtin.set_fact:
-        k3s_eligible_control_node: "{{ (ansible_facts.services['k3s.service'].state | default('')) == 'running' and (k3s_control_node | default(false)) }}"
-
-    - name: Select potential control node if any
-      ansible.builtin.set_fact:
-        k3s_potential_control_node: "{{ ((((hostvars | dict2items) | selectattr('value.k3s_eligible_control_node', 'true')) | first).key) | default('') }}"
-      run_once: true
-
-    - name: Elect control delegate
-      ansible.builtin.set_fact:
-        k3s_control_delegate: "{{ k3s_potential_control_node }}"
-      run_once: true
-      when: k3s_potential_control_node != ''  # noqa empty-string-compare
-
 - name: Install and deploy k3s
   ansible.builtin.import_role:
     name: xanmanning.k3s
