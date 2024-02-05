@@ -14,16 +14,21 @@
 		"type=bind,source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh"
 	],
 	"postAttachCommand": "ansible-galaxy install -r requirements.yml --force",
-	"extensions": [
-		"redhat.vscode-yaml",
-		"visualstudioexptteam.vscodeintellicode",
-		"ms-python.python",
-		"ms-python.vscode-pylance",
-		"mads-hartmann.bash-ide-vscode",
-		"ms-azuretools.vscode-docker",
-		"wholroyd.jinja",
-		"ms-kubernetes-tools.vscode-kubernetes-tools",
-		"redhat.ansible",
-		"chrislajoie.vscode-modelines"
-	]
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"redhat.vscode-yaml",
+				"redhat.ansible",
+				"visualstudioexptteam.vscodeintellicode",
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"mads-hartmann.bash-ide-vscode",
+				"ms-azuretools.vscode-docker",
+				"wholroyd.jinja",
+				"ms-kubernetes-tools.vscode-kubernetes-tools",
+				"chrislajoie.vscode-modelines",
+				"eamodio.gitlens"
+			]
+		}
+	}
 }
