@@ -84,6 +84,14 @@ spec:
       containers:
         - name: app
           image: nextcloud:28
+          # https://github.com/nextcloud/helm/issues/55#issuecomment-1126289717
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "sh"
+                  - "-c"
+                  - "start-stop-daemon --start --make-pidfile --remove-pidfile --background --pidfile /cron.pid --exec /cron.sh"
           resources:
             requests:
               memory: 128Mi
