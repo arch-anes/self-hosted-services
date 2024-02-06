@@ -21,8 +21,8 @@ metadata:
 spec:
   redirectRegex:
     permanent: true
-    regex: "https://(.*)/.well-known/(card|cal)dav"
-    replacement: "https://${1}/remote.php/dav/"
+    regex: "https://(.*)/.well-known/(?:card|cal)dav"
+    replacement: "https://${1}/remote.php/dav"
 
 ---
 apiVersion: networking.k8s.io/v1
