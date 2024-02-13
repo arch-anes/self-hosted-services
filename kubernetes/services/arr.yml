@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: arr
+  namespace: default
+type: Opaque
+# stringData:
+#   prowlarr_api_key: "some_key"
+#   radarr_api_key: "some_key"
+#   sonarr_api_key: "some_key"
+#   readarr_api_key: "some_key"
+#   bazarr_api_key: "some_key"

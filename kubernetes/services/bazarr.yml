@@ -65,16 +65,6 @@ data:
     chown -R $PUID:$PGID /config
 
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: bazarr
-  namespace: default
-type: Opaque
-# stringData:
-#   api_key: "somekey"
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -128,8 +118,8 @@ spec:
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: bazarr
-                  key: api_key
+                  name: arr
+                  key: bazarr_api_key
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:

@@ -76,16 +76,6 @@ data:
     chown $PUID:$PGID /config/config.xml
 
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: sonarr
-  namespace: default
-type: Opaque
-# stringData:
-#   api_key: "somekey"
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -139,8 +129,8 @@ spec:
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: sonarr
-                  key: api_key
+                  name: arr
+                  key: sonarr_api_key
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:

@@ -74,16 +74,6 @@ data:
     chown $PUID:$PGID /config/config.xml
 
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: readarr
-  namespace: default
-type: Opaque
-# stringData:
-#   api_key: "somekey"
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -137,8 +127,8 @@ spec:
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: readarr
-                  key: api_key
+                  name: arr
+                  key: readarr_api_key
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
