@@ -21,10 +21,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - ${DOMAIN_NAME}
+        - dash.${DOMAIN_NAME}
       secretName: ${DOMAIN_NAME}-tls
   rules:
-    - host: ${DOMAIN_NAME}
+    - host: dash.${DOMAIN_NAME}
       http:
         paths:
           - path: /
