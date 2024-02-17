@@ -49,6 +49,10 @@ metadata:
     keel.sh/pollSchedule: "@weekly"
 spec:
   replicas: 1
+  strategy:
+    # This is done to ensure GPU is freed before creating new container
+    # otherwise deployment is pending
+    type: Recreate
   selector:
     matchLabels:
       app: jellyfin
@@ -75,8 +79,9 @@ spec:
               memory: 512Mi
               cpu: 250m
             limits:
-              memory: 4Gi
-              cpu: 4000m
+              memory: 2Gi
+              cpu: 1000m
+              amd.com/gpu: 1          
           ports:
             - name: web
               containerPort: 8096
