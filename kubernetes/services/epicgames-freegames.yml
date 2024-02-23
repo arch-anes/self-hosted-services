@@ -47,6 +47,19 @@ type: Opaque
 #   gotify_token: "sometoken"
 
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: epicgames-freegames
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Mi
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -99,3 +112,11 @@ spec:
               value: "https://epicgames-freegames.${DOMAIN_NAME}"
             - name: RUN_ON_STARTUP
               value: "true"
+          volumeMounts:
+            - name: config
+              mountPath: /usr/app/config
+              subPath: config
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: epicgames-freegames
