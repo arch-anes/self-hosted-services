@@ -91,10 +91,6 @@ metadata:
   namespace: default
   labels:
     app: octoprint
-  annotations:
-    keel.sh/policy: minor
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@weekly"
 spec:
   replicas: 1
   selector:
