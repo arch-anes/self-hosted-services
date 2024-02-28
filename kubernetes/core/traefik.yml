@@ -19,6 +19,20 @@ spec:
     secret: "cluster-admin-credentials"
 
 ---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-websecure
+  namespace: kube-system
+spec:
+  headers:
+    browserXssFilter: true
+    stsPreload: true
+    stsIncludeSubdomains: true
+    forceSTSHeader: true
+    stsSeconds: 15552000
+
+---
 apiVersion: helm.cattle.io/v1
 kind: HelmChartConfig
 metadata:
@@ -61,6 +75,8 @@ spec:
         redirectTo:
           port: websecure
       websecure:
+        middlewares:
+          - kube-system-traefik-websecure@kubernetescrd
         tls:
           enabled: true
     resources:
