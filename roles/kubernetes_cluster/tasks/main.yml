@@ -25,6 +25,7 @@
       flannel-iface: "wg0"
       node-label: "{{ labels }}"
     k3s_server:
+      secrets-encryption: true
       with-node-id: true
       node-ip: "{{ advertised_address }}"
       node-external-ip: "{{ advertised_address }}"
