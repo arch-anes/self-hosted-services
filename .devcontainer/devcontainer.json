@@ -10,9 +10,6 @@
 		".devcontainer/.env",
 	],
 	"remoteUser": "vscode",
-	"mounts": [
-		"type=bind,source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh"
-	],
 	"postAttachCommand": "ansible-galaxy install -r requirements.yml --force",
 	"customizations": {
 		"vscode": {
