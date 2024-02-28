@@ -16,19 +16,20 @@
   ansible.builtin.set_fact:
     advertised_address: "{{ private_ip | default(ansible_wg0.ipv4.address) }}"
 
-- name: Set k3s node facts
+- name: Set k3s config
   ansible.builtin.set_fact:
-    k3s_runtime_config:
+    k3s_agent:
       with-node-id: true
       node-ip: "{{ advertised_address }}"
       node-external-ip: "{{ advertised_address }}"
       flannel-iface: "wg0"
       node-label: "{{ labels }}"
-
-- name: Set k3s node facts (temporary fix)
-  ansible.builtin.set_fact:
-    k3s_agent: "{{ k3s_runtime_config }}"
-    k3s_server: "{{ k3s_runtime_config }}"
+    k3s_server:
+      with-node-id: true
+      node-ip: "{{ advertised_address }}"
+      node-external-ip: "{{ advertised_address }}"
+      flannel-iface: "wg0"
+      node-label: "{{ labels }}"
 
 - name: Install and deploy k3s
   ansible.builtin.import_role:
