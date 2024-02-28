@@ -11,7 +11,7 @@ lint: |
   yamllint . -s -f colored
   ansible-lint --exclude ${HOME}/.ansible/roles/
   datree config set offline local
-  datree test kubernetes/**/*.yml --ignore-missing-schemas --schema-version "1.28.0" --policy-config policies.yaml
+  datree test kubernetes/**/*.yml --ignore-missing-schemas --schema-version "1.29.0" --policy-config policies.yaml
 platforms:
   - name: replica1
     box: ubuntu/jammy64
