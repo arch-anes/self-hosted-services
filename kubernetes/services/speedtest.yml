@@ -75,7 +75,7 @@ spec:
               memory: 128Mi
               cpu: 125m
             limits:
-              memory: 256Mi
+              memory: 1Gi
               cpu: 2000m
           ports:
             - name: web
