@@ -69,7 +69,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: ghcr.io/alexjustesen/speedtest-tracker
+          image: lscr.io/linuxserver/speedtest-tracker:latest
           resources:
             requests:
               memory: 128Mi
