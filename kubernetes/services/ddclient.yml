@@ -69,7 +69,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: lscr.io/linuxserver/ddclient
+          image: lscr.io/linuxserver/ddclient:latest
           resources:
             requests:
               memory: 32Mi
