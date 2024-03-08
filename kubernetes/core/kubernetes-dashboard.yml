@@ -7,57 +7,37 @@ metadata:
 spec:
   chart: kubernetes-dashboard
   repo: https://kubernetes.github.io/dashboard
-  version: 7.0.0-alpha0
+  version: 7.1.1
   targetNamespace: kube-system
   valuesContent: |-
     app:
       settings:
         global:
           clusterName: "Home"
-          defaultNamespace: "default"
           itemsPerPage: 50
-          labelsLimit: 10
-          logsAutoRefreshTimeInterval: 5
-          resourceAutoRefreshTimeInterval: 5
-          disableAccessDeniedNotifications: false
       ingress:
-        enabled: false
+        enabled: true
+        useDefaultIngressClass: true
+        useDefaultAnnotations: false
+        pathType: Prefix
+        hosts:
+          - kubernetes.${DOMAIN_NAME}
+        tls:
+          secretName: ${DOMAIN_NAME}-tls
+        issuer:
+          scope: disabled
+    kong:
+      proxy:
+        http:
+          enabled: true
+        tls:
+          servicePort: 80
     nginx:
       enabled: false
     cert-manager:
       enabled: false
     metrics-server:
       enabled: false
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: kubernetes-dashboard
-  namespace: kube-system
-spec:
-  tls:
-    - hosts:
-        - kubernetes.${DOMAIN_NAME}
-      secretName: ${DOMAIN_NAME}-tls
-  rules:
-    - host: kubernetes.${DOMAIN_NAME}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: kubernetes-dashboard-web
-                port:
-                  name: web
-          - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: kubernetes-dashboard-api
-                port:
-                  name: api
 
 ---
 apiVersion: v1
