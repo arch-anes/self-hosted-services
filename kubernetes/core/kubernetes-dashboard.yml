@@ -15,6 +15,7 @@ spec:
         global:
           clusterName: "Home"
           itemsPerPage: 50
+          labelsLimit: 10
       ingress:
         enabled: true
         useDefaultIngressClass: true
