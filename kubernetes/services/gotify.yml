@@ -80,10 +80,3 @@ spec:
                   key: postgres_password
             - name: GOTIFY_DATABASE_CONNECTION
               value: host=postgresql port=5432 user=postgres dbname=gotify password=$(POSTGRES_PASSWORD) sslmode=disable
-          volumeMounts:
-            - name: data
-              mountPath: /app/data
-      volumes:
-        - name: data
-          hostPath:
-            path: /storage/gotify/data
