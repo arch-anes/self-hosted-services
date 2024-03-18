@@ -8,6 +8,7 @@
     - name: Install common packages
       ansible.builtin.apt:
         pkg:
+          - avahi-daemon
           - rsync
           - smartmontools
           - ufw
