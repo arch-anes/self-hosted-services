@@ -97,9 +97,6 @@ data:
       - name: "Automation"
         icon: "fas fa-home"
         items:
-          - name: "Home Assistant"
-            logo: "https://www.home-assistant.io/images/favicon-192x192-full.png"
-            url: "https://home-assistant.${DOMAIN_NAME}"
           - name: "OctoPrint"
             logo: "https://raw.githubusercontent.com/OctoPrint/OctoPrint/a93b4d397248dc406a75e634c1326fb1b8ddcb63/docs/images/octoprint-logo.png"
             url: "https://octoprint.${DOMAIN_NAME}"
