@@ -1,4 +1,19 @@
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kubeclarity
+  namespace: default
+type: Opaque
+# stringData:
+#   postgres-password: "somepass"
+#   postgres-username: "postgres"
+#   postgres-host: "postgresql.default"
+#   postgres-port: "5432"
+#   postgres-database: "kubeclarity"
+#   postgres-sslmode: "disable"
+
+---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -7,15 +22,17 @@ metadata:
 spec:
   chart: kubeclarity
   repo: https://openclarity.github.io/kubeclarity
-  version: 2.19.0
+  version: 2.23.1
   targetNamespace: default
   valuesContent: |-
     kubeclarity-postgresql:
       enabled: false
+    kubeclarity-postgresql-secret:
+      create: false
     kubeclarity-postgresql-external:
       enabled: true
       auth:
-        existingSecret: postgresql
+        existingSecret: kubeclarity
         username: postgres
         host: postgresql.default
         port: 5432
