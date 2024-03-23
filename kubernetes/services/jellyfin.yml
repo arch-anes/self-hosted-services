@@ -81,7 +81,7 @@ spec:
             limits:
               memory: 2Gi
               cpu: 1000m
-              amd.com/gpu: 1          
+              amd.com/gpu: 1
           ports:
             - name: web
               containerPort: 8096
