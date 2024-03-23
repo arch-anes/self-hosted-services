@@ -6,8 +6,7 @@ RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gp
     echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
 
 RUN apt-get update && apt-get install -y apt-transport-https python3-pip gettext-base kubectl helm vagrant virtualbox yamllint && \
-    pip3 install boto3 ansible-lint ansible molecule molecule-plugins[vagrant] && \
-    curl https://get.datree.io | /bin/bash
+    pip3 install boto3 ansible-lint ansible molecule molecule-plugins[vagrant]
 
 RUN mkdir -p /etc/ansible
 COPY .devcontainer/ansible.cfg /etc/ansible/ansible.cfg
