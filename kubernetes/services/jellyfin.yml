@@ -74,6 +74,13 @@ spec:
       containers:
         - name: app
           image: jellyfin/jellyfin
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8096
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 5
           resources:
             requests:
               memory: 512Mi
