@@ -41,3 +41,10 @@
     k3s_etcd_datastore: true
     k3s_use_unsupported_config: true
   become: true
+
+- name: Rotate k3s encryption keys
+  become: true
+  when: k3s_control_node | default(false)
+  register: k3s_rotate
+  ansible.builtin.command: k3s secrets-encrypt rotate-keys
+  changed_when: k3s_rotate.rc == 0
