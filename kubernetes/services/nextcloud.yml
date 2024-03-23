@@ -92,6 +92,15 @@ spec:
                   - "sh"
                   - "-c"
                   - "start-stop-daemon --start --make-pidfile --remove-pidfile --background --pidfile /cron.pid --exec /cron.sh"
+          startupProbe:
+            exec:
+              command:
+                - curl
+                - -sSf
+                - http://localhost/status.php
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 5
           resources:
             requests:
               memory: 128Mi
