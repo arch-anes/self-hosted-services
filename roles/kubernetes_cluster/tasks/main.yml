@@ -41,17 +41,3 @@
     k3s_etcd_datastore: true
     k3s_use_unsupported_config: true
   become: true
-
-- name: Install k9s
-  when: k3s_control_node | default(false)
-  block:
-    - name: Download k9s installer
-      ansible.builtin.get_url:
-        url: https://webi.sh/k9s
-        dest: /tmp/k9s-installer.sh
-        mode: '755'
-        force: true
-
-    - name: Execute the k9s-installer.sh
-      ansible.builtin.command: /tmp/k9s-installer.sh
-      changed_when: false
