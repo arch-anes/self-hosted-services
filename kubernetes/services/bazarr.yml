@@ -100,6 +100,13 @@ spec:
       containers:
         - name: app
           image: lscr.io/linuxserver/bazarr:latest
+          startupProbe:
+            httpGet:
+              path: /ping
+              port: 6767
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 5
           resources:
             requests:
               memory: 256Mi
