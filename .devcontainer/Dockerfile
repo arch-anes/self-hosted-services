@@ -13,7 +13,5 @@ COPY .devcontainer/ansible.cfg /etc/ansible/ansible.cfg
 
 USER vscode
 
-ENV ANSIBLE_HOST_KEY_CHECKING false
-
 COPY requirements.yml /tmp/requirements.yml
 RUN ansible-galaxy install -r /tmp/requirements.yml
