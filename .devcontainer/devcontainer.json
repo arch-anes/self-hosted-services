@@ -6,8 +6,6 @@
 	},
 	"runArgs": [
 		"--privileged",
-		"--env-file",
-		".devcontainer/.env",
 	],
 	"remoteUser": "vscode",
 	"postAttachCommand": "ansible-galaxy install -r requirements.yml --force",
