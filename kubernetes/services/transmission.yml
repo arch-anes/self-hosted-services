@@ -156,7 +156,12 @@ spec:
           volumeMounts:
             - name: downloads
               mountPath: /downloads
+            - name: config
+              mountPath: /config
       volumes:
         - name: downloads
           hostPath:
             path: /storage/jellyfin/media/Downloads
+        - name: config
+          hostPath:
+            path: /storage/transmission/config
