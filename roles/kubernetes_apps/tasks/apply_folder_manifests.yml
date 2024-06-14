@@ -6,12 +6,11 @@
   block:
     - name: Set facts
       ansible.builtin.set_fact:
-        local_aggregate: "{{ kubernetes_project_location }}/{{ folder_name }}.yml"
-        remote_aggregate: "/tmp/{{ folder_name }}.yml"
+        aggregate_path: "/tmp/{{ folder_name }}.yml"
         manifests_folder: "{{ kubernetes_project_location }}/{{ folder_name }}"
 
     - name: Generate aggregate manifest file
-      ansible.builtin.shell: "set -o pipefail && cat {{ manifests_folder }}/*.yml | env DOMAIN_NAME={{ fqdn }} envsubst '$DOMAIN_NAME' > {{ local_aggregate }}"
+      ansible.builtin.shell: "set -o pipefail && cat {{ manifests_folder }}/*.yml | env DOMAIN_NAME={{ fqdn }} envsubst '$DOMAIN_NAME' > {{ aggregate_path }}"
       args:
         executable: /usr/bin/bash
       delegate_to: localhost
@@ -21,11 +20,11 @@
 
     - name: Copy aggregate file to remote
       ansible.posix.synchronize:
-        src: "{{ local_aggregate }}"
-        dest: "{{ remote_aggregate }}"
+        src: "{{ aggregate_path }}"
+        dest: "{{ aggregate_path }}"
 
     - name: Apply aggregate manifest
-      ansible.builtin.command: "kubectl apply -f {{ remote_aggregate }}"
+      ansible.builtin.command: "kubectl apply -f {{ aggregate_path }}"
       changed_when: false
 
 - name: Wait for manifests to install
