@@ -3,6 +3,8 @@
 ---
 collections:
   - name: amazon.aws
+  - name: community.general
+  - name: ansible.posix
 roles:
   - name: githubixx.ansible_role_wireguard
   - name: xanmanning.k3s
