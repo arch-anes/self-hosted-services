@@ -36,6 +36,17 @@ spec:
                   name: web
 
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: speedtest
+  namespace: default
+type: Opaque
+# visit https://speedtest-tracker.dev/ to get a key
+# stringData:
+#   app_key: "somekey"
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -100,3 +111,8 @@ spec:
                 secretKeyRef:
                   name: postgresql
                   key: postgres_password
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: speedtest
+                  key: app_key
