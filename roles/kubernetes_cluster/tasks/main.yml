@@ -40,6 +40,10 @@
     k3s_become: true
     k3s_etcd_datastore: true
     k3s_use_unsupported_config: true
+    k3s_service_requires:
+      - wg-quick@wg0.service
+    k3s_service_after:
+      - wg-quick@wg0.service
   become: true
 
 - name: Rotate k3s encryption keys
