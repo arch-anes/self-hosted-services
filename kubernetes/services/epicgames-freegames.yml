@@ -102,7 +102,7 @@ spec:
                   name: epicgames-freegames
                   key: epic_email
             - name: GOTIFY_API_URL
-              value: "https://gotify.${DOMAIN_NAME}"
+              value: "http://gotify"
             - name: GOTIFY_TOKEN
               valueFrom:
                 secretKeyRef:
