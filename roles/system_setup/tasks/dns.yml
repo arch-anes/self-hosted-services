@@ -24,8 +24,7 @@
         mode: 0644
         content: |
           [Resolve]
-          DNS=1.1.1.1
-          FallbackDNS=1.0.0.1
+          DNS=1.1.1.1 1.0.0.1
 
     - name: Restart DNS server to apply configuration
       ansible.builtin.service:
