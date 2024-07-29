@@ -25,6 +25,7 @@
         content: |
           [Resolve]
           DNS=1.1.1.1 1.0.0.1
+          DNSStubListener=no
 
     - name: Restart DNS server to apply configuration
       ansible.builtin.service:
