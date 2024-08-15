@@ -85,14 +85,14 @@ spec:
                       - "true"
       containers:
         - name: db
-          image: postgres:15-bookworm
+          image: pgvector/pgvector:pg15
           resources:
             requests:
               memory: 128Mi
               cpu: 250m
             limits:
-              memory: 1Gi
-              cpu: 2000m
+              memory: 4Gi
+              cpu: 4000m
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
