@@ -111,8 +111,14 @@ spec:
                 secretKeyRef:
                   name: postgresql
                   key: postgres_password
+            - name: APP_URL
+              value: https://speedtest.${DOMAIN_NAME}
             - name: APP_KEY
               valueFrom:
                 secretKeyRef:
                   name: speedtest
                   key: app_key
+            - name: RESULTS_POLLING
+              value: "60"
+            - name: SPEEDTEST_SCHEDULE
+              value: "0 * * * *"
