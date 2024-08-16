@@ -99,8 +99,8 @@ spec:
                 - -sSf
                 - http://localhost/status.php
             initialDelaySeconds: 30
-            periodSeconds: 10
-            failureThreshold: 5
+            periodSeconds: 60
+            failureThreshold: 10
           resources:
             requests:
               memory: 128Mi
