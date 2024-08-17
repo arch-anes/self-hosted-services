@@ -17,7 +17,7 @@ metadata:
 spec:
   chart: netdata
   repo: https://netdata.github.io/helmchart/
-  version: 3.7.85
+  version: 3.7.97
   targetNamespace: default
   valuesContent: |-
     ingress:
