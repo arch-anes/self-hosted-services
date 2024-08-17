@@ -44,6 +44,7 @@ spec:
           memory: 1Gi
       env:
         DO_NOT_TRACK: 1
+        NETDATA_DISABLE_CLOUD: 1
       envFrom:
         - secretRef:
             name: netdata
@@ -56,6 +57,12 @@ spec:
             SEND_GOTIFY="YES"
             GOTIFY_APP_URL="http://gotify"
             GOTIFY_APP_TOKEN="${GOTIFY_TOKEN}"
+        cloud:
+          enabled: true
+          path: /var/lib/netdata/cloud.d/cloud.conf
+          data: |
+            [global]
+              enabled = no
     child:
       resources:
         requests:
@@ -66,6 +73,7 @@ spec:
           memory: 512Mi
       env:
         DO_NOT_TRACK: 1
+        NETDATA_DISABLE_CLOUD: 1
       extraVolumes:
         - name: smartd
           hostPath:
@@ -82,6 +90,12 @@ spec:
           data: |
             local:
               log_path : '/var/log/smartd/'
+        cloud:
+          enabled: true
+          path: /var/lib/netdata/cloud.d/cloud.conf
+          data: |
+            [global]
+              enabled = no
     k8sState:
       env:
         DO_NOT_TRACK: 1
