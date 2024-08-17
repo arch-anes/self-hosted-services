@@ -54,7 +54,7 @@ spec:
           data: |
             SEND_EMAIL="NO"
             SEND_GOTIFY="YES"
-            GOTIFY_APP_URL="https://gotify.${DOMAIN_NAME}"
+            GOTIFY_APP_URL="http://gotify"
             GOTIFY_APP_TOKEN="${GOTIFY_TOKEN}"
     child:
       resources:
