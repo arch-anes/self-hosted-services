@@ -100,6 +100,9 @@ data:
       - name: "Automation"
         icon: "fas fa-home"
         items:
+          - name: "Grocy"
+            logo: "https://grocy.info/img/grocy_logo.svg?v=235"
+            url: "https://grocy.${DOMAIN_NAME}"
           - name: "OctoPrint"
             logo: "https://raw.githubusercontent.com/OctoPrint/OctoPrint/a93b4d397248dc406a75e634c1326fb1b8ddcb63/docs/images/octoprint-logo.png"
             url: "https://octoprint.${DOMAIN_NAME}"
