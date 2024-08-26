@@ -85,7 +85,7 @@ spec:
                       - "true"
       containers:
         - name: db
-          image: pgvector/pgvector:pg15
+          image: pgvector/pgvector:pg16
           resources:
             requests:
               memory: 128Mi
