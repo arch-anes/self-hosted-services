@@ -11,3 +11,6 @@ type: Opaque
 #   sonarr_api_key: "some_key"
 #   readarr_api_key: "some_key"
 #   bazarr_api_key: "some_key"
+#   bazarr_admin_password_hash: "some_pass_hash"
+#   betaseries_api_key: "some_key"
+#   anidb_api_client: "some_client"

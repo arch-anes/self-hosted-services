@@ -51,15 +51,174 @@ data:
 
     cat <<EOCONF > /config/config/config.yaml
     ---
+    analytics:
+      enabled: false
+    anidb:
+      api_client: $ANIDB_API_CLIENT
+      api_client_ver: 1
+    animetosho:
+      anidb_api_client: $ANIDB_API_CLIENT
+      anidb_api_client_ver: 1
+      search_threshold: 6
     auth:
-      apikey: $API_KEY
+      apikey: $BAZARR_API_KEY
+      password: $BAZARR_ADMIN_PASSWORD_HASH
+      type: form
+      username: admin
+    betaseries:
+      token: $BETASERIES_API_KEY
+    cors:
+      enabled: false
+    embeddedsubtitles:
+      fallback_lang: en
+      hi_fallback: false
+      included_codecs: []
+      timeout: 600
+      unknown_as_fallback: false
+    general:
+      adaptive_searching: true
+      adaptive_searching_delay: 3w
+      adaptive_searching_delta: 1w
+      anti_captcha_provider: null
+      auto_update: false
+      base_url: ''
+      branch: master
+      chmod: '0640'
+      chmod_enabled: false
+      days_to_upgrade_subs: 7
+      debug: false
+      default_und_audio_lang: en
+      default_und_embedded_subtitles_lang: ''
+      dont_notify_manual_actions: false
+      embedded_subs_show_desired: true
+      embedded_subtitles_parser: ffprobe
+      enabled_integrations:
+      - anidb
+      enabled_providers:
+      - betaseries
+      - embeddedsubtitles
+      - animetosho
+      hi_extension: hi
+      ignore_ass_subs: false
+      ignore_pgs_subs: false
+      ignore_vobsub_subs: false
+      ip: 0.0.0.0
+      language_equals: []
+      minimum_score: 90
+      minimum_score_movie: 80
+      movie_default_enabled: true
+      movie_default_profile: 1
+      multithreading: true
+      page_size: 25
+      parse_embedded_audio_track: true
+      path_mappings: []
+      path_mappings_movie: []
+      port: 6767
+      postprocessing_cmd: ''
+      postprocessing_threshold: 90
+      postprocessing_threshold_movie: 70
+      serie_default_enabled: true
+      serie_default_profile: 1
+      single_language: false
+      skip_hashing: false
+      subfolder: current
+      subfolder_custom: ''
+      subzero_mods: ''
+      theme: auto
+      upgrade_frequency: 12
+      upgrade_manual: true
+      upgrade_subs: true
+      use_embedded_subs: true
+      use_postprocessing: false
+      use_postprocessing_threshold: false
+      use_postprocessing_threshold_movie: false
+      use_radarr: true
+      use_scenename: true
+      use_sonarr: true
+      utf8_encode: true
+      wanted_search_frequency: 6
+      wanted_search_frequency_movie: 6
+    movie_scores:
+      audio_codec: 3
+      edition: 1
+      hash: 119
+      hearing_impaired: 1
+      release_group: 13
+      resolution: 2
+      source: 7
+      streaming_service: 1
+      title: 60
+      video_codec: 2
+      year: 30
     postgresql:
+      database: bazarr
       enabled: true
       host: postgresql
+      password: $POSTGRES_PASSWORD
       port: 5432
-      database: bazarr
       username: postgres
-      password: '$POSTGRES_PASSWORD'
+    radarr:
+      apikey: $RADARR_API_KEY
+      base_url: ''
+      defer_search_signalr: false
+      excluded_tags: []
+      full_update: Daily
+      full_update_day: 6
+      full_update_hour: 4
+      http_timeout: 60
+      ip: radarr
+      movies_sync: 60
+      only_monitored: false
+      port: 7878
+      ssl: false
+      sync_only_monitored_movies: false
+      use_ffprobe_cache: true
+    series_scores:
+      audio_codec: 3
+      episode: 30
+      hash: 359
+      hearing_impaired: 1
+      release_group: 14
+      resolution: 2
+      season: 30
+      series: 180
+      source: 7
+      streaming_service: 1
+      video_codec: 2
+      year: 90
+    sonarr:
+      apikey: $SONARR_API_KEY
+      base_url: ''
+      defer_search_signalr: false
+      exclude_season_zero: false
+      excluded_series_types: []
+      excluded_tags: []
+      full_update: Daily
+      full_update_day: 6
+      full_update_hour: 4
+      http_timeout: 60
+      ip: sonarr
+      only_monitored: false
+      port: 8989
+      series_sync: 60
+      ssl: false
+      sync_only_monitored_episodes: false
+      sync_only_monitored_series: false
+      use_ffprobe_cache: true
+    subsync:
+      checker:
+        blacklisted_languages: []
+        blacklisted_providers: []
+      debug: false
+      force_audio: false
+      gss: true
+      max_offset_seconds: 60
+      no_fix_framerate: true
+      subsync_movie_threshold: 86
+      subsync_threshold: 96
+      use_subsync: true
+      use_subsync_movie_threshold: true
+      use_subsync_threshold: true
     EOCONF
 
     chown -R $PUID:$PGID /config
@@ -122,11 +281,36 @@ spec:
               value: "1000"
             - name: PGID
               value: "1000"
-            - name: API_KEY
+            - name: SONARR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: arr
+                  key: sonarr_api_key
+            - name: RADARR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: arr
+                  key: radarr_api_key
+            - name: BAZARR_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: arr
                   key: bazarr_api_key
+            - name: BAZARR_ADMIN_PASSWORD_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: arr
+                  key: bazarr_admin_password_hash
+            - name: BETASERIES_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: arr
+                  key: betaseries_api_key
+            - name: ANIDB_API_CLIENT
+              valueFrom:
+                secretKeyRef:
+                  name: arr
+                  key: anidb_api_client
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
