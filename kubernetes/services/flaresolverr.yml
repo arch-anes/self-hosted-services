@@ -36,14 +36,14 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/flaresolverr/flaresolverr
+          image: 21hsmw/flaresolverr:nodriver
           resources:
             requests:
               memory: 128Mi
               cpu: 250m
             limits:
-              memory: 512Mi
-              cpu: 500m
+              memory: 2Gi
+              cpu: 2000m
           ports:
             - name: web
               containerPort: 8191
