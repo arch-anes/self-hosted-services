@@ -142,6 +142,9 @@ data:
       - name: "Monitoring"
         icon: "fas fa-heartbeat"
         items:
+          - name: "CrowdSec"
+            logo: "https://raw.githubusercontent.com/crowdsecurity/crowdsec-docs/e951ffc4117da0fceca38d2b4c8329a68ee35b1f/crowdsec-docs/static/img/crowdsec_logo.png"
+            url: "https://crowdsec.${DOMAIN_NAME}"
           - name: "Netdata"
             logo: "https://raw.githubusercontent.com/netdata/netdata/483d8481a5a5edf72630068534feb1a4d228ed0b/web/gui/v1/images/favicon-196x196.png"
             url: "https://netdata.${DOMAIN_NAME}"
