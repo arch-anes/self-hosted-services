@@ -101,12 +101,12 @@ spec:
       containers:
         - name: app
           image: lscr.io/linuxserver/prowlarr:latest
-          startupProbe:
+          livenessProbe:
             httpGet:
               path: /ping
               port: 9696
             initialDelaySeconds: 30
-            periodSeconds: 10
+            periodSeconds: 15
             failureThreshold: 5
           resources:
             requests:
