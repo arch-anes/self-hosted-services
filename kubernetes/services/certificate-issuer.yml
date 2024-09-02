@@ -36,6 +36,11 @@ metadata:
   namespace: default
 spec:
   secretName: ${DOMAIN_NAME}-tls
+  secretTemplate:
+    annotations:
+      reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+      reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kube-system"
   issuerRef:
     name: ${DOMAIN_NAME}-issuer
     kind: ClusterIssuer
