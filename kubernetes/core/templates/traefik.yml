@@ -42,7 +42,10 @@ spec:
             forceSTSHeader: true
             stsSeconds: 15552000
     logs:
+      general:
+        format: json
       access:
+        format: json
         enabled: true
     affinity:
       nodeAffinity:
