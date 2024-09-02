@@ -38,11 +38,9 @@ spec:
         - name: app
           image: 21hsmw/flaresolverr:nodriver
           livenessProbe:
-            exec:
-              command:
-                - curl
-                - -sSf
-                - http://localhost:8191
+            httpGet:
+              path: /
+              port: 8191
             initialDelaySeconds: 15
             periodSeconds: 15
             failureThreshold: 5
