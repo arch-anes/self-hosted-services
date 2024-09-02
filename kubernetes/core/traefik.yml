@@ -41,7 +41,10 @@ metadata:
 spec:
   valuesContent: |-
     logs:
+      general:
+        format: json
       access:
+        format: json
         enabled: true
     affinity:
       nodeAffinity:
