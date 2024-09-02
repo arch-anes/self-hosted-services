@@ -1,0 +1,21 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: reflector
+  namespace: kube-system
+spec:
+  chart: reflector
+  repo: https://emberstack.github.io/helm-charts
+  version: 7.1.288
+  targetNamespace: kube-system
+  valuesContent: |-
+    autoscaling:
+      enabled: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
