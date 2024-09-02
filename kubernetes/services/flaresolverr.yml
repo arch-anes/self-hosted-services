@@ -37,6 +37,15 @@ spec:
       containers:
         - name: app
           image: 21hsmw/flaresolverr:nodriver
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -sSf
+                - http://localhost:8191
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            failureThreshold: 5
           resources:
             requests:
               memory: 128Mi
