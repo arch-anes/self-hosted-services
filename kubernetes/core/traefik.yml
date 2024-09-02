@@ -40,6 +40,15 @@ metadata:
   namespace: kube-system
 spec:
   valuesContent: |-
+    volumes:
+      - name: crowdsec
+        mountPath: /etc/traefik/secrets/crowdsec/
+        type: secret
+    experimental:
+      plugins:
+        crowdsec-bouncer-traefik-plugin:
+          moduleName: "github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
+          version: "v1.3.3"
     logs:
       general:
         format: json
