@@ -41,6 +41,15 @@ spec:
             stsIncludeSubdomains: true
             forceSTSHeader: true
             stsSeconds: 15552000
+    volumes:
+      - name: crowdsec
+        mountPath: /etc/traefik/secrets/crowdsec/
+        type: secret
+    experimental:
+      plugins:
+        crowdsec-bouncer-traefik-plugin:
+          moduleName: "github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
+          version: "v1.4.1"
     logs:
       general:
         format: json

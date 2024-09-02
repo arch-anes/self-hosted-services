@@ -1,0 +1,120 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: crowdsec
+  namespace: kube-system
+type: Opaque
+# stringData:
+#   enroll_key: "somekey"
+#   bouncer_key: "somekey"
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: crowdsec
+  namespace: kube-system
+spec:
+  plugin:
+    crowdsec-bouncer-traefik-plugin:
+      enabled: true
+      crowdsecMode: stream
+      crowdsecLapiScheme: http
+      crowdsecLapiHost: crowdsec-service:8080
+      crowdsecLapiKeyFile: /etc/traefik/secrets/crowdsec/bouncer-key
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: crowdsec
+  namespace: kube-system
+spec:
+  chart: crowdsec
+  repo: https://crowdsecurity.github.io/helm-charts
+  version: 0.18.0
+  targetNamespace: kube-system
+  valuesContent: |-
+    container_runtime: containerd
+    config:
+      parsers:
+        s02-enrich:
+          geoip-enrich.yaml: |-
+            filter: |
+              let ipv6Check = IsIPV6(evt.Meta.source_ip);
+              "source_ip" in evt.Meta &&
+              (
+                not ipv6Check &&
+                not (IpInRange(evt.Meta.source_ip, "127.0.0.0/8") || IpInRange(evt.Meta.source_ip, "192.168.0.0/16") || IpInRange(evt.Meta.source_ip, "172.16.0.0/12") || IpInRange(evt.Meta.source_ip, "10.0.0.0/8") || IpInRange(evt.Meta.source_ip, "10.42.0.0/16"))
+              ) ||
+              (
+                ipv6Check &&
+                not (IpInRange(evt.Meta.source_ip, "::1/128") || IpInRange(evt.Meta.source_ip, "fd00::/8") || IpInRange(evt.Meta.source_ip, "fc00::/7"))
+              )
+
+            name: crowdsecurity/geoip-enrich
+            description: "Populate event with geoloc info : as, country, coords, source range."
+            data:
+              - source_url: https://hub-data.crowdsec.net/mmdb/GeoLite2-City.mmdb
+                dest_file: GeoLite2-City.mmdb
+              - source_url: https://hub-data.crowdsec.net/mmdb/GeoLite2-ASN.mmdb
+                dest_file: GeoLite2-ASN.mmdb
+            statics:
+              - method: GeoIpCity
+                expression: evt.Meta.source_ip
+              - meta: IsoCode
+                expression: evt.Enriched.IsoCode
+              - meta: IsInEU
+                expression: evt.Enriched.IsInEU
+              - meta: GeoCoords
+                expression: evt.Enriched.GeoCoords
+              - method: GeoIpASN
+                expression: evt.Meta.source_ip
+              - meta: ASNNumber
+                expression: evt.Enriched.ASNNumber
+              - meta: ASNOrg
+                expression: evt.Enriched.ASNOrg
+              - method: IpToRange
+                expression: evt.Meta.source_ip
+              - meta: SourceRange
+                expression: evt.Enriched.SourceRange
+    agent:
+      acquisition:
+        - namespace: kube-system
+          podName: traefik-*
+          program: traefik
+      env:
+        - name: PARSERS
+          value: "crowdsecurity/traefik-logs"
+        - name: COLLECTIONS
+          value: "crowdsecurity/traefik"
+    lapi:
+      env:
+        - name: ENROLL_KEY
+          valueFrom:
+            secretKeyRef:
+              name: crowdsec
+              key: enroll_key
+        - name: BOUNCER_KEY_traefik
+          valueFrom:
+            secretKeyRef:
+              name: crowdsec
+              key: bouncer_key
+        - name: ENROLL_INSTANCE_NAME
+          value: "k3s_cluster"
+        - name: ENROLL_TAGS
+          value: "k3s linux"
+      dashboard:
+        enabled: true
+        ingress:
+          enabled: true
+          annotations:
+            homer.service.name: "Monitoring"
+            homer.item.name: "CrowdSec"
+            homer.item.icon: "https://raw.githubusercontent.com/crowdsecurity/crowdsec-docs/e951ffc4117da0fceca38d2b4c8329a68ee35b1f/crowdsec-docs/static/img/crowdsec_logo.png"
+          host: crowdsec.${DOMAIN_NAME}
+          tls:
+            - hosts:
+                - crowdsec.${DOMAIN_NAME}
+              secretName: ${DOMAIN_NAME}-tls
