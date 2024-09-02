@@ -1,0 +1,66 @@
+{{- if .Values.applications.crowdsec.enabled -}}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: crowdsec
+  namespace: kube-system
+type: Opaque
+# stringData:
+#   enroll_key: "somekey"
+#   bouncer_key: "somekey"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: crowdsec
+  namespace: kube-system
+spec:
+  chart: crowdsec
+  repo: https://crowdsecurity.github.io/helm-charts
+  version: 0.19.1
+  targetNamespace: kube-system
+  valuesContent: |-
+    container_runtime: containerd
+    agent:
+      acquisition:
+        - namespace: kube-system
+          podName: traefik-*
+          program: traefik
+      env:
+        - name: PARSERS
+          value: "crowdsecurity/traefik-logs"
+        - name: COLLECTIONS
+          value: "crowdsecurity/traefik"
+    lapi:
+      env:
+        - name: ENROLL_KEY
+          valueFrom:
+            secretKeyRef:
+              name: crowdsec
+              key: enroll_key
+        - name: BOUNCER_KEY_traefik
+          valueFrom:
+            secretKeyRef:
+              name: crowdsec
+              key: bouncer_key
+        - name: ENROLL_INSTANCE_NAME
+          value: "k3s_cluster"
+        - name: ENROLL_TAGS
+          value: "k3s linux"
+      dashboard:
+        enabled: true
+        ingress:
+          enabled: true
+          annotations:
+            homer.service.name: "Monitoring"
+            homer.item.name: "CrowdSec"
+            homer.item.icon: "https://raw.githubusercontent.com/crowdsecurity/crowdsec-docs/e951ffc4117da0fceca38d2b4c8329a68ee35b1f/crowdsec-docs/static/img/crowdsec_logo.png"
+            traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
+          host: crowdsec.${DOMAIN_NAME}
+          tls:
+            - hosts:
+                - crowdsec.${DOMAIN_NAME}
+              secretName: ${DOMAIN_NAME}-tls
+{{- end -}}
