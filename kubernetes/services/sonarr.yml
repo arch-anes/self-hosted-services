@@ -49,29 +49,29 @@ data:
 
     cat <<EOCONF > /config/config.xml
     <Config>
-        <LogLevel>info</LogLevel>
-        <EnableSsl>False</EnableSsl>
-        <Port>8989</Port>
-        <SslPort>9898</SslPort>
-        <UrlBase></UrlBase>
-        <BindAddress>*</BindAddress>
-        <ApiKey>1ae5e11152dc4b28bfd5703de4f1b9cd</ApiKey>
-        <AuthenticationMethod>Forms</AuthenticationMethod>
-        <UpdateMechanism>Docker</UpdateMechanism>
-        <LaunchBrowser>True</LaunchBrowser>
-        <Branch>main</Branch>
-        <InstanceName>Sonarr</InstanceName>
-        <SyslogPort>514</SyslogPort>
-        <AnalyticsEnabled>False</AnalyticsEnabled>
-        <AuthenticationRequired>Enabled</AuthenticationRequired>
-        <SslCertPath></SslCertPath>
-        <SslCertPassword></SslCertPassword>
-        <PostgresUser>postgres</PostgresUser>
-        <PostgresPassword>$POSTGRES_PASSWORD</PostgresPassword>
-        <PostgresPort>5432</PostgresPort>
-        <PostgresHost>postgresql</PostgresHost>
-        <PostgresMainDb>sonarr_main</PostgresMainDb>
-        <PostgresLogDb>sonarr_log</PostgresLogDb>
+      <LogLevel>info</LogLevel>
+      <EnableSsl>False</EnableSsl>
+      <Port>8989</Port>
+      <SslPort>9898</SslPort>
+      <UrlBase></UrlBase>
+      <BindAddress>*</BindAddress>
+      <ApiKey>1ae5e11152dc4b28bfd5703de4f1b9cd</ApiKey>
+      <AuthenticationMethod>Forms</AuthenticationMethod>
+      <UpdateMechanism>Docker</UpdateMechanism>
+      <LaunchBrowser>True</LaunchBrowser>
+      <Branch>main</Branch>
+      <InstanceName>Sonarr</InstanceName>
+      <SyslogPort>514</SyslogPort>
+      <AnalyticsEnabled>False</AnalyticsEnabled>
+      <AuthenticationRequired>Enabled</AuthenticationRequired>
+      <SslCertPath></SslCertPath>
+      <SslCertPassword></SslCertPassword>
+      <PostgresUser>postgres</PostgresUser>
+      <PostgresPassword>$POSTGRES_PASSWORD</PostgresPassword>
+      <PostgresPort>5432</PostgresPort>
+      <PostgresHost>postgresql</PostgresHost>
+      <PostgresMainDb>sonarr_main</PostgresMainDb>
+      <PostgresLogDb>sonarr_log</PostgresLogDb>
     </Config>
     EOCONF
 
