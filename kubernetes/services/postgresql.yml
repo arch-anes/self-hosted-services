@@ -1,120 +1,37 @@
 ---
-apiVersion: v1
-kind: Service
+apiVersion: acid.zalan.do/v1
+kind: postgresql
 metadata:
   name: postgresql
   namespace: default
 spec:
-  ports:
-    - protocol: TCP
-      name: db
-      port: 5432
-  selector:
-    app: postgresql
-
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: postgresql
-  namespace: default
-type: Opaque
-# stringData:
-#   postgres_password: "somepassword"
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: postgresql-scripts
-  namespace: default
-data:
-  create-multiple-postgresql-databases.sh: |
-    #!/bin/bash
-
-    set -e
-    set -u
-
-    function create_database() {
-      local database=$1
-      echo "Creating database '$database'"
-      psql -v ON_ERROR_STOP=1 --username postgres <<-EOSQL
-          CREATE DATABASE "$database";
-    EOSQL
-    }
-
-    if [ -n "$POSTGRES_MULTIPLE_DATABASES" ]; then
-      echo "Multiple database creation requested: $POSTGRES_MULTIPLE_DATABASES"
-      for db in $(echo $POSTGRES_MULTIPLE_DATABASES | tr ',' ' '); do
-        create_database $db
-      done
-      echo "Multiple databases created"
-    fi
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: postgresql
-  namespace: default
-  labels:
-    app: postgresql
-  annotations:
-    keel.sh/policy: minor
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@weekly"
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgresql
-  template:
-    metadata:
-      labels:
-        app: postgresql
-    spec:
-      affinity:
-        nodeAffinity:
-          # Only on NAS nodes
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: nas
-                    operator: In
-                    values:
-                      - "true"
-      containers:
-        - name: db
-          image: pgvector/pgvector:pg16
-          resources:
-            requests:
-              memory: 128Mi
-              cpu: 250m
-            limits:
-              memory: 4Gi
-              cpu: 4000m
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql
-                  key: postgres_password
-            - name: POSTGRES_MULTIPLE_DATABASES
-              value: "bazarr,gotify,immich,miniflux,n8n,nextcloud,pgadmin4,prowlarr_log,prowlarr_main,radarr_log,radarr_main,readarr_cache,readarr_log,readarr_main,sonarr_log,sonarr_main,speedtest_tracker"
-          ports:
-            - name: db
-              containerPort: 5432
-          volumeMounts:
-            - name: db
-              mountPath: /var/lib/postgresql/data
-            - name: scripts
-              mountPath: /docker-entrypoint-initdb.d/create-multiple-postgresql-databases.sh
-              subPath: create-multiple-postgresql-databases.sh
-      volumes:
-        - name: db
-          hostPath:
-            path: /storage/postgresql
-        - name: scripts
-          configMap:
-            name: postgresql-scripts
-            defaultMode: 0744
+  teamId: arch-anes
+  postgresql:
+    version: "16"
+    parameters:
+      password_encryption: scram-sha-256
+  numberOfInstances: 3
+  volume:
+    size: 10Gi
+    storageClass: local-path-retain
+  preparedDatabases:
+    bazarr: {}
+    gotify: {}
+    immich:
+      extensions:
+        vector: public
+    kubeclarity: {}
+    miniflux: {}
+    n8n: {}
+    nextcloud: {}
+    pgadmin4: {}
+    prowlarr_log: {}
+    prowlarr_main: {}
+    radarr_log: {}
+    radarr_main: {}
+    readarr_cache: {}
+    readarr_log: {}
+    readarr_main: {}
+    sonarr_log: {}
+    sonarr_main: {}
+    speedtest_tracker: {}
