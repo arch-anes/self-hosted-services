@@ -55,7 +55,7 @@ data:
       <SslPort>9898</SslPort>
       <UrlBase></UrlBase>
       <BindAddress>*</BindAddress>
-      <ApiKey>1ae5e11152dc4b28bfd5703de4f1b9cd</ApiKey>
+      <ApiKey>$API_KEY</ApiKey>
       <AuthenticationMethod>Forms</AuthenticationMethod>
       <UpdateMechanism>Docker</UpdateMechanism>
       <LaunchBrowser>True</LaunchBrowser>
