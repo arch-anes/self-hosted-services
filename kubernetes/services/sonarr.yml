@@ -70,6 +70,8 @@ data:
         <PostgresPassword>$POSTGRES_PASSWORD</PostgresPassword>
         <PostgresPort>5432</PostgresPort>
         <PostgresHost>postgresql</PostgresHost>
+        <PostgresMainDb>sonarr_main</PostgresMainDb>
+        <PostgresLogDb>sonarr_log</PostgresLogDb>
     </Config>
     EOCONF
 

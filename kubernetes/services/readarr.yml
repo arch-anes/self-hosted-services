@@ -68,6 +68,9 @@ data:
       <PostgresPassword>$POSTGRES_PASSWORD</PostgresPassword>
       <PostgresPort>5432</PostgresPort>
       <PostgresHost>postgresql</PostgresHost>
+      <PostgresMainDb>readarr_main</PostgresMainDb>
+      <PostgresLogDb>readarr_log</PostgresLogDb>
+      <PostgresCacheDb>readarr_cache</PostgresCacheDb>
     </Config>
     EOCONF
 
