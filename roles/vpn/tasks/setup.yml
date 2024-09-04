@@ -11,7 +11,7 @@
   vars:
     firewall_rules:
       - { to_port: "{{ listen_vpn_port }}", proto: udp, rule: allow, comment: "VPN" }
-  when: not skip_firewall_setup
+  when: not (skip_firewall_setup or manifest_only_setup)
 
 - name: Get host public IP
   when: public_ip is not defined

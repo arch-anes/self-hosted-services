@@ -9,18 +9,18 @@
   roles:
     - name: Setup system
       role: system_setup
-      when: not skip_system_setup
+      when: not (skip_system_setup or manifest_only_setup)
 
     - name: Preprocess cloud nodes
       role: cloud_nodes
 
     - name: Create a VPN mesh network
       role: vpn
-      when: not skip_vpn_setup
+      when: not (skip_vpn_setup or manifest_only_setup)
 
     - name: Deploy Kubernetes cluster
       role: kubernetes_cluster
-      when: not skip_k8s_setup
+      when: not (skip_k8s_setup or manifest_only_setup)
 
     - name: Deploy Kubernetes applications
       role: kubernetes_apps

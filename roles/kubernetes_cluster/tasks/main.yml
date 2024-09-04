@@ -10,7 +10,7 @@
       - { to_port: 8472, proto: udp, rule: allow, comment: "Required only for Flannel VXLAN" }
       - { to_port: 10250, proto: tcp, rule: allow, comment: "Kubelet metrics" }
       - { to_port: "2379:2380", proto: tcp, rule: allow, comment: "Required only for HA with embedded etcd" }
-  when: not skip_firewall_setup
+  when: not (skip_firewall_setup or manifest_only_setup)
 
 - name: Set k3s node facts
   ansible.builtin.set_fact:
