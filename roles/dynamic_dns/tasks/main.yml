@@ -1,9 +1,15 @@
 # code: language=ansible
 ---
 
-- name: Create a cron job that updates duckdns DNS entry"
+- name: Create a cron job that updates duckdns DNS entry
   when: duckdns is defined
   ansible.builtin.cron:
     name: "Update duckdns record"
     minute: "*/5"  # Every 5 minutes
     job: "curl -sSf 'https://www.duckdns.org/update?domains={{ duckdns.domain }}&token={{ duckdns.token }}'"
+
+- name: Remove duckdns cron job from non-concerned hosts
+  when: duckdns is not defined
+  ansible.builtin.cron:
+    name: "Update duckdns record"
+    state: absent
