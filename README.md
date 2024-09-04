@@ -25,6 +25,10 @@ k3s_cluster:
         - nas=true
         - local=true
     small_manager:
+      # https://www.duckdns.org
+      duckdns:
+        token: duckdns_provided_token
+        domain: example.duckdns.org
       vpn_port: 3212
       vpn_ip: 10.10.10.3
       k3s_control_node: true

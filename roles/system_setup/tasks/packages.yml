@@ -9,6 +9,7 @@
       ansible.builtin.apt:
         pkg:
           - avahi-daemon
+          - curl
           - rsync
           - smartmontools
           - ufw

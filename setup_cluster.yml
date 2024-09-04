@@ -14,6 +14,10 @@
     - name: Preprocess cloud nodes
       role: cloud_nodes
 
+    - name: Setup dynamic dns
+      role: dynamic_dns
+      when: not (skip_dynamic_dns_setup or manifest_only_setup)
+
     - name: Create a VPN mesh network
       role: vpn
       when: not (skip_vpn_setup or manifest_only_setup)
