@@ -259,7 +259,7 @@ spec:
       containers:
         - name: app
           image: lscr.io/linuxserver/bazarr:latest
-          startupProbe:
+          livenessProbe:
             httpGet:
               path: /ping
               port: 6767

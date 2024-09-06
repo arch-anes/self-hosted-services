@@ -112,7 +112,7 @@ spec:
       containers:
         - name: app
           image: lscr.io/linuxserver/readarr:develop
-          startupProbe:
+          livenessProbe:
             httpGet:
               path: /ping
               port: 8787

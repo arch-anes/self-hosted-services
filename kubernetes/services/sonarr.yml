@@ -113,7 +113,7 @@ spec:
       containers:
         - name: app
           image: lscr.io/linuxserver/sonarr:latest
-          startupProbe:
+          livenessProbe:
             httpGet:
               path: /ping
               port: 8989
