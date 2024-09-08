@@ -29,6 +29,10 @@ k3s_cluster:
       duckdns:
         token: duckdns_provided_token
         domain: example.duckdns.org
+      cloudflare:
+        zone: example.org
+        domain: example.example.org
+        token: cloudflare_api_token
       vpn_port: 3212
       vpn_ip: 10.10.10.3
       k3s_control_node: true
