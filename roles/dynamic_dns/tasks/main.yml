@@ -1,43 +1,8 @@
 # code: language=ansible
 ---
 
-- name: Create a cron job that updates duckdns DNS entry
-  when: duckdns is defined
-  ansible.builtin.cron:
-    name: "Update duckdns record"
-    minute: "*/5"  # Every 5 minutes
-    job: "curl -sSf 'https://www.duckdns.org/update?domains={{ duckdns.domain }}&token={{ duckdns.token }}'"
+- name: Setup DuckDNS DDNS
+  ansible.builtin.include_tasks: duckdns.yml
 
-- name: Create ddclient config for Cloudflare
-  when: cloudflare is defined
-  become: true
-  ansible.builtin.template:
-    src: cloudflare_ddclient.conf.j2
-    dest: /etc/ddclient.conf
-    mode: 0600
-  notify: Reload ddclient
-
-- name: Remove duckdns cron job from non-concerned hosts
-  when: duckdns is not defined
-  ansible.builtin.cron:
-    name: "Update duckdns record"
-    state: absent
-
-- name: Remove Cloudflare dynamic DNS
-  when: cloudflare is not defined
-  become: true
-  block:
-    - name: Disable ddclient service
-      ansible.builtin.systemd_service:
-        name: ddclient
-        state: stopped
-        enabled: false
-      # Failure would happen if ddclient is not installed. In such case it does not matter to fail.
-      ignore_errors: true  # noqa ignore-errors
-    - name: Delete ddclient config
-      ansible.builtin.file:
-        path: /etc/ddclient.conf
-        state: absent
-
-- name: Force all notified handlers to run
-  ansible.builtin.meta: flush_handlers
+- name: Setup Cloudflare DDNS
+  ansible.builtin.include_tasks: cloudflare.yml
