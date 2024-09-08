@@ -1,0 +1,13 @@
+# Ansible generated config file
+# Requires ddclient >= 3.10
+
+daemon=300 # check every 5 minutes
+syslog=yes
+pid=/var/run/ddclient/ddclient.pid
+ssl=yes
+
+use=web, web=checkip.amazonaws.com
+
+wildcard=yes
+
+protocol=cloudflare, zone={{ cloudflare.zone }}, ttl=1, password='{{ cloudflare.token }}' {{ cloudflare.domain }}

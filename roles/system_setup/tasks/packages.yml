@@ -10,6 +10,7 @@
         pkg:
           - avahi-daemon
           - curl
+          - ddclient
           - rsync
           - smartmontools
           - ufw
