@@ -128,9 +128,6 @@ data:
           - name: "Keel"
             logo: "https://keel.sh/img/logo_small.png"
             url: "https://keel.${DOMAIN_NAME}"
-          - name: "PiHole"
-            logo: "https://upload.wikimedia.org/wikipedia/en/thumb/1/15/Pi-hole_vector_logo.svg/800px-Pi-hole_vector_logo.svg.png"
-            url: "https://pihole.${DOMAIN_NAME}"
 
       - name: "Monitoring"
         icon: "fas fa-heartbeat"
