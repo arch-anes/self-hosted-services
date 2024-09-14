@@ -14,7 +14,6 @@ k3s_cluster:
       k3s_control_node: true
       public_ip: home.example.com
       labels:
-        - dns=true
         - local=true
     big_manager:
       vpn_port: 3211

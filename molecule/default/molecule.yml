@@ -48,8 +48,6 @@ provisioner:
       replica2:
         public_ip: "192.168.42.2"
         k3s_control_node: true
-        labels:
-          - dns=true
       replica3:
         public_ip: "192.168.42.3"
         k3s_control_node: true
