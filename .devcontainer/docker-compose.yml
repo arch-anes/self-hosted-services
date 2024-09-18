@@ -1,38 +1,29 @@
 version: "3"
 
 services:
-  dind:
-    image: docker:28.0.2-dind
-    container_name: self-hosted-services-dind
-    privileged: true
-    restart: unless-stopped
-    environment:
-      DOCKER_TLS_CERTDIR: "" # Disable TLS for simplicity
-    volumes:
-      - dind-storage:/var/lib/docker
-    networks:
-      - devcontainer-network
-
   devcontainer:
-    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    image: dev-container-kubernetes-ansible:libvirt
     container_name: self-hosted-services-devcontainer
     restart: unless-stopped
     volumes:
       - ../:/workspace
       - ./ansible:/etc/ansible
-    environment:
-      DOCKER_HOST: tcp://dind:2375
-    depends_on:
-      - dind
+      - /var/run/libvirt:/var/run/libvirt:rw
+      - /lib/modules:/lib/modules:ro
+    devices:
+      - /dev/kvm:/dev/kvm
+      - /dev/net/tun:/dev/net/tun
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    environment: {}
     networks:
       - devcontainer-network
     tty: true
     stdin_open: true
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
-volumes:
-  dind-storage:
 
 networks:
   devcontainer-network:

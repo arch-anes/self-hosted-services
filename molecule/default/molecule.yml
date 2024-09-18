@@ -5,60 +5,50 @@ dependency:
     role-file: ../../requirements.yml
     requirements-file: ../../requirements.yml
 driver:
-  name: docker
+  name: vagrant
 lint: |
   set -e
   yamllint . -s -f colored
   ansible-lint --exclude ${HOME}/.ansible/roles/
-# Doc: https://github.com/ansible-community/molecule-plugins/blob/95141070006d996a5d43ce1f9301873342c9bfc1/src/molecule_plugins/docker/driver.py
 platforms:
   - name: replica1
     groups:
       - k3s_cluster
-    image: ghcr.io/arch-anes/ubuntu-systemd:latest
-    entrypoint: ~
-    command: ~
-    privileged: true
-    docker_networks:
-      - name: molecule_network
-    networks:
-      - name: molecule_network
+    box: bento/ubuntu-24.04
+    memory: 4096
+    cpus: 2
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: dhcp
   - name: replica2
     groups:
       - k3s_cluster
-    image: ghcr.io/arch-anes/ubuntu-systemd:latest
-    entrypoint: ~
-    command: ~
-    privileged: true
-    networks:
-      - name: molecule_network
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: dhcp
   - name: replica3
     groups:
       - k3s_cluster
-    image: ghcr.io/arch-anes/ubuntu-systemd:latest
-    entrypoint: ~
-    command: ~
-    privileged: true
-    networks:
-      - name: molecule_network
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: dhcp
   - name: replica4
     groups:
       - k3s_cluster
-    image: ghcr.io/arch-anes/ubuntu-systemd:latest
-    entrypoint: ~
-    command: ~
-    privileged: true
-    networks:
-      - name: molecule_network
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: dhcp
   - name: headscale1
     groups:
       - headscale
-    image: ghcr.io/arch-anes/ubuntu-systemd:latest
-    entrypoint: ~
-    command: ~
-    privileged: true
-    networks:
-      - name: molecule_network
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: dhcp
 provisioner:
   name: ansible
   inventory:
