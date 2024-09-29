@@ -83,7 +83,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: nextcloud:29
+          image: nextcloud:30
           # https://github.com/nextcloud/helm/issues/55#issuecomment-1126289717
           lifecycle:
             postStart:
