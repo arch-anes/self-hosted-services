@@ -77,6 +77,9 @@ data:
           - name: "Gotify"
             logo: "https://raw.githubusercontent.com/gotify/logo/87aef9091f51644eaccf78e7b67f8ce94271efeb/gotify-logo.png"
             url: "https://gotify.${DOMAIN_NAME}"
+          - name: "Splitpro"
+            logo: "https://splitpro.app/logo_circle.png"
+            url: "https://splitpro.${DOMAIN_NAME}"
 
       - name: "Arr"
         icon: "fas fa-ship"
