@@ -36,6 +36,22 @@ spec:
                   name: web
 
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: immich-env
+  namespace: default
+data:
+  IMMICH_PORT: "3001"
+  REDIS_HOSTNAME: "redis"
+  REDIS_PORT: "6379"
+  DB_HOSTNAME: "postgresql"
+  DB_PORT: "5432"
+  DB_DATABASE_NAME: "immich"
+  DB_USERNAME: "postgres"
+  DB_VECTOR_EXTENSION: "pgvector"
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -75,38 +91,55 @@ spec:
               memory: 128Mi
               cpu: 250m
             limits:
-              memory: 4Gi
+              memory: 2Gi
               cpu: 2000m
+          envFrom:
+            - configMapRef:
+                name: immich-env
           env:
-            - name: IMMICH_PORT
-              value: "3001"
-            - name: REDIS_HOSTNAME
-              value: "redis"
-            - name: REDIS_PORT
-              value: "6379"
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: redis
                   key: redis_password
-            - name: DB_HOSTNAME
-              value: "postgresql"
-            - name: DB_PORT
-              value: "5432"
-            - name: DB_DATABASE_NAME
-              value: "immich"
-            - name: DB_USERNAME
-              value: "postgres"
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgres.postgresql.credentials.postgresql.acid.zalan.do
                   key: password
-            - name: DB_VECTOR_EXTENSION
-              value: "pgvector"
+            - name: IMMICH_WORKERS_INCLUDE
+              value: "api"
           ports:
             - name: web
               containerPort: 3001
+          volumeMounts:
+            - name: data
+              mountPath: /usr/src/app/upload
+        - name: jobs
+          image: ghcr.io/immich-app/immich-server:release
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 250m
+            limits:
+              memory: 4Gi
+              cpu: 2000m
+          envFrom:
+            - configMapRef:
+                name: immich-env
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: redis_password
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  key: password
+            - name: IMMICH_WORKERS_EXCLUDE
+              value: "api"
           volumeMounts:
             - name: data
               mountPath: /usr/src/app/upload
