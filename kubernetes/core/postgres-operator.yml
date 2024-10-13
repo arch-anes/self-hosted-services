@@ -12,6 +12,20 @@ data:
   ALLOW_NOSSL: "true"
 
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-operator
+  namespace: default
+type: Opaque
+# stringData:
+#   LOGICAL_BACKUP_S3_REGION: "some-region"
+#   LOGICAL_BACKUP_S3_ENDPOINT: "example.com"
+#   LOGICAL_BACKUP_S3_BUCKET: "some-bucket"
+#   AWS_ACCESS_KEY_ID: "some-id"
+#   AWS_SECRET_ACCESS_KEY: "some-key"
+
+---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -45,6 +59,13 @@ spec:
                 operator: In
                 values:
                   - amd64
+    configLogicalBackup:
+      logical_backup_job_prefix: "postgresql-operator-logical-backup-"
+      logical_backup_provider: "s3"
+      logical_backup_s3_bucket_prefix: "spilo"
+      logical_backup_s3_secret_access_key: ""
+      logical_backup_schedule: "30 00 * * *"
+      logical_backup_cronjob_environment_secret: "postgres-operator"
     resources:
       requests:
         cpu: 250m

@@ -11,6 +11,7 @@ spec:
     parameters:
       password_encryption: scram-sha-256
   numberOfInstances: 3
+  enableLogicalBackup: true
   volume:
     size: 10Gi
     storageClass: local-path-retain
