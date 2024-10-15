@@ -66,7 +66,7 @@ spec:
       logical_backup_s3_secret_access_key: ""
       logical_backup_schedule: "30 00 * * *"
       logical_backup_cronjob_environment_secret: "postgres-operator"
-      logical_backup_s3_retention_time: "3 months"
+      logical_backup_s3_retention_time: "1 month"
     resources:
       requests:
         cpu: 250m
