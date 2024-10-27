@@ -67,6 +67,9 @@ data:
           - name: "Transmission"
             logo: "https://raw.githubusercontent.com/transmission/transmission/0ce4adf07ce4b6cfabf81e2d027f96197bb9a305/web/assets/img/logo.png"
             url: "https://transmission.${DOMAIN_NAME}"
+          - name: "filebrowser"
+            logo: "https://raw.githubusercontent.com/filebrowser/filebrowser/129a4fd39d550bd2a449575cf93f061593e39102/frontend/public/img/logo.svg"
+            url: "https://filebrowser.${DOMAIN_NAME}"
 
       - name: "Feed"
         icon: "fas fa-rss"

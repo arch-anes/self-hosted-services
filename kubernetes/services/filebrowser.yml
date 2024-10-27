@@ -1,0 +1,100 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: filebrowser
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 80
+  selector:
+    app: filebrowser
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: filebrowser
+  namespace: default
+spec:
+  tls:
+    - hosts:
+        - filebrowser.${DOMAIN_NAME}
+      secretName: ${DOMAIN_NAME}-tls
+  rules:
+    - host: filebrowser.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: filebrowser
+                port:
+                  name: web
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: filebrowser
+  namespace: default
+  labels:
+    app: filebrowser
+  annotations:
+    reloader.stakater.com/auto: "true"
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@weekly"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: filebrowser
+  template:
+    metadata:
+      labels:
+        app: filebrowser
+    spec:
+      affinity:
+        nodeAffinity:
+          # Only on NAS nodes
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nas
+                    operator: In
+                    values:
+                      - "true"
+      containers:
+        - name: app
+          image: filebrowser/filebrowser:s6
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 250m
+            limits:
+              memory: 2Gi
+              cpu: 2000m
+          ports:
+            - name: web
+              containerPort: 80
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+          volumeMounts:
+            - name: files
+              mountPath: /srv
+            - name: db
+              mountPath: /database
+      volumes:
+        - name: files
+          hostPath:
+            path: /storage/jellyfin/media/Miscellaneous
+        - name: db
+          hostPath:
+            path: /storage/filebrowser/database
