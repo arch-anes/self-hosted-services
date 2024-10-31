@@ -1,0 +1,113 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.openclarity.enabled }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: openclarity
+  namespace: default
+type: Opaque
+# stringData:
+#   username: "postgres"
+#   password: "somepass"
+#   database: "openclarity"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: openclarity
+  namespace: default
+spec:
+  chart: oci://ghcr.io/openclarity/charts/openclarity
+  version: 1.1.3
+  targetNamespace: default
+  valuesContent: |-
+    gateway:
+      ingress:
+        enabled: true
+        annotations:
+          traefik.ingress.kubernetes.io/router.middlewares: kube-system-cluster-admin-authentication@kubernetescrd
+          homer.service.name: Monitoring
+          homer.item.name: OpenClarity
+          homer.item.logo: "https://raw.githubusercontent.com/openclarity/openclarity/c3ea76b57e5ad99676bbfb812ae2805be2d5419a/assets/logos/OpenClarity-logo-light-bg.png"
+        hosts:
+          - host: openclarity.{{ .Values.fqdn }}
+        tls:
+          - secretName: {{ .Values.fqdn }}-tls
+            hosts:
+              - openclarity.{{ .Values.fqdn }}
+    apiserver:
+      database:
+        postgresql:
+          enabled: false
+        externalPostgresql:
+          enabled: true
+          host: postgresql.default
+          port: 5432
+          auth:
+            existingSecret: openclarity
+      resources:
+        requests:
+          memory: 64Mi
+          cpu: 125m
+        limits:
+          memory: 128Mi
+          cpu: 250m
+    orchestrator:
+      provider: kubernetes
+      serviceAccount:
+        automountServiceAccountToken: true
+      resources:
+        requests:
+          memory: 64Mi
+          cpu: 125m
+        limits:
+          memory: 256Mi
+          cpu: 250m
+    swaggerUI:
+      replicas: 0
+    crDiscoveryServer:
+      env:
+        - name: CONTAINERD_SOCK_ADDRESS
+          value: /run/k3s/containerd/containerd.sock
+    # ui:
+    #   resources:
+    #     requests:
+    #       memory: 64Mi
+    #       cpu: 125m
+    #     limits:
+    #       memory: 128Mi
+    #       cpu: 250m
+    # exploitDBServer:
+    #   resources:
+    #     requests:
+    #       memory: 64Mi
+    #       cpu: 125m
+    #     limits:
+    #       memory: 128Mi
+    #       cpu: 250m
+    # trivyServer:
+    #   resources:
+    #     requests:
+    #       memory: 64Mi
+    #       cpu: 125m
+    #     limits:
+    #       memory: 128Mi
+    #       cpu: 250m
+    # grypeServer:
+    #   resources:
+    #     requests:
+    #       memory: 64Mi
+    #       cpu: 125m
+    #     limits:
+    #       memory: 128Mi
+    #       cpu: 250m
+    # freshclamMirror:
+    #   resources:
+    #     requests:
+    #       memory: 64Mi
+    #       cpu: 125m
+    #     limits:
+    #       memory: 128Mi
+    #       cpu: 250m
+{{- end }}

@@ -159,9 +159,6 @@ spec:
             - name: inventree
               databases:
                 - inventree
-            - name: kubeclarity
-              databases:
-                - kubeclarity
             - name: miniflux
               password:
                 type: AlphaNumeric
@@ -181,6 +178,9 @@ spec:
                 type: AlphaNumeric
               databases:
                 - obico
+            - name: openclarity
+              databases:
+                - openclarity
             - name: pgadmin4
               password:
                 type: AlphaNumeric

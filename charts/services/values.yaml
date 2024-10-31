@@ -102,8 +102,6 @@ applications:
     # gpu_vendor: intel
   jellyseerr:
     enabled: true
-  kubeclarity:
-    enabled: true
   kubernetes_dashboard:
     enabled: true
   minecraft_bedrock:
@@ -125,6 +123,8 @@ applications:
   obico:
     enabled: true
   octoprint:
+    enabled: true
+  openclarity:
     enabled: true
   pgadmin4:
     enabled: true
