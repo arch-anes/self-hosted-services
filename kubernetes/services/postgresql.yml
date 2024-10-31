@@ -15,6 +15,7 @@ spec:
   volume:
     size: 10Gi
     storageClass: local-path-retain
+  # During the restoration process, comment out all preparedDatabases.
   preparedDatabases:
     bazarr: {}
     gotify: {}
