@@ -147,9 +147,9 @@ data:
           - name: "Traefik"
             logo: "https://github.com/traefik/traefik/raw/0a3e40332a86cc061bf16d8895b10defeb999171/docs/content/assets/img/traefik.logo.png"
             url: "https://traefik.${DOMAIN_NAME}"
-          - name: "KubeClarity"
-            logo: "https://raw.githubusercontent.com/cisco-open/kubei/main/ui/public/favicon.png"
-            url: "https://kubeclarity.${DOMAIN_NAME}"
+          - name: "OpenClarity"
+            logo: "https://raw.githubusercontent.com/openclarity/openclarity/36921fb2b01f61911af94a39229d400147173eff/ui/public/favicon.png"
+            url: "https://openclarity.${DOMAIN_NAME}"
 
 ---
 apiVersion: apps/v1

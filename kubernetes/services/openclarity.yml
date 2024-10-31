@@ -1,0 +1,120 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: openclarity
+  namespace: default
+type: Opaque
+# stringData:
+#   username: "postgres"
+#   password: "somepass"
+#   database: "openclarity"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openclarity
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: kube-system-cluster-admin-authentication@kubernetescrd
+spec:
+  tls:
+    - hosts:
+        - openclarity.${DOMAIN_NAME}
+      secretName: ${DOMAIN_NAME}-tls
+  rules:
+    - host: openclarity.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: openclarity-gateway
+                port:
+                  name: http
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: openclarity
+  namespace: default
+spec:
+  chart: oci://ghcr.io/openclarity/charts/openclarity
+  version: 1.1.1
+  targetNamespace: default
+  valuesContent: |-
+    apiserver:
+      database:
+        postgresql:
+          enabled: false
+        externalPostgresql:
+          enabled: true
+          host: postgresql.default
+          port: 5432
+          auth:
+            existingSecret: openclarity
+      resources:
+        requests:
+          memory: 64Mi
+          cpu: 125m
+        limits:
+          memory: 128Mi
+          cpu: 250m
+    orchestrator:
+      provider: kubernetes
+      serviceAccount:
+        automountServiceAccountToken: true
+      resources:
+        requests:
+          memory: 64Mi
+          cpu: 125m
+        limits:
+          memory: 128Mi
+          cpu: 250m
+    swaggerUI:
+      replicas: 0
+    # Limited by https://github.com/openclarity/openclarity/issues/913
+    # crDiscoveryServer:
+    # ui:
+    #   resources:
+    #     requests:
+    #       memory: 64Mi
+    #       cpu: 125m
+    #     limits:
+    #       memory: 128Mi
+    #       cpu: 250m
+    # exploitDBServer:
+    #   resources:
+    #     requests:
+    #       memory: 64Mi
+    #       cpu: 125m
+    #     limits:
+    #       memory: 128Mi
+    #       cpu: 250m
+    # trivyServer:
+    #   resources:
+    #     requests:
+    #       memory: 64Mi
+    #       cpu: 125m
+    #     limits:
+    #       memory: 128Mi
+    #       cpu: 250m
+    # grypeServer:
+    #   resources:
+    #     requests:
+    #       memory: 64Mi
+    #       cpu: 125m
+    #     limits:
+    #       memory: 128Mi
+    #       cpu: 250m
+    # freshclamMirror:
+    #   resources:
+    #     requests:
+    #       memory: 64Mi
+    #       cpu: 125m
+    #     limits:
+    #       memory: 128Mi
+    #       cpu: 250m

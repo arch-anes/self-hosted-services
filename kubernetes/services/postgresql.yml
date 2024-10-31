@@ -24,7 +24,7 @@ spec:
     immich:
       extensions:
         vector: public
-    kubeclarity: {}
+    openclarity: {}
     miniflux: {}
     n8n: {}
     nextcloud: {}
