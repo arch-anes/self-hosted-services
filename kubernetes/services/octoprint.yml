@@ -91,6 +91,13 @@ metadata:
   namespace: default
   labels:
     app: octoprint
+  annotations:
+    reloader.stakater.com/auto: "true"
+    keel.sh/policy: force
+    keel.sh/matchTag: "true"
+    keel.sh/approvals: "1"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@weekly"
 spec:
   replicas: 1
   selector:
