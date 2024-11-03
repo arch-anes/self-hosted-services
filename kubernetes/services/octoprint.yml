@@ -113,7 +113,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: octoprint/octoprint
+          image: octoprint/octoprint:latest
           securityContext:
             privileged: true
           resources:

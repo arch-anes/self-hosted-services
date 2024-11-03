@@ -44,7 +44,7 @@ metadata:
   labels:
     app: jellyseerr
   annotations:
-    keel.sh/policy: minor
+    keel.sh/policy: force
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
 spec:
@@ -69,7 +69,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: fallenbagel/jellyseerr
+          image: fallenbagel/jellyseerr:latest
           resources:
             requests:
               memory: 128Mi

@@ -158,7 +158,7 @@ metadata:
     app: homer
   annotations:
     reloader.stakater.com/auto: "true"
-    keel.sh/policy: minor
+    keel.sh/policy: force
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
 spec:
@@ -173,7 +173,7 @@ spec:
     spec:
       containers:
         - name: homer
-          image: b4bz/homer
+          image: b4bz/homer:latest
           resources:
             requests:
               memory: 32Mi

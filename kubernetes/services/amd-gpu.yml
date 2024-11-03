@@ -5,7 +5,7 @@ metadata:
   name: amdgpu-device-plugin-daemonset
   namespace: kube-system
   annotations:
-    keel.sh/policy: minor
+    keel.sh/policy: force
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
 spec:
@@ -26,7 +26,7 @@ spec:
           operator: Exists
       containers:
         - name: amdgpu-dp-cntr
-          image: rocm/k8s-device-plugin
+          image: rocm/k8s-device-plugin:latest
           resources:
             requests:
               memory: 128Mi

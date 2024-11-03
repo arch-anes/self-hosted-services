@@ -55,7 +55,7 @@ metadata:
   labels:
     app: pgadmin4
   annotations:
-    keel.sh/policy: minor
+    keel.sh/policy: force
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
 spec:
@@ -70,7 +70,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: dpage/pgadmin4
+          image: dpage/pgadmin4:latest
           env:
             - name: PGADMIN_DEFAULT_EMAIL
               valueFrom:

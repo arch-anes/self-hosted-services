@@ -44,7 +44,7 @@ metadata:
   labels:
     app: jellyfin
   annotations:
-    keel.sh/policy: minor
+    keel.sh/policy: force
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
 spec:
@@ -73,7 +73,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: jellyfin/jellyfin
+          image: jellyfin/jellyfin:latest
           startupProbe:
             httpGet:
               path: /health

@@ -68,7 +68,7 @@ metadata:
     app: transmission
   annotations:
     reloader.stakater.com/auto: "true"
-    keel.sh/policy: minor
+    keel.sh/policy: force
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
 spec:
@@ -93,7 +93,7 @@ spec:
                       - "true"
       containers:
         - name: vpn
-          image: qmcgaw/gluetun
+          image: qmcgaw/gluetun:latest
           securityContext:
             privileged: true
             capabilities:

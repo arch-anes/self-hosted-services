@@ -69,7 +69,7 @@ metadata:
     app: epicgames-freegames
   annotations:
     reloader.stakater.com/auto: "true"
-    keel.sh/policy: minor
+    keel.sh/policy: force
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
 spec:
@@ -84,7 +84,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/claabs/epicgames-freegames-node
+          image: ghcr.io/claabs/epicgames-freegames-node:latest
           resources:
             requests:
               memory: 64Mi

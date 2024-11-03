@@ -23,7 +23,7 @@ metadata:
   labels:
     app: minecraft
   annotations:
-    keel.sh/policy: minor
+    keel.sh/policy: force
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
 spec:
@@ -47,7 +47,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: itzg/minecraft-bedrock-server
+          image: itzg/minecraft-bedrock-server:latest
           stdin: true
           tty: true
           resources:
