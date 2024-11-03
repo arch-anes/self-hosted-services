@@ -58,7 +58,7 @@ metadata:
   labels:
     app: nextcloud
   annotations:
-    keel.sh/policy: minor
+    keel.sh/policy: force
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
 spec:
