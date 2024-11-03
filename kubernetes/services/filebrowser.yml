@@ -46,6 +46,7 @@ metadata:
   annotations:
     reloader.stakater.com/auto: "true"
     keel.sh/policy: force
+    keel.sh/matchTag: "true"
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
 spec:
