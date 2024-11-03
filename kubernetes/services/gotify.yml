@@ -44,7 +44,7 @@ metadata:
   labels:
     app: gotify
   annotations:
-    keel.sh/policy: minor
+    keel.sh/policy: force
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
 spec:
@@ -59,7 +59,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/gotify/server
+          image: ghcr.io/gotify/server:2
           resources:
             requests:
               memory: 64Mi
