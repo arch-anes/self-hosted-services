@@ -28,6 +28,7 @@ spec:
     miniflux: {}
     n8n: {}
     nextcloud: {}
+    obico: {}
     pgadmin4: {}
     prowlarr_log: {}
     prowlarr_main: {}
