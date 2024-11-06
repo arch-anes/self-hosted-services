@@ -1,0 +1,130 @@
+{{- if .Values.applications.prometheus.enabled }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: prometheus
+  namespace: kube-system
+type: Opaque
+# stringData:
+#   grafana-admin-user: "someuser"
+#   grafana-admin-password: "somepass"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kube-prometheus-stack
+  namespace: kube-system
+spec:
+  chart: kube-prometheus-stack
+  repo: https://prometheus-community.github.io/helm-charts
+  version: 75.13.0
+  targetNamespace: kube-system
+  valuesContent: |-
+    defaultRules:
+      rules:
+        windows: false
+    grafana:
+      admin:
+        existingSecret: "prometheus"
+        userKey: grafana-admin-user
+        passwordKey: grafana-admin-password
+      ingress:
+        enabled: true
+        annotations:
+          homer.service.name: Monitoring
+          homer.item.logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Grafana_logo.svg/1920px-Grafana_logo.svg.png"
+          traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
+        hosts:
+          - grafana.{{ .Values.fqdn }}
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - grafana.{{ .Values.fqdn }}
+      persistence:
+        enabled: true
+        storageClassName: "local-path-retain"
+        accessModes:
+          - ReadWriteOnce
+        size: 20Gi
+        finalizers:
+          - kubernetes.io/pvc-protection
+      nodeSelector:
+        # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
+        kubernetes.io/arch: amd64
+    prometheusSpec:
+      replicas: 3
+      retention: 365d
+      podAntiAffinity: hard
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 50Gi
+      nodeSelector:
+        # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
+        kubernetes.io/arch: amd64
+      resources:
+        limits:
+          memory: 3Gi
+        requests:
+          cpu: 500m
+          memory: 1Gi
+    extraManifests:
+      - apiVersion: helm.cattle.io/v1
+        kind: HelmChart
+        metadata:
+          name: rancher-monitoring-crd
+          namespace: kube-system
+        spec:
+          chart: rancher-monitoring-crd
+          repo: https://charts.rancher.io/
+          version: 106.1.2
+          targetNamespace: kube-system
+      - apiVersion: helm.cattle.io/v1
+        kind: HelmChart
+        metadata:
+          name: pushprox-k3s
+          namespace: kube-system
+        spec:
+          chart: rancher-pushprox
+          repo: https://charts.rancher.io/
+          version: 103.0.1
+          targetNamespace: kube-system
+          valuesContent: |-
+            metricsPort: 10249
+            component: k3s-server
+            clients:
+              port: 10013
+              useLocalhost: true
+              metrics:
+                enabled: true
+              tolerations:
+              - effect: "NoExecute"
+                operator: "Exists"
+              - effect: "NoSchedule"
+                operator: "Exists"
+      - apiVersion: helm.cattle.io/v1
+        kind: HelmChart
+        metadata:
+          name: pushprox-etcd
+          namespace: kube-system
+        spec:
+          chart: rancher-pushprox
+          repo: https://charts.rancher.io/
+          version: 103.0.1
+          targetNamespace: kube-system
+          valuesContent: |-
+            metricsPort: 2381
+            component: kube-etcd
+            clients:
+              port: 10014
+              useLocalhost: true
+              metrics:
+                enabled: true
+              nodeSelector:
+                node-role.kubernetes.io/etcd: "true"
+{{- end }}

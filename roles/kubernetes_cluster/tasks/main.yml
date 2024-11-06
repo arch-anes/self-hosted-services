@@ -38,6 +38,7 @@
       etcd-s3: true
       etcd-s3-config-secret: k3s-etcd-snapshot-s3-config
       etcd-snapshot-retention: 20
+      etcd-expose-metrics: true
       disable: traefik
       with-node-id: true
       node-ip: "{{ advertised_ip }}"
