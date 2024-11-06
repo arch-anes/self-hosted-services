@@ -130,6 +130,8 @@ applications:
     enabled: true
   postgresql:
     enabled: true
+  prometheus:
+    enabled: true
   prowlarr:
     enabled: true
   radarr:
