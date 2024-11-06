@@ -137,6 +137,8 @@ applications:
         bucket: "some-bucket"
         endpoint: "some-endpoint"
         region: "some-region"
+  prometheus:
+    enabled: true
   prowlarr:
     enabled: true
   radarr:

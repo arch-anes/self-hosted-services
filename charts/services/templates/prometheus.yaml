@@ -1,0 +1,119 @@
+{{- if .Values.applications.prometheus.enabled }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: prometheus
+#   namespace: kube-system
+# type: Opaque
+# stringData:
+#   grafana-admin-user: "someuser"
+#   grafana-admin-password: "somepass"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: prometheus
+  namespace: kube-system
+spec:
+  chart: rancher-monitoring
+  repo: https://charts.rancher.io/
+  version: 107.1.0
+  targetNamespace: kube-system
+  valuesContent: |-
+    namespaceOverride: kube-system
+    rancherMonitoring:
+      enabled: false
+    prometheus-adapter:
+      prometheus:
+        url: http://rancher-monitoring-prometheus.kube-system.svc
+    k3sServer:
+      enabled: true
+      clients:
+        resources:
+          limits:
+            memory: 64Mi
+          requests:
+            memory: 16Mi
+            cpu: 100m
+      proxy:
+        resources:
+          limits:
+            memory: 64Mi
+          requests:
+            memory: 16Mi
+            cpu: 100m
+    prometheus-node-exporter:
+      resources:
+        limits:
+          memory: 64Mi
+        requests:
+          memory: 16Mi
+          cpu: 100m
+    defaultRules:
+      rules:
+        windows: false
+    grafana:
+      grafana.ini:
+        auth.anonymous:
+          enabled: false
+      admin:
+        existingSecret: prometheus
+        userKey: grafana-admin-user
+        passwordKey: grafana-admin-password
+      ingress:
+        enabled: true
+        annotations:
+          homer.service.name: Monitoring
+          homer.item.name: Grafana
+          homer.item.logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Grafana_logo.svg/1920px-Grafana_logo.svg.png"
+          traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
+        hosts:
+          - grafana.{{ .Values.fqdn }}
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - grafana.{{ .Values.fqdn }}
+      persistence:
+        enabled: true
+        storageClassName: local-path-persistent
+        accessModes:
+          - ReadWriteOnce
+        size: 20Gi
+        finalizers:
+          - kubernetes.io/pvc-protection
+      nodeSelector:
+        # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
+        kubernetes.io/arch: amd64
+      resources:
+        limits:
+          memory: 2Gi
+          cpu: null
+        requests:
+          memory: 1Gi
+          cpu: 1000m
+    prometheus:
+      prometheusSpec:
+        podMonitorSelectorNilUsesHelmValues: false
+        serviceMonitorSelectorNilUsesHelmValues: false
+        replicas: 1
+        retention: 365d
+        podAntiAffinity: hard
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 50Gi
+        nodeSelector:
+          # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
+          kubernetes.io/arch: amd64
+        resources:
+          limits:
+            memory: 3Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
+{{- end }}
