@@ -8,6 +8,9 @@ fqdn: example.org
 # The git repository out of which to continuously deploy
 gitRepo: https://github.com/arch-anes/self-hosted-services.git
 
+# Kubernetes cluster's nodes's endpoints
+nodes_endpoints: []
+
 localIpRanges:
   - 10.0.0.0/8
   - 172.16.0.0/12

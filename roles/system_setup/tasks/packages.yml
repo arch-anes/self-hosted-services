@@ -9,6 +9,8 @@
       ansible.builtin.apt:
         pkg:
           - curl
+          - ddclient
+          - jq
           - rasdaemon
           - rsync
           - smartmontools
