@@ -142,6 +142,9 @@ data:
       - name: "Monitoring"
         icon: "fas fa-heartbeat"
         items:
+          - name: "Grafana"
+            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Grafana_logo.svg/1024px-Grafana_logo.svg.png"
+            url: "https://grafana.${DOMAIN_NAME}"
           - name: "Speedtest Tracker"
             logo: "https://raw.githubusercontent.com/henrywhitaker3/Speedtest-Tracker/8cb2e8a3236850b4a07e887ac376c0d4d5e804f4/public/icons/fav/ms-icon-310x310.png"
             url: "https://speedtest.${DOMAIN_NAME}"

@@ -1,0 +1,122 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: prometheus
+  namespace: kube-system
+type: Opaque
+# stringData:
+#   grafana-admin-user: "someuser"
+#   grafana-admin-password: "somepass"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kube-prometheus-stack
+  namespace: kube-system
+spec:
+  chart: kube-prometheus-stack
+  repo: https://prometheus-community.github.io/helm-charts
+  version: 66.2.1
+  targetNamespace: kube-system
+  valuesContent: |-
+    defaultRules:
+      rules:
+        windows: false
+    grafana:
+      admin:
+        existingSecret: "prometheus"
+        userKey: grafana-admin-user
+        passwordKey: grafana-admin-password
+      ingress:
+        enabled: true
+        hosts:
+          - grafana.${DOMAIN_NAME}
+        tls:
+          - secretName: ${DOMAIN_NAME}-tls
+            hosts:
+              - grafana.${DOMAIN_NAME}
+      persistence:
+        enabled: true
+        storageClassName: "local-path-retain"
+        accessModes:
+          - ReadWriteOnce
+        size: 20Gi
+        finalizers:
+          - kubernetes.io/pvc-protection
+      affinity:
+        nodeAffinity:
+          # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: "kubernetes.io/arch"
+                  operator: In
+                  values:
+                    - amd64
+    prometheusSpec:
+      retention: 365d
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: "local-path-retain"
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 50Gi
+      affinity:
+        nodeAffinity:
+          # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: "kubernetes.io/arch"
+                  operator: In
+                  values:
+                    - amd64
+    prometheus-windows-exporter:
+      prometheus:
+        monitor:
+          enabled: false
+    # https://github.com/SovereignCloudStack/k8s-observability/pull/49/files
+    kubeApiServer:
+      serviceMonitor:
+        metricRelabelings:
+          - sourceLabels: [ "__name__" ]
+            regex: "(apiserver|workqueue|rest_client|process|go)_(.+)"
+            action: keep
+    kubelet:
+      serviceMonitor:
+        metricRelabelings:
+          - sourceLabels: [ "__name__" ]
+            regex: "(kubelet|storage|rest_client|process|go)_(.+)"
+            action: keep
+    kubeControllerManager:
+      endpoints: $NODES_ENDPOINTS
+      serviceMonitor:
+        metricRelabelings:
+          - sourceLabels: [ "__name__" ]
+            regex: "(workqueue|rest_client|process|go)_(.+)"
+            action: keep
+    kubeEtcd:
+      endpoints: $NODES_ENDPOINTS
+      serviceMonitor:
+        metricRelabelings:
+          - sourceLabels: [ "__name__" ]
+            regex: "(etcd|grpc|rest_client|process|go)_(.+)"
+            action: keep
+    kubeProxy:
+      endpoints: $NODES_ENDPOINTS
+      serviceMonitor:
+        metricRelabelings:
+          - sourceLabels: [ "__name__" ]
+            regex: "(kubeproxy|rest_client|process|go)_(.+)"
+            action: keep
+    kubeScheduler:
+      endpoints: $NODES_ENDPOINTS
+      serviceMonitor:
+        metricRelabelings:
+          - sourceLabels: ["__name__"]
+            regex: "(scheduler|rest_client|process|go)_(.+)"
+            action: keep

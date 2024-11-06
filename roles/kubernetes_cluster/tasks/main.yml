@@ -25,6 +25,7 @@
       flannel-iface: "tailscale0"
       node-label: "{{ labels }}"
     k3s_server:
+      etcd-expose-metrics: true
       secrets-encryption: true
       with-node-id: true
       node-ip: "{{ advertised_ip }}"
