@@ -22,8 +22,8 @@ metadata:
   namespace: kube-system
 spec:
   chart: keel
-  repo: https://charts.keel.sh
-  version: 1.0.3
+  repo: https://keel-hq.github.io/keel/
+  version: 1.0.4
   targetNamespace: kube-system
   valuesContent: |-
     resources:
@@ -67,3 +67,7 @@ spec:
         - secretName: ${DOMAIN_NAME}-tls
           hosts:
             - keel.${DOMAIN_NAME}
+    persistence:
+      enabled: true
+      storageClass: "local-path-retain"
+      size: 1Gi
