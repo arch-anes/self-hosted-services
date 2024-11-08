@@ -60,7 +60,10 @@ metadata:
   labels:
     app: immich
   annotations:
-    keel.sh/policy: minor
+    reloader.stakater.com/auto: "true"
+    keel.sh/policy: force
+    keel.sh/matchTag: "true"
+    keel.sh/approvals: "1"
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
 spec:
@@ -184,7 +187,9 @@ metadata:
   labels:
     app: immich-machine-learning
   annotations:
-    keel.sh/policy: minor
+    keel.sh/policy: force
+    keel.sh/matchTag: "true"
+    keel.sh/approvals: "1"
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@weekly"
 spec:
