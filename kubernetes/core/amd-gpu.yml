@@ -1,0 +1,21 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: amd-gpu
+  namespace: kube-system
+spec:
+  chart: amd-gpu
+  repo: https://rocm.github.io/k8s-device-plugin/
+  version: 0.14.0
+  targetNamespace: kube-system
+  valuesContent: |-
+    node_selector_enabled: true
+    dp:
+      resources:
+        requests:
+          memory: 128Mi
+          cpu: 250m
+        limits:
+          memory: 1024Mi
+          cpu: 1000m
