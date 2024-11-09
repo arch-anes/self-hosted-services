@@ -121,13 +121,13 @@ spec:
       containers:
         - name: app
           image: octoprint/octoprint:latest
-          securityContext:
-            privileged: true
           resources:
             requests:
               memory: 512Mi
               cpu: 250m
             limits:
+              akri.sh/akri-udev-4ad410: "1"
+              akri.sh/akri-udev-dbf9ff: "1"
               memory: 2Gi
               cpu: 4000m
           ports:
@@ -145,19 +145,7 @@ spec:
           volumeMounts:
             - name: octoprint
               mountPath: /octoprint
-            - name: printer
-              mountPath: /dev/ttyUSB0
-            - name: webcam
-              mountPath: /dev/video0
       volumes:
         - name: octoprint
           hostPath:
             path: /storage/octoprint
-        - name: printer
-          hostPath:
-            path: /dev/ttyUSB0
-            type: CharDevice
-        - name: webcam
-          hostPath:
-            path: /dev/video0
-            type: CharDevice

@@ -1,0 +1,23 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: akri
+  namespace: kube-system
+spec:
+  chart: akri
+  repo: https://project-akri.github.io/akri/
+  version: 0.12.20
+  targetNamespace: kube-system
+  valuesContent: |-
+    useLatestContainers: true
+    useDevelopmentContainers: false
+    udev:
+      discovery:
+        enabled: true
+      configuration:
+        enabled: true
+        discoveryDetails:
+          udevRules:
+            - 'KERNEL=="video[0-9]*", ENV{ID_VENDOR}=="Sonix_Technology_Co.__Ltd."'
+            - 'KERNEL=="ttyUSB[0-9]*", ENV{ID_VENDOR}=="FTDI"'
