@@ -61,6 +61,20 @@ spec:
                   name: webcam
 
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: octoprint
+  namespace: default
+spec:
+  storageClassName: "local-path-retain"
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -141,5 +155,5 @@ spec:
               mountPath: /octoprint
       volumes:
         - name: octoprint
-          hostPath:
-            path: /storage/octoprint
+          persistentVolumeClaim:
+            claimName: octoprint
