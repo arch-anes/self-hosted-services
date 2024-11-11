@@ -108,16 +108,6 @@ spec:
       labels:
         app: octoprint
     spec:
-      affinity:
-        nodeAffinity:
-          # Only on printer nodes
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: printer
-                    operator: In
-                    values:
-                      - "true"
       containers:
         - name: app
           image: octoprint/octoprint:latest
