@@ -83,15 +83,15 @@ spec:
         app: transmission
     spec:
       affinity:
-        nodeAffinity:
-          # Only on NAS nodes
+        podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: nas
+            - labelSelector:
+                matchExpressions:
+                  - key: app
                     operator: In
                     values:
-                      - "true"
+                      - jellyfin
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: vpn
           image: qmcgaw/gluetun:latest
