@@ -100,6 +100,10 @@ metadata:
     keel.sh/pollSchedule: "@weekly"
 spec:
   replicas: 1
+  strategy:
+    # This is done to ensure devices are freed before creating new container
+    # otherwise deployment is pending
+    type: Recreate
   selector:
     matchLabels:
       app: octoprint
