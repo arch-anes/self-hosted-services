@@ -150,13 +150,13 @@ spec:
             - name: scripts
               mountPath: /custom-cont-init.d/create-config.sh
               subPath: create-config.sh
-            - name: jellyfin
+            - name: multimedia
               mountPath: /jellyfin
       volumes:
         - name: scripts
           configMap:
             name: sonarr-scripts
             defaultMode: 0744
-        - name: jellyfin
+        - name: multimedia
           hostPath:
-            path: /storage/jellyfin/media
+            path: /storage/Multimedia

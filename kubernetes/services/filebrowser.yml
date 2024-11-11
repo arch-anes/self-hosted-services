@@ -95,7 +95,7 @@ spec:
       volumes:
         - name: files
           hostPath:
-            path: /storage/jellyfin/media/Miscellaneous
+            path: /storage/Multimedia/Miscellaneous
         - name: db
           hostPath:
             path: /storage/filebrowser/database

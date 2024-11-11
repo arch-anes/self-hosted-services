@@ -104,4 +104,4 @@ spec:
             path: /storage/jellyfin/config
         - name: media
           hostPath:
-            path: /storage/jellyfin/media
+            path: /storage/Multimedia

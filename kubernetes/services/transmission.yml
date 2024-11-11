@@ -162,7 +162,7 @@ spec:
       volumes:
         - name: downloads
           hostPath:
-            path: /storage/jellyfin/media/Downloads
+            path: /storage/Multimedia/Downloads
         - name: config
           hostPath:
             path: /storage/transmission/config
