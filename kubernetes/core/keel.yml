@@ -56,7 +56,7 @@ spec:
     keel:
       policy: all
       trigger: poll
-      pollSchedule: "@weekly"
+      pollSchedule: "@daily"
     ingress:
       enabled: true
       hosts:

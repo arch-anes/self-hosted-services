@@ -111,7 +111,7 @@ metadata:
     keel.sh/matchTag: "true"
     keel.sh/approvals: "1"
     keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@weekly"
+    keel.sh/pollSchedule: "@daily"
 spec:
   replicas: 1
   strategy:

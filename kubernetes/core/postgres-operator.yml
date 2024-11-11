@@ -40,7 +40,7 @@ spec:
     podAnnotations:
       keel.sh/policy: minor
       keel.sh/trigger: poll
-      keel.sh/pollSchedule: "@weekly"
+      keel.sh/pollSchedule: "@daily"
     configKubernetes:
       enable_cross_namespace_secret: true
       pod_environment_configmap: default/postgres-pod-config-custom-env
