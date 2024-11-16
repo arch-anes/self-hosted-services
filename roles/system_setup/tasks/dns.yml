@@ -5,12 +5,6 @@
   become: true
   when: ansible_distribution == 'Ubuntu'
   block:
-    - name: Enable mDNS service
-      ansible.builtin.service:
-        name: avahi-daemon
-        state: started
-        enabled: true
-
     - name: Create systemd-resolved drop-in config folder
       ansible.builtin.file:
         path: /etc/systemd/resolved.conf.d
