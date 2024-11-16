@@ -13,5 +13,4 @@
           - rsync
           - smartmontools
           - ufw
-          - wireguard
         update_cache: true

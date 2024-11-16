@@ -9,15 +9,11 @@
 k3s_cluster:
   hosts:
     raspi:
-      vpn_port: 3210
-      vpn_ip: 10.10.10.1
       k3s_control_node: true
       public_ip: home.example.com
       labels:
         - local=true
     big_manager:
-      vpn_port: 3211
-      vpn_ip: 10.10.10.2
       k3s_control_node: true
       public_ip: cloud.example.com
       labels:
@@ -32,16 +28,12 @@ k3s_cluster:
         zone: example.org
         domain: example.example.org
         token: cloudflare_api_token
-      vpn_port: 3212
-      vpn_ip: 10.10.10.3
       k3s_control_node: true
       public_ip: home.example.com
       labels:
         - public=true
         - local=true
     big_server:
-      vpn_port: 3213
-      vpn_ip: 10.10.10.4
       labels:
         - local=true
 ```
@@ -59,6 +51,23 @@ filters:
     - home-cloud
 ```
 
+## Setup tailscale
+1. Create an account at https://login.tailscale.com.
+1. Add the following ACL rule at https://login.tailscale.com/admin/acls/file:
+   ```
+    "tagOwners": {
+      "tag:ansible": ["autogroup:admin", "autogroup:owner"],
+    },
+   ```
+1. Create an OAuth client at https://login.tailscale.com/admin/settings/oauth:
+  1. Enable the Write permission for Device/Core, and add the "tag:ansible" tag.
+  1. Enable the Write permission for Keys/Auth Keys, and add the "tag:ansible" tag.
+  1. Save and write down the OAuth client secret.
+
 ## Deploy
 
-Run `ansible-playbook setup_cluster.yml -i inventory_static.yml -i inventory_ec2.yml -e fqdn=example.com -e display_k8s_dashboard_password=true`
+Run `ansible-playbook setup_cluster.yml -i inventory_static.yml -i inventory_ec2.yml -e fqdn=example.com -e tailscale_oauth_secret=some_generated_secret -e display_k8s_dashboard_password=true`
+
+
+## Post-deployment step
+To ensure no down time, make sure all the machines have key expiry disabled: https://tailscale.com/kb/1028/key-expiry#disabling-key-expiry.

@@ -1,8 +1,38 @@
 # code: language=ansible
 ---
+- name: Check if tailscale is installed
+  ansible.builtin.command: "which tailscale"
+  register: tailscale_existence_result
+  changed_when: false
+  ignore_errors: true
 
-- name: Setup P2P VPN
-  ansible.builtin.include_tasks: setup.yml
+- name: Install tailscale
+  ansible.builtin.shell: "set -o pipefail && curl -fsSL https://tailscale.com/install.sh | sh"
+  args:
+    executable: /usr/bin/bash
+  become: true
+  changed_when: true
+  when: tailscale_existence_result.rc != 0
 
-- name: Setup periodic DNS re-resolution
-  ansible.builtin.include_tasks: dns.yml
+# https://github.com/tailscale/tailscale/issues/11717
+- name: Provision tailscale node
+  ansible.builtin.command: "tailscale up --netfilter-mode=off --accept-dns=true --timeout=120s --advertise-tags=tag:ansible --auth-key={{ tailscale_oauth_secret }}?ephemeral=false"
+  register: tailscale_up_result
+  ignore_errors: true
+  changed_when: tailscale_up_result.rc == 0
+  become: true
+
+- name: Fail on tailscale error
+  ansible.builtin.fail:
+    msg: "Ensure an oauth key with Decide.Core and Keys.AuthKeys permissions is declared and added
+      to tag:ansible via https://login.tailscale.com/admin/settings/oauth, and secret added to tailscale_oauth_secret variable"
+  when: tailscale_up_result.rc != 0
+
+- name: Get tailscale node IPv4 address
+  ansible.builtin.command: "tailscale ip -4"
+  register: tailscale_ip_result
+  changed_when: false
+
+- name: Set VPN address
+  ansible.builtin.set_fact:
+    vpn_address: "{{ tailscale_ip_result.stdout }}"

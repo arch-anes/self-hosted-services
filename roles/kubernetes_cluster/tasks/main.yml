@@ -12,24 +12,20 @@
       - { to_port: "2379:2380", proto: tcp, rule: allow, comment: "Required only for HA with embedded etcd" }
   when: not (skip_firewall_setup or manifest_only_setup)
 
-- name: Set k3s node facts
-  ansible.builtin.set_fact:
-    advertised_address: "{{ private_ip | default(ansible_wg0.ipv4.address) }}"
-
 - name: Set k3s config
   ansible.builtin.set_fact:
     k3s_agent:
       with-node-id: true
-      node-ip: "{{ advertised_address }}"
-      node-external-ip: "{{ advertised_address }}"
-      flannel-iface: "wg0"
+      node-ip: "{{ vpn_address }}"
+      node-external-ip: "{{ vpn_address }}"
+      flannel-iface: "tailscale0"
       node-label: "{{ labels }}"
     k3s_server:
       secrets-encryption: true
       with-node-id: true
-      node-ip: "{{ advertised_address }}"
-      node-external-ip: "{{ advertised_address }}"
-      flannel-iface: "wg0"
+      node-ip: "{{ vpn_address }}"
+      node-external-ip: "{{ vpn_address }}"
+      flannel-iface: "tailscale0"
       node-label: "{{ labels }}"
       default-local-storage-path: /storage/cluster-local-storage
       kubelet-arg:
@@ -50,9 +46,9 @@
     k3s_etcd_datastore: true
     k3s_use_unsupported_config: true
     k3s_service_requires:
-      - wg-quick@wg0.service
+      - tailscaled.service
     k3s_service_after:
-      - wg-quick@wg0.service
+      - tailscaled.service
   become: true
 
 - name: Rotate k3s encryption keys
