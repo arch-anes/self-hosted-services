@@ -13,25 +13,25 @@ lint: |
 platforms:
   - name: replica1
     box: alvistack/ubuntu-24.04
-    memory: 2048
+    memory: 4096
     cpus: 2
     instance_raw_config_args:
       - 'vm.network "public_network", ip: "192.168.42.1"'
   - name: replica2
     box: alvistack/ubuntu-24.04
-    memory: 2048
+    memory: 4096
     cpus: 2
     instance_raw_config_args:
       - 'vm.network "public_network", ip: "192.168.42.2"'
   - name: replica3
     box: alvistack/ubuntu-24.04
-    memory: 2048
+    memory: 4096
     cpus: 2
     instance_raw_config_args:
       - 'vm.network "public_network", ip: "192.168.42.3"'
   - name: replica4
     box: alvistack/ubuntu-24.04
-    memory: 2048
+    memory: 4096
     cpus: 2
     instance_raw_config_args:
       - 'vm.network "public_network", ip: "192.168.42.4"'
