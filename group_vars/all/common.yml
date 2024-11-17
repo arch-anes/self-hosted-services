@@ -4,15 +4,3 @@
 kubernetes_project_location: "{{ playbook_dir }}/kubernetes"
 
 direct_ip: ""
-
-skip_system_setup: false
-skip_dynamic_dns_setup: false
-skip_firewall_setup: false
-skip_vpn_setup: false
-skip_k8s_setup: false
-manifest_only_setup: false
-display_k8s_dashboard_password: false
-
-fqdn: "example.com"
-
-tailscale_oauth_secret: "some_secret"

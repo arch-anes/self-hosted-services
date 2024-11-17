@@ -1,5 +1,18 @@
 # Self-hosted services
 
+## Setup tailscale
+1. Create an account at https://login.tailscale.com.
+1. Add the following ACL rule at https://login.tailscale.com/admin/acls/file:
+   ```
+    "tagOwners": {
+      "tag:ansible": ["autogroup:admin", "autogroup:owner"],
+    },
+   ```
+1. Create an OAuth client at https://login.tailscale.com/admin/settings/oauth:
+  1. Enable the Write permission for Device/Core, and add the "tag:ansible" tag.
+  1. Enable the Write permission for Keys/Auth Keys, and add the "tag:ansible" tag.
+  1. Save and write down the OAuth client secret.
+
 ## Create an inventory
 
 ### Static
@@ -7,6 +20,16 @@
 ```yml
 # There must be a minimum of 3 controllers and the number must be odd for etcd to work
 k3s_cluster:
+  vars:
+    skip_system_setup: false
+    skip_dynamic_dns_setup: false
+    skip_firewall_setup: false
+    skip_vpn_setup: false
+    skip_k8s_setup: false
+    manifest_only_setup: false
+    display_k8s_dashboard_password: false
+    fqdn: "example.com"
+    tailscale_oauth_secret: "some_secret"
   hosts:
     raspi:
       k3s_control_node: true
@@ -48,22 +71,10 @@ filters:
     - home-cloud
 ```
 
-## Setup tailscale
-1. Create an account at https://login.tailscale.com.
-1. Add the following ACL rule at https://login.tailscale.com/admin/acls/file:
-   ```
-    "tagOwners": {
-      "tag:ansible": ["autogroup:admin", "autogroup:owner"],
-    },
-   ```
-1. Create an OAuth client at https://login.tailscale.com/admin/settings/oauth:
-  1. Enable the Write permission for Device/Core, and add the "tag:ansible" tag.
-  1. Enable the Write permission for Keys/Auth Keys, and add the "tag:ansible" tag.
-  1. Save and write down the OAuth client secret.
 
 ## Deploy
 
-Run `ansible-playbook setup_cluster.yml -i inventory_static.yml -i inventory_ec2.yml -e fqdn=example.com -e tailscale_oauth_secret=some_generated_secret -e display_k8s_dashboard_password=true`
+Run `ansible-playbook setup_cluster.yml -i inventory_static.yml -i inventory_ec2.yml`
 
 
 ## Post-deployment step
