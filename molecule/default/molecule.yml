@@ -38,28 +38,35 @@ platforms:
 provisioner:
   name: ansible
   inventory:
+    group_vars:
+      all:
+        skip_system_setup: false
+        skip_dynamic_dns_setup: false
+        skip_firewall_setup: false
+        skip_vpn_setup: true
+        skip_k8s_setup: false
+        manifest_only_setup: false
+        display_k8s_dashboard_password: false
+        fqdn: "example.com"
+        tailscale_oauth_secret: "some_secret"
+        labels: []
     host_vars:
       replica1:
         direct_ip: "192.168.42.1"
-        skip_vpn_setup: true
         k3s_control_node: true
         labels:
           - local=true
           - public=true
       replica2:
         direct_ip: "192.168.42.2"
-        skip_vpn_setup: true
         k3s_control_node: true
       replica3:
         direct_ip: "192.168.42.3"
-        skip_vpn_setup: true
         k3s_control_node: true
         labels:
           - nas=true
       replica4:
         direct_ip: "192.168.42.4"
-        skip_vpn_setup: true
-        labels: []
   playbooks:
     converge: converge.yml
     # verify: ../default/verify.yml
