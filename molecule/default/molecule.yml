@@ -53,7 +53,6 @@ provisioner:
     host_vars:
       replica1:
         direct_ip: "192.168.42.1"
-        k3s_control_node: true
         labels:
           - local=true
           - public=true
@@ -62,7 +61,6 @@ provisioner:
         k3s_control_node: true
       replica3:
         direct_ip: "192.168.42.3"
-        k3s_control_node: true
         labels:
           - nas=true
       replica4:
