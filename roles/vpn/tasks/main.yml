@@ -36,3 +36,8 @@
 - name: Set VPN address
   ansible.builtin.set_fact:
     vpn_address: "{{ tailscale_ip_result.stdout }}"
+
+- name: Ensure all hosts are reachable
+  ansible.builtin.command: "ping -c 1 -w 600 {{ item }}"
+  loop: "{{ hostvars | json_query('*.vpn_address') }}"
+  changed_when: false
