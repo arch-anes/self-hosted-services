@@ -40,21 +40,25 @@ provisioner:
   inventory:
     host_vars:
       replica1:
-        public_ip: "192.168.42.1"
+        direct_ip: "192.168.42.1"
+        skip_vpn_setup: true
         k3s_control_node: true
         labels:
           - local=true
           - public=true
       replica2:
-        public_ip: "192.168.42.2"
+        direct_ip: "192.168.42.2"
+        skip_vpn_setup: true
         k3s_control_node: true
       replica3:
-        public_ip: "192.168.42.3"
+        direct_ip: "192.168.42.3"
+        skip_vpn_setup: true
         k3s_control_node: true
         labels:
           - nas=true
       replica4:
-        public_ip: "192.168.42.4"
+        direct_ip: "192.168.42.4"
+        skip_vpn_setup: true
         labels: []
   playbooks:
     converge: converge.yml

@@ -4,6 +4,6 @@
   tasks:
     - name: Ensure all hosts to are up
       ansible.builtin.command: "ping -c 1 -w 600 {{ item }}"
-      loop: "{{ hostvars | json_query('*.public_ip') }}"
+      loop: "{{ hostvars | json_query('*.direct_ip') }}"
       run_once: true  # noqa: run-once[task]
       changed_when: false

@@ -20,7 +20,7 @@
 
     - name: Create a VPN mesh network
       role: vpn
-      when: not (skip_k8s_setup or manifest_only_setup)
+      when: not (skip_k8s_setup or skip_vpn_setup or manifest_only_setup)
 
     - name: Deploy Kubernetes cluster
       role: kubernetes_cluster

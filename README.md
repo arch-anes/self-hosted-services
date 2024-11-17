@@ -10,12 +10,10 @@ k3s_cluster:
   hosts:
     raspi:
       k3s_control_node: true
-      public_ip: home.example.com
       labels:
         - local=true
     big_manager:
       k3s_control_node: true
-      public_ip: cloud.example.com
       labels:
         - nas=true
         - local=true
@@ -29,7 +27,6 @@ k3s_cluster:
         domain: example.example.org
         token: cloudflare_api_token
       k3s_control_node: true
-      public_ip: home.example.com
       labels:
         - public=true
         - local=true

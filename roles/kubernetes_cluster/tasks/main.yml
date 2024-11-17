@@ -12,19 +12,23 @@
       - { to_port: "2379:2380", proto: tcp, rule: allow, comment: "Required only for HA with embedded etcd" }
   when: not (skip_firewall_setup or manifest_only_setup)
 
+- name: Set k3s ip
+  ansible.builtin.set_fact:
+    advertised_ip: "{{ vpn_address | default(direct_ip) }}"
+
 - name: Set k3s config
   ansible.builtin.set_fact:
     k3s_agent:
       with-node-id: true
-      node-ip: "{{ vpn_address }}"
-      node-external-ip: "{{ vpn_address }}"
+      node-ip: "{{ advertised_ip }}"
+      node-external-ip: "{{ advertised_ip }}"
       flannel-iface: "tailscale0"
       node-label: "{{ labels }}"
     k3s_server:
       secrets-encryption: true
       with-node-id: true
-      node-ip: "{{ vpn_address }}"
-      node-external-ip: "{{ vpn_address }}"
+      node-ip: "{{ advertised_ip }}"
+      node-external-ip: "{{ advertised_ip }}"
       flannel-iface: "tailscale0"
       node-label: "{{ labels }}"
       default-local-storage-path: /storage/cluster-local-storage
