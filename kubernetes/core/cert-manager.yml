@@ -10,7 +10,8 @@ spec:
   version: 1.16.1
   targetNamespace: kube-system
   valuesContent: |-
-    installCRDs: true
+    crds:
+      enabled: true
     prometheus:
       enabled: false
     resources:
