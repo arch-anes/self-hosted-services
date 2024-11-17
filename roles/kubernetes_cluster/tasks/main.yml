@@ -41,6 +41,14 @@
         - default-not-ready-toleration-seconds=20
         - default-unreachable-toleration-seconds=20
 
+- name: Make k3s depend on tailscaled at startup
+  ansible.builtin.set_fact:
+    k3s_service_requires:
+      - tailscaled.service
+    k3s_service_after:
+      - tailscaled.service
+  when: not skip_vpn_setup
+
 - name: Install and deploy k3s
   ansible.builtin.import_role:
     name: xanmanning.k3s
@@ -49,10 +57,6 @@
     k3s_become: true
     k3s_etcd_datastore: true
     k3s_use_unsupported_config: true
-    k3s_service_requires:
-      - tailscaled.service
-    k3s_service_after:
-      - tailscaled.service
   become: true
 
 - name: Rotate k3s encryption keys
