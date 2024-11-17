@@ -12,6 +12,10 @@ spec:
   valuesContent: |-
     crds:
       enabled: true
+    # https://github.com/cert-manager/cert-manager/issues/5515
+    enableCertificateOwnerRef: true
+    dns01RecursiveNameserversOnly: true
+    dns01RecursiveNameservers: "8.8.8.8:53,1.1.1.1:53"
     prometheus:
       enabled: false
     resources:
