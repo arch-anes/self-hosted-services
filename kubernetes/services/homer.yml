@@ -58,6 +58,7 @@ data:
           - name: "Nextcloud"
             logo: "https://github.com/nextcloud/server/raw/0450e47f8dda26d19a0a252ddd5a117fddfa6885/core/img/logo/logo.png"
             url: "https://nextcloud.${DOMAIN_NAME}"
+            type: Nextcloud
           - name: "immich"
             logo: "https://immich.app/img/immich-logo-stacked-dark.svg"
             url: "https://immich.${DOMAIN_NAME}"
