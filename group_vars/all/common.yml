@@ -1,6 +1,4 @@
 # code: language=ansible
 
 ---
-kubernetes_project_location: "{{ playbook_dir }}/kubernetes"
-
 direct_ip: ""
