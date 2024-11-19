@@ -1,0 +1,8 @@
+# code: language=ansible
+---
+
+- name: Set timezone
+  become: true
+  community.general.timezone:
+    name: "{{ timezone }}"
+  when: timezone is defined

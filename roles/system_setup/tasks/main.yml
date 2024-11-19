@@ -8,6 +8,9 @@
 - name: Setup packages
   ansible.builtin.include_tasks: packages.yml
 
+- name: Setup timezone
+  ansible.builtin.include_tasks: tz.yml
+
 - name: Configure RaspberryPi hosts
   ansible.builtin.include_tasks: raspi.yml
 

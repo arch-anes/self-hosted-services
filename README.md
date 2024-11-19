@@ -28,6 +28,7 @@ k3s_cluster:
     skip_k8s_setup: false
     manifest_only_setup: false
     display_k8s_dashboard_password: false
+    timezone: America/Vancouver
     fqdn: "example.com"
     tailscale_oauth_secret: "some_secret"
   hosts:
