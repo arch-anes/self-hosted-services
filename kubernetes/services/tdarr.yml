@@ -113,6 +113,8 @@ spec:
               mountPath: /app/configs
             - name: logs
               mountPath: /app/logs
+            - name: cache
+              mountPath: /temp
             - name: media
               mountPath: /media
       volumes:
@@ -125,6 +127,9 @@ spec:
         - name: logs
           hostPath:
             path: /storage/tdarr/logs
+        - name: cache
+          hostPath:
+            path: /storage/tdarr/cache
         - name: media
           hostPath:
             path: /storage/Multimedia
