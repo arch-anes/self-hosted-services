@@ -16,7 +16,7 @@
 
 # https://github.com/tailscale/tailscale/issues/11717
 - name: Provision tailscale node
-  ansible.builtin.command: "tailscale up --netfilter-mode=off --accept-dns=true --timeout=120s --advertise-tags=tag:ansible --auth-key={{ tailscale_oauth_secret }}?ephemeral=false"
+  ansible.builtin.command: "tailscale up --netfilter-mode=off --accept-dns=false --timeout=120s --advertise-tags=tag:ansible --auth-key={{ tailscale_oauth_secret }}?ephemeral=false"
   register: tailscale_up_result
   ignore_errors: true
   changed_when: tailscale_up_result.rc == 0
