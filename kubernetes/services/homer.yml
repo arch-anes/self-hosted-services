@@ -110,9 +110,6 @@ data:
       - name: "Automation"
         icon: "fas fa-home"
         items:
-          - name: "Grocy"
-            logo: "https://grocy.info/img/grocy_logo.svg?v=235"
-            url: "https://grocy.${DOMAIN_NAME}"
           - name: "Tandoor"
             logo: "https://raw.githubusercontent.com/TandoorRecipes/recipes/78d20e834020e9311a062864a922b0e85e3a5a88/docs/logo_color.svg"
             url: "https://tandoor.${DOMAIN_NAME}"
