@@ -40,3 +40,4 @@ spec:
     sonarr_log: {}
     sonarr_main: {}
     speedtest_tracker: {}
+    tandoor: {}
