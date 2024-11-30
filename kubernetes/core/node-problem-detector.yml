@@ -1,0 +1,19 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: node-problem-detector
+  namespace: kube-system
+spec:
+  chart: node-problem-detector
+  repo: https://charts.deliveryhero.io/
+  version: 2.3.14
+  targetNamespace: kube-system
+  valuesContent: |-
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
