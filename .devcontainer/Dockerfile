@@ -14,7 +14,13 @@ RUN curl https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/ke
 RUN curl https://www.virtualbox.org/download/oracle_vbox_2016.asc | gpg --dearmor -o /usr/share/keyrings/oracle-virtualbox-2016.gpg && \
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/oracle-virtualbox-2016.gpg] https://download.virtualbox.org/virtualbox/debian noble contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
 
-RUN apt-get update && apt-get install -y apt-transport-https pipx gettext-base kubectl helm vagrant virtualbox-7.1
+RUN apt-get update && apt-get install -y apt-transport-https pipx gettext-base kubectl helm vagrant virtualbox-7.1 age
+
+ARG SOPS_VERSION=3.9.1
+
+RUN curl -L https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops_${SOPS_VERSION}_amd64.deb -o sops.deb && \
+    dpkg -i sops.deb && \
+    rm -f sops.deb
 
 # Workaround for https://github.com/pypa/pipx/issues/754#issuecomment-951162846
 RUN PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install --include-deps ansible && \
