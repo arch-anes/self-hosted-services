@@ -1,0 +1,17 @@
+# code: language=ansible
+---
+
+- name: Setup monitoring services
+  become: true
+  when: ansible_distribution == 'Ubuntu' and not is_raspberry_pi
+  block:
+    - name: Ensure rasdaemon service is enabled and started
+      ansible.builtin.service:
+        name: rasdaemon
+        enabled: true
+        state: started
+    - name: Ensure smartmontools service is enabled and started
+      ansible.builtin.service:
+        name: smartmontools
+        enabled: true
+        state: started

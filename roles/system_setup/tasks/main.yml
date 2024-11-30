@@ -17,6 +17,9 @@
 - name: Setup DNS
   ansible.builtin.include_tasks: dns.yml
 
+- name: Setup monitoring
+  ansible.builtin.include_tasks: monitoring.yml
+
 - name: Setup firewall
   ansible.builtin.import_role:
     name: firewall

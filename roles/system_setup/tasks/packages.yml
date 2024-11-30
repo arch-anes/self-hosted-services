@@ -10,6 +10,7 @@
         pkg:
           - curl
           - ddclient
+          - rasdaemon
           - rsync
           - smartmontools
           - ufw
