@@ -42,6 +42,13 @@ spec:
           secretKeyRef:
             name: tandoor
             key: django_secret_key
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD:
+        valueFrom:
+          secretKeyRef:
+            name: redis
+            key: redis_password
     resources:
       requests:
         memory: 256Mi
