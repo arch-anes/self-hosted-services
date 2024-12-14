@@ -22,7 +22,7 @@ metadata:
 spec:
   chart: kubeclarity
   repo: https://openclarity.github.io/kubeclarity
-  version: 2.23.1
+  version: v2.23.3
   targetNamespace: default
   valuesContent: |-
     kubeclarity-postgresql:
