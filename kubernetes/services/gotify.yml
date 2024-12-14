@@ -7,7 +7,7 @@ metadata:
 spec:
   chart: gotify
   repo: https://charts.gabe565.com
-  version: 0.3.0
+  version: 0.4.0
   targetNamespace: default
   valuesContent: |-
     image:
