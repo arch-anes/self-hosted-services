@@ -7,5 +7,17 @@
     "fileMatch": [
       "kubernetes/.+/.+\\.yml$"
     ]
-  }
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "kubernetes/.+/.+\\.yml$"
+      ],
+      "matchStrings": [
+        "kind:\\s*HelmChart\\s*\\n(?:.*\\n)*?\\s*chart:\\s*(?<depName>.*?)\\s*\\n(?:.*\\n)*?\\s*repo:\\s*(?<registryUrl>.*?)\\s*\\n(?:.*\\n)*?\\s*version:\\s*(?<currentValue>.*?)\\s*\\n"
+      ],
+      "datasourceTemplate": "helm"
+    }
+  ]
 }
