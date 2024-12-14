@@ -17,7 +17,7 @@ metadata:
 spec:
   chart: tandoor
   repo: https://charts.gabe565.com
-  version: 0.9.7
+  version: 0.9.8
   targetNamespace: default
   valuesContent: |-
     controller:
