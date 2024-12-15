@@ -2,5 +2,8 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# The git repository out of which to continuously deploy
+gitRepo: https://github.com/arch-anes/self-hosted-services.git
+
 # Base domain name to be used for all services
 fqdn: example.org

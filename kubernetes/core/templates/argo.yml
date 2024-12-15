@@ -1,0 +1,65 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: argo-cd
+  namespace: kube-system
+spec:
+  chart: argo-cd
+  repo: https://argoproj.github.io/argo-helm
+  version: 7.7.10
+  targetNamespace: kube-system
+  valuesContent: |-
+    global:
+      domain: argo.{{ .Values.fqdn }}
+    configs:
+      params:
+        server.insecure: true
+    server:
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+        requests:
+          cpu: 10m
+          memory: 64Mi
+      ingress:
+        enabled: true
+        extraTls:
+          - hosts:
+              - argo.{{ .Values.fqdn }}
+            secretName: {{ .Values.fqdn }}-tls
+    redis:
+      enabled: false
+    dex:
+      enabled: false
+    notifications:
+      enabled: false
+    externalRedis:
+      host: "redis.default.svc.cluster.local"
+      port: 6379
+      existingSecret: "redis"
+    controller:
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+        requests:
+          cpu: 10m
+          memory: 64Mi
+    repoServer:
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+        requests:
+          cpu: 10m
+          memory: 64Mi
+    applicationSet:
+      resources:
+        limits:
+          cpu: 250m
+          memory: 128Mi
+        requests:
+          cpu: 10m
+          memory: 64Mi
