@@ -17,6 +17,7 @@ spec:
         enabled: true
       configuration:
         enabled: true
+        capacity: 5
         discoveryDetails:
           udevRules:
             - 'KERNEL=="video[0-9]*", ENV{ID_VENDOR}=="Sonix_Technology_Co.__Ltd."'
