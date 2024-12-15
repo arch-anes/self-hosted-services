@@ -20,7 +20,7 @@ metadata:
   namespace: default
 type: Opaque
 # stringData:
-#   redis_password: "somepassword"
+#   redis-password: "somepassword"
 
 ---
 apiVersion: apps/v1
@@ -65,7 +65,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: redis
-                  key: redis_password
+                  key: redis-password
           ports:
             - name: redis
               containerPort: 6379

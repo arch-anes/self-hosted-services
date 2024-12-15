@@ -118,7 +118,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: redis
-                  key: redis_password
+                  key: redis-password
             - name: POSTGRES_HOST
               value: "postgresql"
             - name: POSTGRES_DB

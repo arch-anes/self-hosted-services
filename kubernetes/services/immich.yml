@@ -104,7 +104,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: redis
-                  key: redis_password
+                  key: redis-password
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -135,7 +135,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: redis
-                  key: redis_password
+                  key: redis-password
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
