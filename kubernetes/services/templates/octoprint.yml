@@ -1,0 +1,159 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: octoprint
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 5000
+    - protocol: TCP
+      name: webcam
+      port: 8080
+  selector:
+    app: octoprint
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: octoprint-webcam
+  namespace: default
+type: Opaque
+# stringData:
+#   credentials: "admin:$2y$12$8KtQ4SQb6QpebcgYvMPjwOv3Jz9ojkNq8FVWZmk5q1BW9BoEX2aAy" # admin:admin by default, bcrypted password: https://bcrypt-generator.com/
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: octoprint-webcam
+  namespace: default
+spec:
+  basicAuth:
+    secret: "octoprint-webcam"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: octoprint-webcam
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: default-octoprint-webcam@kubernetescrd
+spec:
+  tls:
+    - hosts:
+        - octoprint-webcam.{{ .Values.fqdn }}
+      secretName: {{ .Values.fqdn }}-tls
+  rules:
+    - host: octoprint-webcam.{{ .Values.fqdn }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: octoprint
+                port:
+                  name: webcam
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: octoprint
+  namespace: default
+spec:
+  storageClassName: "local-path-retain"
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: octoprint
+  namespace: default
+spec:
+  tls:
+    - hosts:
+        - octoprint.{{ .Values.fqdn }}
+      secretName: {{ .Values.fqdn }}-tls
+  rules:
+    - host: octoprint.{{ .Values.fqdn }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: octoprint
+                port:
+                  name: web
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: octoprint
+  namespace: default
+  labels:
+    app: octoprint
+  annotations:
+    reloader.stakater.com/auto: "true"
+    keel.sh/policy: force
+    keel.sh/matchTag: "true"
+    keel.sh/approvals: "1"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@daily"
+spec:
+  replicas: 1
+  strategy:
+    # This is done to ensure devices are freed before creating new container
+    # otherwise deployment is pending
+    type: Recreate
+  selector:
+    matchLabels:
+      app: octoprint
+  template:
+    metadata:
+      labels:
+        app: octoprint
+    spec:
+      containers:
+        - name: app
+          image: octoprint/octoprint:latest
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 250m
+            limits:
+              akri.sh/akri-udev-4ad410: "1"
+              akri.sh/akri-udev-dbf9ff: "1"
+              memory: 2Gi
+              cpu: 4000m
+          ports:
+            - name: web
+              containerPort: 5000
+            - name: webcam
+              containerPort: 8080
+          env:
+            - name: ENABLE_MJPG_STREAMER
+              value: "true"
+            - name: MJPG_STREAMER_INPUT
+              value: "-fps 30 -r 1920x1080"
+            - name: OCTOPRINT_PORT
+              value: "5000"
+          volumeMounts:
+            - name: octoprint
+              mountPath: /octoprint
+      volumes:
+        - name: octoprint
+          persistentVolumeClaim:
+            claimName: octoprint

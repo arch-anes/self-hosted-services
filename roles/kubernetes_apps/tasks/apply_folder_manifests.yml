@@ -7,21 +7,21 @@
     - name: Set facts
       ansible.builtin.set_fact:
         aggregate_path: "/tmp/{{ folder_name }}.yml"
-        manifests_folder: "{{ playbook_dir }}/kubernetes/{{ folder_name }}"
+        chart_folder: "{{ playbook_dir }}/kubernetes/{{ folder_name }}"
 
-    - name: Generate aggregate manifest file
-      ansible.builtin.shell: "set -o pipefail && cat {{ manifests_folder }}/*.yml | env DOMAIN_NAME={{ fqdn }} envsubst '$DOMAIN_NAME' > {{ aggregate_path }}"
-      args:
-        executable: /usr/bin/bash
+    - name: Render helm templates
+      kubernetes.core.helm_template:
+        chart_ref: "{{ chart_folder }}"
+        set_values:
+          - value: "fqdn={{ fqdn }}"
       delegate_to: localhost
-      run_once: true
-      become: false
-      changed_when: false
+      register: helm_template
 
-    - name: Copy aggregate file to remote
-      ansible.posix.synchronize:
-        src: "{{ aggregate_path }}"
+    - name: Write manifest to file
+      ansible.builtin.copy:
         dest: "{{ aggregate_path }}"
+        content: "{{ helm_template.stdout }}"
+        mode: 0400
 
     - name: Apply aggregate manifest
       ansible.builtin.command: "kubectl apply -f {{ aggregate_path }}"

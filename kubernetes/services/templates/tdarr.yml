@@ -1,0 +1,222 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tdarr
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 8265
+    - protocol: TCP
+      name: server
+      port: 8266
+  selector:
+    app: tdarr
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tdarr
+  namespace: default
+spec:
+  tls:
+    - hosts:
+        - tdarr.{{ .Values.fqdn }}
+      secretName: {{ .Values.fqdn }}-tls
+  rules:
+    - host: tdarr.{{ .Values.fqdn }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tdarr
+                port:
+                  name: web
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tdarr
+  namespace: default
+  labels:
+    app: tdarr
+  annotations:
+    reloader.stakater.com/auto: "true"
+    keel.sh/policy: force
+    keel.sh/matchTag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@daily"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tdarr
+  template:
+    metadata:
+      labels:
+        app: tdarr
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - jellyfin
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: app
+          image: ghcr.io/haveagitgat/tdarr:latest
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 250m
+            limits:
+              memory: 1Gi
+              cpu: 1000m
+          ports:
+            - name: web
+              containerPort: 8265
+            - name: server
+              containerPort: 8266
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: serverIP
+              value: "0.0.0.0"
+            - name: serverPort
+              value: "8266"
+            - name: webUIPort
+              value: "8265"
+            - name: internalNode
+              value: "false"
+            - name: inContainer
+              value: "true"
+            - name: auth
+              value: "true"
+            - name: ffmpegVersion
+              value: "6"
+          volumeMounts:
+            - name: server
+              mountPath: /app/server
+            - name: config
+              mountPath: /app/configs
+            - name: logs
+              mountPath: /app/logs
+            - name: cache
+              mountPath: /temp
+            - name: media
+              mountPath: /media
+      volumes:
+        - name: server
+          hostPath:
+            path: /storage/tdarr/server
+        - name: config
+          hostPath:
+            path: /storage/tdarr/config
+        - name: logs
+          hostPath:
+            path: /storage/tdarr/logs
+        - name: cache
+          hostPath:
+            path: /storage/tdarr/cache
+        - name: media
+          hostPath:
+            path: /storage/Multimedia
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tdarr-worker
+  namespace: default
+  labels:
+    app: tdarr-worker
+  annotations:
+    reloader.stakater.com/auto: "true"
+    keel.sh/policy: force
+    keel.sh/matchTag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@daily"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tdarr-worker
+  template:
+    metadata:
+      labels:
+        app: tdarr-worker
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - jellyfin
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: app
+          image: ghcr.io/haveagitgat/tdarr_node:latest
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 250m
+            limits:
+              memory: 2Gi
+              cpu: 2000m
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: serverIP
+              value: "tdarr"
+            - name: serverPort
+              value: "8266"
+            - name: inContainer
+              value: "true"
+            - name: ffmpegVersion
+              value: "6"
+            - name: nodeName
+              value: "PrincipalNode"
+            - name: apiKey
+              valueFrom:
+                secretKeyRef:
+                  name: arr
+                  key: tdarr_api_key
+          volumeMounts:
+            - name: config
+              mountPath: /app/configs
+            - name: logs
+              mountPath: /app/logs
+            - name: cache
+              mountPath: /temp
+            - name: media
+              mountPath: /media
+      volumes:
+        - name: config
+          hostPath:
+            path: /storage/tdarr/config
+        - name: logs
+          hostPath:
+            path: /storage/tdarr/logs
+        - name: cache
+          hostPath:
+            path: /storage/tdarr/cache
+        - name: media
+          hostPath:
+            path: /storage/Multimedia

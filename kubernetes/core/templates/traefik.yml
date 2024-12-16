@@ -1,0 +1,106 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cluster-admin-credentials
+  namespace: kube-system
+type: Opaque
+# stringData:
+#   credentials: "admin:$2y$12$8KtQ4SQb6QpebcgYvMPjwOv3Jz9ojkNq8FVWZmk5q1BW9BoEX2aAy" # admin:admin by default, bcrypted password: https://bcrypt-generator.com/
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: cluster-admin-authentication
+  namespace: kube-system
+spec:
+  basicAuth:
+    secret: "cluster-admin-credentials"
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-websecure
+  namespace: kube-system
+spec:
+  headers:
+    browserXssFilter: true
+    stsPreload: true
+    stsIncludeSubdomains: true
+    forceSTSHeader: true
+    stsSeconds: 15552000
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    logs:
+      access:
+        enabled: true
+    affinity:
+      nodeAffinity:
+        # Prefer local nodes
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+                - key: local
+                  operator: In
+                  values:
+                    - "true"
+    globalArguments:
+      - "--global.sendanonymoususage=false"
+      - "--entryPoints.websecure.transport.respondingTimeouts.readTimeout=0"
+    ingressRoute:
+      dashboard:
+        enabled: true
+        matchRule: Host(`traefik.{{ .Values.fqdn }}`)
+        middlewares:
+          - name: kube-system-cluster-admin-authentication@kubernetescrd
+        entryPoints:
+          - web
+          - websecure
+        tls:
+          secretName: {{ .Values.fqdn }}-tls
+    providers:
+      kubernetesCRD:
+        allowCrossNamespace: true
+    ports:
+      web:
+        redirectTo:
+          port: websecure
+      websecure:
+        middlewares:
+          - kube-system-traefik-websecure@kubernetescrd
+        tls:
+          enabled: true
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 125m
+      limits:
+        memory: 512Mi
+        cpu: 1000m
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 10
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 60
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 60

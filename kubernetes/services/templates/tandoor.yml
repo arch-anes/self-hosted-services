@@ -1,0 +1,70 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tandoor
+  namespace: default
+type: Opaque
+# stringData:
+#   django_secret_key: "some_key"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: tandoor
+  namespace: default
+spec:
+  chart: tandoor
+  repo: https://charts.gabe565.com
+  version: 0.9.8
+  targetNamespace: default
+  valuesContent: |-
+    controller:
+      annotations:
+        keel.sh/policy: force
+        keel.sh/matchTag: "true"
+        keel.sh/trigger: poll
+        keel.sh/pollSchedule: "@daily"
+    env:
+      DB_ENGINE: django.db.backends.postgresql
+      POSTGRES_HOST: postgresql
+      POSTGRES_DB: tandoor
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD:
+        valueFrom:
+          secretKeyRef:
+            name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+            key: password
+      SECRET_KEY:
+        valueFrom:
+          secretKeyRef:
+            name: tandoor
+            key: django_secret_key
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD:
+        valueFrom:
+          secretKeyRef:
+            name: redis
+            key: redis-password
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: 1000m
+    ingress:
+      main:
+        enabled: true
+        annotations: {}
+        hosts:
+          - host: tandoor.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: {{ .Values.fqdn }}-tls
+            hosts:
+              - tandoor.{{ .Values.fqdn }}

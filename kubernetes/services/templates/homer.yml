@@ -1,0 +1,223 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homer
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 8080
+  selector:
+    app: homer
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: homer
+  namespace: default
+spec:
+  tls:
+    - hosts:
+        - dash.{{ .Values.fqdn }}
+      secretName: {{ .Values.fqdn }}-tls
+  rules:
+    - host: dash.{{ .Values.fqdn }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: homer
+                port:
+                  name: web
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homer
+  namespace: default
+data:
+  config.yml: |
+    ---
+    title: "Dashboard"
+    subtitle: "Homer"
+    logo: "logo.png"
+
+    header: false
+    footer: false
+
+    services:
+      - name: "Media"
+        icon: "fas fa-video"
+        items:
+          - name: "Jellyfin"
+            logo: "https://github.com/jellyfin/jellyfin/raw/cd36b8067fcf80c5ebb47bdd9bea0047d1fe3aef/Emby.Dlna/Images/logo240.png"
+            url: "https://jellyfin.{{ .Values.fqdn }}"
+          - name: "immich"
+            logo: "https://immich.app/img/immich-logo-stacked-dark.svg"
+            url: "https://immich.{{ .Values.fqdn }}"
+          - name: "Nextcloud"
+            logo: "https://github.com/nextcloud/server/raw/0450e47f8dda26d19a0a252ddd5a117fddfa6885/core/img/logo/logo.png"
+            url: "https://nextcloud.{{ .Values.fqdn }}"
+            type: Nextcloud
+          - name: "filebrowser"
+            logo: "https://raw.githubusercontent.com/filebrowser/filebrowser/129a4fd39d550bd2a449575cf93f061593e39102/frontend/public/img/logo.svg"
+            url: "https://filebrowser.{{ .Values.fqdn }}"
+          - name: "Transmission"
+            logo: "https://raw.githubusercontent.com/transmission/transmission/0ce4adf07ce4b6cfabf81e2d027f96197bb9a305/web/assets/img/logo.png"
+            url: "https://transmission.{{ .Values.fqdn }}"
+
+      - name: "Feed"
+        icon: "fas fa-rss"
+        items:
+          - name: "Miniflux"
+            logo: "https://raw.githubusercontent.com/miniflux/v2/06c37a132f6a90a30db12ad3f263cc6a97678d4a/ui/static/bin/maskable-icon-192.png"
+            url: "https://miniflux.{{ .Values.fqdn }}"
+          - name: "Tandoor"
+            logo: "https://raw.githubusercontent.com/TandoorRecipes/recipes/78d20e834020e9311a062864a922b0e85e3a5a88/docs/logo_color.svg"
+            url: "https://tandoor.{{ .Values.fqdn }}"
+          - name: "Gotify"
+            logo: "https://raw.githubusercontent.com/gotify/logo/87aef9091f51644eaccf78e7b67f8ce94271efeb/gotify-logo.png"
+            url: "https://gotify.{{ .Values.fqdn }}"
+
+      - name: "Arr"
+        icon: "fas fa-ship"
+        items:
+          - name: "Jellyseerr"
+            logo: "https://raw.githubusercontent.com/Fallenbagel/jellyseerr/54cfeefe74de2c7df97491aa6cb954b94759ac5d/public/logo_stacked.svg"
+            url: "https://jellyseerr.{{ .Values.fqdn }}"
+          - name: "Tdarr"
+            logo: "https://home.tdarr.io/static/media/logo3-min.246d6df44c7f16ddebaf.png"
+            url: "https://tdarr.{{ .Values.fqdn }}"
+          - name: "Prowlarr"
+            logo: "https://raw.githubusercontent.com/Prowlarr/Prowlarr/bc53fab96623c91783360cd9d3abce12e6c4f38a/Logo/256.png"
+            url: "https://prowlarr.{{ .Values.fqdn }}"
+          - name: "Sonarr"
+            logo: "https://raw.githubusercontent.com/Sonarr/Sonarr/1f785dd30ddf6f1ae61b171afc12ce691c100ee2/Logo/256.png"
+            url: "https://sonarr.{{ .Values.fqdn }}"
+          - name: "Radarr"
+            logo: "https://raw.githubusercontent.com/Radarr/Radarr/e4429d2919f73d8ffd1389614c74e58b9a447c50/Logo/256.png"
+            url: "https://radarr.{{ .Values.fqdn }}"
+          - name: "Bazarr"
+            logo: "https://raw.githubusercontent.com/morpheus65535/bazarr/8282899facad2bc0bb096664a76571fd4f5ec2c9/frontend/public/images/logo128.png"
+            url: "https://bazarr.{{ .Values.fqdn }}"
+          - name: "Readarr"
+            logo: "https://raw.githubusercontent.com/Readarr/Readarr/4249f5324aa43474336f1e02f46cb38c31bb2997/Logo/256.png"
+            url: "https://readarr.{{ .Values.fqdn }}"
+
+      - name: "Automation"
+        icon: "fas fa-home"
+        items:
+          - name: "obico"
+            logo: "https://raw.githubusercontent.com/TheSpaghettiDetective/obico-server/471c0364c7c823194bc9c5c2b13e76aa1ebad6b9/frontend/static/img/logo-compact.png"
+            url: "https://obico.{{ .Values.fqdn }}"
+          - name: "OctoPrint"
+            logo: "https://raw.githubusercontent.com/OctoPrint/OctoPrint/a93b4d397248dc406a75e634c1326fb1b8ddcb63/docs/images/octoprint-logo.png"
+            url: "https://octoprint.{{ .Values.fqdn }}"
+          - name: "n8n"
+            logo: "https://d33wubrfki0l68.cloudfront.net/b8db213a4d85ebec7b82272cacb727a05a9a1475/96e9f/_images/n8n-docs-icon.svg"
+            url: "https://n8n.{{ .Values.fqdn }}"
+
+      - name: "Administration"
+        icon: "fas fa-tools"
+        items:
+          - name: "Duplicati"
+            logo: "https://raw.githubusercontent.com/duplicati/duplicati/184dfeae7860cd34019baf3d3ca635bf6b79dfbe/Duplicati/Server/webroot/img/logo.png"
+            url: "https://duplicati.{{ .Values.fqdn }}"
+          - name: "pgAdmin4"
+            logo: "https://www.pgadmin.org/static/docs/pgadmin4-dev/docs/en_US/_build/html/_images/logo-right-128.png"
+            url: "https://pgadmin4.{{ .Values.fqdn }}"
+          - name: "Kubernetes"
+            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Kubernetes_logo_without_workmark.svg/247px-Kubernetes_logo_without_workmark.svg.png"
+            url: "https://kubernetes.{{ .Values.fqdn }}"
+          - name: "Keel"
+            logo: "https://keel.sh/img/logo_small.png"
+            url: "https://keel.{{ .Values.fqdn }}"
+
+      - name: "Monitoring"
+        icon: "fas fa-heartbeat"
+        items:
+          - name: "Netdata"
+            logo: "https://raw.githubusercontent.com/netdata/netdata/483d8481a5a5edf72630068534feb1a4d228ed0b/web/gui/v1/images/favicon-196x196.png"
+            url: "https://netdata.{{ .Values.fqdn }}"
+          - name: "Speedtest Tracker"
+            logo: "https://raw.githubusercontent.com/henrywhitaker3/Speedtest-Tracker/8cb2e8a3236850b4a07e887ac376c0d4d5e804f4/public/icons/fav/ms-icon-310x310.png"
+            url: "https://speedtest.{{ .Values.fqdn }}"
+          - name: "Traefik"
+            logo: "https://github.com/traefik/traefik/raw/0a3e40332a86cc061bf16d8895b10defeb999171/docs/content/assets/img/traefik.logo.png"
+            url: "https://traefik.{{ .Values.fqdn }}"
+          - name: "KubeClarity"
+            logo: "https://raw.githubusercontent.com/cisco-open/kubei/main/ui/public/favicon.png"
+            url: "https://kubeclarity.{{ .Values.fqdn }}"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homer
+  namespace: default
+  labels:
+    app: homer
+  annotations:
+    reloader.stakater.com/auto: "true"
+    keel.sh/policy: force
+    keel.sh/matchTag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@daily"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homer
+  template:
+    metadata:
+      labels:
+        app: homer
+    spec:
+      containers:
+        - name: homer
+          image: b4bz/homer:latest
+          resources:
+            requests:
+              memory: 32Mi
+              cpu: 125m
+            limits:
+              memory: 64Mi
+              cpu: 250m
+          ports:
+            - name: web
+              containerPort: 8080
+          volumeMounts:
+            - name: config
+              mountPath: /www/assets/config.yml
+              subPath: config.yml
+      volumes:
+        - name: config
+          configMap:
+            name: homer
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: homer
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: homer
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60

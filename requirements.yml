@@ -5,5 +5,6 @@ collections:
   - name: amazon.aws
   - name: community.general
   - name: ansible.posix
+  - name: kubernetes.core
 roles:
   - name: xanmanning.k3s

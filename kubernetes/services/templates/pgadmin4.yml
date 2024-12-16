@@ -1,0 +1,102 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin4
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 80
+  selector:
+    app: pgadmin4
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pgadmin4
+  namespace: default
+spec:
+  tls:
+    - hosts:
+        - pgadmin4.{{ .Values.fqdn }}
+      secretName: {{ .Values.fqdn }}-tls
+  rules:
+    - host: pgadmin4.{{ .Values.fqdn }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pgadmin4
+                port:
+                  name: web
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pgadmin4
+  namespace: default
+type: Opaque
+# stringData:
+#   email: "example@example.com"
+#   password: "somepassword"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin4
+  namespace: default
+  labels:
+    app: pgadmin4
+  annotations:
+    keel.sh/policy: force
+    keel.sh/matchTag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@daily"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin4
+  template:
+    metadata:
+      labels:
+        app: pgadmin4
+    spec:
+      containers:
+        - name: app
+          image: dpage/pgadmin4:latest
+          env:
+            - name: PGADMIN_DEFAULT_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: pgadmin4
+                  key: email
+            - name: PGADMIN_DEFAULT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pgadmin4
+                  key: password
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  key: password
+            - name: PGADMIN_CONFIG_CONFIG_DATABASE_URI
+              value: '"postgresql://postgres:$(POSTGRES_PASSWORD)@postgresql:5432/pgadmin4"'
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 125m
+            limits:
+              memory: 256Mi
+              cpu: 250m
+          ports:
+            - name: web
+              containerPort: 80

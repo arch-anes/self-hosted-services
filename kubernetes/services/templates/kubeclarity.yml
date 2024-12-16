@@ -1,0 +1,65 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kubeclarity
+  namespace: default
+type: Opaque
+# stringData:
+#   postgres-password: "somepass"
+#   postgres-username: "postgres"
+#   postgres-host: "postgresql.default"
+#   postgres-port: "5432"
+#   postgres-database: "kubeclarity"
+#   postgres-sslmode: "disable"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kubeclarity
+  namespace: default
+spec:
+  chart: kubeclarity
+  repo: https://openclarity.github.io/kubeclarity
+  version: v2.23.3
+  targetNamespace: default
+  valuesContent: |-
+    kubeclarity-postgresql:
+      enabled: false
+    kubeclarity-postgresql-secret:
+      create: false
+    kubeclarity-postgresql-external:
+      enabled: true
+      auth:
+        existingSecret: kubeclarity
+        username: postgres
+        host: postgresql.default
+        port: 5432
+        database: kubeclarity
+    kubeclarity:
+      resources:
+        requests:
+          memory: 64Mi
+          cpu: 125m
+        limits:
+          memory: 128Mi
+          cpu: 250m
+      ingress:
+        enabled: true
+        annotations:
+          traefik.ingress.kubernetes.io/router.middlewares: kube-system-cluster-admin-authentication@kubernetescrd
+        hosts:
+          - host: kubeclarity.{{ .Values.fqdn }}
+        tls:
+        - secretName: {{ .Values.fqdn }}-tls
+          hosts:
+            - kubeclarity.{{ .Values.fqdn }}
+    kubeclarity-sbom-db:
+      resources:
+        requests:
+          memory: 64Mi
+          cpu: 125m
+        limits:
+          memory: 128Mi
+          cpu: 250m
