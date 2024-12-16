@@ -43,7 +43,7 @@ metadata:
   namespace: default
 type: Opaque
 # stringData:
-#   vpn_service_provider: "someprovider"
+#   vpn_service_provider: "someprovider" # https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers
 #   wireguard_private_key: "somekey"
 #   server_countries: "somecountry1,somecountry2"
 
