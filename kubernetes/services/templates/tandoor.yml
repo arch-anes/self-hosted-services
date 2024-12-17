@@ -20,12 +20,6 @@ spec:
   version: 0.9.8
   targetNamespace: default
   valuesContent: |-
-    controller:
-      annotations:
-        keel.sh/policy: force
-        keel.sh/matchTag: "true"
-        keel.sh/trigger: poll
-        keel.sh/pollSchedule: "@daily"
     env:
       DB_ENGINE: django.db.backends.postgresql
       POSTGRES_HOST: postgresql

@@ -10,14 +10,6 @@ spec:
   version: 0.4.0
   targetNamespace: default
   valuesContent: |-
-    image:
-      tag: "2"
-    controller:
-      annotations:
-        keel.sh/policy: force
-        keel.sh/matchTag: "true"
-        keel.sh/trigger: poll
-        keel.sh/pollSchedule: "@daily"
     env:
       GOTIFY_DATABASE_DIALECT: postgres
       DATABASE_PASSWORD:
