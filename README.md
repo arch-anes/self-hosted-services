@@ -22,7 +22,6 @@
 k3s_cluster:
   vars:
     skip_system_setup: false
-    skip_dynamic_dns_setup: false
     skip_firewall_setup: false
     skip_vpn_setup: false
     skip_k8s_setup: false

@@ -41,7 +41,6 @@ provisioner:
     group_vars:
       all:
         skip_system_setup: false
-        skip_dynamic_dns_setup: false
         skip_firewall_setup: false
         skip_vpn_setup: true
         skip_k8s_setup: false

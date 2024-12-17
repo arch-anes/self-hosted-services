@@ -1,8 +1,0 @@
-# code: language=ansible
----
-
-- name: Setup DuckDNS DDNS
-  ansible.builtin.include_tasks: duckdns.yml
-
-- name: Setup Cloudflare DDNS
-  ansible.builtin.include_tasks: cloudflare.yml
