@@ -41,14 +41,6 @@ k3s_cluster:
         - nas=true
         - local=true
     small_manager:
-      # https://www.duckdns.org
-      duckdns:
-        token: duckdns_provided_token
-        domain: example.duckdns.org
-      cloudflare:
-        zone: example.org
-        domain: example.example.org
-        token: cloudflare_api_token
       k3s_control_node: true
       labels:
         - public=true
