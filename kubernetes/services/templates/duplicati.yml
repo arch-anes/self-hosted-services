@@ -36,6 +36,17 @@ spec:
                   name: web
 
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: duplicati
+  namespace: default
+type: Opaque
+# stringData:
+#   web_password: "somepassword"
+#   settings_encryption_key: "somepassword"
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -63,7 +74,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: lscr.io/linuxserver/duplicati:2.0.8
+          image: lscr.io/linuxserver/duplicati:2.1.0
           resources:
             requests:
               memory: 512Mi
@@ -79,6 +90,16 @@ spec:
               value: "0"
             - name: PGID
               value: "0"
+            - name: DUPLICATI__WEBSERVICE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: duplicati
+                  key: web_password
+            - name: SETTINGS_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: duplicati
+                  key: settings_encryption_key
           volumeMounts:
             - name: config
               mountPath: /config
