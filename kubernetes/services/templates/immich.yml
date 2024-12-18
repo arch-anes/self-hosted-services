@@ -63,7 +63,6 @@ metadata:
     reloader.stakater.com/auto: "true"
     keel.sh/policy: force
     keel.sh/matchTag: "true"
-    keel.sh/approvals: "1"
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@daily"
 spec:
@@ -88,7 +87,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: ghcr.io/immich-app/immich-server:release
+          image: ghcr.io/immich-app/immich-server:v1.123.0
           resources:
             requests:
               memory: 128Mi
@@ -119,7 +118,7 @@ spec:
             - name: data
               mountPath: /usr/src/app/upload
         - name: jobs
-          image: ghcr.io/immich-app/immich-server:release
+          image: ghcr.io/immich-app/immich-server:v1.123.0
           resources:
             requests:
               memory: 128Mi
@@ -204,7 +203,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/immich-app/immich-machine-learning:release
+          image: ghcr.io/immich-app/immich-machine-learning:v1.123.0
           resources:
             requests:
               memory: 128Mi
