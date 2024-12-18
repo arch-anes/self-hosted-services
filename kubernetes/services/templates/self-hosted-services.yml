@@ -29,5 +29,7 @@ spec:
           parameters:
             - name: fqdn
               value: {{ .Values.fqdn }}
+            - name: gitRepo
+              value: {{ .Values.gitRepo }}
       destination:
         server: https://kubernetes.default.svc
