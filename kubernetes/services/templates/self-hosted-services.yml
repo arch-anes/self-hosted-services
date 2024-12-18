@@ -17,6 +17,9 @@ spec:
       name: self-hosted-services-cd-{{`{{ .chartName }}`}}
       namespace: kube-system
     spec:
+      syncPolicy:
+        automated:
+          selfHeal: true
       project: default
       source:
         repoURL: {{ .Values.gitRepo }}
