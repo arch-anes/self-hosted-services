@@ -71,7 +71,7 @@ spec:
                       - "true"
       containers:
         - name: app
-          image: lscr.io/linuxserver/duplicati:latest
+          image: lscr.io/linuxserver/duplicati:2.0.8
           resources:
             requests:
               memory: 512Mi
