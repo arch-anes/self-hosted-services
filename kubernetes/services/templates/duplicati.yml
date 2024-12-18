@@ -90,8 +90,6 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-            - name: backups
-              mountPath: /backups
             - name: storage
               mountPath: /source
               readOnly: true
@@ -99,9 +97,6 @@ spec:
         - name: config
           hostPath:
             path: /storage/duplicati/config
-        - name: backups
-          hostPath:
-            path: /storage/duplicati/backups
         - name: storage
           hostPath:
             path: /storage
