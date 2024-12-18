@@ -59,6 +59,20 @@ type: Opaque
 #   password: "somepass"
 
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: transmission
+  namespace: default
+spec:
+  storageClassName: "local-path-retain"
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -164,5 +178,5 @@ spec:
           hostPath:
             path: /storage/Multimedia/Downloads
         - name: config
-          hostPath:
-            path: /storage/transmission/config
+          persistentVolumeClaim:
+            claimName: transmission
