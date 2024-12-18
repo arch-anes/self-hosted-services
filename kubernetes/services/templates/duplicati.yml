@@ -39,6 +39,17 @@ spec:
                   name: web
 
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: duplicati
+  namespace: default
+type: Opaque
+# stringData:
+#   web_password: "somepassword"
+#   settings_encryption_key: "somepassword"
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -82,6 +93,13 @@ spec:
               value: "0"
             - name: PGID
               value: "0"
+            - name: DUPLICATI__DISABLE_DB_ENCRYPTION
+              value: "true"
+            - name: DUPLICATI__WEBSERVICE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: duplicati
+                  key: web_password
           volumeMounts:
             - name: config
               mountPath: /config
