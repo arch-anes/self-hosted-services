@@ -36,48 +36,6 @@ spec:
                   name: web
 
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: prowlarr-scripts
-  namespace: default
-data:
-  create-config.sh: |
-    #!/bin/bash
-
-    set -e
-    set -u
-
-    cat <<EOCONF > /config/config.xml
-    <Config>
-      <BindAddress>*</BindAddress>
-      <Port>9696</Port>
-      <SslPort>6969</SslPort>
-      <EnableSsl>False</EnableSsl>
-      <LaunchBrowser>True</LaunchBrowser>
-      <ApiKey>$API_KEY</ApiKey>
-      <AuthenticationMethod>Forms</AuthenticationMethod>
-      <AuthenticationRequired>Enabled</AuthenticationRequired>
-      <Branch>master</Branch>
-      <LogLevel>info</LogLevel>
-      <SslCertPath></SslCertPath>
-      <SslCertPassword></SslCertPassword>
-      <UrlBase></UrlBase>
-      <InstanceName>Prowlarr</InstanceName>
-      <UpdateMechanism>Docker</UpdateMechanism>
-      <AnalyticsEnabled>False</AnalyticsEnabled>
-      <PostgresUser>postgres</PostgresUser>
-      <PostgresPassword>$POSTGRES_PASSWORD</PostgresPassword>
-      <PostgresPort>5432</PostgresPort>
-      <PostgresHost>postgresql</PostgresHost>
-      <PostgresMainDb>prowlarr_main</PostgresMainDb>
-      <PostgresLogDb>prowlarr_log</PostgresLogDb>
-    </Config>
-    EOCONF
-
-    chown $PUID:$PGID /config/config.xml
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -126,22 +84,29 @@ spec:
               value: "1000"
             - name: PGID
               value: "1000"
-            - name: API_KEY
+            - name: PROWLARR__APP__THEME
+              value: dark
+            - name: PROWLARR__AUTH__METHOD
+              value: Forms
+            - name: PROWLARR__AUTH__REQUIRED
+              value: Enabled
+            - name: PROWLARR__POSTGRES__HOST
+              value: postgresql
+            - name: PROWLARR__POSTGRES__PORT
+              value: "5432"
+            - name: PROWLARR__POSTGRES__MAINDB
+              value: prowlarr_main
+            - name: PROWLARR__POSTGRES__LOGDB
+              value: prowlarr_log
+            - name: PROWLARR__POSTGRES__USER
+              value: postgres
+            - name: PROWLARR__AUTH__APIKEY
               valueFrom:
                 secretKeyRef:
                   name: arr
                   key: prowlarr_api_key
-            - name: POSTGRES_PASSWORD
+            - name: PROWLARR__POSTGRES__PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgres.postgresql.credentials.postgresql.acid.zalan.do
                   key: password
-          volumeMounts:
-            - name: scripts
-              mountPath: /custom-cont-init.d/create-config.sh
-              subPath: create-config.sh
-      volumes:
-        - name: scripts
-          configMap:
-            name: prowlarr-scripts
-            defaultMode: 0744
