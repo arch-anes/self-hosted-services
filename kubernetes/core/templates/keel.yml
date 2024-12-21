@@ -33,9 +33,6 @@ spec:
       limits:
         cpu: 1000m
         memory: 512Mi
-    image:
-      repository: keelhq/keel
-      tag: latest
     helmProvider:
       enabled: true
       version: "v3"
@@ -53,10 +50,6 @@ spec:
       enabled: true
       type: ClusterIP
       externalPort: 9300
-    keel:
-      policy: all
-      trigger: poll
-      pollSchedule: "@daily"
     ingress:
       enabled: true
       hosts:
