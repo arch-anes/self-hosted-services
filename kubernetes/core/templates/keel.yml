@@ -43,9 +43,6 @@ spec:
       enabled: true
       user: admin
       password: password
-    mail:
-      enabled: true
-      from: keel@{{ .Values.fqdn }}
     service:
       enabled: true
       type: ClusterIP
