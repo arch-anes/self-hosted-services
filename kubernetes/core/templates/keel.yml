@@ -23,7 +23,7 @@ metadata:
 spec:
   chart: keel
   repo: https://keel-hq.github.io/keel/
-  version: 1.0.4
+  version: v1.0.5
   targetNamespace: kube-system
   valuesContent: |-
     resources:
