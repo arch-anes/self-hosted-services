@@ -41,16 +41,9 @@ spec:
       labels:
         app: ddclient
     spec:
-      affinity:
-        nodeAffinity:
-          # Only on public nodes
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: public
-                    operator: In
-                    values:
-                      - "true"
+      nodeSelector:
+        # Schedule only on public nodes
+        public: "true"
       containers:
         - name: app
           image: lscr.io/linuxserver/ddclient:latest

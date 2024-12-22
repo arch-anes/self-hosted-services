@@ -58,16 +58,9 @@ spec:
       labels:
         app: duplicati
     spec:
-      affinity:
-        nodeAffinity:
-          # Only on NAS nodes
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: nas
-                    operator: In
-                    values:
-                      - "true"
+      nodeSelector:
+        # Schedule only on NAS nodes
+        nas: "true"
       containers:
         - name: app
           image: lscr.io/linuxserver/duplicati:2.0.8

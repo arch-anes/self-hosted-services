@@ -42,15 +42,9 @@ spec:
       labels:
         app: minecraft
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: nas
-                    operator: In
-                    values:
-                      - "true"
+      nodeSelector:
+        # Schedule only on NAS nodes
+        nas: "true"
       containers:
         - name: app
           image: itzg/minecraft-server:stable

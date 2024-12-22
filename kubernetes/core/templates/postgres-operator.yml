@@ -45,16 +45,9 @@ spec:
       default_cpu_request: 250m
       default_memory_limit: 3Gi
       default_cpu_limit: 3000m
-    affinity:
-      nodeAffinity:
-        # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-            - matchExpressions:
-              - key: "kubernetes.io/arch"
-                operator: In
-                values:
-                  - amd64
+    nodeSelector:
+      # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
+      kubernetes.io/arch: amd64
     configLogicalBackup:
       logical_backup_job_prefix: "postgresql-operator-logical-backup-"
       logical_backup_provider: "s3"

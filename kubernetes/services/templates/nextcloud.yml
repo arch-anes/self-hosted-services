@@ -72,16 +72,9 @@ spec:
       labels:
         app: nextcloud
     spec:
-      affinity:
-        nodeAffinity:
-          # Only on NAS nodes
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: nas
-                    operator: In
-                    values:
-                      - "true"
+      nodeSelector:
+        # Schedule only on NAS nodes
+        nas: "true"
       containers:
         - name: app
           image: nextcloud:30
