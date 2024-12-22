@@ -42,7 +42,7 @@ spec:
             secretKeyRef:
               name: redis
               key: redis-password
-        REDIS_URL: redis://:$(REDIS_HOST_PASSWORD)@redis:6379
+        REDIS_URL: redis://:$(REDIS_HOST_PASSWORD)@redis-master:6379
         DJANGO_SECRET_KEY:
           valueFrom:
             secretKeyRef:

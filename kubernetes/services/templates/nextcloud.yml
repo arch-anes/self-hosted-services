@@ -113,7 +113,7 @@ spec:
             - name: TRUSTED_PROXIES
               value: "10.43.0.0/16"
             - name: REDIS_HOST
-              value: "redis"
+              value: "redis-master"
             - name: REDIS_HOST_PASSWORD
               valueFrom:
                 secretKeyRef:

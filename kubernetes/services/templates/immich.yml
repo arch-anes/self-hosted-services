@@ -43,7 +43,7 @@ metadata:
   namespace: default
 data:
   IMMICH_PORT: "2283"
-  REDIS_HOSTNAME: "redis"
+  REDIS_HOSTNAME: "redis-master"
   REDIS_PORT: "6379"
   DB_HOSTNAME: "postgresql"
   DB_PORT: "5432"
