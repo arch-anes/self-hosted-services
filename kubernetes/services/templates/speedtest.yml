@@ -112,6 +112,8 @@ spec:
                 secretKeyRef:
                   name: speedtest
                   key: app_key
+            - name: PUBLIC_DASHBOARD
+              value: "true"
             - name: RESULTS_POLLING
               value: "60"
             - name: SPEEDTEST_SCHEDULE
