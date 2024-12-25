@@ -18,6 +18,10 @@ kind: Ingress
 metadata:
   name: immich
   namespace: default
+  annotations:
+    homer.service.name: Media
+    homer.item.name: immich
+    homer.item.logo: "https://immich.app/img/immich-logo-stacked-dark.svg"
 spec:
   tls:
     - hosts:

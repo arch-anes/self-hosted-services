@@ -51,6 +51,11 @@ spec:
     ingress:
       main:
         enabled: true
+        annotations:
+          homer.service.name: Feed
+          homer.service.icon: "fas fa-rss"
+          homer.service.rank: "2"
+          homer.item.logo: "https://raw.githubusercontent.com/miniflux/v2/06c37a132f6a90a30db12ad3f263cc6a97678d4a/ui/static/bin/maskable-icon-192.png"
         hosts:
           - host: miniflux.{{ .Values.fqdn }}
             paths:

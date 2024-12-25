@@ -48,6 +48,9 @@ spec:
       ingress:
         enabled: true
         annotations:
+          homer.service.name: Monitoring
+          homer.item.name: KubeClarity 
+          homer.item.logo: "https://raw.githubusercontent.com/cisco-open/kubei/main/ui/public/favicon.png"
           traefik.ingress.kubernetes.io/router.middlewares: kube-system-cluster-admin-authentication@kubernetescrd
         hosts:
           - host: kubeclarity.{{ .Values.fqdn }}

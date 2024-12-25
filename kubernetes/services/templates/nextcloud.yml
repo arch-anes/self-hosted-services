@@ -32,6 +32,10 @@ metadata:
   namespace: default
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: default-nextcloud-redirect@kubernetescrd
+    homer.service.name: Media
+    homer.item.rank: "2"
+    homer.item.logo: "https://github.com/nextcloud/server/raw/0450e47f8dda26d19a0a252ddd5a117fddfa6885/core/img/logo/logo.png"
+    homer.item.type: "Nextcloud"
 spec:
   tls:
     - hosts:

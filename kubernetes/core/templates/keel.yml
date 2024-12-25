@@ -49,6 +49,9 @@ spec:
       externalPort: 9300
     ingress:
       enabled: true
+      annotations:
+        homer.service.name: Administration
+        homer.item.logo: "https://keel.sh/img/logo_small.png"
       hosts:
         - host: keel.{{ .Values.fqdn }}
           paths:

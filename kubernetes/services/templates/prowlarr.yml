@@ -18,6 +18,9 @@ kind: Ingress
 metadata:
   name: prowlarr
   namespace: default
+  annotations:
+    homer.service.name: Arr
+    homer.item.logo: "https://raw.githubusercontent.com/Prowlarr/Prowlarr/bc53fab96623c91783360cd9d3abce12e6c4f38a/Logo/256.png"
 spec:
   tls:
     - hosts:

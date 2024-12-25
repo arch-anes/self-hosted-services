@@ -60,7 +60,11 @@ spec:
       ingress:
         main:
           enabled: true
-          annotations: {}
+          annotations:
+            homer.service.name: Automation
+            homer.item.name: obico
+            homer.item.rank: "1"
+            homer.item.logo: "https://raw.githubusercontent.com/TheSpaghettiDetective/obico-server/471c0364c7c823194bc9c5c2b13e76aa1ebad6b9/frontend/static/img/logo-compact.png"
           hosts:
             - host: obico.{{ .Values.fqdn }}
               paths:

@@ -42,6 +42,7 @@ metadata:
   name: octoprint-webcam
   namespace: default
   annotations:
+    homer.item.excluded: "true"
     traefik.ingress.kubernetes.io/router.middlewares: default-octoprint-webcam@kubernetescrd
 spec:
   tls:
@@ -80,6 +81,9 @@ kind: Ingress
 metadata:
   name: octoprint
   namespace: default
+  annotations:
+    homer.service.name: Automation
+    homer.item.logo: "https://raw.githubusercontent.com/OctoPrint/OctoPrint/a93b4d397248dc406a75e634c1326fb1b8ddcb63/docs/images/octoprint-logo.png"
 spec:
   tls:
     - hosts:

@@ -18,6 +18,14 @@ kind: Ingress
 metadata:
   name: speedtest
   namespace: default
+  annotations:
+    homer.service.name: Monitoring
+    homer.service.icon: "fas fa-heartbeat"
+    homer.service.rank: "6"
+    homer.item.name: "Speedtest Tracker"
+    homer.item.type: SpeedtestTracker
+    homer.item.rank: "1"
+    homer.item.logo: "https://raw.githubusercontent.com/henrywhitaker3/Speedtest-Tracker/8cb2e8a3236850b4a07e887ac376c0d4d5e804f4/public/icons/fav/ms-icon-310x310.png"
 spec:
   tls:
     - hosts:

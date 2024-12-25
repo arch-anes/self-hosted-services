@@ -18,6 +18,8 @@ kind: Ingress
 metadata:
   name: epicgames-freegames
   namespace: default
+  annotations:
+    homer.item.excluded: "true"
 spec:
   tls:
     - hosts:

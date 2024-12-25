@@ -23,6 +23,8 @@ spec:
     ingress:
       enabled: true
       annotations:
+        homer.service.name: Monitoring
+        homer.item.logo: "https://raw.githubusercontent.com/netdata/netdata/483d8481a5a5edf72630068534feb1a4d228ed0b/web/gui/v1/images/favicon-196x196.png"
         kubernetes.io/ingress.class: traefik
         kubernetes.io/tls-acme: "false"
         traefik.ingress.kubernetes.io/router.middlewares: kube-system-cluster-admin-authentication@kubernetescrd
