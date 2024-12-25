@@ -18,6 +18,9 @@ kind: Ingress
 metadata:
   name: transmission
   namespace: default
+  annotations:
+    homer.service.name: Media
+    homer.item.logo: "https://raw.githubusercontent.com/transmission/transmission/0ce4adf07ce4b6cfabf81e2d027f96197bb9a305/web/assets/img/logo.png"
 spec:
   tls:
     - hosts:

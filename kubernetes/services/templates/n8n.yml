@@ -18,6 +18,10 @@ kind: Ingress
 metadata:
   name: nodemation
   namespace: default
+  annotations:
+    homer.service.name: Automation
+    homer.item.name: n8n
+    homer.item.logo: "https://d33wubrfki0l68.cloudfront.net/b8db213a4d85ebec7b82272cacb727a05a9a1475/96e9f/_images/n8n-docs-icon.svg"
 spec:
   tls:
     - hosts:

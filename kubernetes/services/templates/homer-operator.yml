@@ -1,0 +1,42 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: homer-operator
+  namespace: default
+spec:
+  chart: homer-operator
+  repo: https://arch-anes.github.io/homer-operator/
+  version: 0.1.8
+  targetNamespace: default
+  valuesContent: |-
+    podAnnotations:
+      reloader.stakater.com/auto: "true"
+    resources:
+      requests:
+        memory: 32Mi
+        cpu: 125m
+      limits:
+        memory: 64Mi
+        cpu: 250m
+    ingress:
+      enabled: true
+      annotations:
+        homer.item.excluded: "true"
+      hosts:
+        - host: dash.{{ .Values.fqdn }}
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: {{ .Values.fqdn }}-tls
+          hosts:
+            - dash.{{ .Values.fqdn }}
+    baseConfig: |
+      ---
+      title: "Dashboard"
+      subtitle: "Homer"
+      logo: "logo.png"
+
+      header: false
+      footer: false

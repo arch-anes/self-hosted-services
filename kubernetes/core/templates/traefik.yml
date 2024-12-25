@@ -60,6 +60,10 @@ spec:
     ingressRoute:
       dashboard:
         enabled: true
+        annotations:
+          homer.service.name: Monitoring
+          homer.item.name: "Traefik Dashboard"
+          homer.item.logo: "https://raw.githubusercontent.com/traefik/traefik/aa8eb1af6eb5457516169315676ec22f968e727d/webui/public/app-logo-128x128.png"
         matchRule: Host(`traefik.{{ .Values.fqdn }}`)
         middlewares:
           - name: kube-system-cluster-admin-authentication@kubernetescrd

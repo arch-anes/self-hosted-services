@@ -18,6 +18,9 @@ kind: Ingress
 metadata:
   name: sonarr
   namespace: default
+  annotations:
+    homer.service.name: Arr
+    homer.item.logo: "https://raw.githubusercontent.com/Sonarr/Sonarr/1f785dd30ddf6f1ae61b171afc12ce691c100ee2/Logo/256.png"
 spec:
   tls:
     - hosts:

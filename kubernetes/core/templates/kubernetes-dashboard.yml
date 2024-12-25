@@ -21,6 +21,12 @@ spec:
         useDefaultIngressClass: true
         useDefaultAnnotations: false
         pathType: Prefix
+        annotations:
+          homer.service.name: Administration
+          homer.service.icon: "fas fa-tools"
+          homer.service.rank: "5"
+          homer.item.name: "Kubernetes Dashboard"
+          homer.item.logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Kubernetes_logo_without_workmark.svg/247px-Kubernetes_logo_without_workmark.svg.png"
         hosts:
           - kubernetes.{{ .Values.fqdn }}
         tls:

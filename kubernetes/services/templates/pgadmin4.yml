@@ -40,6 +40,10 @@ spec:
       enabled: false
     ingress:
       enabled: true
+      annotations:
+        homer.service.name: Administration
+        homer.item.name: pgAdmin4
+        homer.item.logo: "https://www.pgadmin.org/static/docs/pgadmin4-dev/docs/en_US/_build/html/_images/logo-right-128.png"
       hosts:
         - host: pgadmin4.{{ .Values.fqdn }}
           paths:

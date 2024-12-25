@@ -32,7 +32,9 @@ spec:
     ingress:
       main:
         enabled: true
-        annotations: {}
+        annotations:
+          homer.service.name: Feed
+          homer.item.logo: "https://raw.githubusercontent.com/gotify/logo/87aef9091f51644eaccf78e7b67f8ce94271efeb/gotify-logo.png"
         hosts:
           - host: gotify.{{ .Values.fqdn }}
             paths:

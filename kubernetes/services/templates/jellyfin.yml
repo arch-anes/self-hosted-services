@@ -18,6 +18,12 @@ kind: Ingress
 metadata:
   name: jellyfin
   namespace: default
+  annotations:
+    homer.service.name: Media
+    homer.service.icon: "fas fa-video"
+    homer.service.rank: "1"
+    homer.item.rank: "1"
+    homer.item.logo: "https://github.com/jellyfin/jellyfin/raw/cd36b8067fcf80c5ebb47bdd9bea0047d1fe3aef/Emby.Dlna/Images/logo240.png"
 spec:
   tls:
     - hosts:

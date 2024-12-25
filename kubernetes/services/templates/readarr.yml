@@ -18,6 +18,9 @@ kind: Ingress
 metadata:
   name: readarr
   namespace: default
+  annotations:
+    homer.service.name: Arr
+    homer.item.logo: "https://raw.githubusercontent.com/Readarr/Readarr/4249f5324aa43474336f1e02f46cb38c31bb2997/Logo/256.png"
 spec:
   tls:
     - hosts:

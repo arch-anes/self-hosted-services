@@ -18,6 +18,10 @@ kind: Ingress
 metadata:
   name: filebrowser
   namespace: default
+  annotations:
+    homer.service.name: Media
+    homer.item.name: filebrowser
+    homer.item.logo: "https://raw.githubusercontent.com/filebrowser/filebrowser/129a4fd39d550bd2a449575cf93f061593e39102/frontend/public/img/logo.svg"
 spec:
   tls:
     - hosts:
