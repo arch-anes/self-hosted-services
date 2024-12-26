@@ -111,7 +111,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: vpn
-          image: qmcgaw/gluetun:v3.39.1
+          image: qmcgaw/gluetun:v3.40.0
           securityContext:
             privileged: true
             capabilities:
