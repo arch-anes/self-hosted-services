@@ -8,8 +8,6 @@
     firewall_rules:
       - { to_port: 80, proto: tcp, rule: allow, comment: "Allow HTTP" }
       - { to_port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
-      - { to_port: 30760, proto: any, rule: allow, comment: "Allow Minecraft Java" }
-      - { to_port: 30770, proto: any, rule: allow, comment: "Allow Minecraft Java (GeyserMC)" }
       - { to_port: 30778, proto: any, rule: allow, comment: "Allow Minecraft Bedrock" }
   when: not (skip_firewall_setup or manifest_only_setup)
 
