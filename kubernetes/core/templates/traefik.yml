@@ -9,37 +9,38 @@ type: Opaque
 #   credentials: "admin:$2y$12$8KtQ4SQb6QpebcgYvMPjwOv3Jz9ojkNq8FVWZmk5q1BW9BoEX2aAy" # admin:admin by default, bcrypted password: https://bcrypt-generator.com/
 
 ---
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: cluster-admin-authentication
-  namespace: kube-system
-spec:
-  basicAuth:
-    secret: "cluster-admin-credentials"
-
----
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: traefik-websecure
-  namespace: kube-system
-spec:
-  headers:
-    browserXssFilter: true
-    stsPreload: true
-    stsIncludeSubdomains: true
-    forceSTSHeader: true
-    stsSeconds: 15552000
-
----
 apiVersion: helm.cattle.io/v1
-kind: HelmChartConfig
+kind: HelmChart
 metadata:
   name: traefik
   namespace: kube-system
 spec:
+  chart: traefik
+  repo: https://traefik.github.io/charts
+  version: v33.2.1
+  targetNamespace: kube-system
   valuesContent: |-
+    extraObjects:
+      - apiVersion: traefik.io/v1alpha1
+        kind: Middleware
+        metadata:
+          name: cluster-admin-authentication
+          namespace: kube-system
+        spec:
+          basicAuth:
+            secret: "cluster-admin-credentials"
+      - apiVersion: traefik.io/v1alpha1
+        kind: Middleware
+        metadata:
+          name: traefik-websecure
+          namespace: kube-system
+        spec:
+          headers:
+            browserXssFilter: true
+            stsPreload: true
+            stsIncludeSubdomains: true
+            forceSTSHeader: true
+            stsSeconds: 15552000
     logs:
       access:
         enabled: true
@@ -56,7 +57,6 @@ spec:
                     - "true"
     globalArguments:
       - "--global.sendanonymoususage=false"
-      - "--entryPoints.websecure.transport.respondingTimeouts.readTimeout=0"
     ingressRoute:
       dashboard:
         enabled: true
@@ -76,6 +76,9 @@ spec:
         redirectTo:
           port: websecure
       websecure:
+        transport:
+          respondingTimeouts:
+            readTimeout: 0
         middlewares:
           - kube-system-traefik-websecure@kubernetescrd
         tls:
