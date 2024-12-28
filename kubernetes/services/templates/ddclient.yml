@@ -1,73 +1,55 @@
 ---
-apiVersion: v1
-kind: ConfigMap
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
   name: ddclient
   namespace: default
-data:
-  ddclient.conf: |
-    daemon=300 # check every 300 seconds
-    syslog=yes
-    pid=/var/run/ddclient/ddclient.pid
-    ssl=yes
-
-    use=web, web=checkip.amazonaws.com
-
-    wildcard=yes
-
-    protocol=cloudflare, zone={{ .Values.fqdn }}, ttl=1, password_env=API_KEY {{ .Values.fqdn }}
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ddclient
-  namespace: default
-  labels:
-    app: ddclient
-  annotations:
-    reloader.stakater.com/auto: "true"
-    keel.sh/policy: force
-    keel.sh/matchTag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@daily"
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: ddclient
-  template:
-    metadata:
-      labels:
-        app: ddclient
-    spec:
+  chart: oci://tccr.io/truecharts/ddclient
+  version: 11.3.0
+  targetNamespace: default
+  valuesContent: |-
+    configmap:
+      config:
+        enabled: true
+        namespace: default
+        data:
+          ddclient.conf: |
+            daemon=300 # check every 300 seconds
+            syslog=yes
+            pid=/var/run/ddclient/ddclient.pid
+            ssl=yes
+
+            use=web, web=checkip.amazonaws.com
+
+            wildcard=yes
+
+            protocol=cloudflare, zone={{ .Values.fqdn }}, ttl=1, password_env=API_KEY {{ .Values.fqdn }}
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                API_KEY:
+                  secretKeyRef:
+                    name: {{ .Values.fqdn }}-cloudflare
+                    key: token
+                    expandObjectName: false
+    resources:
+      requests:
+        memory: 32Mi
+        cpu: 125m
+      limits:
+        memory: 128Mi
+        cpu: 250m
+    podOptions:
       nodeSelector:
         # Schedule only on public nodes
         public: "true"
-      containers:
-        - name: app
-          image: lscr.io/linuxserver/ddclient:latest
-          resources:
-            requests:
-              memory: 32Mi
-              cpu: 125m
-            limits:
-              memory: 128Mi
-              cpu: 250m
-          env:
-            - name: API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.fqdn }}-cloudflare
-                  key: token
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
-          volumeMounts:
-            - name: config
-              mountPath: /defaults
-      volumes:
-        - name: config
-          configMap:
-            name: ddclient
+    persistence:
+      config:
+        enabled: true
+        type: configmap
+        mountPath: /defaults
+        objectName: config
