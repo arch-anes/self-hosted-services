@@ -1,0 +1,95 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: speedtest-tracker
+  namespace: default
+type: Opaque
+# visit https://speedtest-tracker.dev/ to get a key
+# stringData:
+#   app_key: "somekey"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: speedtest-tracker
+  namespace: default
+spec:
+  chart: oci://tccr.io/truecharts/speedtest-tracker
+  version: 6.0.0
+  targetNamespace: default
+  valuesContent: |-
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                APP_URL: https://speedtest.{{ .Values.fqdn }}
+                PUBLIC_DASHBOARD: "true"
+                RESULTS_POLLING: "60"
+                SPEEDTEST_SCHEDULE: "0 * * * *"
+                APP_KEY:
+                  secretKeyRef:
+                    name: speedtest-tracker
+                    key: app_key
+                    expandObjectName: false
+                DB_CONNECTION: pgsql
+                DB_HOST: postgresql
+                DB_PORT: "5432"
+                DB_DATABASE: speedtest_tracker
+                DB_USERNAME: postgres
+                DB_PASSWORD:
+                  secretKeyRef:
+                    name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                    key: password
+                    expandObjectName: false
+                CACHE_DRIVER: redis
+                REDIS_HOST_PASSWORD:
+                  secretKeyRef:
+                    name: redis
+                    key: redis-password
+                    expandObjectName: false
+                REDIS_URL: redis://:$(REDIS_HOST_PASSWORD)@redis-master:6379
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: 2000m
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:    
+          homer.service.name: Monitoring
+          homer.service.icon: "fas fa-heartbeat"
+          homer.service.rank: "6"
+          homer.item.name: "Speedtest Tracker"
+          homer.item.type: SpeedtestTracker
+          homer.item.rank: "1"
+          homer.item.logo: "https://raw.githubusercontent.com/henrywhitaker3/Speedtest-Tracker/8cb2e8a3236850b4a07e887ac376c0d4d5e804f4/public/icons/fav/ms-icon-310x310.png"
+        hosts:
+          - host: speedtest.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: {{ .Values.fqdn }}-tls
+            hosts:
+              - speedtest.{{ .Values.fqdn }}
+    podOptions:
+      nodeSelector:
+        # Schedule only on public nodes
+        public: "true"
+    persistence:
+      config:
+        enabled: false
+    redis:
+      enabled: false
+    cnpg:
+      main:
+        enabled: false
