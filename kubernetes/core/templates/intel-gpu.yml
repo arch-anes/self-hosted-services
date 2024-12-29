@@ -1,0 +1,23 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: intel-device-plugins-operator
+  namespace: kube-system
+spec:
+  chart: intel-device-plugins-operator
+  repo: https://intel.github.io/helm-charts/
+  version: 0.31.1
+  targetNamespace: kube-system
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: intel-gpu
+  namespace: kube-system
+spec:
+  chart: intel-device-plugins-gpu
+  repo: https://intel.github.io/helm-charts/
+  version: 0.31.1
+  targetNamespace: kube-system
