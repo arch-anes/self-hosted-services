@@ -1,13 +1,10 @@
 {
 	"name": "Self-hosted services devcontainer",
-	"build": {
-		"context": "..",
-		"dockerfile": "./Dockerfile",
-	},
+	"image": "ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest",
 	"runArgs": [
 		"--privileged",
+		"--volume=./.devcontainer/ansible:/etc/ansible",
 	],
-	"remoteUser": "vscode",
 	"postAttachCommand": "ansible-galaxy install -r requirements.yml --force",
 	"customizations": {
 		"vscode": {
