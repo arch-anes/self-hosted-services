@@ -42,8 +42,8 @@ spec:
           cpu: 250m
           memory: 256Mi
         limits:
-          cpu: 1000m
-          memory: 1Gi
+          cpu: 2000m
+          memory: 2Gi
       env:
         DO_NOT_TRACK: 1
         NETDATA_DISABLE_CLOUD: 1
