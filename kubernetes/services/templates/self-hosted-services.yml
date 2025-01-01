@@ -12,6 +12,8 @@ spec:
         elements:
           - chartName: core
           - chartName: services
+  syncPolicy:
+    preserveResourcesOnDeletion: true
   template:
     metadata:
       name: self-hosted-services-cd-{{`{{ .chartName }}`}}
