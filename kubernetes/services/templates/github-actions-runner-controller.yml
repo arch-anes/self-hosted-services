@@ -1,0 +1,45 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: gha-runner-scale-set-controller
+  namespace: default
+spec:
+  chart: oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller
+  version: 0.10.1
+  targetNamespace: default
+  valuesContent: |-
+    resources:
+      requests:
+        memory: 32Mi
+        cpu: 125m
+      limits:
+        memory: 128Mi
+        cpu: 250m
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gha-runner-scale-set
+  namespace: default
+type: Opaque
+# https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners-with-actions-runner-controller/authenticating-to-the-github-api#authenticating-arc-with-a-personal-access-token-classic
+# stringData:
+#   github_token: ""
+
+{{- range .Values.actionRunnerConfigs }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: gha-runner-scale-set-{{ .name }}
+  namespace: default
+spec:
+  chart: oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+  version: 0.10.1
+  targetNamespace: default
+  valuesContent: |-
+    githubConfigUrl: {{ .githubConfigUrl }}
+    githubConfigSecret: gha-runner-scale-set
+{{- end }}
