@@ -42,4 +42,5 @@ spec:
   valuesContent: |-
     githubConfigUrl: {{ .githubConfigUrl }}
     githubConfigSecret: gha-runner-scale-set
+    minRunners: 1
 {{- end }}
