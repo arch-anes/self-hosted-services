@@ -30,6 +30,14 @@ type: Opaque
 
 {{- range .Values.actionRunnerConfigs }}
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gha-runner-{{ .name }}
+  labels:
+    name: gha-runner-{{ .name }}
+
+---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -38,9 +46,10 @@ metadata:
 spec:
   chart: oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
   version: 0.10.1
-  targetNamespace: default
+  targetNamespace: gha-runner-{{ .name }}
   valuesContent: |-
     githubConfigUrl: {{ .githubConfigUrl }}
     githubConfigSecret: gha-runner-scale-set
     minRunners: 1
+    runnerScaleSetName: ubuntu-latest
 {{- end }}
