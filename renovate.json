@@ -25,10 +25,25 @@
         "kubernetes/.+/.+\\.yml$"
       ],
       "matchStrings": [
-        "kind:\\s*HelmChart\\s*\\n(?:.*\\n)*?\\s*chart:\\s*oci://(?<registryUrl>[^/]+)/(?<depName>[^\\s]+)\\s*\\n(?:.*\\n)*?\\s*version:\\s*(?<currentValue>[^\\s]+)\\s*\\n"      ],
+        "kind:\\s*HelmChart\\s*\\n(?:.*\\n)*?\\s*chart:\\s*oci://(?<registryUrl>[^/]+)/(?<depName>[^\\s]+)\\s*\\n(?:.*\\n)*?\\s*version:\\s*(?<currentValue>[^\\s]+)\\s*\\n"
+      ],
       "datasourceTemplate": "docker",
       "registryUrlTemplate": "https://{{registryUrl}}",
       "versioningTemplate": "helm"
+    }
+  ],
+  "packageRules": [
+    {
+      "automerge": true,
+      "automergeType": "branch",
+      "automergeStrategy": "squash",
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "matchDatasources": [
+        "helm",
+        "docker"
+      ]
     }
   ]
 }
