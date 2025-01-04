@@ -1,6 +1,5 @@
 # code: language=ansible
 ---
-
 - name: Setup firewall
   ansible.builtin.import_role:
     name: firewall
@@ -12,52 +11,129 @@
       - { to_port: "2379:2380", proto: tcp, rule: allow, comment: "Required only for HA with embedded etcd" }
   when: not (skip_firewall_setup or manifest_only_setup)
 
+- name: Set k3s version
+  ansible.builtin.set_fact:
+    k3s_version: "v1.30"
+
 - name: Set k3s ip
   ansible.builtin.set_fact:
     advertised_ip: "{{ vpn_address | default(direct_ip) }}"
 
 - name: Set k3s config
   ansible.builtin.set_fact:
-    k3s_agent:
-      with-node-id: true
-      node-ip: "{{ advertised_ip }}"
-      node-external-ip: "{{ advertised_ip }}"
-      flannel-iface: "tailscale0"
-      node-label: "{{ labels }}"
-    k3s_server:
-      etcd-s3: true
-      etcd-s3-config-secret: k3s-etcd-snapshot-s3-config
-      etcd-snapshot-retention: 20
-      disable: traefik
-      with-node-id: true
-      node-ip: "{{ advertised_ip }}"
-      node-external-ip: "{{ advertised_ip }}"
-      flannel-iface: "tailscale0"
-      node-label: "{{ labels }}"
-      default-local-storage-path: /storage/cluster-local-storage
-      kubelet-arg:
-        - node-status-update-frequency=4s
-      kube-controller-manager-arg:
-        - node-monitor-period=4s
-        - node-monitor-grace-period=16s
-      kube-apiserver-arg:
-        - default-not-ready-toleration-seconds=20
-        - default-unreachable-toleration-seconds=20
+    k3s_agent_flags: >-
+      --with-node-id
+      --node-ip {{ advertised_ip }}
+      --node-external-ip {{ advertised_ip }}
+      --flannel-iface tailscale0
+      --node-label {{ labels }}
+    k3s_server_flags: >-
+      --etcd-s3
+      --etcd-s3-config-secret k3s-etcd-snapshot-s3-config
+      --etcd-snapshot-retention 20
+      --disable traefik
+      --with-node-id
+      --node-ip {{ advertised_ip }}
+      --node-external-ip {{ advertised_ip }}
+      --flannel-iface tailscale0
+      --node-label {{ labels }}
+      --default-local-storage-path /storage/cluster-local-storage
+      --kubelet-arg node-status-update-frequency=4s
+      --kube-controller-manager-arg node-monitor-period=4s
+      --kube-controller-manager-arg node-monitor-grace-period=16s
+      --kube-apiserver-arg default-not-ready-toleration-seconds=20
+      --kube-apiserver-arg default-unreachable-toleration-seconds=20
 
 - name: Make k3s depend on tailscaled at startup
   ansible.builtin.set_fact:
-    k3s_service_requires:
-      - tailscaled.service
-    k3s_service_after:
-      - tailscaled.service
+    k3s_service_requires: "tailscaled.service"
+    k3s_service_after: "tailscaled.service"
   when: not skip_vpn_setup
 
-- name: Install and deploy k3s
-  ansible.builtin.import_role:
-    name: xanmanning.k3s
-  vars:
-    k3s_release_version: v1.30
-    k3s_become: true
-    k3s_etcd_datastore: true
-    k3s_use_unsupported_config: true
+- name: Determine the HA leader (find a running k3s-server or fallback to the first master)
   become: true
+  block:
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Check if k3s is running in server mode
+      ansible.builtin.shell: |
+        ps -ef | grep k3s | grep -q -- 'server'
+      register: k3s_server_mode
+      ignore_errors: true
+      changed_when: false
+      when: k3s_control_node | bool
+
+    - name: Set HA leader fact if k3s.service is running in server mode
+      ansible.builtin.set_fact:
+        ha_leader: "{{ inventory_hostname }}"
+      when:
+        - k3s_control_node | bool
+        - k3s_server_mode.rc == 0
+      run_once: true
+
+    - name: Set HA leader fact to the first master if no running k3s-server is found
+      ansible.builtin.set_fact:
+        ha_leader: "{{ play_hosts | selectattr('k3s_control_node', 'equalto', true) | first }}"
+      when:
+        - ha_leader is not defined
+        - k3s_control_node | bool
+      run_once: true
+
+- name: Install k3sup and configure k3s
+  become: true
+  block:
+    - name: Install k3sup
+      ansible.builtin.shell: |
+        curl -sLS https://get.k3sup.dev | sh
+        sudo install k3sup /usr/local/bin/
+
+    - name: Elect the first k3s master (HA leader)
+      ansible.builtin.command: >
+        k3sup install
+        --local
+        --cluster
+        --ip {{ advertised_ip }}
+        --user {{ ansible_user }}
+        --k3s-version {{ k3s_version }}
+        --k3s-extra-args '{{ k3s_server_flags }}'
+      when:
+        - k3s_control_node | bool
+        - inventory_hostname == ha_leader
+      environment:
+        # This does not work
+        K3S_SERVICE_REQUIRES: "{{ k3s_service_requires }}"
+        K3S_SERVICE_AFTER: "{{ k3s_service_after }}"
+
+    - name: Deploy additional k3s masters (HA followers)
+      ansible.builtin.command: >
+        k3sup join
+        --local
+        --server
+        --server-ip {{ hostvars[ha_leader]['advertised_ip'] }}
+        --ip {{ advertised_ip }}
+        --user {{ ansible_user }}
+        --k3s-version {{ k3s_version }}
+        --k3s-extra-args '{{ k3s_server_flags }}'
+      when:
+        - k3s_control_node | bool
+        - inventory_hostname != ha_leader
+      environment:
+        # This does not work
+        K3S_SERVICE_REQUIRES: "{{ k3s_service_requires }}"
+        K3S_SERVICE_AFTER: "{{ k3s_service_after }}"
+
+    - name: Join k3s agents
+      ansible.builtin.command: >
+        k3sup join
+        --local
+        --server-ip {{ hostvars[ha_leader]['advertised_ip'] }}
+        --ip {{ advertised_ip }}
+        --user {{ ansible_user }}
+        --k3s-version {{ k3s_version }}
+        --k3s-extra-args '{{ k3s_agent_flags }}'
+      when: not k3s_control_node | bool
+      environment:
+        # This does not work
+        K3S_SERVICE_REQUIRES: "{{ k3s_service_requires }}"
+        K3S_SERVICE_AFTER: "{{ k3s_service_after }}"
