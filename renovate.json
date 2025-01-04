@@ -3,6 +3,10 @@
   "extends": [
     "config:recommended"
   ],
+  "timezone": "America/Toronto",
+  "schedule": [
+    "* 0-3 * * *"
+  ],
   "kubernetes": {
     "fileMatch": [
       "kubernetes/.+/.+\\.yml$"
