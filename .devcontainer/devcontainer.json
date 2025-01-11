@@ -4,6 +4,9 @@
 	"runArgs": [
 		"--privileged",
 		"--volume=./.devcontainer/ansible:/etc/ansible",
+		"--volume=/var/run/docker.sock:/var/run/docker.sock",
+		"--volume=/sys/fs/cgroup:/sys/fs/cgroup:rw",
+		"--network=host",
 	],
 	"postAttachCommand": "ansible-galaxy install -r requirements.yml --force",
 	"customizations": {

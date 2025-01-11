@@ -4,6 +4,7 @@
 collections:
   - name: amazon.aws
   - name: community.general
+  - name: community.docker
   - name: ansible.posix
   - name: kubernetes.core
 roles:
