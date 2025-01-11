@@ -1,0 +1,8 @@
+---
+- name: Clean up after Molecule run
+  hosts: localhost
+  tasks:
+    - name: Remove secrets
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/../../kubernetes/core/templates/00_secrets.yml"
+        state: absent

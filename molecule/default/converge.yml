@@ -1,5 +1,3 @@
-# code: language=ansible
-
 ---
 - name: Setup cluster
   import_playbook: ../../setup_cluster.yml
