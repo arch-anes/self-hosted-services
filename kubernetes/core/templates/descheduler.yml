@@ -18,6 +18,8 @@ spec:
         memory: 256Mi
         cpu: 500m
     deschedulerPolicy:
+      metricsCollector:
+        enabled: true
       profiles:
         - name: default
           pluginConfig:
