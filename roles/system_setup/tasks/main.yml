@@ -1,10 +1,6 @@
 # code: language=ansible
 ---
 
-- name: Detect if Raspberry Pi machine
-  ansible.builtin.set_fact:
-    is_raspberry_pi: "{{ 'raspi' in ansible_kernel }}"
-
 - name: Setup packages
   ansible.builtin.include_tasks: packages.yml
 

@@ -7,6 +7,9 @@
   environment:
     KUBECONFIG: /etc/rancher/k3s/k3s.yaml
   roles:
+    - name: Detect system facts
+      role: detect
+
     - name: Setup system
       role: system_setup
       when: not (skip_system_setup or manifest_only_setup)

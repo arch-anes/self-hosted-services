@@ -1,0 +1,9 @@
+# code: language=ansible
+---
+
+- name: Get facts on current container
+  community.docker.current_container_facts:
+
+- name: Detect if Raspberry Pi machine
+  ansible.builtin.set_fact:
+    is_raspberry_pi: "{{ 'raspi' in ansible_kernel }}"
