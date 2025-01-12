@@ -15,6 +15,7 @@
 - name: Set k3s ip
   ansible.builtin.set_fact:
     advertised_ip: "{{ vpn_address | default(direct_ip) }}"
+    network_interface: "{{ 'tailscale0' if vpn_address is defined else ansible_default_ipv4.interface }}"
 
 - name: Set k3s config
   ansible.builtin.set_fact:
@@ -22,7 +23,7 @@
       with-node-id: true
       node-ip: "{{ advertised_ip }}"
       node-external-ip: "{{ advertised_ip }}"
-      flannel-iface: "tailscale0"
+      flannel-iface: "{{ network_interface }}"
       node-label: "{{ labels }}"
     k3s_server:
       etcd-s3: true
@@ -32,7 +33,7 @@
       with-node-id: true
       node-ip: "{{ advertised_ip }}"
       node-external-ip: "{{ advertised_ip }}"
-      flannel-iface: "tailscale0"
+      flannel-iface: "{{ network_interface }}"
       node-label: "{{ labels }}"
       default-local-storage-path: /storage/cluster-local-storage
       kubelet-arg:
@@ -50,7 +51,7 @@
       - tailscaled.service
     k3s_service_after:
       - tailscaled.service
-  when: not skip_vpn_setup
+  when: vpn_address is defined
 
 - name: Install and deploy k3s
   ansible.builtin.import_role:
