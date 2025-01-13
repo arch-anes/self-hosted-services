@@ -1,13 +1,8 @@
 {
 	"name": "Self-hosted services devcontainer",
-	"image": "ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest",
-	"runArgs": [
-		"--privileged",
-		"--volume=./.devcontainer/ansible:/etc/ansible",
-		"--volume=/var/run/docker.sock:/var/run/docker.sock",
-		"--volume=/sys/fs/cgroup:/sys/fs/cgroup:rw",
-		"--network=host",
-	],
+	"dockerComposeFile": "./docker-compose.yml",
+	"service": "devcontainer",
+	"workspaceFolder": "/workspace",
 	"postAttachCommand": "ansible-galaxy install -r requirements.yml --force",
 	"customizations": {
 		"vscode": {
