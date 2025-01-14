@@ -17,7 +17,7 @@ metadata:
 spec:
   chart: traefik
   repo: https://traefik.github.io/charts
-  version: v33.2.1
+  version: 34.0.0
   targetNamespace: kube-system
   valuesContent: |-
     extraObjects:
@@ -77,8 +77,11 @@ spec:
         allowCrossNamespace: true
     ports:
       web:
-        redirectTo:
-          port: websecure
+        redirections:
+          entryPoint:
+            to: websecure
+            scheme: https
+            permanent: true
       websecure:
         transport:
           respondingTimeouts:
