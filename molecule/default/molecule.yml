@@ -14,10 +14,9 @@ lint: |
 platforms:
   - name: replica1
     image: ghcr.io/arch-anes/ubuntu-systemd:latest
-    command: /lib/systemd/systemd
+    entrypoint: ~
+    command: ~
     privileged: true
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
     docker_networks:
       - name: molecule_network
         ipam_config:
@@ -27,28 +26,25 @@ platforms:
         ipv4_address: 192.168.42.42
   - name: replica2
     image: ghcr.io/arch-anes/ubuntu-systemd:latest
-    command: /lib/systemd/systemd
+    entrypoint: ~
+    command: ~
     privileged: true
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
     networks:
       - name: molecule_network
         ipv4_address: 192.168.42.43
   - name: replica3
     image: ghcr.io/arch-anes/ubuntu-systemd:latest
-    command: /lib/systemd/systemd
+    entrypoint: ~
+    command: ~
     privileged: true
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
     networks:
       - name: molecule_network
         ipv4_address: 192.168.42.44
   - name: replica4
     image: ghcr.io/arch-anes/ubuntu-systemd:latest
-    command: /lib/systemd/systemd
+    entrypoint: ~
+    command: ~
     privileged: true
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
     networks:
       - name: molecule_network
         ipv4_address: 192.168.42.45
