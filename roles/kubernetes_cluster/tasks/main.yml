@@ -12,10 +12,11 @@
       - { to_port: "2379:2380", proto: tcp, rule: allow, comment: "Required only for HA with embedded etcd" }
   when: not (skip_firewall_setup or manifest_only_setup)
 
-- name: Set k3s ip
+- name: Set k3s pre-config
   ansible.builtin.set_fact:
     advertised_ip: "{{ vpn_address | default(direct_ip) }}"
     network_interface: "{{ 'tailscale0' if vpn_address is defined else ansible_default_ipv4.interface }}"
+    snapshotter: "{{ 'overlayfs' if ansible_module_container_type == '' else 'fuse-overlayfs' }}"
 
 - name: Set k3s config
   ansible.builtin.set_fact:
@@ -24,6 +25,7 @@
       node-ip: "{{ advertised_ip }}"
       node-external-ip: "{{ advertised_ip }}"
       flannel-iface: "{{ network_interface }}"
+      snapshotter: "{{ snapshotter }}"
       node-label: "{{ labels }}"
     k3s_server:
       etcd-s3: true
@@ -34,6 +36,7 @@
       node-ip: "{{ advertised_ip }}"
       node-external-ip: "{{ advertised_ip }}"
       flannel-iface: "{{ network_interface }}"
+      snapshotter: "{{ snapshotter }}"
       node-label: "{{ labels }}"
       default-local-storage-path: /storage/cluster-local-storage
       kubelet-arg:
