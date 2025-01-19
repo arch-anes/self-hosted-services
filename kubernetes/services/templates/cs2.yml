@@ -1,0 +1,105 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cs2
+  namespace: default
+type: Opaque
+# stringData:
+#   login_token: "some_key" # https://steamcommunity.com/dev/managegameservers
+#   server_name: "some_name"
+#   server_password: "some_pass"
+#   game_mode: "competitive"
+#   cs2_workshop_map_id: "3070368330" # https://steamcommunity.com/sharedfiles/filedetails/?id=3070368330
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cs2
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+    - protocol: UDP
+      name: game-udp
+      port: 27015
+      nodePort: 30015
+    - protocol: TCP
+      name: game-tcp
+      port: 27015
+      nodePort: 30015
+  selector:
+    app: cs2
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cs2
+  namespace: default
+  labels:
+    app: cs2
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cs2
+  template:
+    metadata:
+      labels:
+        app: cs2
+    spec:
+      nodeSelector:
+        # Schedule only on Games nodes
+        games: "true"
+      containers:
+        - name: app
+          image: joedwards32/cs2:3.0.1
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 250m
+            limits:
+              memory: 2Gi
+              cpu: 2000m
+          ports:
+            - name: game
+              containerPort: 27015
+          env:
+            - name: CS2_BOT_QUOTA
+              value: "0"
+            - name: SRCDS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cs2
+                  key: login_token
+            - name: CS2_SERVERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: cs2
+                  key: server_name
+            - name: CS2_PW
+              valueFrom:
+                secretKeyRef:
+                  name: cs2
+                  key: server_password
+            - name: CS2_GAMEALIAS
+              valueFrom:
+                secretKeyRef:
+                  name: cs2
+                  key: game_mode
+            - name: CS2_HOST_WORKSHOP_MAP
+              valueFrom:
+                secretKeyRef:
+                  name: cs2
+                  key: cs2_workshop_map_id
+          volumeMounts:
+            - name: data
+              mountPath: /home/steam/cs2-dedicated
+      volumes:
+        - name: data
+          hostPath:
+            path: /storage/cs2/data
