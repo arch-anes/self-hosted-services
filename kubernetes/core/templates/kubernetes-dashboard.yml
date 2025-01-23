@@ -38,6 +38,7 @@ spec:
         http:
           enabled: true
         tls:
+          enabled: false
           servicePort: 80
     nginx:
       enabled: false
