@@ -43,3 +43,13 @@ spec:
           - secretName: {{ .Values.fqdn }}-tls
             hosts:
               - gotify.{{ .Values.fqdn }}
+    probes:
+      liveness:
+        type: HTTP
+        path: /health
+      readiness:
+        type: HTTP
+        path: /health
+      startup:
+        type: HTTP
+        path: /health
