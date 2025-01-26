@@ -64,5 +64,15 @@ spec:
           - secretName: {{ .Values.fqdn }}-tls
             hosts:
               - miniflux.{{ .Values.fqdn }}
+    probes:
+      liveness:
+        type: HTTP
+        path: /healthcheck
+      readiness:
+        type: HTTP
+        path: /healthcheck
+      startup:
+        type: HTTP
+        path: /healthcheck
     postgresql:
       enabled: false
