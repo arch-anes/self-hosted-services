@@ -66,9 +66,14 @@ spec:
               - miniflux.{{ .Values.fqdn }}
     probes:
       liveness:
+        spec:
+          periodSeconds: 30
         type: HTTP
         path: /healthcheck
       readiness:
+        spec:
+          periodSeconds: 30
+          initialDelaySeconds: 15
         type: HTTP
         path: /healthcheck
       startup:

@@ -69,8 +69,8 @@ spec:
             httpGet:
               path: /ping
               port: 9696
-            initialDelaySeconds: 30
-            periodSeconds: 15
+            initialDelaySeconds: 15
+            periodSeconds: 30
             failureThreshold: 5
           resources:
             requests:

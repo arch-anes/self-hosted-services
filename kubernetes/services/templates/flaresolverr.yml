@@ -43,7 +43,7 @@ spec:
               path: /
               port: 8191
             initialDelaySeconds: 15
-            periodSeconds: 15
+            periodSeconds: 30
             failureThreshold: 5
           resources:
             requests:

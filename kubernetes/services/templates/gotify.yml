@@ -45,9 +45,14 @@ spec:
               - gotify.{{ .Values.fqdn }}
     probes:
       liveness:
+        spec:
+          periodSeconds: 30
         type: HTTP
         path: /health
       readiness:
+        spec:
+          periodSeconds: 30
+          initialDelaySeconds: 15
         type: HTTP
         path: /health
       startup:

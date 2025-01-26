@@ -72,8 +72,8 @@ spec:
             httpGet:
               path: /ping
               port: 8787
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: 15
+            periodSeconds: 30
             failureThreshold: 5
           resources:
             requests:

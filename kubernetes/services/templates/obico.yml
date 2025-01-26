@@ -75,9 +75,14 @@ spec:
                 - obico.{{ .Values.fqdn }}
       probes:
         liveness:
+          spec:
+            periodSeconds: 30
           type: HTTP
           path: /hc
         readiness:
+          spec:
+            periodSeconds: 30
+            initialDelaySeconds: 15
           type: HTTP
           path: /hc
         startup:
