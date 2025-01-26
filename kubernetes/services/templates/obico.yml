@@ -73,6 +73,16 @@ spec:
             - secretName: {{ .Values.fqdn }}-tls
               hosts:
                 - obico.{{ .Values.fqdn }}
+      probes:
+        liveness:
+          type: HTTP
+          path: /hc
+        readiness:
+          type: HTTP
+          path: /hc
+        startup:
+          type: HTTP
+          path: /hc
     ml-api:
       resources:
         requests:
