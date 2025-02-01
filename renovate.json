@@ -5,7 +5,8 @@
   ],
   "timezone": "America/Toronto",
   "schedule": [
-    "* 0-3 * * *"
+    "after 10pm every weekday",
+    "before 3am every weekday"
   ],
   "kubernetes": {
     "fileMatch": [
