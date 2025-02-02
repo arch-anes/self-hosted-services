@@ -4,10 +4,6 @@
     "config:recommended"
   ],
   "timezone": "America/Toronto",
-  "schedule": [
-    "after 10pm every weekday",
-    "before 3am every weekday"
-  ],
   "kubernetes": {
     "fileMatch": [
       "kubernetes/.+\\.ya?ml$"
