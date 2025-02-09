@@ -77,7 +77,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: lscr.io/linuxserver/duplicati:2.0.8
+          image: lscr.io/linuxserver/duplicati:2.1.0
           resources:
             requests:
               memory: 512Mi
