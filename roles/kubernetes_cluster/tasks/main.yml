@@ -23,7 +23,6 @@
     k3s_agent:
       with-node-id: true
       node-ip: "{{ advertised_ip }}"
-      node-external-ip: "{{ advertised_ip }}"
       flannel-iface: "{{ network_interface }}"
       snapshotter: "{{ snapshotter }}"
       node-label: "{{ labels }}"
@@ -34,7 +33,6 @@
       disable: traefik
       with-node-id: true
       node-ip: "{{ advertised_ip }}"
-      node-external-ip: "{{ advertised_ip }}"
       flannel-iface: "{{ network_interface }}"
       snapshotter: "{{ snapshotter }}"
       node-label: "{{ labels }}"
