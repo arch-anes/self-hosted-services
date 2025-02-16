@@ -58,6 +58,10 @@ spec:
     globalArguments:
       - "--global.sendanonymoususage=false"
     ingressRoute:
+      healthcheck:
+        enabled: true
+        annotations:
+          homer.item.excluded: "true"
       dashboard:
         enabled: true
         annotations:
@@ -76,6 +80,9 @@ spec:
       kubernetesCRD:
         allowCrossNamespace: true
     ports:
+      traefik:
+        expose:
+          default: true
       web:
         redirections:
           entryPoint:
