@@ -79,6 +79,9 @@ spec:
     providers:
       kubernetesCRD:
         allowCrossNamespace: true
+    service:
+      spec:
+        externalTrafficPolicy: Local
     ports:
       traefik:
         expose:
@@ -89,7 +92,23 @@ spec:
             to: websecure
             scheme: https
             permanent: true
+        proxyProtocol:
+          trustedIPs:
+            - "10.42.0.0/16"
+            - "10.43.0.0/16"
+        forwardedHeaders:
+          trustedIPs:
+            - "10.42.0.0/16"
+            - "10.43.0.0/16"
       websecure:
+        proxyProtocol:
+          trustedIPs:
+            - "10.42.0.0/16"
+            - "10.43.0.0/16"
+        forwardedHeaders:
+          trustedIPs:
+            - "10.42.0.0/16"
+            - "10.43.0.0/16"
         transport:
           respondingTimeouts:
             readTimeout: 0
