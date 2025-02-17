@@ -10,6 +10,7 @@ spec:
   version: 0.1.9
   targetNamespace: default
   valuesContent: |-
+    replicaCount: 3
     podAnnotations:
       reloader.stakater.com/auto: "true"
     resources:
