@@ -1,5 +1,41 @@
 ---
 apiVersion: v1
+kind: Secret
+metadata:
+  name: minecraft-bedrock
+  namespace: default
+type: Opaque
+# stringData:
+#   admincraft_password: "somepass"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minecraft-bedrock
+  namespace: default
+  annotations:
+    homer.service.name: Administration
+    homer.item.logo: "https://static.wikia.nocookie.net/logopedia/images/0/00/Minecraft_Bedrock_Edition.svg/revision/latest/scale-to-width-down/1000?cb=20250209064935"
+spec:
+  tls:
+    - hosts:
+        - mc.{{ .Values.fqdn }}
+      secretName: {{ .Values.fqdn }}-tls
+  rules:
+    - host: mc.{{ .Values.fqdn }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: admincraft
+                port:
+                  name: web
+
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: minecraft-bedrock
@@ -8,9 +44,23 @@ spec:
   type: NodePort
   ports:
     - protocol: UDP
-      name: web
+      name: app
       port: 19132
       nodePort: 30778
+  selector:
+    app: minecraft-bedrock
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admincraft
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 8080
   selector:
     app: minecraft-bedrock
 
@@ -42,6 +92,29 @@ spec:
         # Schedule only on NAS nodes
         nas: "true"
       containers:
+        - name: web
+          image: joanroig/admincraft-websocket
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 1000m
+            limits:
+              memory: 1Gi
+              cpu: 1000m
+          env:
+            - name: RWA_ADMIN
+              value: "TRUE"
+            - name: RWA_USERNAME
+              value: "admin"
+            - name: RWA_PASSWORD
+              value: "admin"
+            - name: RWA_RCON_HOST
+              value: "localhost"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minecraft-bedrock
+                  key: admincraft_password
         - name: app
           image: itzg/minecraft-bedrock-server
           stdin: true
@@ -57,8 +130,10 @@ spec:
             - name: EULA
               value: "TRUE"
           ports:
-            - name: web
+            - name: app
               containerPort: 19132
+            - name: web
+              containerPort: 8080
           volumeMounts:
             - name: minecraft-bedrock
               mountPath: /data
