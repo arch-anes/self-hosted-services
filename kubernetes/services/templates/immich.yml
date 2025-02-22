@@ -123,6 +123,7 @@ spec:
             limits:
               memory: 4Gi
               cpu: 2000m
+              gpu.intel.com/i915: 1
           envFrom:
             - configMapRef:
                 name: immich-env
