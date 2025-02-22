@@ -56,10 +56,6 @@ metadata:
     keel.sh/pollSchedule: "@daily"
 spec:
   replicas: 1
-  strategy:
-    # This is done to ensure GPU is freed before creating new container
-    # otherwise deployment is pending
-    type: Recreate
   selector:
     matchLabels:
       app: jellyfin
