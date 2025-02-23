@@ -38,6 +38,7 @@ spec:
       containers:
         - name: app
           image: 21hsmw/flaresolverr:nodriver
+          imagePullPolicy: Always
           livenessProbe:
             httpGet:
               path: /
