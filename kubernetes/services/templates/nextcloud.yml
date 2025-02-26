@@ -81,7 +81,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: nextcloud:30
+          image: nextcloud:31
           # https://github.com/nextcloud/helm/issues/55#issuecomment-1126289717
           lifecycle:
             postStart:
