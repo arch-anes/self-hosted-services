@@ -132,7 +132,7 @@ spec:
             path: /storage/tdarr/logs
         - name: cache
           hostPath:
-            path: /storage/tdarr/cache
+            path: /storage/Multimedia/transcoding-cache
         - name: media
           hostPath:
             path: /storage/Multimedia
@@ -220,7 +220,7 @@ spec:
             path: /storage/tdarr/logs
         - name: cache
           hostPath:
-            path: /storage/tdarr/cache
+            path: /storage/Multimedia/transcoding-cache
         - name: media
           hostPath:
             path: /storage/Multimedia
