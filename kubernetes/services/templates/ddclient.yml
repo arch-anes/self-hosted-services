@@ -6,7 +6,7 @@ metadata:
   namespace: default
 spec:
   chart: oci://tccr.io/truecharts/ddclient
-  version: 12.0.6
+  version: 12.0.7
   targetNamespace: default
   valuesContent: |-
     configmap:
