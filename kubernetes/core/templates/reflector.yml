@@ -7,7 +7,7 @@ metadata:
 spec:
   chart: reflector
   repo: https://emberstack.github.io/helm-charts
-  version: 9.0.313
+  version: 9.0.318
   targetNamespace: kube-system
   valuesContent: |-
     autoscaling:
