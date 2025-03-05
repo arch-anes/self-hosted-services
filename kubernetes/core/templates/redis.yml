@@ -27,8 +27,24 @@ spec:
     auth:
       existingSecret: redis
       existingSecretKey: redis-password
-    architecture: standalone
+    architecture: replication
     master:
+      persistence:
+        enabled: true
+      resources:
+        requests:
+          memory: 128Mi
+          cpu: 250m
+        limits:
+          memory: 256Mi
+          cpu: 1000m
+      nodeSelector:
+        # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
+        kubernetes.io/arch: amd64
+    replica:
+      replicaCount: 1
+      persistence:
+        enabled: true
       resources:
         requests:
           memory: 128Mi
