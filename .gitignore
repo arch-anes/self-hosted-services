@@ -1,3 +1,4 @@
 *.env
 inventory*.yml
 roles/xanmanning.k3s/
+.ansible/
