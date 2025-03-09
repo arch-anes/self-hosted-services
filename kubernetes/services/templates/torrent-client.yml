@@ -2,15 +2,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: transmission
+  name: torrent-client
   namespace: default
 spec:
   ports:
     - protocol: TCP
-      name: web
+      name: transmission
       port: 9091
   selector:
-    app: transmission
+    app: torrent-client
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -34,9 +34,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: transmission
+                name: torrent-client
                 port:
-                  name: web
+                  name: transmission
 
 ---
 apiVersion: v1
@@ -79,10 +79,10 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: transmission
+  name: torrent-client
   namespace: default
   labels:
-    app: transmission
+    app: torrent-client
   annotations:
     reloader.stakater.com/auto: "true"
     keel.sh/policy: force
@@ -93,11 +93,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: transmission
+      app: torrent-client
   template:
     metadata:
       labels:
-        app: transmission
+        app: torrent-client
     spec:
       affinity:
         podAffinity:
@@ -144,7 +144,7 @@ spec:
                 secretKeyRef:
                   name: gluetun
                   key: server_countries
-        - name: app
+        - name: transmission
           image: lscr.io/linuxserver/transmission:latest
           resources:
             requests:
@@ -154,7 +154,7 @@ spec:
               memory: 2Gi
               cpu: 2000m
           ports:
-            - name: web
+            - name: transmission
               containerPort: 9091
           env:
             - name: PUID
