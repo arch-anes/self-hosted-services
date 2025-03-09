@@ -9,6 +9,9 @@ spec:
     - protocol: TCP
       name: transmission
       port: 9091
+    - protocol: TCP
+      name: joal
+      port: 12345
   selector:
     app: torrent-client
 
@@ -39,6 +42,32 @@ spec:
                   name: transmission
 
 ---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: joal
+  namespace: default
+  annotations:
+    homer.service.name: Media
+    homer.item.logo: "https://raw.githubusercontent.com/anthonyraymond/joal/cad5df11990d4304476d574484003ccbcdd0b700/src/main/resources/public/favicon.ico"
+spec:
+  tls:
+    - hosts:
+        - joal.{{ .Values.fqdn }}
+      secretName: {{ .Values.fqdn }}-tls
+  rules:
+    - host: joal.{{ .Values.fqdn }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: torrent-client
+                port:
+                  name: joal
+
+---
 apiVersion: v1
 kind: Secret
 metadata:
@@ -63,9 +92,34 @@ type: Opaque
 
 ---
 apiVersion: v1
+kind: Secret
+metadata:
+  name: joal
+  namespace: default
+type: Opaque
+# stringData:
+#   path: "somerandompath"
+#   token: "somepass"
+
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: transmission
+  namespace: default
+spec:
+  storageClassName: "local-path-retain"
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: joal
   namespace: default
 spec:
   storageClassName: "local-path-retain"
@@ -176,6 +230,34 @@ spec:
               mountPath: /downloads
             - name: transmission-config
               mountPath: /config
+        - name: joal
+          image: anthonyraymond/joal:2.1.36
+          command: ["bash"]
+          args: ["-c", "java -jar /joal/joal.jar --server.port=12345 --joal-conf=/data --spring.main.web-environment=true --joal.ui.path.prefix=$$SECRET_PATH --joal.ui.secret-token=$$SECRET_TOKEN"]
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 250m
+            limits:
+              memory: 1Gi
+              cpu: 1000m
+          ports:
+            - name: joal
+              containerPort: 12345
+          env:
+            - name: SECRET_PATH
+              valueFrom:
+                secretKeyRef:
+                  name: joal
+                  key: path
+            - name: SECRET_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: joal
+                  key: token
+          volumeMounts:
+            - name: joal-config
+              mountPath: /data
       volumes:
         - name: downloads
           hostPath:
@@ -183,3 +265,6 @@ spec:
         - name: transmission-config
           persistentVolumeClaim:
             claimName: transmission
+        - name: joal-config
+          persistentVolumeClaim:
+            claimName: joal
