@@ -130,6 +130,33 @@ spec:
       storage: 100Mi
 
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: transmission-scripts
+  namespace: default
+data:
+  extract-files.sh: |
+    #!/bin/bash
+
+    # Transmission completion script for automatic extraction
+
+    find "${TR_TORRENT_DIR}" -type f \( -iname "*.rar" -o -iname "*.zip" -o -iname "*.7z" \) | while read -r file; do
+        file_dir=$(dirname "${file}")
+        case "${file,,}" in
+            *.rar)
+                unrar x -o- "${file}" "${file_dir}" &>/dev/null
+                ;;
+            *.zip)
+                unzip -o "${file}" -d "${file_dir}" &>/dev/null
+                ;;
+            *.7z)
+                7z x -aoa "${file}" -o"${file_dir}" &>/dev/null
+                ;;
+        esac
+    done
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -230,6 +257,8 @@ spec:
               mountPath: /downloads
             - name: transmission-config
               mountPath: /config
+            - name: transmission-scripts
+              mountPath: /scripts
         - name: joal
           image: anthonyraymond/joal:2.1.36
           command: ["bash"]
@@ -265,6 +294,10 @@ spec:
         - name: transmission-config
           persistentVolumeClaim:
             claimName: transmission
+        - name: transmission-scripts
+          configMap:
+            name: transmission-scripts
+            defaultMode: 0744
         - name: joal-config
           persistentVolumeClaim:
             claimName: joal
