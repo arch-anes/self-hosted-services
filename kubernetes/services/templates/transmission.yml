@@ -174,12 +174,12 @@ spec:
           volumeMounts:
             - name: downloads
               mountPath: /downloads
-            - name: config
+            - name: transmission-config
               mountPath: /config
       volumes:
         - name: downloads
           hostPath:
             path: /storage/Multimedia/Downloads
-        - name: config
+        - name: transmission-config
           persistentVolumeClaim:
             claimName: transmission
