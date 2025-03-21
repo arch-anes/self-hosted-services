@@ -2,18 +2,30 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: torrent-client
+  name: transmission
   namespace: default
 spec:
   ports:
     - protocol: TCP
       name: transmission
       port: 9091
+  selector:
+    app: torrent-client
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: joal
+  namespace: default
+spec:
+  ports:
     - protocol: TCP
       name: joal
       port: 12345
   selector:
     app: torrent-client
+
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -37,7 +49,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: torrent-client
+                name: transmission
                 port:
                   name: transmission
 
@@ -63,7 +75,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: torrent-client
+                name: joal
                 port:
                   name: joal
 
