@@ -52,6 +52,27 @@ spec:
         limits:
           memory: 256Mi
           cpu: 1000m
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/component
+                      operator: In
+                      values:
+                        - master
+                        - replica
+                    - key: app.kubernetes.io/instance
+                      operator: In
+                      values:
+                        - redis
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - redis
+                topologyKey: kubernetes.io/hostname
+              weight: 1
       nodeSelector:
         # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
         kubernetes.io/arch: amd64
