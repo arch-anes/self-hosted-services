@@ -21,7 +21,7 @@ metadata:
 spec:
   chart: redis
   repo: https://charts.bitnami.com/bitnami
-  version: 20.11.3
+  version: 20.11.4
   targetNamespace: default
   valuesContent: |-
     auth:
