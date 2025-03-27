@@ -200,7 +200,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/immich-app/immich-machine-learning:v1.130.2
+          image: ghcr.io/immich-app/immich-machine-learning:v1.130.3
           resources:
             requests:
               memory: 128Mi
