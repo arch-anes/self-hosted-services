@@ -52,6 +52,7 @@ spec:
       annotations:
         homer.service.name: Administration
         homer.item.logo: "https://keel.sh/img/logo_small.png"
+        traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
       hosts:
         - host: keel.{{ .Values.fqdn }}
           paths:

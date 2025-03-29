@@ -41,6 +41,20 @@ spec:
             stsIncludeSubdomains: true
             forceSTSHeader: true
             stsSeconds: 15552000
+      - apiVersion: traefik.io/v1alpha1
+        kind: Middleware
+        metadata:
+          name: intranet-allowlist
+          namespace: kube-system
+        spec:
+          ipAllowList:
+            sourceRange:
+              # Local network
+              - 10.0.0.0/8
+              - 192.168.0.0/16
+              # Tailscale
+              - 100.64.0.0/10
+              - fd7a:115c:a1e0::/48
     logs:
       access:
         enabled: true
@@ -70,6 +84,7 @@ spec:
           homer.item.logo: "https://raw.githubusercontent.com/traefik/traefik/aa8eb1af6eb5457516169315676ec22f968e727d/webui/public/app-logo-128x128.png"
         matchRule: Host(`traefik.{{ .Values.fqdn }}`)
         middlewares:
+          - name: kube-system-intranet-allowlist@kubernetescrd
           - name: kube-system-cluster-admin-authentication@kubernetescrd
         entryPoints:
           - web
