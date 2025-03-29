@@ -31,6 +31,7 @@ spec:
           homer.service.rank: "4"
           homer.item.name: argo
           homer.item.logo: "https://raw.githubusercontent.com/argoproj/argo-cd/4471603de2a8f3e7e0bdfbd9d487468b6b20a354/docs/assets/argo.png"
+          traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
         extraTls:
           - hosts:
               - argo.{{ .Values.fqdn }}

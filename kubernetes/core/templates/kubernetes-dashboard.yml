@@ -27,6 +27,7 @@ spec:
           homer.service.rank: "5"
           homer.item.name: "Kubernetes Dashboard"
           homer.item.logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Kubernetes_logo_without_workmark.svg/247px-Kubernetes_logo_without_workmark.svg.png"
+          traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
         hosts:
           - kubernetes.{{ .Values.fqdn }}
         tls:
