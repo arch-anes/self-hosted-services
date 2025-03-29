@@ -71,3 +71,67 @@ Run `ansible-playbook setup_cluster.yml -i inventory_static.yml -i inventory_ec2
 
 ## Post-deployment step
 To ensure no down time, make sure all the machines have key expiry disabled: https://tailscale.com/kb/1028/key-expiry#disabling-key-expiry.
+
+## Advanced use-cases
+
+### Load balancing
+In a typical home network setup, when HTTP(S) ports are forwarded to a specific machine, the entire service becomes unavailable if that machine goes offline. However, if your router supports OpenWRT (such as the GL-MT6000), you can install HAProxy to address this issue. For optimal security and high availability, configure the proxy as follows:
+
+`/etc/haproxy.cfg`:
+```
+global
+    log /dev/log local0
+    log-tag HAProxy
+    maxconn 32000
+    ulimit-n 65535
+    uid 0
+    gid 0
+    nosplice
+    daemon
+
+defaults
+    log global
+    mode tcp
+    timeout connect 5s
+    timeout client 30s
+    timeout server 30s
+    option redispatch
+    retries 3
+    option log-health-checks
+    option dontlognull
+    option dontlog-normal
+
+frontend http-in
+    bind :9080
+    mode tcp
+    default_backend http-servers
+
+frontend https-in
+    bind :9443
+    mode tcp
+    default_backend https-servers
+
+backend http-servers
+    mode tcp
+    balance roundrobin
+    option httpchk
+    http-check connect port 8080
+    http-check send meth GET uri /ping
+    default-server inter 3s fall 3 rise 2
+    server s1 192.168.1.11:80 send-proxy check
+    server s2 192.168.1.12:80 send-proxy check
+    server s3 192.168.1.13:80 send-proxy check
+
+backend https-servers
+    mode tcp
+    balance roundrobin
+    option httpchk
+    http-check connect port 8080
+    http-check send meth GET uri /ping
+    default-server inter 3s fall 3 rise 2
+    server s1 192.168.1.11:443 send-proxy check
+    server s2 192.168.1.12:443 send-proxy check
+    server s3 192.168.1.13:443 send-proxy check
+```
+
+With this configuration, all incoming HTTP(S) traffic must now flow through the gateway ports 9080/9443 where HAProxy is installed. This is because the router forwards traffic to the HAProxy instance, which then distributes it to the backend servers. This setup ensures that even if one server goes down, the service remains available, as HAProxy will route traffic to the remaining operational servers.
