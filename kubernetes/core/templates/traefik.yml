@@ -120,17 +120,17 @@ spec:
             permanent: true
         proxyProtocol:
           trustedIPs:
-            {{- .Values.localIpRanges | toYaml | nindent 12 }}
+            {{- concat .Values.localIpRanges .Values.cloudFlareIpRanges | toYaml | nindent 12 }}
         forwardedHeaders:
           trustedIPs:
-            {{- .Values.localIpRanges | toYaml | nindent 12 }}
+            {{- concat .Values.localIpRanges .Values.cloudFlareIpRanges | toYaml | nindent 12 }}
       websecure:
         proxyProtocol:
           trustedIPs:
-            {{- .Values.localIpRanges | toYaml | nindent 12 }}
+            {{- concat .Values.localIpRanges .Values.cloudFlareIpRanges | toYaml | nindent 12 }}
         forwardedHeaders:
           trustedIPs:
-            {{- .Values.localIpRanges | toYaml | nindent 12 }}
+            {{- concat .Values.localIpRanges .Values.cloudFlareIpRanges | toYaml | nindent 12 }}
         transport:
           respondingTimeouts:
             readTimeout: 0
