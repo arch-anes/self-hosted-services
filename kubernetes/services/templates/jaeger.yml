@@ -1,0 +1,62 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: jaeger
+  namespace: default
+spec:
+  chart: jaeger
+  repo: https://jaegertracing.github.io/helm-charts
+  version: 3.4.1
+  targetNamespace: default
+  valuesContent: |-
+    provisionDataStore:
+      cassandra: false
+    extraObjects:
+      - apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          name: jaeger
+          namespace: default
+        spec:
+          storageClassName: "local-path-retain"
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 100Mi
+    storage:
+      type: badger
+      badger:
+        ephemeral: false
+        persistence:
+          useExistingPvcName: jaeger
+    agent:
+      enabled: false
+    collector:
+      enabled: false
+    query:
+      enabled: false
+    allInOne:
+      enabled: true
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 2Gi
+        requests:
+          cpu: 256m
+          memory: 128Mi
+      ingress:
+        enabled: true
+        pathType: Prefix
+        annotations:
+          homer.service.name: Monitoring
+          homer.item.name: "Jaeger"
+          homer.item.logo: "https://www.jaegertracing.io/img/jaeger-logo.png"
+          traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd,kube-system-cluster-admin-authentication@kubernetescrd
+        hosts:
+          - jaeger.{{ .Values.fqdn }}
+        tls:
+          - secretName: {{ .Values.fqdn }}-tls
+            hosts:
+              - jaeger.{{ .Values.fqdn }}

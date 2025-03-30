@@ -58,6 +58,13 @@ spec:
     logs:
       access:
         enabled: true
+    tracing:
+      addInternals: true
+      otlp:
+        enabled: true
+        http:
+          enabled: true
+          endpoint: http://jaeger-collector.default.svc.cluster.local:4318/v1/traces
     affinity:
       nodeAffinity:
         # Prefer local nodes
