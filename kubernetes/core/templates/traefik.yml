@@ -49,12 +49,7 @@ spec:
         spec:
           ipAllowList:
             sourceRange:
-              # Local network
-              - 10.0.0.0/8
-              - 192.168.0.0/16
-              # Tailscale
-              - 100.64.0.0/10
-              - fd7a:115c:a1e0::/48
+              {{- concat .Values.localIpRanges .Values.tailscaleIpRanges | toYaml | nindent 14 }}
     logs:
       access:
         enabled: true
@@ -125,21 +120,17 @@ spec:
             permanent: true
         proxyProtocol:
           trustedIPs:
-            - "10.0.0.0/8"
-            - "192.168.0.0/16"
+            {{- .Values.localIpRanges | toYaml | nindent 12 }}
         forwardedHeaders:
           trustedIPs:
-            - "10.0.0.0/8"
-            - "192.168.0.0/16"
+            {{- .Values.localIpRanges | toYaml | nindent 12 }}
       websecure:
         proxyProtocol:
           trustedIPs:
-            - "10.0.0.0/8"
-            - "192.168.0.0/16"
+            {{- .Values.localIpRanges | toYaml | nindent 12 }}
         forwardedHeaders:
           trustedIPs:
-            - "10.0.0.0/8"
-            - "192.168.0.0/16"
+            {{- .Values.localIpRanges | toYaml | nindent 12 }}
         transport:
           respondingTimeouts:
             readTimeout: 0

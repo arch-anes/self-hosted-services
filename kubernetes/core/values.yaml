@@ -4,3 +4,12 @@
 
 # Base domain name to be used for all services
 fqdn: example.org
+
+localIpRanges:
+  - 10.0.0.0/8
+  - 192.168.0.0/16
+
+tailscaleIpRanges:
+  # https://tailscale.com/kb/1015/100.x-addresses
+  - 100.64.0.0/10
+  - fd7a:115c:a1e0::/48
