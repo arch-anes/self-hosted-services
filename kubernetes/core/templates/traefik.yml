@@ -58,6 +58,10 @@ spec:
     logs:
       access:
         enabled: true
+        addInternals: true
+        fields:
+          headers:
+            defaultmode: keep
     tracing:
       addInternals: true
       otlp:
