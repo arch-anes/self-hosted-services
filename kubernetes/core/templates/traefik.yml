@@ -64,6 +64,11 @@ spec:
             defaultmode: keep
     tracing:
       addInternals: true
+      capturedRequestHeaders:
+        - "X-Real-Ip"
+        - "X-Forwarded-For"
+        - "True-Client-IP"
+        - "CF-Connecting-IP"
       otlp:
         enabled: true
         http:
