@@ -39,6 +39,13 @@ spec:
       enabled: false
     allInOne:
       enabled: true
+      samplingConfig: |-
+        {
+          "default_strategy": {
+            "type": "probabilistic",
+            "param": 0.2
+          }
+        }
       resources:
         limits:
           cpu: 1000m
