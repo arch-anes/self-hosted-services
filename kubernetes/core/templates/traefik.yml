@@ -58,7 +58,6 @@ spec:
           headers:
             defaultmode: keep
     tracing:
-      addInternals: true
       capturedRequestHeaders:
         - "X-Real-Ip"
         - "X-Forwarded-For"
