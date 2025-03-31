@@ -7,7 +7,7 @@ metadata:
 spec:
   teamId: arch-anes
   postgresql:
-    version: "16"
+    version: "17"
     parameters:
       password_encryption: scram-sha-256
   numberOfInstances: 3
