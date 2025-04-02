@@ -49,6 +49,7 @@ spec:
       # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
       kubernetes.io/arch: amd64
     configLogicalBackup:
+      logical_backup_docker_image: "ghcr.io/zalando/postgres-operator/logical-backup:v1.14.0"
       logical_backup_job_prefix: "postgresql-operator-logical-backup-"
       logical_backup_provider: "s3"
       logical_backup_s3_bucket_prefix: "spilo"
