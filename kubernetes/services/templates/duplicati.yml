@@ -57,11 +57,6 @@ metadata:
   namespace: default
   labels:
     app: duplicati
-  annotations:
-    keel.sh/policy: force
-    keel.sh/matchTag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@daily"
 spec:
   replicas: 1
   selector:
