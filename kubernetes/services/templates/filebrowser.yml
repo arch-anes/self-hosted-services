@@ -49,10 +49,6 @@ metadata:
     app: filebrowser
   annotations:
     reloader.stakater.com/auto: "true"
-    keel.sh/policy: force
-    keel.sh/matchTag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@daily"
 spec:
   replicas: 1
   selector:
@@ -68,7 +64,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: filebrowser/filebrowser:s6
+          image: filebrowser/filebrowser:v2.32.0
           resources:
             requests:
               memory: 128Mi
@@ -88,11 +84,11 @@ spec:
             - name: files
               mountPath: /srv
             - name: db
-              mountPath: /database
+              mountPath: /database.db
       volumes:
         - name: files
           hostPath:
             path: /storage/Multimedia/Miscellaneous
         - name: db
           hostPath:
-            path: /storage/filebrowser/database
+            path: /storage/filebrowser/database.db
