@@ -61,11 +61,6 @@ metadata:
   namespace: default
   labels:
     app: nextcloud
-  annotations:
-    keel.sh/policy: force
-    keel.sh/matchTag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@daily"
 spec:
   replicas: 1
   selector:
@@ -81,7 +76,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: nextcloud:31
+          image: nextcloud:31.0.2
           # https://github.com/nextcloud/helm/issues/55#issuecomment-1126289717
           lifecycle:
             postStart:
