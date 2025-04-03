@@ -51,10 +51,6 @@ metadata:
     app: tdarr
   annotations:
     reloader.stakater.com/auto: "true"
-    keel.sh/policy: force
-    keel.sh/matchTag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@daily"
 spec:
   replicas: 1
   selector:
@@ -77,7 +73,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: app
-          image: ghcr.io/haveagitgat/tdarr:latest
+          image: ghcr.io/haveagitgat/tdarr:2.37.01
           resources:
             requests:
               memory: 256Mi
@@ -147,10 +143,6 @@ metadata:
     app: tdarr-worker
   annotations:
     reloader.stakater.com/auto: "true"
-    keel.sh/policy: force
-    keel.sh/matchTag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@daily"
 spec:
   replicas: 1
   selector:
@@ -173,7 +165,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: app
-          image: ghcr.io/haveagitgat/tdarr_node:latest
+          image: ghcr.io/haveagitgat/tdarr_node:2.37.01
           resources:
             requests:
               memory: 256Mi

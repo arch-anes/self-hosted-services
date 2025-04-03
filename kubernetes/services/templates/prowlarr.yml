@@ -48,10 +48,6 @@ metadata:
     app: prowlarr
   annotations:
     reloader.stakater.com/auto: "true"
-    keel.sh/policy: force
-    keel.sh/matchTag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@daily"
 spec:
   replicas: 1
   selector:
@@ -64,7 +60,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: lscr.io/linuxserver/prowlarr:latest
+          image: lscr.io/linuxserver/prowlarr:1.32.2
           livenessProbe:
             httpGet:
               path: /ping
