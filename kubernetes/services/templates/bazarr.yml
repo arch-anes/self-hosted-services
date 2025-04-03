@@ -236,10 +236,6 @@ metadata:
     app: bazarr
   annotations:
     reloader.stakater.com/auto: "true"
-    keel.sh/policy: force
-    keel.sh/matchTag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@daily"
 spec:
   replicas: 1
   selector:
@@ -262,7 +258,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: app
-          image: lscr.io/linuxserver/bazarr:latest
+          image: lscr.io/linuxserver/bazarr:1.5.1
           livenessProbe:
             httpGet:
               path: /ping

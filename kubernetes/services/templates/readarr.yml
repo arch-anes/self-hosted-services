@@ -48,10 +48,6 @@ metadata:
     app: readarr
   annotations:
     reloader.stakater.com/auto: "true"
-    keel.sh/policy: force
-    keel.sh/matchTag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@daily"
 spec:
   replicas: 1
   selector:
@@ -67,7 +63,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: lscr.io/linuxserver/readarr:develop
+          image: lscr.io/linuxserver/readarr:0.4.13-develop
           livenessProbe:
             httpGet:
               path: /ping

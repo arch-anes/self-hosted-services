@@ -49,11 +49,6 @@ metadata:
   namespace: default
   labels:
     app: jellyseerr
-  annotations:
-    keel.sh/policy: force
-    keel.sh/matchTag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@daily"
 spec:
   replicas: 1
   selector:
@@ -69,7 +64,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: fallenbagel/jellyseerr:latest
+          image: fallenbagel/jellyseerr:2.5.1
           resources:
             requests:
               memory: 128Mi
