@@ -22,12 +22,6 @@ metadata:
   namespace: default
   labels:
     app: minecraft-bedrock
-  annotations:
-    keel.sh/policy: force
-    keel.sh/matchTag: "true"
-    keel.sh/approvals: "1"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@daily"
 spec:
   replicas: 1
   selector:
@@ -43,7 +37,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: itzg/minecraft-bedrock-server
+          image: itzg/minecraft-bedrock-server:2025.4.0
           stdin: true
           tty: true
           resources:
