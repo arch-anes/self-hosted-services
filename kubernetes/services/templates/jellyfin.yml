@@ -49,11 +49,6 @@ metadata:
   namespace: default
   labels:
     app: jellyfin
-  annotations:
-    keel.sh/policy: force
-    keel.sh/matchTag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@daily"
 spec:
   replicas: 1
   selector:
@@ -69,7 +64,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: jellyfin/jellyfin:latest
+          image: jellyfin/jellyfin:10.10.6
           startupProbe:
             httpGet:
               path: /health
