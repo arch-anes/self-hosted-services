@@ -18,11 +18,11 @@ spec:
     server:
       resources:
         limits:
-          cpu: 1000m
+          cpu: null
           memory: 1Gi
         requests:
-          cpu: 10m
-          memory: 64Mi
+          cpu: 500m
+          memory: 128Mi
       ingress:
         enabled: true
         annotations:
@@ -49,24 +49,24 @@ spec:
     controller:
       resources:
         limits:
-          cpu: 1000m
+          cpu: null
           memory: 1Gi
         requests:
-          cpu: 10m
-          memory: 64Mi
+          cpu: 500m
+          memory: 128Mi
     repoServer:
       resources:
         limits:
-          cpu: 1000m
+          cpu: null
           memory: 1Gi
         requests:
-          cpu: 10m
-          memory: 64Mi
+          cpu: 500m
+          memory: 128Mi
     applicationSet:
       resources:
         limits:
-          cpu: 250m
+          cpu: null
           memory: 128Mi
         requests:
-          cpu: 10m
+          cpu: 250m
           memory: 64Mi

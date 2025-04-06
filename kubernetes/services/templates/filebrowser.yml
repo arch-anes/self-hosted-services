@@ -71,7 +71,6 @@ spec:
               cpu: 250m
             limits:
               memory: 2Gi
-              cpu: 2000m
           ports:
             - name: web
               containerPort: 80

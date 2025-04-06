@@ -84,10 +84,9 @@ spec:
           resources:
             requests:
               memory: 128Mi
-              cpu: 250m
+              cpu: 1000m
             limits:
               memory: 2Gi
-              cpu: 2000m
           envFrom:
             - configMapRef:
                 name: immich-env
@@ -118,7 +117,6 @@ spec:
               cpu: 250m
             limits:
               memory: 4Gi
-              cpu: 2000m
               gpu.intel.com/i915: 1
           envFrom:
             - configMapRef:
@@ -198,7 +196,6 @@ spec:
               cpu: 250m
             limits:
               memory: 4Gi
-              cpu: 2000m
           env:
             - name: IMMICH_PORT
               value: "3003"

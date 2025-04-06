@@ -140,21 +140,15 @@ spec:
     resources:
       requests:
         memory: 128Mi
-        cpu: 125m
+        cpu: 500m
       limits:
         memory: 512Mi
-        cpu: 1000m
+        cpu: null
     autoscaling:
       enabled: true
       minReplicas: 1
       maxReplicas: 10
       metrics:
-        - type: Resource
-          resource:
-            name: cpu
-            target:
-              type: Utilization
-              averageUtilization: 60
         - type: Resource
           resource:
             name: memory

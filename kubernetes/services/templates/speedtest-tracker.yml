@@ -55,10 +55,10 @@ spec:
     resources:
       requests:
         memory: 256Mi
-        cpu: 250m
+        cpu: 1000m
       limits:
         memory: 1Gi
-        cpu: 2000m
+        cpu: null
     global:
       traefik:
         fixedMiddlewares: []

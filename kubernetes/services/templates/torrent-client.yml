@@ -209,10 +209,9 @@ spec:
           resources:
             requests:
               memory: 512Mi
-              cpu: 250m
+              cpu: 1000m
             limits:
               memory: 1Gi
-              cpu: 1000m
           env:
             - name: UPDATER_PERIOD
               value: "24h"
@@ -238,10 +237,9 @@ spec:
           resources:
             requests:
               memory: 128Mi
-              cpu: 250m
+              cpu: 1000m
             limits:
               memory: 2Gi
-              cpu: 2000m
           ports:
             - name: transmission
               containerPort: 9091
@@ -277,7 +275,6 @@ spec:
               cpu: 250m
             limits:
               memory: 1Gi
-              cpu: 1000m
           ports:
             - name: joal
               containerPort: 12345

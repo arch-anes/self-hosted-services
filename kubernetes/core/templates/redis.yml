@@ -34,10 +34,10 @@ spec:
       resources:
         requests:
           memory: 128Mi
-          cpu: 250m
+          cpu: 500m
         limits:
           memory: 256Mi
-          cpu: 1000m
+          cpu: null
       nodeSelector:
         # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
         kubernetes.io/arch: amd64
@@ -48,10 +48,10 @@ spec:
       resources:
         requests:
           memory: 128Mi
-          cpu: 250m
+          cpu: 500m
         limits:
           memory: 256Mi
-          cpu: 1000m
+          cpu: null
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

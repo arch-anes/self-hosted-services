@@ -24,7 +24,7 @@ spec:
         cpu: 250m
       limits:
         memory: 128Mi
-        cpu: 500m
+        cpu: null
     podSecurityContext:
       runAsUser: 0
       runAsGroup: 0

@@ -97,10 +97,9 @@ spec:
           resources:
             requests:
               memory: 128Mi
-              cpu: 250m
+              cpu: 2000m
             limits:
               memory: 8Gi
-              cpu: 4000m
           env:
             - name: PHP_MEMORY_LIMIT
               value: "7G"

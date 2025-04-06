@@ -42,8 +42,9 @@ spec:
       pod_environment_configmap: default/postgres-pod-config-custom-env
     configPostgresPodResources:
       default_memory_request: 250Mi
-      default_cpu_request: 250m
+      default_cpu_request: 1000m
       default_memory_limit: 3Gi
+      # operatorconfigurations crd automatically sets the cpu limit to 1000m even when explicitly set to null
       default_cpu_limit: 3000m
     nodeSelector:
       # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
@@ -59,8 +60,8 @@ spec:
       logical_backup_s3_retention_time: "1 month"
     resources:
       requests:
-        cpu: 250m
+        cpu: 500m
         memory: 250Mi
       limits:
-        cpu: 1000m
+        cpu: null
         memory: 1Gi

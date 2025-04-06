@@ -131,12 +131,11 @@ spec:
           resources:
             requests:
               memory: 512Mi
-              cpu: 250m
+              cpu: 2000m
             limits:
               akri.sh/akri-udev-4ad410: "1"
               akri.sh/akri-udev-dbf9ff: "1"
               memory: 2Gi
-              cpu: 4000m
           ports:
             - name: web
               containerPort: 5000

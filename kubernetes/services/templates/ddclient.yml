@@ -42,7 +42,7 @@ spec:
         cpu: 125m
       limits:
         memory: 128Mi
-        cpu: 250m
+        cpu: null
     podOptions:
       nodeSelector:
         # Schedule only on public nodes

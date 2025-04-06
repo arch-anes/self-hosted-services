@@ -21,23 +21,23 @@ spec:
     resources:
       requests:
         memory: 128Mi
-        cpu: 125m
+        cpu: 250m
       limits:
         memory: 256Mi
-        cpu: 250m
+        cpu: null
     webhook:
       resources:
         requests:
           memory: 128Mi
-          cpu: 125m
+          cpu: 250m
         limits:
           memory: 256Mi
-          cpu: 250m
+          cpu: null
     cainjector:
       resources:
         requests:
           memory: 128Mi
-          cpu: 125m
+          cpu: 250m
         limits:
           memory: 256Mi
-          cpu: 250m
+          cpu: null

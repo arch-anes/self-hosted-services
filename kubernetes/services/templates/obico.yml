@@ -52,10 +52,10 @@ spec:
         SITE_IS_PUBLIC: True
       resources:
         requests:
-          cpu: 250m
+          cpu: 1000m
           memory: 250Mi
         limits:
-          cpu: 1000m
+          cpu: null
           memory: 1Gi
       ingress:
         main:
@@ -94,7 +94,7 @@ spec:
           cpu: 250m
           memory: 250Mi
         limits:
-          cpu: 2000m
+          cpu: null
           memory: 2Gi
     redis:
       enabled: false
