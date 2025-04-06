@@ -54,6 +54,18 @@ spec:
                   name: web
 
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextcloud
+  namespace: default
+data:
+  custom-php-config.ini: |
+    apc.shm_size=1G
+    apc.ttl=7200
+    apc.entries_hint=10000
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -61,6 +73,8 @@ metadata:
   namespace: default
   labels:
     app: nextcloud
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   selector:
@@ -158,6 +172,9 @@ spec:
               mountPath: /var/www/html
             - name: data
               mountPath: /var/www/html/data
+            - name: nextcloud-configmap
+              mountPath: /usr/local/etc/php/conf.d/custom-php-config.ini
+              subPath: custom-php-config.ini
       volumes:
         - name: app
           hostPath:
@@ -165,3 +182,7 @@ spec:
         - name: data
           hostPath:
             path: /storage/nextcloud/data
+        - name: nextcloud-configmap
+          configMap:
+            name: nextcloud
+            defaultMode: 0444
