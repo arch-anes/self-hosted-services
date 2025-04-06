@@ -90,37 +90,28 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: nextcloud:31.0.2
-          # https://github.com/nextcloud/helm/issues/55#issuecomment-1126289717
-          lifecycle:
-            postStart:
-              exec:
-                command:
-                  - "sh"
-                  - "-c"
-                  - "start-stop-daemon --start --make-pidfile --remove-pidfile --background --pidfile /cron.pid --exec /cron.sh"
+          image: ghcr.io/arch-anes/nextcloud:31.0.2-fpm-alpine
+          imagePullPolicy: Always
           startupProbe:
             exec:
               command:
                 - curl
                 - -sSf
                 - http://localhost/status.php
-            initialDelaySeconds: 30
+            initialDelaySeconds: 10
             periodSeconds: 60
             failureThreshold: 10
           resources:
             requests:
               memory: 128Mi
-              cpu: 2000m
+              cpu: 1000m
             limits:
-              memory: 8Gi
+              memory: 3Gi
           env:
             - name: PHP_MEMORY_LIMIT
-              value: "7G"
+              value: "2G"
             - name: PHP_OPCACHE_MEMORY_CONSUMPTION
               value: "1G"
-            - name: TRUSTED_PROXIES
-              value: "10.43.0.0/16"
             - name: REDIS_HOST
               value: "redis-master"
             - name: REDIS_HOST_PASSWORD
