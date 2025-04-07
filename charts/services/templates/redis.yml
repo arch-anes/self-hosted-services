@@ -17,51 +17,55 @@ type: Opaque
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
-  name: redis
+  name: redis-operator
   namespace: default
 spec:
-  chart: redis
-  repo: https://charts.bitnami.com/bitnami
-  version: 20.11.4
+  chart: redis-operator
+  repo: https://ot-container-kit.github.io/helm-charts/
+  version: 0.20.0
   targetNamespace: default
   valuesContent: |-
-    auth:
-      existingSecret: redis
-      existingSecretKey: redis-password
-    architecture: replication
-    rbac:
-      create: true
-    replica:
-      replicaCount: 3
-      persistence:
-        enabled: true
-      automountServiceAccountToken: true
+    redisOperator:
+      webhook: true
+    resources:
+      requests:
+        memory: 64Mi
+        cpu: 500m
+      limits:
+        memory: 128Mi
+        cpu: null
+    certificate:
+      name: redis-operator-serving-cert
+      secretName: redis-operator-webhook-server-cert
+    certmanager:
+      enabled: true
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: redis-cluster
+  namespace: default
+spec:
+  chart: redis-cluster
+  repo: https://ot-container-kit.github.io/helm-charts/
+  version: 0.16.5
+  targetNamespace: default
+  valuesContent: |-
+    redisCluster:
+      clusterSize: 3
+      enableMasterSlaveAntiAffinity: true
+      redisSecret:
+        secretName: redis
+        secretKey: redis-password
       resources:
         requests:
           memory: 128Mi
           cpu: 500m
         limits:
           memory: 256Mi
-      nodeSelector:
-        # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
-        kubernetes.io/arch: amd64
-    sentinel:
-      enabled: true
-      masterService:
-        enabled: true
-      annotations:
-        reloader.stakater.com/auto: "true"
-      resources:
-        requests:
-          memory: 32Mi
-          cpu: 125m
-        limits:
-          memory: 64Mi
-    kubectl:
-      resources:
-        requests:
-          memory: 32Mi
-          cpu: 125m
-        limits:
-          memory: 64Mi
+          cpu: null
+    nodeSelector:
+      # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
+      kubernetes.io/arch: amd64
 {{- end }}
