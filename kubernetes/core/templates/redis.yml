@@ -16,21 +16,47 @@ type: Opaque
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
-  name: redis
+  name: redis-operator
   namespace: default
 spec:
-  chart: redis
-  repo: https://charts.bitnami.com/bitnami
-  version: 20.11.4
+  chart: redis-operator
+  repo: https://ot-container-kit.github.io/helm-charts/
+  version: 0.20.0
   targetNamespace: default
   valuesContent: |-
-    auth:
-      existingSecret: redis
-      existingSecretKey: redis-password
-    architecture: replication
-    master:
-      persistence:
-        enabled: true
+    redisOperator:
+      webhook: true
+    resources:
+      requests:
+        memory: 64Mi
+        cpu: 500m
+      limits:
+        memory: 128Mi
+        cpu: null
+    certificate:
+      name: redis-operator-serving-cert
+      secretName: redis-operator-webhook-server-cert
+    certmanager:
+      enabled: true
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: redis-cluster
+  namespace: default
+spec:
+  chart: redis-cluster
+  repo: https://ot-container-kit.github.io/helm-charts/
+  version: 0.16.5
+  targetNamespace: default
+  valuesContent: |-
+    redisCluster:
+      clusterSize: 3
+      enableMasterSlaveAntiAffinity: true
+      redisSecret:
+        secretName: redis
+        secretKey: redis-password
       resources:
         requests:
           memory: 128Mi
@@ -38,41 +64,6 @@ spec:
         limits:
           memory: 256Mi
           cpu: null
-      nodeSelector:
-        # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
-        kubernetes.io/arch: amd64
-    replica:
-      replicaCount: 1
-      persistence:
-        enabled: true
-      resources:
-        requests:
-          memory: 128Mi
-          cpu: 500m
-        limits:
-          memory: 256Mi
-          cpu: null
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app.kubernetes.io/component
-                      operator: In
-                      values:
-                        - master
-                        - replica
-                    - key: app.kubernetes.io/instance
-                      operator: In
-                      values:
-                        - redis
-                    - key: app.kubernetes.io/name
-                      operator: In
-                      values:
-                        - redis
-                topologyKey: kubernetes.io/hostname
-              weight: 1
-      nodeSelector:
-        # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
-        kubernetes.io/arch: amd64
+    nodeSelector:
+      # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
+      kubernetes.io/arch: amd64
