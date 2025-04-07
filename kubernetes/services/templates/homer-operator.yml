@@ -7,7 +7,7 @@ metadata:
 spec:
   chart: homer-operator
   repo: https://arch-anes.github.io/homer-operator/
-  version: 0.1.15
+  version: 0.1.16
   targetNamespace: default
   valuesContent: |-
     replicaCount: 3
