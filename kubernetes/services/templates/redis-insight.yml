@@ -1,0 +1,89 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-insight
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 5540
+  selector:
+    app: redis-insight
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: redis-insight
+  namespace: default
+  annotations:
+    homer.service.name: Administration
+    homer.item.name: Redis Insight
+    homer.item.logo: "https://raw.githubusercontent.com/RedisInsight/RedisInsight/6622d918f254dd8d46c98cf0ec2ea726e5727a9c/resources/logo.svg"
+    traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd,kube-system-cluster-admin-authentication@kubernetescrd
+spec:
+  tls:
+    - hosts:
+        - redis.{{ .Values.fqdn }}
+      secretName: {{ .Values.fqdn }}-tls
+  rules:
+    - host: redis.{{ .Values.fqdn }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: redis-insight
+                port:
+                  name: web
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-insight
+  namespace: default
+  labels:
+    app: redis-insight
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-insight
+  template:
+    metadata:
+      labels:
+        app: redis-insight
+    spec:
+      containers:
+        - name: app
+          image: redis/redisinsight:2.68.0
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 5540
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 250m
+            limits:
+              memory: 1Gi
+          ports:
+            - name: web
+              containerPort: 5540
+          env:
+            - name: RI_REDIS_HOST
+              value: redis-master.default.svc.cluster.local
+            - name: RI_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: redis-password
