@@ -28,51 +28,36 @@ spec:
       existingSecret: redis
       existingSecretKey: redis-password
     architecture: replication
-    master:
-      persistence:
-        enabled: true
-      resources:
-        requests:
-          memory: 128Mi
-          cpu: 500m
-        limits:
-          memory: 256Mi
-          cpu: null
-      nodeSelector:
-        # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
-        kubernetes.io/arch: amd64
+    rbac:
+      create: true
     replica:
-      replicaCount: 1
+      replicaCount: 3
       persistence:
         enabled: true
+      automountServiceAccountToken: true
       resources:
         requests:
           memory: 128Mi
           cpu: 500m
         limits:
           memory: 256Mi
-          cpu: null
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app.kubernetes.io/component
-                      operator: In
-                      values:
-                        - master
-                        - replica
-                    - key: app.kubernetes.io/instance
-                      operator: In
-                      values:
-                        - redis
-                    - key: app.kubernetes.io/name
-                      operator: In
-                      values:
-                        - redis
-                topologyKey: kubernetes.io/hostname
-              weight: 1
       nodeSelector:
         # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
         kubernetes.io/arch: amd64
+    sentinel:
+      enabled: true
+      masterService:
+        enabled: true
+      resources:
+        requests:
+          memory: 32Mi
+          cpu: 125m
+        limits:
+          memory: 64Mi
+    kubectl:
+      resources:
+        requests:
+          memory: 32Mi
+          cpu: 125m
+        limits:
+          memory: 64Mi
