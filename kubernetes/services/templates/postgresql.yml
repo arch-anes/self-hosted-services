@@ -10,6 +10,7 @@ spec:
     version: "17"
     parameters:
       password_encryption: scram-sha-256
+      max_connections: "1000"
   numberOfInstances: 3
   enableLogicalBackup: true
   volume:
