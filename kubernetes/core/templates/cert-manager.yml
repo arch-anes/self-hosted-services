@@ -1,4 +1,18 @@
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.fqdn }}-cloudflare
+  namespace: default
+  annotations:
+    reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+    reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kube-system"
+type: Opaque
+# stringData:
+#   token: "sometoken"
+
+---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -41,3 +55,53 @@ spec:
         limits:
           memory: 256Mi
           cpu: null
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: "{{ .Values.fqdn }}-certificate"
+  namespace: kube-system
+spec:
+  chart: generic
+  repo: https://arch-anes.github.io/charts
+  version: 0.2.1
+  targetNamespace: kube-system
+  valuesContent: |-
+    objects:
+      - apiVersion: cert-manager.io/v1
+        kind: ClusterIssuer
+        metadata:
+          name: {{ .Values.fqdn }}-issuer
+          namespace: kube-system
+        spec:
+          acme:
+            privateKeySecretRef:
+              name: {{ .Values.fqdn }}-issuer
+            server: https://acme-v02.api.letsencrypt.org/directory
+            email: cert@{{ .Values.fqdn }}
+            solvers:
+              - dns01:
+                  cloudflare:
+                    apiTokenSecretRef:
+                      name: {{ .Values.fqdn }}-cloudflare
+                      key: token
+                selector: {}
+      - apiVersion: cert-manager.io/v1
+        kind: Certificate
+        metadata:
+          name: {{ .Values.fqdn }}
+          namespace: default
+        spec:
+          secretName: {{ .Values.fqdn }}-tls
+          secretTemplate:
+            annotations:
+              reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+              reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+              reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kube-system"
+          issuerRef:
+            name: {{ .Values.fqdn }}-issuer
+            kind: ClusterIssuer
+          dnsNames:
+            - "{{ .Values.fqdn }}"
+            - "*.{{ .Values.fqdn }}"
