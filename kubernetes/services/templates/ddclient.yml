@@ -27,6 +27,8 @@ spec:
             protocol=cloudflare, zone={{ .Values.fqdn }}, ttl=1, password_env=API_KEY {{ .Values.fqdn }}
     workload:
       main:
+        annotations:
+          reloader.stakater.com/auto: "true"
         podSpec:
           containers:
             main:

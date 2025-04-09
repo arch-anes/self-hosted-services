@@ -152,6 +152,9 @@ spec:
       - name: redis
         mountPath: /etc/traefik/secrets/redis/
         type: secret
+    deployment:
+      annotations:
+        reloader.stakater.com/auto: "true"
 {{- end}}
     logs:
       access:

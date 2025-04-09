@@ -48,6 +48,8 @@ spec:
       enabled: true
       masterService:
         enabled: true
+      annotations:
+        reloader.stakater.com/auto: "true"
       resources:
         requests:
           memory: 32Mi

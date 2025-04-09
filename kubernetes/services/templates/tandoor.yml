@@ -20,6 +20,9 @@ spec:
   version: 0.9.9
   targetNamespace: default
   valuesContent: |-
+    controller:
+      annotations:
+        reloader.stakater.com/auto: "true"
     env:
       DB_ENGINE: django.db.backends.postgresql
       POSTGRES_HOST: postgresql

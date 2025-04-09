@@ -57,6 +57,8 @@ metadata:
   namespace: default
   labels:
     app: duplicati
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   selector:

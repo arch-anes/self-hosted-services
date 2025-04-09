@@ -10,6 +10,9 @@ spec:
   version: 0.4.0
   targetNamespace: default
   valuesContent: |-
+    controller:
+      annotations:
+        reloader.stakater.com/auto: "true"
     env:
       GOTIFY_DATABASE_DIALECT: postgres
       DATABASE_PASSWORD:

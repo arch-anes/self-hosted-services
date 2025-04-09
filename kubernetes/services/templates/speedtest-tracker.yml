@@ -22,6 +22,8 @@ spec:
   valuesContent: |-
     workload:
       main:
+        annotations:
+          reloader.stakater.com/auto: "true"
         podSpec:
           containers:
             main:

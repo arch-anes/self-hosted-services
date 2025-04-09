@@ -21,6 +21,9 @@ spec:
   targetNamespace: default
   valuesContent: |-
     server:
+      controller:
+        annotations:
+          reloader.stakater.com/auto: "true"
       # Uncomment after first run to fix Traefik Ingress and then comment out again
       # initContainers:
       #   migrate:

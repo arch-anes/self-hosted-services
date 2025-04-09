@@ -20,6 +20,8 @@ spec:
   version: 1.37.0
   targetNamespace: default
   valuesContent: |-
+    annotations:
+      reloader.stakater.com/auto: "true"
     existingSecret: pgadmin4
     env:
       email: admin@{{ .Values.fqdn }}
