@@ -5,6 +5,9 @@
 # Base domain name to be used for all services
 fqdn: example.org
 
+# The git repository out of which to continuously deploy
+gitRepo: https://github.com/arch-anes/self-hosted-services.git
+
 localIpRanges:
   - 10.0.0.0/8
   - 172.16.0.0/12
