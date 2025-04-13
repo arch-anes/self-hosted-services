@@ -16,26 +16,6 @@ spec:
     app: octoprint
 
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: octoprint-webcam
-  namespace: default
-type: Opaque
-# stringData:
-#   credentials: "admin:$2y$12$8KtQ4SQb6QpebcgYvMPjwOv3Jz9ojkNq8FVWZmk5q1BW9BoEX2aAy" # admin:admin by default, bcrypted password: https://bcrypt-generator.com/
-
----
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: octoprint-webcam
-  namespace: default
-spec:
-  basicAuth:
-    secret: "octoprint-webcam"
-
----
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -43,7 +23,7 @@ metadata:
   namespace: default
   annotations:
     homer.item.excluded: "true"
-    traefik.ingress.kubernetes.io/router.middlewares: default-octoprint-webcam@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: kube-system-cluster-admin-authentication@kubernetescrd
 spec:
   tls:
     - hosts:
