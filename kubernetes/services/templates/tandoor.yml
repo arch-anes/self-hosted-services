@@ -52,7 +52,6 @@ spec:
         cpu: 250m
       limits:
         memory: 1Gi
-        cpu: null
     ingress:
       main:
         enabled: true

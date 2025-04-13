@@ -62,4 +62,3 @@ spec:
         cpu: 125m
       limits:
         memory: 256Mi
-        cpu: null

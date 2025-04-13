@@ -15,7 +15,6 @@ spec:
         cpu: 125m
       limits:
         memory: 128Mi
-        cpu: null
 
 ---
 apiVersion: v1
@@ -74,5 +73,4 @@ spec:
                 cpu: 125m
               limits:
                 memory: 128Mi
-                cpu: null
 {{- end }}

@@ -18,7 +18,6 @@ spec:
     server:
       resources:
         limits:
-          cpu: null
           memory: 1Gi
         requests:
           cpu: 500m
@@ -49,7 +48,6 @@ spec:
     controller:
       resources:
         limits:
-          cpu: null
           memory: 1Gi
         requests:
           cpu: 500m
@@ -57,7 +55,6 @@ spec:
     repoServer:
       resources:
         limits:
-          cpu: null
           memory: 1Gi
         requests:
           cpu: 500m
@@ -65,7 +62,6 @@ spec:
     applicationSet:
       resources:
         limits:
-          cpu: null
           memory: 128Mi
         requests:
           cpu: 250m

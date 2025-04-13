@@ -89,7 +89,6 @@ spec:
               resources:
                 limits:
                   memory: 250Mi
-                  cpu: null
                 requests:
                   cpu: 500m
                   memory: 250Mi
@@ -112,7 +111,6 @@ spec:
               resources:
                 limits:
                   memory: 500Mi
-                  cpu: null
                 requests:
                   cpu: 500m
                   memory: 500Mi
@@ -252,7 +250,6 @@ spec:
         cpu: 500m
       limits:
         memory: 512Mi
-        cpu: null
     autoscaling:
       enabled: true
       minReplicas: 1

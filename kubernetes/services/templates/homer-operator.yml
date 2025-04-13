@@ -19,7 +19,6 @@ spec:
         cpu: 125m
       limits:
         memory: 64Mi
-        cpu: null
     ingress:
       enabled: true
       annotations:

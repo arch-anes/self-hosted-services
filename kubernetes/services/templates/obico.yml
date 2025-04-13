@@ -58,7 +58,6 @@ spec:
           cpu: 1000m
           memory: 250Mi
         limits:
-          cpu: null
           memory: 1Gi
       ingress:
         main:
@@ -97,7 +96,6 @@ spec:
           cpu: 250m
           memory: 250Mi
         limits:
-          cpu: null
           memory: 2Gi
     redis:
       enabled: false

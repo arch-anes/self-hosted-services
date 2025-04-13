@@ -38,7 +38,6 @@ spec:
         cpu: 250m
       limits:
         memory: 256Mi
-        cpu: null
     webhook:
       resources:
         requests:
@@ -46,7 +45,6 @@ spec:
           cpu: 250m
         limits:
           memory: 256Mi
-          cpu: null
     cainjector:
       resources:
         requests:
@@ -54,7 +52,6 @@ spec:
           cpu: 250m
         limits:
           memory: 256Mi
-          cpu: null
 
 ---
 apiVersion: helm.cattle.io/v1
