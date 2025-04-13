@@ -1,3 +1,4 @@
+{{- if .Values.applications.gotify.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -60,3 +61,4 @@ spec:
       startup:
         type: HTTP
         path: /health
+{{- end }}

@@ -1,3 +1,4 @@
+{{- if .Values.applications.epicgames_freegames.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -122,3 +123,4 @@ spec:
         - name: config
           persistentVolumeClaim:
             claimName: epicgames-freegames
+{{- end }}

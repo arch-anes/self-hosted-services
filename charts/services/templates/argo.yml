@@ -1,3 +1,4 @@
+{{- if .Values.applications.argo.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -112,3 +113,4 @@ spec:
                     {{- .Values | toYaml | nindent 20}}
               destination:
                 server: https://kubernetes.default.svc
+{{- end }}

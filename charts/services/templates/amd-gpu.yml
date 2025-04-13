@@ -1,3 +1,4 @@
+{{- if .Values.applications.amd_gpu.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -18,3 +19,4 @@ spec:
           cpu: 250m
         limits:
           memory: 128Mi
+{{- end }}

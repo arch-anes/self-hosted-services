@@ -58,5 +58,89 @@ actionRunnerConfigs:
     githubConfigUrl: https://github.com/abelfodil/upptime-belfodil.ca
 
 applications:
+  akri:
+    enabled: true
+  amd_gpu:
+    enabled: true
+  argo:
+    enabled: true
+  bazarr:
+    enabled: true
   crowdsec:
+    enabled: true
+  ddclient:
+    enabled: true
+  descheduler:
+    enabled: true
+  duplicati:
+    enabled: true
+  epicgames_freegames:
+    enabled: true
+  filebrowser:
+    enabled: true
+  flaresolverr:
+    enabled: true
+  github_actions_runner_controller:
+    enabled: true
+  gotify:
+    enabled: true
+  homer_operator:
+    enabled: true
+  immich:
+    enabled: true
+  intel_gpu:
+    enabled: true
+  jaeger:
+    enabled: true
+  jellyfin:
+    enabled: true
+  jellyseerr:
+    enabled: true
+  keel:
+    enabled: true
+  kubeclarity:
+    enabled: true
+  kubernetes_dashboard:
+    enabled: true
+  minecraft_bedrock:
+    enabled: true
+  miniflux:
+    enabled: true
+  n8n:
+    enabled: true
+  netdata:
+    enabled: true
+  nextcloud:
+    enabled: true
+  node_problem_detector:
+    enabled: true
+  obico:
+    enabled: true
+  octoprint:
+    enabled: true
+  pgadmin4:
+    enabled: true
+  postgresql:
+    enabled: true
+  prowlarr:
+    enabled: true
+  radarr:
+    enabled: true
+  readarr:
+    enabled: true
+  red:
+    enabled: true
+  redis:
+    enabled: true
+  redis_insight:
+    enabled: true
+  sonarr:
+    enabled: true
+  speedtest_tracker:
+    enabled: true
+  tandoor:
+    enabled: true
+  tdarr:
+    enabled: true
+  torrent_client:
     enabled: true

@@ -1,3 +1,4 @@
+{{- if .Values.applications.descheduler.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -62,4 +63,5 @@ spec:
                 - RemovePodsViolatingNodeTaints
                 - RemovePodsViolatingNodeAffinity
                 - RemovePodsViolatingInterPodAntiAffinity
+{{- end }}
 

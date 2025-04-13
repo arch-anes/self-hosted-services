@@ -1,3 +1,4 @@
+{{- if .Values.applications.netdata.enabled }}
 ---
 apiVersion: v1
 kind: Secret
@@ -99,3 +100,4 @@ spec:
     k8sState:
       env:
         DO_NOT_TRACK: 1
+{{- end }}

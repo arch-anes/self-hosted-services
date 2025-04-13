@@ -1,3 +1,4 @@
+{{- if .Values.applications.kubeclarity.enabled }}
 ---
 apiVersion: v1
 kind: Secret
@@ -66,3 +67,4 @@ spec:
         limits:
           memory: 128Mi
           cpu: null
+{{- end }}

@@ -1,3 +1,4 @@
+{{- if .Values.applications.akri.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -22,3 +23,4 @@ spec:
           udevRules:
             - 'KERNEL=="video[0-9]*", ENV{ID_VENDOR}=="Sonix_Technology_Co.__Ltd."'
             - 'KERNEL=="ttyUSB[0-9]*", ENV{ID_VENDOR}=="FTDI"'
+{{- end }}

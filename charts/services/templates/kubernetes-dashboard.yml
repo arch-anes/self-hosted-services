@@ -1,3 +1,4 @@
+{{- if .Values.applications.kubernetes_dashboard.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -79,3 +80,4 @@ metadata:
   annotations:
     kubernetes.io/service-account.name: admin-user
 type: kubernetes.io/service-account-token
+{{- end }}

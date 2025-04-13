@@ -1,3 +1,4 @@
+{{- if .Values.applications.prowlarr.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -108,3 +109,4 @@ spec:
                 secretKeyRef:
                   name: postgres.postgresql.credentials.postgresql.acid.zalan.do
                   key: password
+{{- end }}

@@ -1,3 +1,4 @@
+{{- if .Values.applications.tandoor.enabled }}
 ---
 apiVersion: v1
 kind: Secret
@@ -66,3 +67,4 @@ spec:
           - secretName: "{{ .Values.fqdn }}-tls"
             hosts:
               - tandoor.{{ .Values.fqdn }}
+{{- end }}

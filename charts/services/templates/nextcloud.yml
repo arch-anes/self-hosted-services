@@ -1,3 +1,4 @@
+{{- if .Values.applications.nextcloud.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -164,3 +165,4 @@ spec:
           configMap:
             name: nextcloud
             defaultMode: 0444
+{{- end }}

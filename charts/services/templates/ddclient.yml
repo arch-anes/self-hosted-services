@@ -1,3 +1,4 @@
+{{- if .Values.applications.ddclient.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -55,3 +56,4 @@ spec:
         type: configmap
         mountPath: /defaults
         objectName: config
+{{- end }}

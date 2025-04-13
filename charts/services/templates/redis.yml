@@ -1,3 +1,4 @@
+{{- if .Values.applications.redis.enabled }}
 ---
 apiVersion: v1
 kind: Secret
@@ -63,3 +64,4 @@ spec:
           cpu: 125m
         limits:
           memory: 64Mi
+{{- end }}

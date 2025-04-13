@@ -1,3 +1,4 @@
+{{- if .Values.applications.flaresolverr.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -55,3 +56,4 @@ spec:
           ports:
             - name: web
               containerPort: 8191
+{{- end }}

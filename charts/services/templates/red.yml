@@ -1,3 +1,4 @@
+{{- if .Values.applications.red.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -72,3 +73,4 @@ spec:
         - name: data
           hostPath:
             path: "{{ .Values.storageLocation }}/red/data"
+{{- end }}

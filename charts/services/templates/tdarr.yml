@@ -1,3 +1,4 @@
+{{- if .Values.applications.tdarr.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -214,3 +215,4 @@ spec:
         - name: media
           hostPath:
             path: "{{ .Values.storageLocation }}/Multimedia"
+{{- end }}

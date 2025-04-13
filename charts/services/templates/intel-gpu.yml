@@ -1,3 +1,4 @@
+{{- if .Values.applications.intel_gpu.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -24,3 +25,4 @@ spec:
   valuesContent: |-
     resourceManager: false
     sharedDevNum: 10
+{{- end }}

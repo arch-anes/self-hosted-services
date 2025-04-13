@@ -1,3 +1,4 @@
+{{- if .Values.applications.keel.enabled }}
 ---
 apiVersion: v1
 kind: Secret
@@ -60,3 +61,4 @@ spec:
       enabled: true
       storageClass: "local-path-retain"
       size: 1Gi
+{{- end }}

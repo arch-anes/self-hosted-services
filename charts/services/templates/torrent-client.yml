@@ -1,3 +1,4 @@
+{{- if .Values.applications.torrent_client.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -306,3 +307,4 @@ spec:
         - name: joal-config
           persistentVolumeClaim:
             claimName: joal
+{{- end }}

@@ -1,3 +1,4 @@
+{{- if .Values.applications.immich.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -209,3 +210,4 @@ spec:
         - name: cache
           persistentVolumeClaim:
             claimName: immich-machine-learning
+{{- end }}

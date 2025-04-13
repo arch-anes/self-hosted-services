@@ -1,3 +1,4 @@
+{{- if .Values.applications.minecraft_bedrock.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -59,3 +60,4 @@ spec:
         - name: minecraft-bedrock
           hostPath:
             path: "{{ .Values.storageLocation }}/minecraft-bedrock"
+{{- end }}

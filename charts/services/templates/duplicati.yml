@@ -1,3 +1,4 @@
+{{- if .Values.applications.duplicati.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -109,3 +110,4 @@ spec:
         - name: storage
           hostPath:
             path: {{ .Values.storageLocation }}
+{{- end }}
