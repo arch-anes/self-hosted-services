@@ -65,3 +65,60 @@ spec:
       limits:
         cpu: null
         memory: 1Gi
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: postgresql
+  namespace: default
+spec:
+  chart: generic
+  repo: https://arch-anes.github.io/charts
+  version: 0.2.1
+  targetNamespace: default
+  valuesContent: |-
+    objects:
+      - apiVersion: acid.zalan.do/v1
+        kind: postgresql
+        metadata:
+          name: postgresql
+          namespace: default
+        spec:
+          teamId: arch-anes
+          postgresql:
+            version: "17"
+            parameters:
+              password_encryption: scram-sha-256
+              max_connections: "1000"
+          numberOfInstances: 3
+          enableLogicalBackup: true
+          volume:
+            size: 10Gi
+            storageClass: local-path-retain
+          # During the restoration process, comment out all preparedDatabases.
+          preparedDatabases:
+            bazarr: {}
+            gotify: {}
+            # Important: when restoring a backup, alter the sql dump as indicated in:
+            # https://immich.app/docs/administration/backup-and-restore/#manual-backup-and-restore
+            immich:
+              extensions:
+                vector: public
+            kubeclarity: {}
+            miniflux: {}
+            n8n: {}
+            nextcloud: {}
+            obico: {}
+            pgadmin4: {}
+            prowlarr_log: {}
+            prowlarr_main: {}
+            radarr_log: {}
+            radarr_main: {}
+            readarr_cache: {}
+            readarr_log: {}
+            readarr_main: {}
+            sonarr_log: {}
+            sonarr_main: {}
+            speedtest_tracker: {}
+            tandoor: {}
