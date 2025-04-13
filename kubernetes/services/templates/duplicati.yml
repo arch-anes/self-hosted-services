@@ -105,7 +105,7 @@ spec:
       volumes:
         - name: config
           hostPath:
-            path: /storage/duplicati/config
+            path: {{ .Values.storageLocation }}/duplicati/config
         - name: storage
           hostPath:
-            path: /storage
+            path: {{ .Values.storageLocation }}

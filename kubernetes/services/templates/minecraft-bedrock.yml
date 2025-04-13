@@ -58,4 +58,4 @@ spec:
       volumes:
         - name: minecraft-bedrock
           hostPath:
-            path: /storage/minecraft-bedrock
+            path: {{ .Values.storageLocation }}/minecraft-bedrock

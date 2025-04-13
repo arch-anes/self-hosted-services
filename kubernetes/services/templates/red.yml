@@ -71,4 +71,4 @@ spec:
       volumes:
         - name: data
           hostPath:
-            path: /storage/red/data
+            path: {{ .Values.storageLocation }}/red/data

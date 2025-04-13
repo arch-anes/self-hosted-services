@@ -8,5 +8,8 @@ actionRunnerConfigs:
   - name: upptime-belfodil-ca
     githubConfigUrl: https://github.com/abelfodil/upptime-belfodil.ca
 
+# Path where files are stored
+storageLocation: /storage
+
 # Base domain name to be used for all services
 fqdn: example.org

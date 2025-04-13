@@ -30,6 +30,7 @@ k3s_cluster:
     timezone: America/Vancouver
     fqdn: "example.com"
     tailscale_oauth_secret: "some_secret"
+    storageLocation: /storage
   hosts:
     raspi:
       k3s_control_node: true

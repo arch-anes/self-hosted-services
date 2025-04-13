@@ -169,10 +169,10 @@ spec:
       volumes:
         - name: app
           hostPath:
-            path: /storage/nextcloud/app
+            path: {{ .Values.storageLocation }}/nextcloud/app
         - name: data
           hostPath:
-            path: /storage/nextcloud/data
+            path: {{ .Values.storageLocation }}/nextcloud/data
         - name: nextcloud-configmap
           configMap:
             name: nextcloud

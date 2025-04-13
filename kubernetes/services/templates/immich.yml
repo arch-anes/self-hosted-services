@@ -140,7 +140,7 @@ spec:
       volumes:
         - name: data
           hostPath:
-            path: /storage/immich/data
+            path: {{ .Values.storageLocation }}/immich/data
 
 ---
 apiVersion: v1

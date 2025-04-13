@@ -116,6 +116,8 @@ spec:
                   parameters:
                     - name: fqdn
                       value: {{ .Values.fqdn }}
+                    - name: storageLocation
+                      value: {{ .Values.storageLocation }}
                     - name: gitRepo
                       value: {{ .Values.gitRepo }}
               destination:

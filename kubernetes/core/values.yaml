@@ -2,6 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Path where files are stored
+storageLocation: /storage
+
 # Base domain name to be used for all services
 fqdn: example.org
 

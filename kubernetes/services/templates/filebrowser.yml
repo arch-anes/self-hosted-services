@@ -87,7 +87,7 @@ spec:
       volumes:
         - name: files
           hostPath:
-            path: /storage/Multimedia/Miscellaneous
+            path: {{ .Values.storageLocation }}/Multimedia/Miscellaneous
         - name: db
           hostPath:
-            path: /storage/filebrowser/database.db
+            path: {{ .Values.storageLocation }}/filebrowser/database.db

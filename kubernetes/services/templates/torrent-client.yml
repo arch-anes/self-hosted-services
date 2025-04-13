@@ -295,7 +295,7 @@ spec:
       volumes:
         - name: downloads
           hostPath:
-            path: /storage/Multimedia/Downloads
+            path: {{ .Values.storageLocation }}/Multimedia/Downloads
         - name: transmission-config
           persistentVolumeClaim:
             claimName: transmission

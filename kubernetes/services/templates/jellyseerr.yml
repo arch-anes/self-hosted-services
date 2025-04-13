@@ -85,4 +85,4 @@ spec:
       volumes:
         - name: config
           hostPath:
-            path: /storage/jellyseerr/config
+            path: {{ .Values.storageLocation }}/jellyseerr/config

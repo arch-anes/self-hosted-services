@@ -330,4 +330,4 @@ spec:
             defaultMode: 0744
         - name: multimedia
           hostPath:
-            path: /storage/Multimedia
+            path: {{ .Values.storageLocation }}/Multimedia

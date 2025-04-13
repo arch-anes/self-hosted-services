@@ -119,4 +119,4 @@ spec:
       volumes:
         - name: multimedia
           hostPath:
-            path: /storage/Multimedia
+            path: {{ .Values.storageLocation }}/Multimedia

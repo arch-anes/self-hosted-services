@@ -90,7 +90,7 @@ spec:
       volumes:
         - name: config
           hostPath:
-            path: /storage/jellyfin/config
+            path: {{ .Values.storageLocation }}/jellyfin/config
         - name: media
           hostPath:
-            path: /storage/Multimedia
+            path: {{ .Values.storageLocation }}/Multimedia

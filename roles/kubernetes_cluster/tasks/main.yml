@@ -38,7 +38,7 @@
       flannel-iface: "{{ network_interface }}"
       snapshotter: "{{ snapshotter }}"
       node-label: "{{ labels }}"
-      default-local-storage-path: /storage/cluster-local-storage
+      default-local-storage-path: "{{ storageLocation }}/cluster-local-storage"
       kubelet-arg:
         - node-status-update-frequency=4s
       kube-controller-manager-arg:

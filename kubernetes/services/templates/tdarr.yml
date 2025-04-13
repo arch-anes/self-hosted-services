@@ -118,19 +118,19 @@ spec:
       volumes:
         - name: server
           hostPath:
-            path: /storage/tdarr/server
+            path: {{ .Values.storageLocation }}/tdarr/server
         - name: config
           hostPath:
-            path: /storage/tdarr/config
+            path: {{ .Values.storageLocation }}/tdarr/config
         - name: logs
           hostPath:
-            path: /storage/tdarr/logs
+            path: {{ .Values.storageLocation }}/tdarr/logs
         - name: cache
           hostPath:
-            path: /storage/Multimedia/transcoding-cache
+            path: {{ .Values.storageLocation }}/Multimedia/transcoding-cache
         - name: media
           hostPath:
-            path: /storage/Multimedia
+            path: {{ .Values.storageLocation }}/Multimedia
 
 ---
 apiVersion: apps/v1
@@ -204,13 +204,13 @@ spec:
       volumes:
         - name: config
           hostPath:
-            path: /storage/tdarr/config
+            path: {{ .Values.storageLocation }}/tdarr/config
         - name: logs
           hostPath:
-            path: /storage/tdarr/logs
+            path: {{ .Values.storageLocation }}/tdarr/logs
         - name: cache
           hostPath:
-            path: /storage/Multimedia/transcoding-cache
+            path: {{ .Values.storageLocation }}/Multimedia/transcoding-cache
         - name: media
           hostPath:
-            path: /storage/Multimedia
+            path: {{ .Values.storageLocation }}/Multimedia

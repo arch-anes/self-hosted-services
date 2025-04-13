@@ -14,6 +14,7 @@
         chart_ref: "{{ chart_folder }}"
         set_values:
           - value: "fqdn={{ fqdn }}"
+          - value: "storageLocation={{ storageLocation }}"
       delegate_to: localhost
       register: helm_template
 
