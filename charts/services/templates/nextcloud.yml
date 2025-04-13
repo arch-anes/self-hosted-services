@@ -1,4 +1,10 @@
 {{- if .Values.applications.nextcloud.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Nextcloud requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "Nextcloud requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Service

@@ -1,4 +1,7 @@
 {{- if .Values.applications.n8n.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "n8n requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Service

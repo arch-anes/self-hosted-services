@@ -1,4 +1,10 @@
 {{- if .Values.applications.speedtest_tracker.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Speedtest Tracker requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "Speedtest Tracker requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Secret

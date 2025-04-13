@@ -79,7 +79,9 @@ spec:
               cpu: 1000m
             limits:
               memory: 2Gi
+            {{- if .Values.applications.intel_gpu.enabled }}
               gpu.intel.com/i915: 1
+            {{- end }}
           ports:
             - name: web
               containerPort: 8096

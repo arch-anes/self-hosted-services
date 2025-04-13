@@ -112,8 +112,10 @@ spec:
               memory: 512Mi
               cpu: 2000m
             limits:
+            {{- if .Values.applications.akri.enabled }}
               akri.sh/akri-udev-4ad410: "1"
               akri.sh/akri-udev-dbf9ff: "1"
+            {{- end }}
               memory: 2Gi
           ports:
             - name: web

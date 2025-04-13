@@ -1,4 +1,7 @@
 {{- if .Values.applications.miniflux.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Miniflux requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Secret

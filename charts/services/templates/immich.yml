@@ -1,4 +1,10 @@
 {{- if .Values.applications.immich.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Immich requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "Immich requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -118,7 +124,9 @@ spec:
               cpu: 250m
             limits:
               memory: 4Gi
+            {{- if .Values.applications.intel_gpu.enabled }}
               gpu.intel.com/i915: 1
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: immich-env

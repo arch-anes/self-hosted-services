@@ -1,4 +1,7 @@
 {{- if .Values.applications.gotify.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Gotify requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

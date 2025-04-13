@@ -1,4 +1,13 @@
 {{- if .Values.applications.obico.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Obico requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "Obico requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.octoprint.enabled }}
+{{- fail "Obico requires OctoPrint to be enabled. Please enable OctoPrint in your values.yaml" }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Secret

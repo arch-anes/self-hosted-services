@@ -1,4 +1,7 @@
 {{- if .Values.applications.epicgames_freegames.enabled }}
+{{- if not .Values.applications.gotify.enabled }}
+{{- fail "Epic Games Free Games requires Gotify to be enabled. Please enable Gotify in your values.yaml" }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Service

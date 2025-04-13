@@ -1,4 +1,7 @@
 {{- if .Values.applications.redis_insight.enabled }}
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "Redis Insight requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Service

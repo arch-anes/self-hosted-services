@@ -172,7 +172,9 @@ spec:
               cpu: 250m
             limits:
               memory: 2Gi
+            {{- if .Values.applications.intel_gpu.enabled }}
               gpu.intel.com/i915: 1
+            {{- end }}
           env:
             - name: PUID
               value: "1000"
