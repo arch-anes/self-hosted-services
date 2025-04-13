@@ -26,7 +26,7 @@ spec:
   tls:
     - hosts:
         - n8n.{{ .Values.fqdn }}
-      secretName: {{ .Values.fqdn }}-tls
+      secretName: "{{ .Values.fqdn }}-tls"
   rules:
     - host: n8n.{{ .Values.fqdn }}
       http:

@@ -26,7 +26,7 @@ spec:
   tls:
     - hosts:
         - immich.{{ .Values.fqdn }}
-      secretName: {{ .Values.fqdn }}-tls
+      secretName: "{{ .Values.fqdn }}-tls"
   rules:
     - host: immich.{{ .Values.fqdn }}
       http:
@@ -140,8 +140,7 @@ spec:
       volumes:
         - name: data
           hostPath:
-            path: {{ .Values.storageLocation }}/immich/data
-
+            path: "{{ .Values.storageLocation }}/immich/data"
 ---
 apiVersion: v1
 kind: Service

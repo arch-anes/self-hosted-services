@@ -40,7 +40,7 @@ spec:
   tls:
     - hosts:
         - transmission.{{ .Values.fqdn }}
-      secretName: {{ .Values.fqdn }}-tls
+      secretName: "{{ .Values.fqdn }}-tls"
   rules:
     - host: transmission.{{ .Values.fqdn }}
       http:
@@ -66,7 +66,7 @@ spec:
   tls:
     - hosts:
         - joal.{{ .Values.fqdn }}
-      secretName: {{ .Values.fqdn }}-tls
+      secretName: "{{ .Values.fqdn }}-tls"
   rules:
     - host: joal.{{ .Values.fqdn }}
       http:
@@ -295,7 +295,7 @@ spec:
       volumes:
         - name: downloads
           hostPath:
-            path: {{ .Values.storageLocation }}/Multimedia/Downloads
+            path: "{{ .Values.storageLocation }}/Multimedia/Downloads"
         - name: transmission-config
           persistentVolumeClaim:
             claimName: transmission

@@ -28,7 +28,7 @@ spec:
   tls:
     - hosts:
         - jellyfin.{{ .Values.fqdn }}
-      secretName: {{ .Values.fqdn }}-tls
+      secretName: "{{ .Values.fqdn }}-tls"
   rules:
     - host: jellyfin.{{ .Values.fqdn }}
       http:
@@ -90,7 +90,7 @@ spec:
       volumes:
         - name: config
           hostPath:
-            path: {{ .Values.storageLocation }}/jellyfin/config
+            path: "{{ .Values.storageLocation }}/jellyfin/config"
         - name: media
           hostPath:
-            path: {{ .Values.storageLocation }}/Multimedia
+            path: "{{ .Values.storageLocation }}/Multimedia"

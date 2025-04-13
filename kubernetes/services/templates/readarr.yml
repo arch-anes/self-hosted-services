@@ -25,7 +25,7 @@ spec:
   tls:
     - hosts:
         - readarr.{{ .Values.fqdn }}
-      secretName: {{ .Values.fqdn }}-tls
+      secretName: "{{ .Values.fqdn }}-tls"
   rules:
     - host: readarr.{{ .Values.fqdn }}
       http:
@@ -119,4 +119,4 @@ spec:
       volumes:
         - name: multimedia
           hostPath:
-            path: {{ .Values.storageLocation }}/Multimedia
+            path: "{{ .Values.storageLocation }}/Multimedia"

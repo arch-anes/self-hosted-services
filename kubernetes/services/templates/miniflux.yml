@@ -63,7 +63,7 @@ spec:
             paths:
               - path: /
         tls:
-          - secretName: {{ .Values.fqdn }}-tls
+          - secretName: "{{ .Values.fqdn }}-tls"
             hosts:
               - miniflux.{{ .Values.fqdn }}
     probes:

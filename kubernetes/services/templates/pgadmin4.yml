@@ -53,7 +53,7 @@ spec:
             - path: /
               pathType: Prefix
       tls:
-        - secretName: {{ .Values.fqdn }}-tls
+        - secretName: "{{ .Values.fqdn }}-tls"
           hosts:
             - pgadmin4.{{ .Values.fqdn }}
     resources:

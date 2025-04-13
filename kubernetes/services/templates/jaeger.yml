@@ -63,6 +63,6 @@ spec:
         hosts:
           - jaeger.{{ .Values.fqdn }}
         tls:
-          - secretName: {{ .Values.fqdn }}-tls
+          - secretName: "{{ .Values.fqdn }}-tls"
             hosts:
               - jaeger.{{ .Values.fqdn }}

@@ -34,7 +34,7 @@ spec:
         extraTls:
           - hosts:
               - argo.{{ .Values.fqdn }}
-            secretName: {{ .Values.fqdn }}-tls
+            secretName: "{{ .Values.fqdn }}-tls"
     redis:
       enabled: false
     dex:

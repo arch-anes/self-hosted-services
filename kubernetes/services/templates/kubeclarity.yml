@@ -55,7 +55,7 @@ spec:
         hosts:
           - host: kubeclarity.{{ .Values.fqdn }}
         tls:
-        - secretName: {{ .Values.fqdn }}-tls
+        - secretName: "{{ .Values.fqdn }}-tls"
           hosts:
             - kubeclarity.{{ .Values.fqdn }}
     kubeclarity-sbom-db:

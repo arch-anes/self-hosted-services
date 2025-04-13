@@ -58,7 +58,7 @@ spec:
           paths:
             - /
       tls:
-        - secretName: {{ .Values.fqdn }}-tls
+        - secretName: "{{ .Values.fqdn }}-tls"
           hosts:
             - keel.{{ .Values.fqdn }}
     persistence:

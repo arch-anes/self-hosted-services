@@ -31,7 +31,7 @@ spec:
         hosts:
           - kubernetes.{{ .Values.fqdn }}
         tls:
-          secretName: {{ .Values.fqdn }}-tls
+          secretName: "{{ .Values.fqdn }}-tls"
         issuer:
           scope: disabled
     kong:

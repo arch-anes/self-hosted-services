@@ -28,7 +28,7 @@ spec:
   tls:
     - hosts:
         - jellyseerr.{{ .Values.fqdn }}
-      secretName: {{ .Values.fqdn }}-tls
+      secretName: "{{ .Values.fqdn }}-tls"
   rules:
     - host: jellyseerr.{{ .Values.fqdn }}
       http:
@@ -85,4 +85,4 @@ spec:
       volumes:
         - name: config
           hostPath:
-            path: {{ .Values.storageLocation }}/jellyseerr/config
+            path: "{{ .Values.storageLocation }}/jellyseerr/config"

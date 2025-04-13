@@ -27,7 +27,7 @@ spec:
   tls:
     - hosts:
         - redis.{{ .Values.fqdn }}
-      secretName: {{ .Values.fqdn }}-tls
+      secretName: "{{ .Values.fqdn }}-tls"
   rules:
     - host: redis.{{ .Values.fqdn }}
       http:

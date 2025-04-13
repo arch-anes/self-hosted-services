@@ -29,7 +29,7 @@ spec:
             - path: /
               pathType: Prefix
       tls:
-        - secretName: {{ .Values.fqdn }}-tls
+        - secretName: "{{ .Values.fqdn }}-tls"
           hosts:
             - dash.{{ .Values.fqdn }}
     baseConfig: |

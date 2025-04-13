@@ -26,7 +26,7 @@ spec:
   tls:
     - hosts:
         - filebrowser.{{ .Values.fqdn }}
-      secretName: {{ .Values.fqdn }}-tls
+      secretName: "{{ .Values.fqdn }}-tls"
   rules:
     - host: filebrowser.{{ .Values.fqdn }}
       http:
@@ -87,7 +87,7 @@ spec:
       volumes:
         - name: files
           hostPath:
-            path: {{ .Values.storageLocation }}/Multimedia/Miscellaneous
+            path: "{{ .Values.storageLocation }}/Multimedia/Miscellaneous"
         - name: db
           hostPath:
-            path: {{ .Values.storageLocation }}/filebrowser/database.db
+            path: "{{ .Values.storageLocation }}/filebrowser/database.db"

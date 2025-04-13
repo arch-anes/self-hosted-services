@@ -25,7 +25,7 @@ spec:
   tls:
     - hosts:
         - duplicati.{{ .Values.fqdn }}
-      secretName: {{ .Values.fqdn }}-tls
+      secretName: "{{ .Values.fqdn }}-tls"
   rules:
     - host: duplicati.{{ .Values.fqdn }}
       http:
@@ -105,7 +105,7 @@ spec:
       volumes:
         - name: config
           hostPath:
-            path: {{ .Values.storageLocation }}/duplicati/config
+            path: "{{ .Values.storageLocation }}/duplicati/config"
         - name: storage
           hostPath:
             path: {{ .Values.storageLocation }}
