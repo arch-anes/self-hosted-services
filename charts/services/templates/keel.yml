@@ -8,11 +8,6 @@ type: Opaque
 # stringData:
 #   BASIC_AUTH_USER: "admin"
 #   BASIC_AUTH_PASSWORD: "somepasswd"
-#   MAIL_SMTP_SERVER: "example.com"
-#   MAIL_SMTP_PORT: "587"
-#   MAIL_SMTP_USER: "exampleuser"
-#   MAIL_SMTP_PASS: "examplepassword"
-#   MAIL_TO: "hello@example.com"
 
 ---
 apiVersion: helm.cattle.io/v1
