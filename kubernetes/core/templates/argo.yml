@@ -113,12 +113,7 @@ spec:
                 targetRevision: HEAD
                 path: kubernetes/{{`{{ .chartName }}`}}
                 helm:
-                  parameters:
-                    - name: fqdn
-                      value: {{ .Values.fqdn }}
-                    - name: storageLocation
-                      value: {{ .Values.storageLocation }}
-                    - name: gitRepo
-                      value: {{ .Values.gitRepo }}
+                  valuesObject:
+                    {{- .Values | toYaml | nindent 20}}
               destination:
                 server: https://kubernetes.default.svc
