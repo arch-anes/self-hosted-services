@@ -91,13 +91,12 @@ spec:
           generators:
             - list:
                 elements:
-                  - chartName: core
-                  - chartName: services
+                  - environment: prod
           syncPolicy:
             preserveResourcesOnDeletion: true
           template:
             metadata:
-              name: self-hosted-services-cd-{{`{{ .chartName }}`}}
+              name: self-hosted-services-cd
               namespace: kube-system
             spec:
               syncPolicy:
@@ -107,7 +106,7 @@ spec:
               source:
                 repoURL: {{ .Values.gitRepo }}
                 targetRevision: HEAD
-                path: kubernetes/{{`{{ .chartName }}`}}
+                path: charts/services
                 helm:
                   valuesObject:
                     {{- .Values | toYaml | nindent 20}}

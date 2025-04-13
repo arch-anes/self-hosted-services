@@ -17,13 +17,8 @@
     - k3s_control_node is defined
     - k3s_control_node
   block:
-    - name: Deploy manifests - {{ item }}
-      ansible.builtin.include_tasks: apply_folder_manifests.yml
-      vars:
-        folder_name: "{{ item }}"
-      with_items:
-        - core
-        - services
+    - name: Deploy helm chart
+      ansible.builtin.include_tasks: apply_helm_chart.yml
 
 - name: Extract Kubernetes Dashboard password
   ansible.builtin.include_tasks: extract_dashboard_password.yml

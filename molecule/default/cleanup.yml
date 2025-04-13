@@ -4,5 +4,5 @@
   tasks:
     - name: Remove secrets
       ansible.builtin.file:
-        path: "{{ playbook_dir }}/../../kubernetes/core/templates/00_secrets.yml"
+        path: "{{ playbook_dir }}/../../charts/services/templates/00_secrets.yml"
         state: absent

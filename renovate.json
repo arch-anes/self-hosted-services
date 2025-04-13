@@ -7,14 +7,14 @@
   "timezone": "America/Toronto",
   "kubernetes": {
     "fileMatch": [
-      "kubernetes/.+\\.ya?ml$"
+      "charts/.+\\.ya?ml$"
     ]
   },
   "customManagers": [
     {
       "customType": "regex",
       "fileMatch": [
-        "kubernetes/.+\\.ya?ml$"
+        "charts/.+\\.ya?ml$"
       ],
       "matchStrings": [
         "kind:\\s*HelmChart\\s*\\n(?:.*\\n)*?\\s*chart:\\s*(?<depName>.*?)\\s*\\n(?:.*\\n)*?\\s*repo:\\s*(?<registryUrl>.*?)\\s*\\n(?:.*\\n)*?\\s*version:\\s*(?<currentValue>.*?)\\s*\\n"
@@ -24,7 +24,7 @@
     {
       "customType": "regex",
       "fileMatch": [
-        "kubernetes/.+\\.ya?ml$"
+        "charts/.+\\.ya?ml$"
       ],
       "matchStrings": [
         "kind:\\s*HelmChart\\s*\\n(?:.*\\n)*?\\s*chart:\\s*oci://(?<registryUrl>[^/]+)/(?<depName>[^\\s]+)\\s*\\n(?:.*\\n)*?\\s*version:\\s*(?<currentValue>[^\\s]+)\\s*\\n"

@@ -5,7 +5,7 @@
     - name: Copy secrets
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/sample_secrets.yml"
-        dest: "{{ playbook_dir }}/../../kubernetes/core/templates/00_secrets.yml"
+        dest: "{{ playbook_dir }}/../../charts/services/templates/00_secrets.yml"
         mode: 0600
 
 - name: Verify hosts
