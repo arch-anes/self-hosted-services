@@ -28,9 +28,14 @@ k3s_cluster:
     manifest_only_setup: false
     display_k8s_dashboard_password: false
     timezone: America/Vancouver
-    fqdn: "example.com"
     tailscale_oauth_secret: "some_secret"
-    storageLocation: /storage
+    chartValuesOverrides:
+      fqdn: "example.com"
+      storageLocation: /storage
+      # Optional: disable unwanted applications
+      applications:
+        crowdsec:
+          enabled: false
   hosts:
     raspi:
       k3s_control_node: true

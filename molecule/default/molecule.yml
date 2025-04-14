@@ -59,8 +59,6 @@ provisioner:
         skip_k8s_setup: false
         manifest_only_setup: false
         display_k8s_dashboard_password: false
-        fqdn: "example.com"
-        storageLocation: "/storage"
         tailscale_oauth_secret: "some_secret"
         labels: []
     host_vars:

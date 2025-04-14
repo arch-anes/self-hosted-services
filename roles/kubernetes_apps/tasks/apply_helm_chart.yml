@@ -12,9 +12,7 @@
     - name: Render helm templates
       kubernetes.core.helm_template:
         chart_ref: "{{ chart_folder }}"
-        set_values:
-          - value: "fqdn={{ fqdn }}"
-          - value: "storageLocation={{ storageLocation }}"
+        values: "{{ chartValuesOverrides | default({}) }}"
       delegate_to: localhost
       register: helm_template
 
