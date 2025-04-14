@@ -51,11 +51,11 @@ cloudFlareIpRanges:
   - 2c0f:f248::/32
 
 # Github actions runner config
-actionRunnerConfigs:
-  - name: arch-anes
-    githubConfigUrl: https://github.com/arch-anes
-  - name: upptime-belfodil-ca
-    githubConfigUrl: https://github.com/abelfodil/upptime-belfodil.ca
+actionRunnerConfigs: []
+  # - name: my-org
+  #   githubConfigUrl: https://github.com/my-org
+  # - name: my-repo
+  #   githubConfigUrl: https://github.com/my-username/my-repo
 
 applications:
   akri:
