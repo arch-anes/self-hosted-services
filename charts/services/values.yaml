@@ -90,6 +90,8 @@ applications:
     enabled: true
   intel_gpu:
     enabled: true
+  inventree:
+    enabled: true
   jaeger:
     enabled: true
   jellyfin:

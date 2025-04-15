@@ -106,6 +106,7 @@ spec:
             immich:
               extensions:
                 vector: public
+            inventree: {}
             kubeclarity: {}
             miniflux: {}
             n8n: {}

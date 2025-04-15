@@ -1,0 +1,237 @@
+{{- if .Values.applications.inventree.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "InvenTree requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "InvenTree requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventree
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 80
+  selector:
+    app: inventree
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: inventree
+  namespace: default
+  annotations:
+    homer.service.name: Feed
+    homer.item.name: InvenTree
+    homer.item.logo: "https://raw.githubusercontent.com/inventree/InvenTree/5e7e2582891b203ad3778d6c0b04879b7e1120a7/docs/docs/assets/logo.png"
+spec:
+  tls:
+    - hosts:
+        - inventree.{{ .Values.fqdn }}
+      secretName: "{{ .Values.fqdn }}-tls"
+  rules:
+    - host: inventree.{{ .Values.fqdn }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: inventree
+                port:
+                  name: web
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: inventree
+  namespace: default
+type: Opaque
+# stringData:
+#   django_secret_key: "some_key"
+#   admin_username: "admin"
+#   admin_email: "email@example.com"
+#   admin_password: "somepass"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventree
+  namespace: default
+  labels:
+    app: inventree
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventree
+  template:
+    metadata:
+      labels:
+        app: inventree
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/arch-anes/inventree:0.17.10
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /hc
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 1000m
+            limits:
+              memory: 2Gi
+          env:
+            - name: INVENTREE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: inventree
+                  key: django_secret_key
+            - name: INVENTREE_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: inventree
+                  key: admin_username
+            - name: INVENTREE_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: inventree
+                  key: admin_email
+            - name: INVENTREE_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: inventree
+                  key: admin_password
+            - name: INVENTREE_SITE_URL
+              value: "https://inventree.{{ .Values.fqdn }}"
+            - name: INVENTREE_CACHE_ENABLED
+              value: "True"
+            - name: INVENTREE_CACHE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: redis-password
+            - name: INVENTREE_CACHE_HOST
+              # InvenTree lacks redis authentication at the moment https://github.com/inventree/InvenTree/blob/5e7e2582891b203ad3778d6c0b04879b7e1120a7/src/backend/InvenTree/InvenTree/cache.py#L82
+              # This is a hack to pass the password anyway
+              value: ":$(INVENTREE_CACHE_PASSWORD)@redis-master"
+            - name: INVENTREE_DB_ENGINE
+              value: "postgresql"
+            - name: INVENTREE_DB_HOST
+              value: "postgresql"
+            - name: INVENTREE_DB_NAME
+              value: "inventree"
+            - name: INVENTREE_DB_USER
+              value: "postgres"
+            - name: INVENTREE_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  key: password
+            - name: INVENTREE_AUTO_UPDATE
+              value: "True"
+            - name: INVENTREE_EMAIL_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: hostname
+            - name: INVENTREE_EMAIL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: username
+            - name: INVENTREE_EMAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: password
+            - name: INVENTREE_EMAIL_TLS
+              value: "True"
+            - name: INVENTREE_EMAIL_PORT
+              value: "587"
+            - name: INVENTREE_EMAIL_SENDER
+              value: "inventree@{{ .Values.fqdn }}"
+          ports:
+            - name: web
+              containerPort: 80
+        - name: worker
+          image: ghcr.io/arch-anes/inventree:0.17.10
+          imagePullPolicy: Always
+          command: ["invoke", "worker"]
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 1000m
+            limits:
+              memory: 1Gi
+          env:
+            - name: INVENTREE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: inventree
+                  key: django_secret_key
+            - name: INVENTREE_SITE_URL
+              value: "https://inventree.{{ .Values.fqdn }}"
+            - name: INVENTREE_CACHE_ENABLED
+              value: "True"
+            - name: INVENTREE_CACHE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: redis-password
+            - name: INVENTREE_CACHE_HOST
+              # InvenTree lacks redis authentication at the moment https://github.com/inventree/InvenTree/blob/5e7e2582891b203ad3778d6c0b04879b7e1120a7/src/backend/InvenTree/InvenTree/cache.py#L82
+              # This is a hack to pass the password anyway
+              value: ":$(INVENTREE_CACHE_PASSWORD)@redis-master"
+            - name: INVENTREE_DB_ENGINE
+              value: "postgresql"
+            - name: INVENTREE_DB_HOST
+              value: "postgresql"
+            - name: INVENTREE_DB_NAME
+              value: "inventree"
+            - name: INVENTREE_DB_USER
+              value: "postgres"
+            - name: INVENTREE_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  key: password
+            - name: INVENTREE_AUTO_UPDATE
+              value: "True"
+            - name: INVENTREE_EMAIL_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: hostname
+            - name: INVENTREE_EMAIL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: username
+            - name: INVENTREE_EMAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: smtp
+                  key: password
+            - name: INVENTREE_EMAIL_TLS
+              value: "True"
+            - name: INVENTREE_EMAIL_PORT
+              value: "587"
+            - name: INVENTREE_EMAIL_SENDER
+              value: "inventree@{{ .Values.fqdn }}"
+{{- end }}
