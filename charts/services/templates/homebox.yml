@@ -1,0 +1,80 @@
+{{- if .Values.applications.homebox.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Homebox requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: homebox
+  namespace: default
+spec:
+  chart: oci://tccr.io/truecharts/homebox
+  version: 8.12.0
+  targetNamespace: default
+  valuesContent: |-
+    homebox:
+      allow_registration: false
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          containers:
+            main:
+              env:
+                HBOX_DATABASE_DRIVER: postgres
+                HBOX_DATABASE_HOST: postgresql
+                HBOX_DATABASE_PORT: "5432"
+                HBOX_DATABASE_DATABASE: homebox
+                HBOX_DATABASE_USERNAME: postgres
+                HBOX_DATABASE_PASSWORD:
+                  secretKeyRef:
+                    name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                    key: password
+                    expandObjectName: false
+                HBOX_MAILER_HOST:
+                  secretKeyRef:
+                    name: smtp
+                    key: hostname
+                    expandObjectName: false
+                HBOX_MAILER_USERNAME:
+                  secretKeyRef:
+                    name: smtp
+                    key: username
+                    expandObjectName: false
+                HBOX_MAILER_PASSWORD:
+                  secretKeyRef:
+                    name: smtp
+                    key: password
+                    expandObjectName: false
+                HBOX_MAILER_FROM: "homebox@{{ .Values.fqdn }}"
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 1000m
+      limits:
+        memory: 1Gi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:    
+          homer.service.name: Feed
+          homer.item.logo: "https://raw.githubusercontent.com/sysadminsmedia/homebox/129cc72b8bb72305bf0fb9ca319c9374b41078cb/frontend/public/pwa-192x192.png"
+        hosts:
+          - host: homebox.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - homebox.{{ .Values.fqdn }}
+    persistence:
+      data:
+        enabled: false
+{{- end }}

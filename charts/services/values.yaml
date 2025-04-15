@@ -84,6 +84,8 @@ applications:
     enabled: true
   gotify:
     enabled: true
+  homebox:
+    enabled: true
   homer_operator:
     enabled: true
   immich:

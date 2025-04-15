@@ -101,6 +101,7 @@ spec:
           preparedDatabases:
             bazarr: {}
             gotify: {}
+            homebox: {}
             # Important: when restoring a backup, alter the sql dump as indicated in:
             # https://immich.app/docs/administration/backup-and-restore/#manual-backup-and-restore
             immich:
