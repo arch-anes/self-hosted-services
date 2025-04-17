@@ -1,0 +1,125 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: cilium
+  namespace: kube-system
+spec:
+  chart: cilium
+  repo: https://helm.cilium.io/
+  version: 1.18.1
+  targetNamespace: kube-system
+  bootstrap: true
+  valuesContent: |-
+    resources:
+      limits:
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+    k8sServiceHost: 127.0.0.1
+    k8sServicePort: 6444
+    ipam:
+      operator:
+        clusterPoolIPv4PodCIDRList:
+          - 10.42.0.0/16
+        clusterPoolIPv6PodCIDRList:
+          - 2001:cafe:42::/56
+    routingMode: tunnel
+    tunnelProtocol: vxlan
+    autoDirectNodeRoutes: false 
+    kubeProxyReplacement: true
+    loadBalancer:
+      acceleration: best-effort
+    nodePort:
+      enabled: true
+    externalIPs:
+      enabled: true
+    bpf:
+      masquerade: true
+    egressGateway:
+      enabled: true
+    envoy:
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+      prometheus:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+{{- end }}
+      resources:
+        limits:
+          memory: 128Mi
+        requests:
+          cpu: 250m
+          memory: 64Mi
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+    prometheus:
+      enabled: true
+      metricsService: true
+      serviceMonitor:
+        enabled: true
+      dashboards:
+        enabled: true
+{{- end }}
+    operator:
+      replicas: 1
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+      prometheus:
+        enabled: true
+        metricsService: true
+        serviceMonitor:
+          enabled: true
+        dashboards:
+          enabled: true
+{{- end }}
+      resources:
+        limits:
+          memory: 256Mi
+        requests:
+          cpu: 250m
+          memory: 128Mi
+    hubble:
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+      metrics:
+        enabled: []
+        serviceMonitor:
+          enabled: true
+        dashboards:
+          enabled: true
+{{- end }}
+      relay:
+        enabled: true
+        resources:
+          limits:
+            memory: 128Mi
+          requests:
+            cpu: 250m
+            memory: 64Mi
+      ui:
+        enabled: true
+        backend:
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 250m
+              memory: 128Mi
+        frontend:
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 250m
+              memory: 128Mi
+        ingress:
+          enabled: true
+          annotations:
+            homer.service.name: Monitoring
+            homer.item.logo: "https://raw.githubusercontent.com/cilium/hubble/2ee9d205be734176d9d5700463ed4e12ea8d640b/Documentation/images/hubble_logo.png"
+            traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd,kube-system-cluster-admin-authentication@kubernetescrd
+          hosts:
+            - hubble.{{ .Values.fqdn }}
+          tls:
+            - secretName: "{{ .Values.fqdn }}-tls"
+              hosts:
+                - hubble.{{ .Values.fqdn }}
