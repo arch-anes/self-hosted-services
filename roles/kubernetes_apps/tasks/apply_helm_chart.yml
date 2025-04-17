@@ -13,9 +13,6 @@
       kubernetes.core.helm_template:
         chart_ref: "{{ chart_folder }}"
         values: "{{ chartValuesOverrides | default({}) }}"
-        set_values:
-          - value: endpoints.agents={{ k3s_agent_nodes_endpoints.stdout }}
-          - value: endpoints.control_plane={{ k3s_control_nodes_endpoints.stdout }}
       delegate_to: localhost
       register: helm_template
 
