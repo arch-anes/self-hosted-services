@@ -1,0 +1,73 @@
+# code: language=ansible
+---
+
+- name: Delete Cilium
+  become: true
+  when:
+    - k3s_control_node is defined
+    - k3s_control_node
+  run_once: true
+  block:
+    - name: Delete ArgoCD application set
+      kubernetes.core.k8s:
+        name: argo-cd-applicationset
+        namespace: kube-system
+        api_version: helm.cattle.io/v1
+        kind: HelmChart
+        state: absent
+        wait: true
+
+    - name: Delete ArgoCD
+      kubernetes.core.k8s:
+        name: argo-cd
+        namespace: kube-system
+        api_version: helm.cattle.io/v1
+        kind: HelmChart
+        state: absent
+        wait: true
+
+    - name: Delete Cilium
+      kubernetes.core.k8s:
+        name: cilium
+        namespace: kube-system
+        api_version: helm.cattle.io/v1
+        kind: HelmChart
+        state: absent
+        wait: true
+
+- name: Delete the cilium_host network interface
+  become: true
+  block:
+    - name: Ensure cilium_host interface is deleted
+      ansible.builtin.command: ip link delete cilium_host
+      register: ip_link_delete
+      ignore_errors: true
+      changed_when: ip_link_delete.rc == 0
+
+    - name: Ensure cilium_net interface is deleted
+      ansible.builtin.command: ip link delete cilium_net
+      register: ip_link_delete
+      ignore_errors: true
+      changed_when: ip_link_delete.rc == 0
+
+    - name: Ensure cilium_vxlan interface is deleted
+      ansible.builtin.command: ip link delete cilium_vxlan
+      register: ip_link_delete
+      ignore_errors: true
+      changed_when: ip_link_delete.rc == 0
+
+- name: Restore iptables before Cilium was installed
+  block:
+    - name: Restore IPv4
+      ansible.builtin.shell: "set -o pipefail && iptables-save | grep -iv cilium | iptables-restore"
+      args:
+        executable: /usr/bin/bash
+      become: true
+      changed_when: true
+
+    - name: Restore IPv6
+      ansible.builtin.shell: "set -o pipefail && ip6tables-save | grep -iv cilium | ip6tables-restore"
+      args:
+        executable: /usr/bin/bash
+      become: true
+      changed_when: true
