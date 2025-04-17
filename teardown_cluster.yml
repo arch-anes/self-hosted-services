@@ -3,7 +3,12 @@
 ---
 - name: Teardown cluster
   hosts: all
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
   roles:
+    - name: Cleanup Cilium
+      role: cleanup_cilium
+
     - name: Uninstall k3s
       role: xanmanning.k3s
       vars:

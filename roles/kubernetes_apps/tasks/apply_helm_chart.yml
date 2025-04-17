@@ -27,7 +27,7 @@
       changed_when: false
 
 - name: Wait for manifests to install
-  ansible.builtin.command: "kubectl wait --for=condition=complete jobs --all --all-namespaces --timeout=5m"
+  ansible.builtin.command: "kubectl wait --for=condition=complete jobs --all --all-namespaces --timeout=10m"
   changed_when: false
   become: true
   run_once: true
