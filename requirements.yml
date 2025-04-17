@@ -9,3 +9,4 @@ collections:
   - name: kubernetes.core
 roles:
   - name: xanmanning.k3s
+  - name: andrewrothstein.k9s

@@ -66,3 +66,11 @@
     k3s_use_unsupported_config: true
     k3s_use_experimental: true
   become: true
+
+- name: Install k9s
+  ansible.builtin.import_role:
+    name: andrewrothstein.k9s
+  become: true
+  when:
+    - k3s_control_node is defined
+    - k3s_control_node
