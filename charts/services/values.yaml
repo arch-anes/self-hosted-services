@@ -82,6 +82,8 @@ applications:
     enabled: true
   github_actions_runner_controller:
     enabled: true
+  gluetun:
+    enabled: true
   gotify:
     enabled: true
   homer_operator:
@@ -97,6 +99,8 @@ applications:
   jellyfin:
     enabled: true
   jellyseerr:
+    enabled: true
+  joal:
     enabled: true
   keel:
     enabled: true
@@ -144,5 +148,5 @@ applications:
     enabled: true
   tdarr:
     enabled: true
-  torrent_client:
+  transmission:
     enabled: true

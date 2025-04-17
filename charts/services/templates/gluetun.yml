@@ -1,0 +1,78 @@
+{{- if .Values.applications.gluetun.enabled }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gluetun
+  namespace: default
+type: Opaque
+# stringData:
+#   vpn_service_provider: "someprovider" # https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers
+#   wireguard_private_key: "somekey"
+#   server_countries: "somecountry1,somecountry2"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gluetun
+  namespace: default
+  labels:
+    app: gluetun
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gluetun
+  template:
+    metadata:
+      labels:
+        app: gluetun
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - jellyfin
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: vpn
+          image: qmcgaw/gluetun:v3.39.1
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 1000m
+            limits:
+              memory: 1Gi
+          env:
+            - name: UPDATER_PERIOD
+              value: "24h"
+            - name: VPN_TYPE
+              value: "wireguard"
+            - name: VPN_SERVICE_PROVIDER
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun
+                  key: vpn_service_provider
+            - name: WIREGUARD_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun
+                  key: wireguard_private_key
+            - name: SERVER_COUNTRIES
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun
+                  key: server_countries
+{{- end }}
