@@ -1,0 +1,94 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: cilium
+  namespace: kube-system
+spec:
+  chart: cilium
+  repo: https://helm.cilium.io/
+  version: 1.17.3
+  targetNamespace: kube-system
+  bootstrap: true
+  valuesContent: |-
+    resources:
+      limits:
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+    devices:
+      - tailscale0
+    ipv4NativeRoutingCIDR: 100.64.0.0/10
+    ipv6NativeRoutingCIDR: fd7a:115c:a1e0::/48
+    k8sServiceHost: 127.0.0.1
+    k8sServicePort: 6444
+    ipam:
+      operator:
+        clusterPoolIPv4PodCIDRList:
+          - 10.42.0.0/16
+        clusterPoolIPv6PodCIDRList:
+          - 2001:cafe:42::/56
+    kubeProxyReplacement: true
+    loadBalancer:
+      acceleration: best-effort
+    nodePort:
+      enabled: true
+    externalIPs:
+      enabled: true
+    bpf:
+      masquerade: true
+    egressGateway:
+      enabled: true
+    envoy:
+      resources:
+        limits:
+          memory: 128Mi
+        requests:
+          cpu: 250m
+          memory: 64Mi
+    operator:
+      replicas: 1
+      resources:
+        limits:
+          memory: 256Mi
+        requests:
+          cpu: 250m
+          memory: 128Mi
+    hubble:
+      relay:
+        enabled: true
+        resources:
+          limits:
+            memory: 128Mi
+          requests:
+            cpu: 250m
+            memory: 64Mi
+      ui:
+        enabled: true
+        backend:
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 250m
+              memory: 128Mi
+        frontend:
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 250m
+              memory: 128Mi
+        ingress:
+          enabled: true
+          annotations:
+            homer.service.name: Monitoring
+            homer.item.logo: "https://raw.githubusercontent.com/cilium/hubble/2ee9d205be734176d9d5700463ed4e12ea8d640b/Documentation/images/hubble_logo.png"
+            traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd,kube-system-cluster-admin-authentication@kubernetescrd
+          hosts:
+            - hubble.{{ .Values.fqdn }}
+          tls:
+            - secretName: "{{ .Values.fqdn }}-tls"
+              hosts:
+                - hubble.{{ .Values.fqdn }}
