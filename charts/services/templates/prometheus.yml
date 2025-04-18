@@ -14,15 +14,31 @@ type: Opaque
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
-  name: prometheus
+  name: rancher-monitoring-crd
+  namespace: kube-system
+spec:
+  chart: rancher-monitoring-crd
+  repo: https://charts.rancher.io/
+  version: 106.0.0
+  targetNamespace: kube-system
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: rancher-monitoring
   namespace: kube-system
 spec:
   chart: rancher-monitoring
   repo: https://charts.rancher.io/
-  version: 9.4.202
+  version: 106.0.0
   targetNamespace: kube-system
   valuesContent: |-
     # accounts for kube-controller-manager, kube-scheduler, and kube-proxy metrics
+    namespaceOverride: kube-system
+    prometheus-adapter:
+      prometheus:
+        url: http://rancher-monitoring-prometheus.kube-system.svc
     k3sServer:
       enabled: true
     rke2Etcd:
@@ -41,7 +57,7 @@ spec:
         hosts:
           - grafana.{{ .Values.fqdn }}
         tls:
-          - secretName: {{ .Values.fqdn }}-tls
+          - secretName: "{{ .Values.fqdn }}-tls"
             hosts:
               - grafana.{{ .Values.fqdn }}
       persistence:
