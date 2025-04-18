@@ -26,23 +26,64 @@ spec:
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
-  name: rancher-monitoring
+  name: pushprox-k3s
   namespace: kube-system
 spec:
-  chart: rancher-monitoring
+  chart: rancher-pushprox
   repo: https://charts.rancher.io/
-  version: 106.0.0
+  version: 103.0.1
   targetNamespace: kube-system
   valuesContent: |-
-    # accounts for kube-controller-manager, kube-scheduler, and kube-proxy metrics
-    namespaceOverride: kube-system
-    prometheus-adapter:
-      prometheus:
-        url: http://rancher-monitoring-prometheus.kube-system.svc
-    k3sServer:
-      enabled: true
-    rke2Etcd:
-      enabled: true
+    metricsPort: 10249
+    component: k3s-server
+    clients:
+      port: 10013
+      useLocalhost: true
+      metrics:
+        enabled: true
+      tolerations:
+      - effect: "NoExecute"
+        operator: "Exists"
+      - effect: "NoSchedule"
+        operator: "Exists"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: pushprox-etcd
+  namespace: kube-system
+spec:
+  chart: rancher-pushprox
+  repo: https://charts.rancher.io/
+  version: 103.0.1
+  targetNamespace: kube-system
+  valuesContent: |-
+    metricsPort: 2381
+    component: kube-etcd
+    clients:
+      port: 10014
+      useLocalhost: true
+      metrics:
+        enabled: true
+      nodeSelector:
+        node-role.kubernetes.io/etcd: "true"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kube-prometheus-stack
+  namespace: kube-system
+spec:
+  chart: kube-prometheus-stack
+  repo: https://prometheus-community.github.io/helm-charts
+  version: 70.7.0
+  targetNamespace: kube-system
+  valuesContent: |-
+    defaultRules:
+      rules:
+        windows: false
     grafana:
       admin:
         existingSecret: "prometheus"
