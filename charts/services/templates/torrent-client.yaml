@@ -233,7 +233,7 @@ spec:
                   name: gluetun
                   key: server_countries
         - name: transmission
-          image: lscr.io/linuxserver/transmission:4.0.6
+          image: lscr.io/linuxserver/transmission:2021.11.18
           resources:
             requests:
               memory: 128Mi
