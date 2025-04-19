@@ -1,0 +1,7 @@
+# code: language=ansible
+---
+- name: Restart headscale
+  ansible.builtin.service:
+    name: headscale
+    enabled: true
+    state: restarted

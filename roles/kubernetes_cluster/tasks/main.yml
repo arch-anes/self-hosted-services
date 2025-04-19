@@ -1,6 +1,11 @@
 # code: language=ansible
 ---
 
+- name: Fail if tailscale0 interface does not exist
+  ansible.builtin.fail:
+    msg: "The tailscale0 interface does not exist on the host. Please setup the VPN."
+  when: "'tailscale0' not in ansible_interfaces"
+
 - name: Setup firewall
   ansible.builtin.import_role:
     name: firewall
@@ -14,8 +19,7 @@
 
 - name: Set k3s pre-config
   ansible.builtin.set_fact:
-    advertised_ip: "{{ vpn_address | default(direct_ip) }}"
-    network_interface: "{{ 'tailscale0' if vpn_address is defined else ansible_default_ipv4.interface }}"
+    advertised_ip: "{{ ansible_tailscale0.ipv4.address }}"
     snapshotter: "{{ 'overlayfs' if ansible_module_container_type == '' else 'fuse-overlayfs' }}"
 
 - name: Set k3s config
@@ -24,7 +28,7 @@
       prefer-bundled-bin: true
       with-node-id: true
       node-ip: "{{ advertised_ip }}"
-      flannel-iface: "{{ network_interface }}"
+      flannel-iface: "tailscale0"
       snapshotter: "{{ snapshotter }}"
       node-label: "{{ labels }}"
     k3s_server:
@@ -35,7 +39,7 @@
       disable: traefik
       with-node-id: true
       node-ip: "{{ advertised_ip }}"
-      flannel-iface: "{{ network_interface }}"
+      flannel-iface: "tailscale0"
       snapshotter: "{{ snapshotter }}"
       node-label: "{{ labels }}"
       default-local-storage-path: "{{ chartValuesOverrides.storageLocation | default('/storage') }}/cluster-local-storage"

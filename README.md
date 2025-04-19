@@ -18,9 +18,9 @@
 ### Static
 
 ```yml
-# There must be a minimum of 3 controllers and the number must be odd for etcd to work
-k3s_cluster:
+all:
   vars:
+    k3s_control_node: false
     skip_system_setup: false
     skip_firewall_setup: false
     skip_vpn_setup: false
@@ -36,6 +36,8 @@ k3s_cluster:
       applications:
         crowdsec:
           enabled: false
+# There must be a minimum of 3 controllers and the number must be odd for etcd to work
+k3s_cluster:
   hosts:
     raspi:
       k3s_control_node: true
@@ -54,6 +56,10 @@ k3s_cluster:
     big_server:
       labels:
         - local=true
+# Optional
+headscale:
+  hosts:
+    headscale_control_server: {}
 ```
 
 ### Dynamic (AWS)

@@ -1,0 +1,50 @@
+# code: language=ansible
+---
+- name: Setup firewall
+  ansible.builtin.import_role:
+    name: firewall
+  vars:
+    firewall_rules:
+      - { to_port: 8080, proto: tcp, rule: allow, comment: "Allow headscale server" }
+  when: not (skip_firewall_setup or manifest_only_setup)
+
+- name: Check if headscale is installed
+  ansible.builtin.command: "which headscale"
+  register: headscale_existence_result
+  changed_when: false
+  ignore_errors: true
+
+- name: Install headscale
+  become: true
+  when: headscale_existence_result.rc != 0
+  block:
+    - name: Download headscale
+      ansible.builtin.get_url:
+        url: "https://github.com/juanfont/headscale/releases/download/v0.25.1/headscale_0.25.1_linux_{{ cpu_arch }}.deb"
+        mode: '644'
+        dest: /tmp/headscale.deb
+
+    - name: Install headscale
+      ansible.builtin.apt:
+        deb: /tmp/headscale.deb
+
+- name: Generate headscale configuration file
+  ansible.builtin.template:
+    src: headscale.config.yaml.j2
+    dest: /etc/headscale/config.yaml
+    mode: '644'
+  become: true
+  notify: Restart headscale
+
+- name: Flush handlers to restart the service immediately
+  ansible.builtin.meta: flush_handlers
+
+- name: Set headscale server url
+  ansible.builtin.set_fact:
+    headscale_server_url: "http://{{ ansible_default_ipv4.address }}:8080"
+
+- name: Create a headscale user
+  ansible.builtin.command: "headscale users create ansible"
+  register: headscale_user_result
+  ignore_errors: true
+  changed_when: headscale_user_result.rc == 0

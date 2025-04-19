@@ -13,6 +13,8 @@ lint: |
 # Doc: https://github.com/ansible-community/molecule-plugins/blob/95141070006d996a5d43ce1f9301873342c9bfc1/src/molecule_plugins/docker/driver.py
 platforms:
   - name: replica1
+    groups:
+      - k3s_cluster
     image: ghcr.io/arch-anes/ubuntu-systemd:latest
     entrypoint: ~
     command: ~
@@ -25,6 +27,8 @@ platforms:
       - name: molecule_network
         ipv4_address: 192.168.42.42
   - name: replica2
+    groups:
+      - k3s_cluster
     image: ghcr.io/arch-anes/ubuntu-systemd:latest
     entrypoint: ~
     command: ~
@@ -33,6 +37,8 @@ platforms:
       - name: molecule_network
         ipv4_address: 192.168.42.43
   - name: replica3
+    groups:
+      - k3s_cluster
     image: ghcr.io/arch-anes/ubuntu-systemd:latest
     entrypoint: ~
     command: ~
@@ -41,6 +47,8 @@ platforms:
       - name: molecule_network
         ipv4_address: 192.168.42.44
   - name: replica4
+    groups:
+      - k3s_cluster
     image: ghcr.io/arch-anes/ubuntu-systemd:latest
     entrypoint: ~
     command: ~
@@ -48,34 +56,39 @@ platforms:
     networks:
       - name: molecule_network
         ipv4_address: 192.168.42.45
+  - name: headscale1
+    groups:
+      - headscale
+    image: ghcr.io/arch-anes/ubuntu-systemd:latest
+    entrypoint: ~
+    command: ~
+    privileged: true
+    networks:
+      - name: molecule_network
+        ipv4_address: 192.168.42.46
 provisioner:
   name: ansible
   inventory:
     group_vars:
       all:
+        k3s_control_node: false
         skip_system_setup: false
         skip_firewall_setup: false
-        skip_vpn_setup: true
+        skip_vpn_setup: false
         skip_k8s_setup: false
         manifest_only_setup: false
         display_k8s_dashboard_password: false
-        tailscale_oauth_secret: "some_secret"
         labels: []
     host_vars:
       replica1:
-        direct_ip: "192.168.42.42"
         labels:
           - local=true
           - public=true
       replica2:
-        direct_ip: "192.168.42.43"
         k3s_control_node: true
       replica3:
-        direct_ip: "192.168.42.44"
         labels:
           - nas=true
-      replica4:
-        direct_ip: "192.168.42.45"
   playbooks:
     converge: converge.yml
     # verify: ../default/verify.yml

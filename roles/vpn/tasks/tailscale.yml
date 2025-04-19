@@ -1,0 +1,71 @@
+# code: language=ansible
+---
+- name: Check if tailscale is installed
+  ansible.builtin.command: "which tailscale"
+  register: tailscale_existence_result
+  changed_when: false
+  ignore_errors: true
+
+- name: Install tailscale
+  ansible.builtin.shell: "set -o pipefail && curl -fsSL https://tailscale.com/install.sh | sh"
+  args:
+    executable: /usr/bin/bash
+  become: true
+  changed_when: true
+  when: tailscale_existence_result.rc != 0
+
+- name: Start tailscaled
+  ansible.builtin.service:
+    name: tailscaled
+    enabled: true
+    state: started
+
+- name: Get headscale auth key if headscale is running
+  block:
+    - name: Get headscale host
+      ansible.builtin.set_fact:
+        # Fallback to localhost such that the delegate_to directive below does not fail
+        headscale_host: "{{ groups['headscale'][0] | default('localhost') }}"
+
+    - name: Get auth keys from headscale
+      when: headscale_host != 'localhost'
+      block:
+        - name: Generate an auth key
+          ansible.builtin.command: "headscale preauthkeys create --user ansible"
+          register: headscale_auth_key_result
+          changed_when: true
+          delegate_to: "{{ headscale_host }}"
+
+        - name: Set tailscale arguments for headscale
+          ansible.builtin.set_fact:
+            tailscale_oauth_secret: "{{ headscale_auth_key_result.stdout }}"
+            login_server_arg: "--login-server {{ hostvars[headscale_host]['headscale_server_url'] }}"
+            ephemeral_key_arg: ""
+
+    - name: Fallback to usual tailscale arguments
+      ansible.builtin.set_fact:
+        login_server_arg: ""
+        ephemeral_key_arg: "?ephemeral=false"
+      when: headscale_host == 'localhost'
+
+# https://github.com/tailscale/tailscale/issues/11717
+- name: Provision tailscale node
+  ansible.builtin.command: "tailscale up {{ login_server_arg }} --netfilter-mode=off --accept-dns=false --timeout=120s --advertise-tags=tag:ansible --auth-key={{ tailscale_oauth_secret }}{{ ephemeral_key_arg }}"
+  register: tailscale_up_result
+  ignore_errors: true
+  changed_when: tailscale_up_result.rc == 0
+  become: true
+
+- name: Fail on tailscale error
+  ansible.builtin.fail:
+    msg: "Ensure an oauth key with Decide.Core and Keys.AuthKeys permissions is declared and added
+      to tag:ansible via https://login.tailscale.com/admin/settings/oauth, and secret added to tailscale_oauth_secret variable"
+  when: tailscale_up_result.rc != 0
+
+- name: Update ansible facts with the latest information
+  ansible.builtin.setup:
+
+- name: Ensure all hosts are reachable
+  ansible.builtin.command: "ping -c 1 -w 600 {{ item }}"
+  loop: "{{ hostvars | json_query('*.ansible_tailscale0.ipv4.address') }}"
+  changed_when: false

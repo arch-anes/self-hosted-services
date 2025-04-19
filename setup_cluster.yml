@@ -23,7 +23,9 @@
 
     - name: Deploy Kubernetes cluster
       role: kubernetes_cluster
-      when: not (skip_k8s_setup or manifest_only_setup)
+      when:
+        - not (skip_k8s_setup or manifest_only_setup)
+        - "'k3s_cluster' in group_names"
 
     - name: Deploy Kubernetes applications
       role: kubernetes_apps
