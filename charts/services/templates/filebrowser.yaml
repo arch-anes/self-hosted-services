@@ -92,4 +92,5 @@ spec:
         - name: db
           hostPath:
             path: "{{ .Values.storageLocation }}/filebrowser/database.db"
+            type: FileOrCreate
 {{- end }}
