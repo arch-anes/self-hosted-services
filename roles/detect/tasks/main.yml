@@ -7,3 +7,13 @@
 - name: Detect if Raspberry Pi machine
   ansible.builtin.set_fact:
     is_raspberry_pi: "{{ 'raspi' in ansible_kernel }}"
+
+- name: Determine CPU architecture
+  ansible.builtin.set_fact:
+    cpu_arch: >-
+      {{
+        'amd64' if ansible_architecture == 'x86_64' else
+        'arm64' if ansible_architecture == 'aarch64' else
+        'armv7' if ansible_machine == 'armv7l' else
+        'unknown'
+      }}
