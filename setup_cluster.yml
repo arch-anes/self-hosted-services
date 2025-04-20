@@ -29,3 +29,5 @@
 
     - name: Deploy Kubernetes applications
       role: kubernetes_apps
+      when:
+        - "'k3s_cluster' in group_names"
