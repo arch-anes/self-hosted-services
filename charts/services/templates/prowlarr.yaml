@@ -1,4 +1,4 @@
-{{- if .Values.applications.prowlarr.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.prowlarr.enabled }}
 {{- if not .Values.applications.postgresql.enabled }}
 {{- fail "Prowlarr requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}

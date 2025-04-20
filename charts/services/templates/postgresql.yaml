@@ -1,4 +1,4 @@
-{{- if .Values.applications.postgresql.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.postgresql.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap

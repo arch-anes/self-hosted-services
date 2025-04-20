@@ -1,4 +1,4 @@
-{{- if .Values.applications.keel.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.keel.enabled }}
 ---
 apiVersion: v1
 kind: Secret

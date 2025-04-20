@@ -1,4 +1,4 @@
-{{- if .Values.applications.amd_gpu.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.amd_gpu.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

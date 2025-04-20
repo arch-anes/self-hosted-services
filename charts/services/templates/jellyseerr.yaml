@@ -1,4 +1,4 @@
-{{- if .Values.applications.jellyseerr.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.jellyseerr.enabled }}
 ---
 apiVersion: v1
 kind: Service

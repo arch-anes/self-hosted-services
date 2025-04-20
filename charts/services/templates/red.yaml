@@ -1,4 +1,4 @@
-{{- if .Values.applications.red.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.red.enabled }}
 ---
 apiVersion: v1
 kind: Service

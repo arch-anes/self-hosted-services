@@ -1,4 +1,4 @@
-{{- if .Values.applications.flaresolverr.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.flaresolverr.enabled }}
 ---
 apiVersion: v1
 kind: Service

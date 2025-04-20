@@ -1,4 +1,4 @@
-{{- if .Values.applications.kubernetes_dashboard.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.kubernetes_dashboard.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

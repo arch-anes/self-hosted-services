@@ -1,4 +1,4 @@
-{{- if .Values.applications.akri.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.akri.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

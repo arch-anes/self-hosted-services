@@ -1,4 +1,4 @@
-{{- if .Values.applications.pgadmin4.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.pgadmin4.enabled }}
 {{- if not .Values.applications.postgresql.enabled }}
 {{- fail "pgAdmin4 requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}

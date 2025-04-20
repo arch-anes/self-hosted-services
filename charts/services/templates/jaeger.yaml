@@ -1,4 +1,4 @@
-{{- if .Values.applications.jaeger.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.jaeger.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

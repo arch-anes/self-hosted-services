@@ -1,4 +1,4 @@
-{{- if .Values.applications.tdarr.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.tdarr.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -172,7 +172,7 @@ spec:
               cpu: 250m
             limits:
               memory: 2Gi
-            {{- if .Values.applications.intel_gpu.enabled }}
+            {{- if and (not .Values.disableAllApplications) .Values.applications.intel_gpu.enabled }}
               gpu.intel.com/i915: 1
             {{- end }}
           env:

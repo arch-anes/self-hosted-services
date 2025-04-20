@@ -1,4 +1,4 @@
-{{- if .Values.applications.descheduler.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.descheduler.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

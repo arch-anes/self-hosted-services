@@ -1,4 +1,4 @@
-{{- if .Values.applications.github_actions_runner_controller.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.github_actions_runner_controller.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

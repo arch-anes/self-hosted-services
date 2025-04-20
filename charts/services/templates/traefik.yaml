@@ -8,7 +8,7 @@ type: Opaque
 # stringData:
 #   credentials: "admin:$2y$12$8KtQ4SQb6QpebcgYvMPjwOv3Jz9ojkNq8FVWZmk5q1BW9BoEX2aAy" # admin:admin by default, bcrypted password: https://bcrypt-generator.com/
 
-{{- if .Values.applications.crowdsec.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.crowdsec.enabled }}
 ---
 apiVersion: v1
 kind: Secret
@@ -63,7 +63,7 @@ spec:
           ipAllowList:
             sourceRange:
               {{- concat .Values.localIpRanges .Values.tailscaleIpRanges | toYaml | nindent 14 }}
-{{- if .Values.applications.crowdsec.enabled}}
+{{- if and (not .Values.disableAllApplications) .Values.applications.crowdsec.enabled}}
       - apiVersion: helm.cattle.io/v1
         kind: HelmChart
         metadata:
@@ -161,7 +161,7 @@ spec:
         fields:
           headers:
             defaultmode: keep
-{{- if .Values.applications.jaeger.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.jaeger.enabled }}
     tracing:
       capturedRequestHeaders:
         - "X-Real-Ip"
@@ -241,7 +241,7 @@ spec:
             readTimeout: 0
         middlewares:
           - kube-system-traefik-websecure@kubernetescrd
-{{- if .Values.applications.crowdsec.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.crowdsec.enabled }}
           - kube-system-crowdsec@kubernetescrd
 {{- end }}
         tls:

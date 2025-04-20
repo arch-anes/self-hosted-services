@@ -1,4 +1,4 @@
-{{- if .Values.applications.octoprint.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.octoprint.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -112,7 +112,7 @@ spec:
               memory: 512Mi
               cpu: 2000m
             limits:
-            {{- if .Values.applications.akri.enabled }}
+            {{- if and (not .Values.disableAllApplications) .Values.applications.akri.enabled }}
               akri.sh/akri-udev-4ad410: "1"
               akri.sh/akri-udev-dbf9ff: "1"
             {{- end }}

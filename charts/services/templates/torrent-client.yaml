@@ -1,4 +1,4 @@
-{{- if .Values.applications.torrent_client.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.torrent_client.enabled }}
 ---
 apiVersion: v1
 kind: Service

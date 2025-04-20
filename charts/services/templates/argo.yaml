@@ -1,4 +1,4 @@
-{{- if .Values.applications.argo.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.argo.enabled }}
 {{- if not .Values.applications.redis.enabled }}
 {{- fail "Argo requires Redis to be enabled. Please enable Redis in your values.yaml" }}
 {{- end }}

@@ -1,4 +1,4 @@
-{{- if .Values.applications.homer_operator.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.homer_operator.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

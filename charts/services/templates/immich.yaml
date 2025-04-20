@@ -1,4 +1,4 @@
-{{- if .Values.applications.immich.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.immich.enabled }}
 {{- if not .Values.applications.postgresql.enabled }}
 {{- fail "Immich requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
@@ -124,7 +124,7 @@ spec:
               cpu: 250m
             limits:
               memory: 4Gi
-            {{- if .Values.applications.intel_gpu.enabled }}
+            {{- if and (not .Values.disableAllApplications) .Values.applications.intel_gpu.enabled }}
               gpu.intel.com/i915: 1
             {{- end }}
           envFrom:

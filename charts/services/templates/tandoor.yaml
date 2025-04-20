@@ -1,4 +1,4 @@
-{{- if .Values.applications.tandoor.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.tandoor.enabled }}
 {{- if not .Values.applications.postgresql.enabled }}
 {{- fail "Tandoor requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}

@@ -1,4 +1,4 @@
-{{- if .Values.applications.ddclient.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.ddclient.enabled }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

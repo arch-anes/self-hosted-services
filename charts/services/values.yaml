@@ -57,6 +57,8 @@ actionRunnerConfigs: []
   # - name: my-repo
   #   githubConfigUrl: https://github.com/my-username/my-repo
 
+disableAllApplications: false
+
 applications:
   akri:
     enabled: true
