@@ -64,6 +64,10 @@ platforms:
 provisioner:
   name: ansible
   inventory:
+    group_vars:
+      all:
+        chartValuesOverrides:
+          disableAllApplications: true
     host_vars:
       replica1:
         labels:
