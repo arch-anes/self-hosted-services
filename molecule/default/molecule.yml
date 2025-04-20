@@ -25,7 +25,6 @@ platforms:
           - subnet: 192.168.42.0/24
     networks:
       - name: molecule_network
-        ipv4_address: 192.168.42.42
   - name: replica2
     groups:
       - k3s_cluster
@@ -35,7 +34,6 @@ platforms:
     privileged: true
     networks:
       - name: molecule_network
-        ipv4_address: 192.168.42.43
   - name: replica3
     groups:
       - k3s_cluster
@@ -45,7 +43,6 @@ platforms:
     privileged: true
     networks:
       - name: molecule_network
-        ipv4_address: 192.168.42.44
   - name: replica4
     groups:
       - k3s_cluster
@@ -55,7 +52,6 @@ platforms:
     privileged: true
     networks:
       - name: molecule_network
-        ipv4_address: 192.168.42.45
   - name: headscale1
     groups:
       - headscale
@@ -65,7 +61,6 @@ platforms:
     privileged: true
     networks:
       - name: molecule_network
-        ipv4_address: 192.168.42.46
 provisioner:
   name: ansible
   inventory:
