@@ -21,8 +21,6 @@ platforms:
     privileged: true
     docker_networks:
       - name: molecule_network
-        ipam_config:
-          - subnet: 192.168.42.0/24
     networks:
       - name: molecule_network
   - name: replica2
