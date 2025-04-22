@@ -40,7 +40,7 @@
         "lscr.io/linuxserver/transmission"
       ],
       "allowedVersions": "!/^202[0-9]\\./",
-      "versionScheme": "semver"
+      "versioning": "semver"
     },
     {
       "automerge": true,
