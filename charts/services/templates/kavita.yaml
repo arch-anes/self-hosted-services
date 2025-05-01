@@ -1,0 +1,55 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.kavita.enabled }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kavita
+  namespace: default
+spec:
+  chart: oci://tccr.io/truecharts/kavita
+  version: 11.5.7
+  targetNamespace: default
+  valuesContent: |-
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 1000m
+      limits:
+        memory: 1Gi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      webserver:
+        enabled: true
+        primary: true
+        annotations:    
+          homer.service.name: Media
+          homer.item.logo: "https://raw.githubusercontent.com/Kareadita/Kavita/cd2a6af6f2368207f2580a963960045dc09468c8/Logo/kavita.svg"
+        hosts:
+          - host: kavita.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - kavita.{{ .Values.fqdn }}
+    podOptions:
+      nodeSelector:
+        # Schedule only on nas nodes
+        nas: "true"
+    persistence:
+      config:
+        enabled: true
+        type: hostPath
+        mountPath: /kavita/config
+        hostPath: "{{ .Values.storageLocation }}/kavita/config"
+      books:
+        enabled: true
+        type: hostPath
+        mountPath: /books
+        hostPath: "{{ .Values.storageLocation }}/Multimedia/Books"
+      manga:
+        enabled: false
+{{- end }}
