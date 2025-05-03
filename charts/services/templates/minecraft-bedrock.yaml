@@ -38,7 +38,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: itzg/minecraft-bedrock-server:2025.4.0
+          image: itzg/minecraft-bedrock-server:2025.5.0
           stdin: true
           tty: true
           resources:
