@@ -39,7 +39,7 @@ spec:
             - name: RemoveDuplicates
             - name: RemovePodsHavingTooManyRestarts
               args:
-                podRestartThreshold: 10
+                podRestartThreshold: 5
                 includingInitContainers: true
             - name: RemovePodsViolatingNodeAffinity
               args:
