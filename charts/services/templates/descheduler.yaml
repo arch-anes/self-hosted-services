@@ -18,6 +18,8 @@ spec:
       limits:
         memory: 256Mi
         cpu: null
+    cmdOptions:
+      v: 5
     deschedulerPolicy:
       metricsProviders:
         - source: KubernetesMetrics
