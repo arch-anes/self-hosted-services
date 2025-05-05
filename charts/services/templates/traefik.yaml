@@ -77,6 +77,8 @@ spec:
           valuesContent: |-
             container_runtime: containerd
             agent:
+              podAnnotations:
+                descheduler.alpha.kubernetes.io/evict: "true"
               acquisition:
                 - namespace: kube-system
                   podName: traefik-*
