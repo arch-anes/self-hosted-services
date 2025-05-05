@@ -1,20 +1,6 @@
 {{- if and (not .Values.disableAllApplications) .Values.applications.red.enabled }}
 ---
 apiVersion: v1
-kind: Service
-metadata:
-  name: red
-  namespace: default
-spec:
-  ports:
-    - protocol: TCP
-      name: web
-      port: 80
-  selector:
-    app: red
-
----
-apiVersion: v1
 kind: Secret
 metadata:
   name: red
@@ -24,54 +10,36 @@ type: Opaque
 #   token: "sometoken"
 
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
   name: red
   namespace: default
-  labels:
-    app: red
-  annotations:
-    keel.sh/policy: force
-    keel.sh/matchTag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@daily"
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: red
-  template:
-    metadata:
-      labels:
-        app: red
-    spec:
+  chart: oci://tccr.io/truecharts/red-discordbot
+  version: 7.5.7
+  targetNamespace: default
+  valuesContent: |-
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                PREFIX: "-"
+                TOKEN:
+                  secretKeyRef:
+                    name: red
+                    key: token
+                    expandObjectName: false
+    podOptions:
       nodeSelector:
-        # Schedule only on NAS nodes
+        # Schedule only on nas nodes
         nas: "true"
-      containers:
-        - name: app
-          image: phasecorex/red-discordbot:full
-          imagePullPolicy: Always
-          resources:
-            requests:
-              memory: 512Mi
-              cpu: 1000m
-            limits:
-              memory: 1Gi
-          env:
-            - name: TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: red
-                  key: token
-            - name: PREFIX
-              value: "-"
-          volumeMounts:
-            - name: data
-              mountPath: /data
-      volumes:
-        - name: data
-          hostPath:
-            path: "{{ .Values.storageLocation }}/red/data"
+    persistence:
+      data:
+        enabled: true
+        type: hostPath
+        mountPath: /data
+        hostPath: "{{ .Values.storageLocation }}/red/data"
 {{- end }}
