@@ -19,8 +19,8 @@ spec:
         memory: 256Mi
         cpu: null
     deschedulerPolicy:
-      metricsCollector:
-        enabled: true
+      metricsProviders:
+        - source: KubernetesMetrics
       profiles:
         - name: default
           pluginConfig:
