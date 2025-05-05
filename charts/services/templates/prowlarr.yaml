@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: lscr.io/linuxserver/prowlarr:1.32.2
+          image: lscr.io/linuxserver/prowlarr:1.35.1
           livenessProbe:
             httpGet:
               path: /ping
