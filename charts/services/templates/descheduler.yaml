@@ -29,6 +29,7 @@ spec:
                 ignorePvcPods: true
                 evictLocalStoragePods: false
                 evictSystemCriticalPods: false
+                evictDaemonSetPods: true
             - name: "RemoveFailedPods"
               args:
                 includingInitContainers: true
