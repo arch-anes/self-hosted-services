@@ -32,14 +32,4 @@ spec:
                     name: red
                     key: token
                     expandObjectName: false
-    podOptions:
-      nodeSelector:
-        # Schedule only on nas nodes
-        nas: "true"
-    persistence:
-      data:
-        enabled: true
-        type: hostPath
-        mountPath: /data
-        hostPath: "{{ .Values.storageLocation }}/red/data"
 {{- end }}
