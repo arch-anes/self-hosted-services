@@ -1,0 +1,22 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.nvidia_gpu.enabled }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: nvidia-gpu
+  namespace: kube-system
+spec:
+  chart: nvidia-device-plugin
+  repo: https://nvidia.github.io/k8s-device-plugin
+  version: 0.17.1
+  targetNamespace: kube-system
+  valuesContent: |-
+    nfd:
+      enabled: false
+    resources:
+      requests:
+        memory: 64Mi
+        cpu: 250m
+      limits:
+        memory: 128Mi
+{{- end }}

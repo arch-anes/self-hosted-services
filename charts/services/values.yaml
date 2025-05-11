@@ -118,6 +118,8 @@ applications:
     enabled: true
   node_problem_detector:
     enabled: true
+  nvidia_gpu:
+    enabled: true
   obico:
     enabled: true
   octoprint:
