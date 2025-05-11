@@ -20,6 +20,10 @@ spec:
         cpu: null
     cmdOptions:
       v: 5
+{{- if and (not .Values.disableAllApplications) .Values.applications.jaeger.enabled }}
+      # https://github.com/kubernetes-sigs/descheduler/issues/1428
+      otel-collector-endpoint: jaeger-collector.default.svc.cluster.local:4317
+{{- end }}
     deschedulerPolicy:
       metricsProviders:
         - source: KubernetesMetrics
