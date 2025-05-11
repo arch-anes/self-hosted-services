@@ -11,6 +11,7 @@
     name: firewall
   vars:
     firewall_rules:
+      - { to_port: 5001, proto: tcp, rule: allow, comment: "Spegel P2P image registry" }
       - { to_port: 6443, proto: tcp, rule: allow, comment: "Kubernetes API Server" }
       - { to_port: 8472, proto: udp, rule: allow, comment: "Required only for Flannel VXLAN" }
       - { to_port: 10250, proto: tcp, rule: allow, comment: "Kubelet metrics" }
@@ -33,6 +34,7 @@
       node-label: "{{ labels }}"
     k3s_server:
       prefer-bundled-bin: true
+      embedded-registry: true
       etcd-s3: true
       etcd-s3-config-secret: k3s-etcd-snapshot-s3-config
       etcd-snapshot-retention: 20
