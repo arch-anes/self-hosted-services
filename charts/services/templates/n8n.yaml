@@ -73,7 +73,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: docker.n8n.io/n8nio/n8n:1.92.0
+          image: docker.n8n.io/n8nio/n8n:1.92.2
           resources:
             requests:
               memory: 128Mi
