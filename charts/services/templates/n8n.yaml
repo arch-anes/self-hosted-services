@@ -2,47 +2,9 @@
 {{- if not .Values.applications.postgresql.enabled }}
 {{- fail "n8n requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: nodemation
-  namespace: default
-spec:
-  ports:
-    - protocol: TCP
-      name: web
-      port: 5678
-  selector:
-    app: nodemation
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: nodemation
-  namespace: default
-  annotations:
-    homer.service.name: Automation
-    homer.item.name: n8n
-    homer.item.logo: "https://d33wubrfki0l68.cloudfront.net/b8db213a4d85ebec7b82272cacb727a05a9a1475/96e9f/_images/n8n-docs-icon.svg"
-spec:
-  tls:
-    - hosts:
-        - n8n.{{ .Values.fqdn }}
-      secretName: "{{ .Values.fqdn }}-tls"
-  rules:
-    - host: n8n.{{ .Values.fqdn }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: nodemation
-                port:
-                  name: web
-
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "n8n requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Secret
@@ -54,58 +16,82 @@ type: Opaque
 #   encryption_key: "somekey"
 
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
-  name: nodemation
+  name: n8n
   namespace: default
-  labels:
-    app: nodemation
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: nodemation
-  template:
-    metadata:
-      labels:
-        app: nodemation
-    spec:
-      containers:
-        - name: app
-          image: docker.n8n.io/n8nio/n8n:1.93.0
-          resources:
-            requests:
-              memory: 128Mi
-              cpu: 500m
-            limits:
-              memory: 256Mi
-          env:
-            - name: N8N_DIAGNOSTICS_ENABLED
-              value: "false"
-            - name: N8N_VERSION_NOTIFICATIONS_ENABLED
-              value: "false"
-            - name: N8N_TEMPLATES_ENABLED
-              value: "false"
-            - name: DB_TYPE
-              value: "postgresdb"
-            - name: DB_POSTGRESDB_HOST
-              value: "postgresql"
-            - name: DB_POSTGRESDB_DATABASE
-              value: "n8n"
-            - name: DB_POSTGRESDB_USER
-              value: "postgres"
-            - name: DB_POSTGRESDB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
-                  key: password
-            - name: N8N_ENCRYPTION_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: nodemation
-                  key: encryption_key
-          ports:
-            - name: web
-              containerPort: 5678
+  chart: oci://tccr.io/truecharts/n8n
+  version: 16.0.1
+  targetNamespace: default
+  valuesContent: |-
+    deployment:
+      N8N_DIAGNOSTICS_ENABLED: false
+      N8N_VERSION_NOTIFICATIONS_ENABLED: false
+      N8N_TEMPLATES_ENABLED: false
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          containers:
+            main:
+              env:
+                N8N_RUNNERS_ENABLED: true
+                N8N_ENCRYPTION_KEY:
+                  secretKeyRef:
+                    name: nodemation
+                    key: encryption_key
+                    expandObjectName: false
+                DB_TYPE: postgresdb
+                DB_POSTGRESDB_HOST: postgresql
+                DB_POSTGRESDB_PORT: 5432
+                DB_POSTGRESDB_DATABASE: n8n
+                DB_POSTGRESDB_USER: postgres
+                DB_POSTGRESDB_PASSWORD:
+                  secretKeyRef:
+                    name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                    key: password
+                    expandObjectName: false
+                CACHE_DRIVER: redis
+                QUEUE_BULL_REDIS_HOST: redis-master
+                QUEUE_BULL_REDIS_PORT: 6379
+                QUEUE_BULL_REDIS_PASSWORD:
+                  secretKeyRef:
+                    name: redis
+                    key: redis-password
+                    expandObjectName: false
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 500m
+      limits:
+        memory: 256Mi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          homer.service.name: Automation
+          homer.item.logo: "https://d33wubrfki0l68.cloudfront.net/b8db213a4d85ebec7b82272cacb727a05a9a1475/96e9f/_images/n8n-docs-icon.svg"
+        hosts:
+          - host: n8n.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - n8n.{{ .Values.fqdn }}
+    persistence:
+      data:
+        enabled: false
+    redis:
+      enabled: false
+    cnpg:
+      main:
+        enabled: false
 {{- end }}
