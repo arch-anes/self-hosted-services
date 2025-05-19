@@ -1,10 +1,3 @@
 ---
 k3s_control_node: false
 labels: []
-display_k8s_dashboard_password: false
-
-skip_system_setup: false
-skip_firewall_setup: false
-skip_vpn_setup: false
-skip_k8s_setup: false
-manifest_only_setup: false
