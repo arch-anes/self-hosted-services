@@ -79,9 +79,25 @@ spec:
               cpu: 1000m
             limits:
               memory: 2Gi
-            {{- if and (not .Values.disableAllApplications) .Values.applications.intel_gpu.enabled }}
+              {{- $gpuVendor := .Values.applications.jellyfin.gpu_vendor }}
+              {{- if eq $gpuVendor "intel" }}
+                {{- if not .Values.applications.intel_gpu.enabled }}
+                  {{- fail "Intel GPU is selected for Jellyfin but intel_gpu is not enabled" }}
+                {{- end }}
               gpu.intel.com/i915: 1
-            {{- end }}
+              {{- else if eq $gpuVendor "nvidia" }}
+                {{- if not .Values.applications.nvidia_gpu.enabled }}
+                  {{- fail "NVIDIA GPU is selected for Jellyfin but nvidia_gpu is not enabled" }}
+                {{- end }}
+              nvidia.com/gpu: 1
+              {{- else if eq $gpuVendor "amd" }}
+                {{- if not .Values.applications.amd_gpu.enabled }}
+                  {{- fail "AMD GPU is selected for Jellyfin but amd_gpu is not enabled" }}
+                {{- end }}
+              amd.com/gpu: 1
+              {{- else if $gpuVendor }}
+                {{- fail (printf "Unknown GPU vendor '%s' selected for Jellyfin" $gpuVendor) }}
+              {{- end }}
           ports:
             - name: web
               containerPort: 8096

@@ -90,6 +90,7 @@ applications:
     enabled: true
   immich:
     enabled: true
+    # gpu_vendor: nvidia
   intel_gpu:
     enabled: true
   inventree:
@@ -98,6 +99,7 @@ applications:
     enabled: true
   jellyfin:
     enabled: true
+    # gpu_vendor: intel
   jellyseerr:
     enabled: true
   keel:
@@ -148,5 +150,6 @@ applications:
     enabled: true
   tdarr:
     enabled: true
+    # gpu_vendor: amd
   torrent_client:
     enabled: true
