@@ -84,7 +84,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: ghcr.io/arch-anes/nextcloud:31.0.4-fpm-alpine
+          image: ghcr.io/arch-anes/nextcloud:31.0.5-fpm-alpine
           imagePullPolicy: Always
           startupProbe:
             exec:
