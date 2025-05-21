@@ -171,7 +171,9 @@ data:
     #!/bin/bash
     set -euo pipefail
 
-    TRANSMISSION_COMMAND="transmission-remote -n $USER:$PASS"
+    USERNAME=$(cat /secrets/transmission/username)
+    PASSWORD=$(cat /secrets/transmission/password)
+    TRANSMISSION_COMMAND="transmission-remote -n $USERNAME:$PASSWORD"
 
     STATE_DIR="/tmp/transmission_stuck_tracker"
     mkdir -p "$STATE_DIR"
@@ -297,19 +299,16 @@ spec:
               value: "1000"
             - name: PGID
               value: "1000"
-            - name: USER
-              valueFrom:
-                secretKeyRef:
-                  name: transmission
-                  key: username
-            - name: PASS
-              valueFrom:
-                secretKeyRef:
-                  name: transmission
-                  key: password
+            - name: FILE__USER
+              value: /secrets/transmission/username
+            - name: FILE__PASS
+              value: /secrets/transmission/password
           volumeMounts:
             - name: downloads
               mountPath: /downloads
+            - name: transmission-secrets
+              mountPath: /secrets/transmission
+              readOnly: true
             - name: transmission-config
               mountPath: /config
             - name: transmission-scripts
@@ -351,6 +350,9 @@ spec:
           configMap:
             name: transmission-scripts
             defaultMode: 0755
+        - name: transmission-secrets
+          secret:
+            secretName: transmission
         - name: joal-config
           persistentVolumeClaim:
             claimName: joal
