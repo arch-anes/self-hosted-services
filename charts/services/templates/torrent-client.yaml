@@ -167,6 +167,55 @@ data:
                 ;;
         esac
     done
+  stuck-download-cleaner.sh: |
+    #!/bin/bash
+    set -euo pipefail
+
+    TRANSMISSION_COMMAND="transmission-remote -n $USER:$PASS"
+
+    STATE_DIR="/tmp/transmission_stuck_tracker"
+    mkdir -p "$STATE_DIR"
+
+    THRESHOLD_MINUTES=60
+
+    TORRENTS=$($TRANSMISSION_COMMAND -l | tail -n +2 | head -n -1)
+
+    echo "$TORRENTS" | while read -r line; do
+      id=$(echo "$line" | awk '{print $1}')
+      [[ -z "$id" ]] && continue
+
+      percent=$(echo "$line" | awk '{print $2}' | tr -d '%')
+      status=$(echo "$line" | awk '{print $9}')
+      rate=$(echo "$line" | awk '{print $(NF-2)}')
+
+      timestamp_file="$STATE_DIR/$id"
+      if [[ "$percent" == "100" ]] || [[ "$status" =~ ^(Idle|Seeding|Queued|Stopped)$ ]]; then
+        rm -f "$timestamp_file"
+        continue
+      fi
+
+      rate_num=$(echo "$rate" | grep -oE '^[0-9.]+' || echo "0")
+
+      if [[ "$rate_num" != "0" && "$rate_num" != "0.0" ]]; then
+        rm -f "$timestamp_file"
+        continue
+      fi
+
+      now=$(date +%s)
+      if [[ ! -f "$timestamp_file" ]]; then
+        echo "$now" > "$timestamp_file"
+        continue
+      fi
+
+      last_time=$(cat "$timestamp_file")
+      elapsed=$(( (now - last_time) / 60 ))
+
+      if (( elapsed >= THRESHOLD_MINUTES )); then
+        echo "[INFO] Removing stuck torrent ID $id (stuck for $elapsed minutes)..."
+        $TRANSMISSION_COMMAND -t "$id" --remove
+        rm -f "$timestamp_file"
+      fi
+    done
 
 ---
 apiVersion: apps/v1
@@ -264,7 +313,11 @@ spec:
             - name: transmission-config
               mountPath: /config
             - name: transmission-scripts
-              mountPath: /scripts
+              mountPath: /scripts/extract-files.sh
+              subPath: extract-files.sh
+            - name: transmission-scripts
+              mountPath: /etc/periodic/15min/stuck-download-cleaner.sh
+              subPath: stuck-download-cleaner.sh
         - name: joal
           image: anthonyraymond/joal:2.1.36
           command: ["bash"]
