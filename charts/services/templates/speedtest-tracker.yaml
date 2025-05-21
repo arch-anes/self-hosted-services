@@ -24,7 +24,7 @@ metadata:
   namespace: default
 spec:
   chart: oci://tccr.io/truecharts/speedtest-tracker
-  version: 7.0.0
+  version: 7.1.0
   targetNamespace: default
   valuesContent: |-
     workload:
