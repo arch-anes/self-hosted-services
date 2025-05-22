@@ -87,11 +87,13 @@ spec:
           namespace: default
         spec:
           teamId: arch-anes
+          dockerImage: ghcr.io/arch-anes/spilo-17:4.0-p2
           postgresql:
             version: "17"
             parameters:
               password_encryption: scram-sha-256
               max_connections: "1000"
+              shared_preload_libraries: "bg_mon,pg_stat_statements,pgextwlist,pg_auth_mon,set_user,timescaledb,pg_cron,pg_stat_kcache,vchord.so"
           numberOfInstances: 3
           enableLogicalBackup: true
           volume:
@@ -106,6 +108,7 @@ spec:
             immich:
               extensions:
                 vector: public
+                vchord: public
             inventree: {}
             kubeclarity: {}
             miniflux: {}

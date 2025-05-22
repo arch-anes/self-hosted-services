@@ -60,7 +60,7 @@ data:
   DB_PORT: "5432"
   DB_DATABASE_NAME: "immich"
   DB_USERNAME: "postgres"
-  DB_VECTOR_EXTENSION: "pgvector"
+  DB_VECTOR_EXTENSION: "vectorchord"
 
 ---
 apiVersion: apps/v1
