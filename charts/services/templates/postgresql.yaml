@@ -107,6 +107,7 @@ spec:
             # https://immich.app/docs/administration/backup-and-restore/#manual-backup-and-restore
             immich:
               extensions:
+                earthdistance: public
                 vector: public
                 vchord: public
             inventree: {}
