@@ -21,7 +21,7 @@ metadata:
 spec:
   chart: pgadmin4
   repo: https://helm.runix.net
-  version: 1.44.0
+  version: 1.45.1
   targetNamespace: default
   valuesContent: |-
     annotations:
