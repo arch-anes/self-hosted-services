@@ -262,7 +262,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: app
-          image: lscr.io/linuxserver/bazarr:1.5.1
+          image: lscr.io/linuxserver/bazarr:1.5.2
           livenessProbe:
             httpGet:
               path: /ping
