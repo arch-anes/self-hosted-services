@@ -67,7 +67,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: lscr.io/linuxserver/readarr:0.4.15-develop
+          image: lscr.io/linuxserver/readarr:0.4.16-develop
           livenessProbe:
             httpGet:
               path: /ping
