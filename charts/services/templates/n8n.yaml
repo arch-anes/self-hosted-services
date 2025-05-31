@@ -44,6 +44,7 @@ spec:
                     name: nodemation
                     key: encryption_key
                     expandObjectName: false
+                WEBHOOK_URL: "https://n8n.{{ .Values.fqdn }}/"
                 DB_TYPE: postgresdb
                 DB_POSTGRESDB_HOST: postgresql
                 DB_POSTGRESDB_PORT: 5432
