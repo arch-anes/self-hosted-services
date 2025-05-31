@@ -102,8 +102,6 @@ applications:
     # gpu_vendor: intel
   jellyseerr:
     enabled: true
-  keel:
-    enabled: true
   kubeclarity:
     enabled: true
   kubernetes_dashboard:
