@@ -106,7 +106,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: octoprint/octoprint:1.11.1
+          image: octoprint/octoprint:1.11.2
           resources:
             requests:
               memory: 512Mi
