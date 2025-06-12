@@ -187,8 +187,6 @@ spec:
                   operator: In
                   values:
                     - "true"
-    globalArguments:
-      - "--global.sendanonymoususage=false"
     ingressRoute:
       healthcheck:
         enabled: true
