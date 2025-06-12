@@ -30,7 +30,7 @@ metadata:
 spec:
   chart: traefik
   repo: https://traefik.github.io/charts
-  version: 35.4.0
+  version: 36.1.0
   targetNamespace: kube-system
   valuesContent: |-
     extraObjects:
@@ -187,8 +187,6 @@ spec:
                   operator: In
                   values:
                     - "true"
-    globalArguments:
-      - "--global.sendanonymoususage=false"
     ingressRoute:
       healthcheck:
         enabled: true
