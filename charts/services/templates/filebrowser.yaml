@@ -65,7 +65,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: filebrowser/filebrowser:v2.32.0
+          image: filebrowser/filebrowser:v2.33.0
           resources:
             requests:
               memory: 128Mi
