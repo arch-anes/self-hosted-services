@@ -84,13 +84,12 @@ spec:
             - name: files
               mountPath: /srv
             - name: db
-              mountPath: /database.db
+              mountPath: /database
       volumes:
         - name: files
           hostPath:
             path: "{{ .Values.storageLocation }}/Multimedia/Miscellaneous"
         - name: db
           hostPath:
-            path: "{{ .Values.storageLocation }}/filebrowser/database.db"
-            type: FileOrCreate
+            path: "{{ .Values.storageLocation }}/filebrowser/database"
 {{- end }}
