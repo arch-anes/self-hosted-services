@@ -20,39 +20,46 @@ metadata:
   name: miniflux
   namespace: default
 spec:
-  chart: miniflux
-  repo: https://charts.gabe565.com
-  version: 0.9.2
+  chart: oci://tccr.io/truecharts/miniflux
+  version: 16.6.5
   targetNamespace: default
   valuesContent: |-
-    controller:
-      annotations:
-        reloader.stakater.com/auto: "true"
-    env:
-      ADMIN_USERNAME:
-        valueFrom:
-          secretKeyRef:
-            name: miniflux
-            key: admin_username
-      ADMIN_PASSWORD:
-        valueFrom:
-          secretKeyRef:
-            name: miniflux
-            key: admin_password
-      DATABASE_PASSWORD:
-        valueFrom:
-          secretKeyRef:
-            name: postgres.postgresql.credentials.postgresql.acid.zalan.do
-            key: password
-      DATABASE_URL: postgres://postgres:$(DATABASE_PASSWORD)@postgresql/miniflux?sslmode=disable
-      RUN_MIGRATIONS: "1"
-      CREATE_ADMIN: "1"
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          containers:
+            main:
+              env:
+                CREATE_ADMIN: 1
+                ADMIN_USERNAME:
+                  secretKeyRef:
+                    name: miniflux
+                    key: admin_username
+                    expandObjectName: false
+                ADMIN_PASSWORD:
+                  secretKeyRef:
+                    name: miniflux
+                    key: admin_password
+                    expandObjectName: false
+                DATABASE_PASSWORD:
+                  secretKeyRef:
+                    name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                    key: password
+                    expandObjectName: false
+                DATABASE_URL: postgres://postgres:$(DATABASE_PASSWORD)@postgresql/miniflux?sslmode=disable
+                RUN_MIGRATIONS: 1
     resources:
       requests:
         memory: 128Mi
         cpu: 500m
       limits:
         memory: 256Mi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
     ingress:
       main:
         enabled: true
@@ -69,21 +76,10 @@ spec:
           - secretName: "{{ .Values.fqdn }}-tls"
             hosts:
               - miniflux.{{ .Values.fqdn }}
-    probes:
-      liveness:
-        spec:
-          periodSeconds: 30
-        type: HTTP
-        path: /healthcheck
-      readiness:
-        spec:
-          periodSeconds: 30
-          initialDelaySeconds: 15
-        type: HTTP
-        path: /healthcheck
-      startup:
-        type: HTTP
-        path: /healthcheck
-    postgresql:
-      enabled: false
+    persistence:
+      config:
+        enabled: false
+    cnpg:
+      main:
+        enabled: false
 {{- end }}
