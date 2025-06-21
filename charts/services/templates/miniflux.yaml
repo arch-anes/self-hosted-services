@@ -46,8 +46,7 @@ spec:
             key: password
       DATABASE_URL: postgres://postgres:$(DATABASE_PASSWORD)@postgresql/miniflux?sslmode=disable
       RUN_MIGRATIONS: "1"
-      CLEANUP_ARCHIVE_READ_DAYS: "-1"
-      CLEANUP_ARCHIVE_UNREAD_DAYS: "-1"
+      CREATE_ADMIN: "1"
     resources:
       requests:
         memory: 128Mi
