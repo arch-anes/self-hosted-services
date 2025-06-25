@@ -81,7 +81,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/arch-anes/inventree:0.17.13
+          image: ghcr.io/arch-anes/inventree:0.17.14
           imagePullPolicy: Always
           livenessProbe:
             httpGet:
@@ -170,7 +170,7 @@ spec:
             - name: web
               containerPort: 80
         - name: worker
-          image: ghcr.io/arch-anes/inventree:0.17.13
+          image: ghcr.io/arch-anes/inventree:0.17.14
           imagePullPolicy: Always
           command: ["invoke", "worker"]
           resources:
