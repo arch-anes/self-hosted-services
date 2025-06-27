@@ -8,7 +8,7 @@ metadata:
 spec:
   chart: amd-gpu
   repo: https://rocm.github.io/k8s-device-plugin/
-  version: 0.19.0
+  version: 0.20.0
   targetNamespace: kube-system
   valuesContent: |-
     node_selector_enabled: true
