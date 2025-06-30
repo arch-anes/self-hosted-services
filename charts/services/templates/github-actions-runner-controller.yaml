@@ -49,7 +49,7 @@ metadata:
   namespace: default
 spec:
   chart: oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
-  version: 0.12.0
+  version: 0.12.1
   targetNamespace: gha-runner-{{ .name }}
   valuesContent: |-
     githubConfigUrl: {{ .githubConfigUrl }}
