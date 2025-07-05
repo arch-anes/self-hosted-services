@@ -196,14 +196,14 @@ data:
       DAYS_INACTIVE=$(( (CURRENT_SECONDS - ACTIVITY_SECONDS) / 86400 ))
       if [ $DAYS_INACTIVE -ge $THRESHOLD_IDLE_DAYS ]; then
         echo "Removing inative torrent '$NAME' (inactive for $DAYS_INACTIVE days)"
-        $TRANSMISSION_COMMAND -t "$id" --remove
+        $TRANSMISSION_COMMAND -t "$id" --remove-and-delete
         continue
       fi
 
       MINUTES_STUCK=$(( (CURRENT_SECONDS - ACTIVITY_SECONDS) / 60 ))
       if [ $PERCENT_DONE != "100%" ] && [ $MINUTES_STUCK -ge $THRESHOLD_STUCK_MINUTES ]; then
         echo "Removing stuck torrent '$NAME' (stuck for $MINUTES_STUCK minutes)"
-        $TRANSMISSION_COMMAND -t "$id" --remove
+        $TRANSMISSION_COMMAND -t "$id" --remove-and-delete
         continue
       fi
     done
