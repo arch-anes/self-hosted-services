@@ -167,7 +167,7 @@ data:
                 ;;
         esac
     done
-  stuck-download-cleaner.sh: |
+  idle-or-stuck-cleaner.sh: |
     #!/bin/bash
     set -euo pipefail
 
@@ -175,47 +175,36 @@ data:
     PASSWORD=$(cat /secrets/transmission/password)
     TRANSMISSION_COMMAND="transmission-remote -n $USERNAME:$PASSWORD"
 
-    STATE_DIR="/tmp/transmission_stuck_tracker"
-    mkdir -p "$STATE_DIR"
+    THRESHOLD_IDLE_DAYS=7
+    THRESHOLD_STUCK_MINUTES=60
 
-    THRESHOLD_MINUTES=60
+    TORRENT_IDS=$($TRANSMISSION_COMMAND -l | awk '$1 ~ /^[0-9]+$/ && $9 == "Idle" {print $1}')
+    for id in $TORRENT_IDS; do
+      TORRENT_INFO="$($TRANSMISSION_COMMAND -t $id -i)"
 
-    TORRENTS=$($TRANSMISSION_COMMAND -l | tail -n +2 | head -n -1)
+      NAME=$(grep "Name: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs)
+      PERCENT_DONE=$(grep "Percent Done: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs)
+      ACTIVITY_DATE=$(grep "Latest activity: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs)
 
-    echo "$TORRENTS" | while read -r line; do
-      id=$(echo "$line" | awk '{print $1}')
-      [[ -z "$id" ]] && continue
-
-      percent=$(echo "$line" | awk '{print $2}' | tr -d '%')
-      status=$(echo "$line" | awk '{print $9}')
-      rate=$(echo "$line" | awk '{print $(NF-2)}')
-
-      timestamp_file="$STATE_DIR/$id"
-      if [[ "$percent" == "100" ]] || [[ "$status" =~ ^(Idle|Seeding|Queued|Stopped)$ ]]; then
-        rm -f "$timestamp_file"
+      if [ -z "$ACTIVITY_DATE" ]; then
         continue
       fi
+      
+      ACTIVITY_SECONDS=$(date -d "$ACTIVITY_DATE" +%s 2>/dev/null)
+      CURRENT_SECONDS=$(date +%s)
 
-      rate_num=$(echo "$rate" | grep -oE '^[0-9.]+' || echo "0")
-
-      if [[ "$rate_num" != "0" && "$rate_num" != "0.0" ]]; then
-        rm -f "$timestamp_file"
-        continue
-      fi
-
-      now=$(date +%s)
-      if [[ ! -f "$timestamp_file" ]]; then
-        echo "$now" > "$timestamp_file"
-        continue
-      fi
-
-      last_time=$(cat "$timestamp_file")
-      elapsed=$(( (now - last_time) / 60 ))
-
-      if (( elapsed >= THRESHOLD_MINUTES )); then
-        echo "[INFO] Removing stuck torrent ID $id (stuck for $elapsed minutes)..."
+      DAYS_INACTIVE=$(( (CURRENT_SECONDS - ACTIVITY_SECONDS) / 86400 ))
+      if [ $DAYS_INACTIVE -ge $THRESHOLD_IDLE_DAYS ]; then
+        echo "Removing inative torrent '$NAME' (inactive for $DAYS_INACTIVE days)"
         $TRANSMISSION_COMMAND -t "$id" --remove
-        rm -f "$timestamp_file"
+        continue
+      fi
+
+      MINUTES_STUCK=$(( (CURRENT_SECONDS - ACTIVITY_SECONDS) / 60 ))
+      if [ $PERCENT_DONE != "100%" ] && [ $MINUTES_STUCK -ge $THRESHOLD_STUCK_MINUTES ]; then
+        echo "Removing stuck torrent '$NAME' (stuck for $MINUTES_STUCK minutes)"
+        $TRANSMISSION_COMMAND -t "$id" --remove
+        continue
       fi
     done
 
@@ -315,8 +304,8 @@ spec:
               mountPath: /scripts/extract-files.sh
               subPath: extract-files.sh
             - name: transmission-scripts
-              mountPath: /etc/periodic/15min/stuck-download-cleaner.sh
-              subPath: stuck-download-cleaner.sh
+              mountPath: /etc/periodic/15min/idle-or-stuck-cleaner.sh
+              subPath: idle-or-stuck-cleaner.sh
         - name: joal
           image: anthonyraymond/joal:2.1.36
           command: ["bash"]
