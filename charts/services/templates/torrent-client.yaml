@@ -177,15 +177,23 @@ data:
 
     THRESHOLD_IDLE_DAYS=7
     THRESHOLD_STUCK_MINUTES=60
+    THRESHOLD_STUCK_SECONDS=3600
 
-    TORRENT_IDS=$($TRANSMISSION_COMMAND -l | awk '$1 ~ /^[0-9]+$/ && $9 == "Idle" {print $1}')
+    TORRENT_IDS=$($TRANSMISSION_COMMAND -l | awk '$1 ~ /^[0-9]+$/ {print $1}')
     for id in $TORRENT_IDS; do
       TORRENT_INFO="$($TRANSMISSION_COMMAND -t $id -i)"
 
       NAME=$(grep "Name: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs)
       PERCENT_DONE=$(grep "Percent Done: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs)
-      ACTIVITY_DATE=$(grep "Latest activity: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs)
 
+      DOWNLOADING_SECONDS=$(grep "Downloading Time: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs | cut -d'(' -f2 | cut -d' ' -f1)
+      if [ $PERCENT_DONE == "0.00%" ] && [ $DOWNLOADING_SECONDS -ge $THRESHOLD_STUCK_SECONDS ]; then
+        echo "Removing stuck torrent '$NAME' at $PERCENT_DONE (stuck for $DOWNLOADING_SECONDS seconds)"
+        $TRANSMISSION_COMMAND -t "$id" --remove-and-delete
+        continue
+      fi
+
+      ACTIVITY_DATE=$(grep "Latest activity: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs)
       if [ -z "$ACTIVITY_DATE" ]; then
         continue
       fi
@@ -202,7 +210,7 @@ data:
 
       MINUTES_STUCK=$(( (CURRENT_SECONDS - ACTIVITY_SECONDS) / 60 ))
       if [ $PERCENT_DONE != "100%" ] && [ $MINUTES_STUCK -ge $THRESHOLD_STUCK_MINUTES ]; then
-        echo "Removing stuck torrent '$NAME' (stuck for $MINUTES_STUCK minutes)"
+        echo "Removing stuck torrent '$NAME' at $PERCENT_DONE (stuck for $MINUTES_STUCK minutes)"
         $TRANSMISSION_COMMAND -t "$id" --remove-and-delete
         continue
       fi
