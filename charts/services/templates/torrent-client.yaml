@@ -183,17 +183,17 @@ data:
     for id in $TORRENT_IDS; do
       TORRENT_INFO="$($TRANSMISSION_COMMAND -t $id -i)"
 
-      NAME=$(grep "Name: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs)
-      PERCENT_DONE=$(grep "Percent Done: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs)
+      NAME=$(grep "Name: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs || true)
+      PERCENT_DONE=$(grep "Percent Done: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs || true)
 
-      DOWNLOADING_SECONDS=$(grep "Downloading Time: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs | cut -d'(' -f2 | cut -d' ' -f1)
+      DOWNLOADING_SECONDS=$(grep "Downloading Time: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs | cut -d'(' -f2 | cut -d' ' -f1 || true)
       if [ $PERCENT_DONE == "0.00%" ] && [ $DOWNLOADING_SECONDS -ge $THRESHOLD_STUCK_SECONDS ]; then
         echo "Removing stuck torrent '$NAME' at $PERCENT_DONE (stuck for $DOWNLOADING_SECONDS seconds)"
         $TRANSMISSION_COMMAND -t "$id" --remove-and-delete
         continue
       fi
 
-      ACTIVITY_DATE=$(grep "Latest activity: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs)
+      ACTIVITY_DATE=$(grep "Latest activity: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs || true)
       if [ -z "$ACTIVITY_DATE" ]; then
         continue
       fi
