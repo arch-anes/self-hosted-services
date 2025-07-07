@@ -28,6 +28,8 @@ services:
       - devcontainer-network
     tty: true
     stdin_open: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   dind-storage:
