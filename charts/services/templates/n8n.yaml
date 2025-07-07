@@ -69,7 +69,7 @@ spec:
         memory: 128Mi
         cpu: 500m
       limits:
-        memory: 256Mi
+        memory: 1Gi
         cpu: null
     global:
       traefik:
