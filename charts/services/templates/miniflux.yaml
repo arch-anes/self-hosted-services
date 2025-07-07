@@ -21,7 +21,7 @@ metadata:
   namespace: default
 spec:
   chart: oci://tccr.io/truecharts/miniflux
-  version: 16.6.5
+  version: 17.0.5
   targetNamespace: default
   valuesContent: |-
     workload:
