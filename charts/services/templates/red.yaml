@@ -17,7 +17,7 @@ metadata:
   namespace: default
 spec:
   chart: oci://tccr.io/truecharts/red-discordbot
-  version: 7.5.12
+  version: 8.0.5
   targetNamespace: default
   valuesContent: |-
     workload:
