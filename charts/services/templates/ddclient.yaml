@@ -3,7 +3,7 @@
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
-  name: ddclient
+  name: "ddclient-{{ .Values.fqdn | replace "." "-" }}"
   namespace: default
 spec:
   chart: oci://tccr.io/truecharts/ddclient
