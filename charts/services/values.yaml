@@ -112,6 +112,8 @@ applications:
     enabled: true
   n8n:
     enabled: true
+  netbox:
+    enabled: true
   netdata:
     enabled: true
   nextcloud:

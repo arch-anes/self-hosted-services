@@ -1,0 +1,66 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.netbox.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "netbox requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "netbox requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
+
+# If you're getting this error: Cannot assign "<netbox.config.Config object at 0x7cdf56da31d0>": "User.config" must be a "UserConfig" instance.
+# run the following command: https://github.com/netbox-community/netbox/discussions/8718#discussioncomment-2228523
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: netbox
+  namespace: default
+spec:
+  chart: netbox
+  repo: https://charts.netbox.oss.netboxlabs.com
+  version: 6.0.58
+  targetNamespace: default
+  valuesContent: |-
+    loginRequired: true
+    housekeeping:
+      resourcesPreset: medium
+    worker:
+      resourcesPreset: medium
+    postgresql:
+      enabled: false
+    externalDatabase:
+      host: postgresql
+      port: 5432
+      database: netbox
+      username: postgres
+      existingSecretName: "postgres.postgresql.credentials.postgresql.acid.zalan.do"
+      existingSecretKey: password
+    valkey:
+      enabled: false
+    tasksDatabase:
+      host: redis-master
+      existingSecretName: redis
+      existingSecretKey: redis-password
+    cachingDatabase:
+      host: redis-master
+      existingSecretName: redis
+      existingSecretKey: redis-password
+    ingress:
+      enabled: true
+      annotations:
+        homer.service.name: Administration
+        homer.item.logo: "https://raw.githubusercontent.com/netbox-community/netbox/b88b5b0b1b5b78f5a6221019ac41d7a6dd6d73b2/docs/netbox_logo_dark.svg"
+      hosts:
+        - host: netbox.{{ .Values.fqdn }}
+          paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: netbox
+                  port:
+                    name: http
+      tls:
+        - hosts:
+            - netbox.{{ .Values.fqdn }}
+          secretName: "{{ .Values.fqdn }}-tls"
+{{- end }}
