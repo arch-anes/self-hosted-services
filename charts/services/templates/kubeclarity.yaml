@@ -37,8 +37,8 @@ spec:
       enabled: true
       auth:
         existingSecret: kubeclarity
-        username: postgres
-        host: postgresql.default
+        username: kubeclarity
+        host: postgresql-primary.default
         port: 5432
         database: kubeclarity
     kubeclarity:

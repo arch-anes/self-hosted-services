@@ -37,13 +37,13 @@ spec:
           secretKeyRef:
             name: pgadmin4
             key: password
-      - name: POSTGRES_PASSWORD
+      - name: DATABASE_PASSWORD
         valueFrom:
           secretKeyRef:
-            name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+            name: postgresql-pguser-pgadmin4
             key: password
       - name: PGADMIN_CONFIG_CONFIG_DATABASE_URI
-        value: '"postgresql://postgres:$(POSTGRES_PASSWORD)@postgresql:5432/pgadmin4"'
+        value: '"postgresql://pgadmin4:$(DATABASE_PASSWORD)@postgresql-primary:5432/pgadmin4"'
     persistentVolume:
       enabled: false
     ingress:

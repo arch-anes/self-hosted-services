@@ -56,10 +56,10 @@ data:
   IMMICH_PORT: "2283"
   REDIS_HOSTNAME: "redis-master"
   REDIS_PORT: "6379"
-  DB_HOSTNAME: "postgresql"
+  DB_HOSTNAME: "postgresql-primary"
   DB_PORT: "5432"
   DB_DATABASE_NAME: "immich"
-  DB_USERNAME: "postgres"
+  DB_USERNAME: "immich"
   DB_VECTOR_EXTENSION: "vectorchord"
 
 ---
@@ -106,7 +106,7 @@ spec:
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  name: postgresql-pguser-immich
                   key: password
             - name: IMMICH_WORKERS_INCLUDE
               value: "api"
@@ -155,7 +155,7 @@ spec:
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  name: postgresql-pguser-immich
                   key: password
             - name: IMMICH_WORKERS_EXCLUDE
               value: "api"

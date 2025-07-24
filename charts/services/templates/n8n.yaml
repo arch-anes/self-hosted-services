@@ -47,13 +47,13 @@ spec:
                     expandObjectName: false
                 WEBHOOK_URL: "https://n8n.{{ .Values.fqdn }}/"
                 DB_TYPE: postgresdb
-                DB_POSTGRESDB_HOST: postgresql
+                DB_POSTGRESDB_HOST: postgresql-primary
                 DB_POSTGRESDB_PORT: 5432
                 DB_POSTGRESDB_DATABASE: n8n
-                DB_POSTGRESDB_USER: postgres
+                DB_POSTGRESDB_USER: n8n
                 DB_POSTGRESDB_PASSWORD:
                   secretKeyRef:
-                    name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                    name: postgresql-pguser-n8n
                     key: password
                     expandObjectName: false
                 CACHE_DRIVER: redis

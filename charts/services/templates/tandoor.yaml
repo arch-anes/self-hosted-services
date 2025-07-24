@@ -32,14 +32,14 @@ spec:
         reloader.stakater.com/auto: "true"
     env:
       DB_ENGINE: django.db.backends.postgresql
-      POSTGRES_HOST: postgresql
+      POSTGRES_HOST: postgresql-primary
       POSTGRES_DB: tandoor
       POSTGRES_PORT: "5432"
-      POSTGRES_USER: postgres
+      POSTGRES_USER: tandoor
       POSTGRES_PASSWORD:
         valueFrom:
           secretKeyRef:
-            name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+            name: postgresql-pguser-tandoor
             key: password
       SECRET_KEY:
         valueFrom:

@@ -45,10 +45,10 @@ spec:
                     expandObjectName: false
                 DATABASE_PASSWORD:
                   secretKeyRef:
-                    name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                    name: postgresql-pguser-miniflux
                     key: password
                     expandObjectName: false
-                DATABASE_URL: postgres://postgres:$(DATABASE_PASSWORD)@postgresql/miniflux?sslmode=disable
+                DATABASE_URL: postgres://miniflux:$(DATABASE_PASSWORD)@postgresql-primary/miniflux?sslmode=disable
                 RUN_MIGRATIONS: 1
     resources:
       requests:
