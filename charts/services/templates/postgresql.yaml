@@ -1,30 +1,4 @@
 {{- if and (not .Values.disableAllApplications) .Values.applications.postgresql.enabled }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: postgres-pod-config-custom-env
-  namespace: default
-  annotations:
-    reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-    reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kube-system"
-data:
-  ALLOW_NOSSL: "true"
-
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: postgres-operator
-  namespace: default
-type: Opaque
-# stringData:
-#   LOGICAL_BACKUP_S3_REGION: "some-region"
-#   LOGICAL_BACKUP_S3_ENDPOINT: "example.com"
-#   LOGICAL_BACKUP_S3_BUCKET: "some-bucket"
-#   AWS_ACCESS_KEY_ID: "some-id"
-#   AWS_SECRET_ACCESS_KEY: "some-key"
 
 ---
 apiVersion: helm.cattle.io/v1
@@ -33,39 +7,35 @@ metadata:
   name: postgres-operator
   namespace: kube-system
 spec:
-  chart: postgres-operator
-  repo: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
-  version: 1.14.0
+  chart: oci://registry.developers.crunchydata.com/crunchydata/pgo
+  version: 5.8.2
   targetNamespace: kube-system
   valuesContent: |-
-    configKubernetes:
-      enable_cross_namespace_secret: true
-      pod_environment_configmap: default/postgres-pod-config-custom-env
-    configPostgresPodResources:
-      default_memory_request: 250Mi
-      default_cpu_request: 1000m
-      default_memory_limit: 3Gi
-      # operatorconfigurations crd automatically sets the cpu limit to 1000m even when explicitly set to null
-      default_cpu_limit: 3000m
-    nodeSelector:
-      # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
-      kubernetes.io/arch: amd64
-    configLogicalBackup:
-      logical_backup_docker_image: "ghcr.io/zalando/postgres-operator/logical-backup:v1.14.0"
-      logical_backup_job_prefix: "postgresql-operator-logical-backup-"
-      logical_backup_provider: "s3"
-      logical_backup_s3_bucket_prefix: "spilo"
-      logical_backup_s3_secret_access_key: ""
-      logical_backup_schedule: "30 00 * * *"
-      logical_backup_cronjob_environment_secret: "postgres-operator"
-      logical_backup_s3_retention_time: "1 month"
+    relatedImages:
+      postgres_17:
+        image: ghcr.io/arch-anes/crunchy-postgres:ubi9-17.5-2520
+    replicas: 2
     resources:
-      requests:
-        cpu: 500m
-        memory: 250Mi
-      limits:
-        cpu: null
-        memory: 1Gi
+      controller:
+        requests:
+          cpu: 500m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgresql-backup-credentials
+  namespace: default
+type: Opaque
+# stringData:
+#   s3.conf: |-
+#     [global]
+#     repo1-s3-key="some-id"
+#     repo1-s3-key-secret="some-key"
+#     repo1-cipher-pass="some-encryption-key"
 
 ---
 apiVersion: helm.cattle.io/v1
@@ -78,55 +48,202 @@ spec:
   repo: https://arch-anes.github.io/charts
   version: 0.2.1
   targetNamespace: default
+  failurePolicy: abort # Do not uninstall this chart on failure, otherwise the cluster will be deleted
+  # takeOwnership: true
   valuesContent: |-
     objects:
-      - apiVersion: acid.zalan.do/v1
-        kind: postgresql
+      - apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: postgresql
+          namespace: default
+        data:
+          bootstrap.sql: |
+            \c postgres
+            \o /tmp/grant_users_public_permissions.sql
+            \pset format unaligned
+            \pset tuples_only on
+
+            WITH dbs AS (
+              SELECT datname AS dbname,
+                    regexp_replace(datname, '(_main|_log|_cache)$', '') AS username
+              FROM pg_database
+              WHERE NOT datistemplate AND datallowconn
+            )
+            SELECT
+              'DO $$ BEGIN ' ||
+              'IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = ' || quote_literal(username) || ') THEN ' ||
+                'EXECUTE ''ALTER DATABASE ' || quote_ident(dbname) || ' OWNER TO ' || quote_ident(username) || '''; ' ||
+              'END IF; END $$;' || E'\n' ||
+
+              '\connect ' || quote_ident(dbname) || E';\n' ||
+
+              'DO $$ BEGIN ' ||
+              'IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = ' || quote_literal(username) || ') THEN ' ||
+                'EXECUTE ''ALTER SCHEMA public OWNER TO ' || quote_ident(username) || '''; ' ||
+                'EXECUTE ''GRANT ALL ON SCHEMA public TO ' || quote_ident(username) || '''; ' ||
+                'EXECUTE ''GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ' || quote_ident(username) || '''; ' ||
+                'EXECUTE ''GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO ' || quote_ident(username) || '''; ' ||
+                'EXECUTE ''GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO ' || quote_ident(username) || '''; ' ||
+                'EXECUTE ''ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ' || quote_ident(username) || '''; ' ||
+                'EXECUTE ''ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ' || quote_ident(username) || '''; ' ||
+                'EXECUTE ''ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO ' || quote_ident(username) || '''; ' ||
+              'END IF; END $$;' || E'\n'
+            FROM dbs;
+            \o
+            \i /tmp/grant_users_public_permissions.sql
+
+            \c immich
+            BEGIN;
+            CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
+            CREATE EXTENSION IF NOT EXISTS vector CASCADE;
+            CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
+            COMMIT;
+      - apiVersion: postgres-operator.crunchydata.com/v1beta1
+        kind: PostgresCluster
         metadata:
           name: postgresql
           namespace: default
         spec:
-          teamId: arch-anes
-          dockerImage: ghcr.io/arch-anes/spilo-17:4.0-p2
-          postgresql:
-            version: "17"
+          postgresVersion: 17
+          instances:
+            - name: instance1
+              replicas: 3
+              # Schedule pods on separate nodes
+              affinity:
+                podAntiAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    - topologyKey: kubernetes.io/hostname
+                      labelSelector:
+                        matchLabels:
+                          postgres-operator.crunchydata.com/cluster: postgresql
+                          postgres-operator.crunchydata.com/instance-set: instance1
+              resources:
+                requests:
+                  cpu: "1000m"
+                  memory: "1Gi"
+                limits:
+                  memory: "4Gi"
+              dataVolumeClaimSpec:
+                accessModes:
+                - "ReadWriteOnce"
+                storageClassName: local-path
+                resources:
+                  requests:
+                    storage: 10Gi
+          config:
             parameters:
               password_encryption: scram-sha-256
               max_connections: "1000"
-              shared_preload_libraries: "bg_mon,pg_stat_statements,pgextwlist,pg_auth_mon,set_user,timescaledb,pg_cron,pg_stat_kcache,vchord.so"
-          numberOfInstances: 3
-          enableLogicalBackup: true
-          volume:
-            size: 10Gi
-            storageClass: local-path-retain
-          # During the restoration process, comment out all preparedDatabases.
-          preparedDatabases:
-            bazarr: {}
-            gotify: {}
-            # Important: when restoring a backup, alter the sql dump as indicated in:
-            # https://immich.app/docs/administration/backup-and-restore/#manual-backup-and-restore
-            immich:
-              extensions:
-                earthdistance: public
-                vector: public
-                vchord: public
-            inventree: {}
-            kubeclarity: {}
-            miniflux: {}
-            n8n: {}
-            netbox: {}
-            nextcloud: {}
-            obico: {}
-            pgadmin4: {}
-            prowlarr_log: {}
-            prowlarr_main: {}
-            radarr_log: {}
-            radarr_main: {}
-            readarr_cache: {}
-            readarr_log: {}
-            readarr_main: {}
-            sonarr_log: {}
-            sonarr_main: {}
-            speedtest_tracker: {}
-            tandoor: {}
+              shared_preload_libraries: "cube,earthdistance,vector,vchord"
+          patroni:
+            dynamicConfiguration:
+              postgresql:
+                # https://github.com/CrunchyData/postgres-operator/issues/2534#issuecomment-891202207
+                pg_hba:
+                  - "hostnossl all all 10.42.0.0/16 scram-sha-256"
+                  - "hostnossl all all 10.43.0.0/16 scram-sha-256"
+                  - "hostssl all all 10.42.0.0/16 scram-sha-256"
+                  - "hostssl all all 10.43.0.0/16 scram-sha-256"
+          users:
+            - name: postgres
+            - name: bazarr
+              databases:
+                - bazarr
+            - name: gotify
+              databases:
+                - gotify
+            - name: immich
+              databases:
+                - immich
+            - name: inventree
+              databases:
+                - inventree
+            - name: kubeclarity
+              databases:
+                - kubeclarity
+            - name: miniflux
+              password:
+                type: AlphaNumeric
+              databases:
+                - miniflux
+            - name: n8n
+              databases:
+                - n8n
+            - name: netbox
+              databases:
+                - netbox
+            - name: nextcloud
+              databases:
+                - nextcloud
+            - name: obico
+              password:
+                type: AlphaNumeric
+              databases:
+                - obico
+            - name: pgadmin4
+              password:
+                type: AlphaNumeric
+              databases:
+                - pgadmin4
+            - name: prowlarr
+              databases:
+                - prowlarr_log
+                - prowlarr_main
+            - name: radarr
+              databases:
+                - radarr_log
+                - radarr_main
+            - name: readarr
+              databases:
+                - readarr_cache
+                - readarr_log
+                - readarr_main
+            - name: sonarr
+              databases:
+                - sonarr_log
+                - sonarr_main
+            - name: speedtest-tracker
+              databases:
+                - speedtest-tracker
+            - name: tandoor
+              databases:
+                - tandoor
+            {{- .Values.applications.postgresql.additionalUsers | toYaml | nindent 12 }}
+          databaseInitSQL:
+            name: postgresql
+            key: bootstrap.sql
+          backups:
+            pgbackrest:
+              manual:
+                repoName: repo1
+                options:
+                  - --type=full
+              global:
+                repo1-s3-uri-style: path # Backblaze support
+                repo1-retention-full: "5" # Keep 5 full backups
+                repo1-cipher-type: aes-256-cbc
+                repo2-retention-full: "2"
+              configuration:
+                - secret:
+                    name: postgresql-backup-credentials
+              repos:
+                - name: repo1
+                  {{- .Values.applications.postgresql.remoteBackupLocation | toYaml | nindent 18 }}
+                  schedules:
+                    full: "0 0 * * 1" # Every Monday at midnight
+                    differential: "0 0 * * *" # Every day at midnight
+                    incremental: "0 */6 * * *" # Every 6 hours
+                - name: repo2
+                  schedules:
+                    full: "0 0 * * 1" # Every Monday at midnight
+                    incremental: "0 * * * *" # Every hour
+                  volume:
+                    volumeClaimSpec:
+                      accessModes:
+                      - "ReadWriteOnce"
+                      storageClassName: local-path-retain
+                      resources:
+                        requests:
+                          storage: 10Gi
 {{- end }}

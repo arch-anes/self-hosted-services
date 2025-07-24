@@ -22,9 +22,9 @@ spec:
       DATABASE_PASSWORD:
         valueFrom:
           secretKeyRef:
-            name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+            name: postgresql-pguser-gotify
             key: password
-      GOTIFY_DATABASE_CONNECTION: host=postgresql port=5432 user=postgres dbname=gotify password=$(DATABASE_PASSWORD) sslmode=disable
+      GOTIFY_DATABASE_CONNECTION: host=postgresql-primary port=5432 user=gotify dbname=gotify password=$(DATABASE_PASSWORD) sslmode=disable
     resources:
       requests:
         memory: 64Mi

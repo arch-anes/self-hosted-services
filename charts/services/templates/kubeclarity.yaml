@@ -6,16 +6,11 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: kubeclarity
+  name: postgresql-pguser-kubeclarity
   namespace: default
 type: Opaque
-# stringData:
-#   postgres-password: "somepass"
-#   postgres-username: "postgres"
-#   postgres-host: "postgresql.default"
-#   postgres-port: "5432"
-#   postgres-database: "kubeclarity"
-#   postgres-sslmode: "disable"
+stringData:
+  sslmode: "disable"
 
 ---
 apiVersion: helm.cattle.io/v1
@@ -33,14 +28,16 @@ spec:
       enabled: false
     kubeclarity-postgresql-secret:
       create: false
+      secretKey: "password"
+      usernameKey: "user"
+      hostKey: "host"
+      portKey: "port"
+      databaseKey: "dbname"
+      sslmodeKey: "sslmode"
     kubeclarity-postgresql-external:
       enabled: true
       auth:
-        existingSecret: kubeclarity
-        username: postgres
-        host: postgresql.default
-        port: 5432
-        database: kubeclarity
+        existingSecret: postgresql-pguser-kubeclarity
     kubeclarity:
       resources:
         requests:
