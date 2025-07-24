@@ -44,12 +44,17 @@ spec:
       #       - --add
       #       - obico.{{ .Values.fqdn }}
       env:
-        DATABASE_PASSWORD:
+        DATABASE__USERNAME:
           valueFrom:
             secretKeyRef:
-              name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+              name: obico-owner-user.postgresql.credentials.postgresql.acid.zalan.do
+              key: username
+        DATABASE__PASSWORD:
+          valueFrom:
+            secretKeyRef:
+              name: obico-owner-user.postgresql.credentials.postgresql.acid.zalan.do
               key: password
-        DATABASE_URL: postgres://postgres:$(DATABASE_PASSWORD)@postgresql/obico
+        DATABASE_URL: postgres://$(DATABASE__USERNAME):$(DATABASE__PASSWORD)@postgresql/obico
         REDIS_HOST_PASSWORD:
           valueFrom:
             secretKeyRef:

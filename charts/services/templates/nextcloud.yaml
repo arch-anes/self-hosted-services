@@ -118,11 +118,14 @@ spec:
             - name: POSTGRES_DB
               value: "nextcloud"
             - name: POSTGRES_USER
-              value: "postgres"
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-owner-user.postgresql.credentials.postgresql.acid.zalan.do
+                  key: username
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  name: nextcloud-owner-user.postgresql.credentials.postgresql.acid.zalan.do
                   key: password
             - name: SMTP_HOST
               valueFrom:

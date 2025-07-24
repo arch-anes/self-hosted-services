@@ -43,12 +43,17 @@ spec:
                     name: miniflux
                     key: admin_password
                     expandObjectName: false
-                DATABASE_PASSWORD:
+                DATABASE__USERNAME:
                   secretKeyRef:
-                    name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                    name: miniflux-owner-user.postgresql.credentials.postgresql.acid.zalan.do
+                    key: username
+                    expandObjectName: false
+                DATABASE__PASSWORD:
+                  secretKeyRef:
+                    name: miniflux-owner-user.postgresql.credentials.postgresql.acid.zalan.do
                     key: password
                     expandObjectName: false
-                DATABASE_URL: postgres://postgres:$(DATABASE_PASSWORD)@postgresql/miniflux?sslmode=disable
+                DATABASE_URL: postgres://$(DATABASE__USERNAME):$(DATABASE__PASSWORD)@postgresql/miniflux?sslmode=disable
                 RUN_MIGRATIONS: 1
     resources:
       requests:

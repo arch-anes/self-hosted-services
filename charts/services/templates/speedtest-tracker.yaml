@@ -48,10 +48,14 @@ spec:
                 DB_HOST: postgresql
                 DB_PORT: "5432"
                 DB_DATABASE: speedtest_tracker
-                DB_USERNAME: postgres
+                DB_USERNAME:
+                  secretKeyRef:
+                    name: speedtest-tracker-owner-user.postgresql.credentials.postgresql.acid.zalan.do
+                    key: username
+                    expandObjectName: false
                 DB_PASSWORD:
                   secretKeyRef:
-                    name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                    name: speedtest-tracker-owner-user.postgresql.credentials.postgresql.acid.zalan.do
                     key: password
                     expandObjectName: false
                 CACHE_DRIVER: redis

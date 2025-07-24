@@ -59,7 +59,6 @@ data:
   DB_HOSTNAME: "postgresql"
   DB_PORT: "5432"
   DB_DATABASE_NAME: "immich"
-  DB_USERNAME: "postgres"
   DB_VECTOR_EXTENSION: "vectorchord"
 
 ---
@@ -103,10 +102,15 @@ spec:
                 secretKeyRef:
                   name: redis
                   key: redis-password
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: immich-owner-user.postgresql.credentials.postgresql.acid.zalan.do
+                  key: username
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  name: immich-owner-user.postgresql.credentials.postgresql.acid.zalan.do
                   key: password
             - name: IMMICH_WORKERS_INCLUDE
               value: "api"
@@ -152,10 +156,15 @@ spec:
                 secretKeyRef:
                   name: redis
                   key: redis-password
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: immich-owner-user.postgresql.credentials.postgresql.acid.zalan.do
+                  key: username
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  name: immich-owner-user.postgresql.credentials.postgresql.acid.zalan.do
                   key: password
             - name: IMMICH_WORKERS_EXCLUDE
               value: "api"

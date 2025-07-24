@@ -137,11 +137,14 @@ spec:
             - name: INVENTREE_DB_NAME
               value: "inventree"
             - name: INVENTREE_DB_USER
-              value: "postgres"
+              valueFrom:
+                secretKeyRef:
+                  name: inventree-owner-user.postgresql.credentials.postgresql.acid.zalan.do
+                  key: username
             - name: INVENTREE_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  name: inventree-owner-user.postgresql.credentials.postgresql.acid.zalan.do
                   key: password
             - name: INVENTREE_AUTO_UPDATE
               value: "True"
@@ -205,11 +208,14 @@ spec:
             - name: INVENTREE_DB_NAME
               value: "inventree"
             - name: INVENTREE_DB_USER
-              value: "postgres"
+              valueFrom:
+                secretKeyRef:
+                  name: inventree-owner-user.postgresql.credentials.postgresql.acid.zalan.do
+                  key: username
             - name: INVENTREE_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  name: inventree-owner-user.postgresql.credentials.postgresql.acid.zalan.do
                   key: password
             - name: INVENTREE_AUTO_UPDATE
               value: "True"

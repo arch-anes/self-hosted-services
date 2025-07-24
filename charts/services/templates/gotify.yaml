@@ -19,12 +19,17 @@ spec:
         reloader.stakater.com/auto: "true"
     env:
       GOTIFY_DATABASE_DIALECT: postgres
+      DATABASE_USERNAME:
+        valueFrom:
+          secretKeyRef:
+            name: gotify-owner-user.postgresql.credentials.postgresql.acid.zalan.do
+            key: username
       DATABASE_PASSWORD:
         valueFrom:
           secretKeyRef:
-            name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+            name: gotify-owner-user.postgresql.credentials.postgresql.acid.zalan.do
             key: password
-      GOTIFY_DATABASE_CONNECTION: host=postgresql port=5432 user=postgres dbname=gotify password=$(DATABASE_PASSWORD) sslmode=disable
+      GOTIFY_DATABASE_CONNECTION: host=postgresql port=5432 user=$(DATABASE_USERNAME) dbname=gotify password=$(DATABASE_PASSWORD) sslmode=disable
     resources:
       requests:
         memory: 64Mi

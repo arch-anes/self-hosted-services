@@ -101,23 +101,34 @@ spec:
             storageClass: local-path-retain
           # During the restoration process, comment out all preparedDatabases.
           preparedDatabases:
-            bazarr: {}
-            gotify: {}
+            bazarr:
+              defaultUsers: true
+            gotify:
+              defaultUsers: true
             # Important: when restoring a backup, alter the sql dump as indicated in:
             # https://immich.app/docs/administration/backup-and-restore/#manual-backup-and-restore
             immich:
+              defaultUsers: true
               extensions:
                 earthdistance: public
                 vector: public
                 vchord: public
-            inventree: {}
-            kubeclarity: {}
-            miniflux: {}
-            n8n: {}
-            netbox: {}
-            nextcloud: {}
-            obico: {}
-            pgadmin4: {}
+            inventree:
+              defaultUsers: true
+            kubeclarity:
+              defaultUsers: true
+            miniflux:
+              defaultUsers: true
+            n8n:
+              defaultUsers: true
+            netbox:
+              defaultUsers: true
+            nextcloud:
+              defaultUsers: true
+            obico:
+              defaultUsers: true
+            pgadmin4:
+              defaultUsers: true
             prowlarr_log: {}
             prowlarr_main: {}
             radarr_log: {}
@@ -127,6 +138,151 @@ spec:
             readarr_main: {}
             sonarr_log: {}
             sonarr_main: {}
-            speedtest_tracker: {}
-            tandoor: {}
+            speedtest_tracker:
+              defaultUsers: true
+            tandoor:
+              defaultUsers: true
+      # Workaround for https://github.com/zalando/postgres-operator/pull/1534
+      - apiVersion: batch/v1
+        kind: Job
+        metadata:
+          name: postgresql-grant-permissions
+          namespace: default
+          annotations:
+            "helm.sh/hook": post-install,post-upgrade
+            "helm.sh/hook-weight": "5"
+            "helm.sh/hook-delete-policy": hook-succeeded
+        spec:
+          template:
+            spec:
+              restartPolicy: OnFailure
+              containers:
+                - name: grant-permissions
+                  image: postgres:17
+                  env:
+                    - name: PGHOST
+                      value: postgresql
+                    - name: PGUSER
+                      valueFrom:
+                        secretKeyRef:
+                          name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                          key: username
+                    - name: PGPASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                          key: password
+                  command:
+                    - sh
+                    - -c
+                    - |
+                      echo "Waiting for PostgreSQL to be ready..."
+                      until pg_isready -h ${PGHOST} -U ${PGUSER}; do
+                        sleep 2
+                      done
+
+                      echo "Granting permissions for all databases and schemas..."
+                      
+                      # Get list of databases
+                      DATABASES=$(psql -h ${PGHOST} -U ${PGUSER} -d postgres -t -A -c "SELECT datname FROM pg_database WHERE datname NOT IN ('template0', 'template1', 'postgres');")
+                      
+                      # Process each database
+                      echo "$DATABASES" | while IFS= read -r db_name; do
+                        if [ -n "$db_name" ]; then
+                          psql -v ON_ERROR_STOP=1 -h ${PGHOST} -U ${PGUSER} -d $db_name -c "
+                            DO \$\$
+                            DECLARE
+                              db_name TEXT;
+                              schema_name TEXT;
+                              owner_role TEXT;
+                              reader_role TEXT;
+                              writer_role TEXT;
+                            BEGIN
+                              db_name := '$db_name';
+                              owner_role := db_name || '_owner';
+                              reader_role := db_name || '_reader';
+                              writer_role := db_name || '_writer';
+                              
+                              RAISE NOTICE 'Processing database: %', db_name;
+                              
+                              -- Grant permissions to owner role if it exists
+                              IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = owner_role) THEN
+                                -- Loop through all schemas in this database (except system schemas)
+                                FOR schema_name IN 
+                                  SELECT nspname FROM pg_namespace 
+                                  WHERE nspname NOT IN ('information_schema', 'pg_catalog', 'pg_toast')
+                                  AND nspname NOT LIKE 'pg_temp_%'
+                                  AND nspname NOT LIKE 'pg_toast_temp_%'
+                                LOOP
+                                  -- Grant schema usage and create permissions for owner
+                                  EXECUTE format('GRANT USAGE ON SCHEMA %s TO %s', schema_name, owner_role);
+                                  EXECUTE format('GRANT CREATE ON SCHEMA %s TO %s', schema_name, owner_role);
+                                  
+                                  -- Grant existing object permissions for owner
+                                  EXECUTE format('GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA %s TO %s', schema_name, owner_role);
+                                  EXECUTE format('GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA %s TO %s', schema_name, owner_role);
+                                  EXECUTE format('GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA %s TO %s', schema_name, owner_role);
+                                  
+                                  -- Set default privileges for future objects
+                                  EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA %s GRANT ALL PRIVILEGES ON TABLES TO %s', schema_name, owner_role);
+                                  EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA %s GRANT ALL PRIVILEGES ON SEQUENCES TO %s', schema_name, owner_role);
+                                  EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA %s GRANT ALL PRIVILEGES ON FUNCTIONS TO %s', schema_name, owner_role);
+                                  
+                                  RAISE NOTICE 'Granted owner permissions for schema: % database: % role: %', schema_name, db_name, owner_role;
+                                END LOOP;
+                              END IF;
+                              
+                              -- Grant permissions to reader role if it exists
+                              IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = reader_role) THEN
+                                -- Loop through all schemas in this database (except system schemas)
+                                FOR schema_name IN 
+                                  SELECT nspname FROM pg_namespace 
+                                  WHERE nspname NOT IN ('information_schema', 'pg_catalog', 'pg_toast')
+                                  AND nspname NOT LIKE 'pg_temp_%'
+                                  AND nspname NOT LIKE 'pg_toast_temp_%'
+                                LOOP
+                                  -- Grant schema usage for reader
+                                  EXECUTE format('GRANT USAGE ON SCHEMA %s TO %s', schema_name, reader_role);
+                                  
+                                  -- Grant existing object permissions for reader  
+                                  EXECUTE format('GRANT SELECT ON ALL TABLES IN SCHEMA %s TO %s', schema_name, reader_role);
+                                  EXECUTE format('GRANT SELECT ON ALL SEQUENCES IN SCHEMA %s TO %s', schema_name, reader_role);
+                                  
+                                  -- Set default privileges for future objects
+                                  EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA %s GRANT SELECT ON TABLES TO %s', schema_name, reader_role);
+                                  EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA %s GRANT SELECT ON SEQUENCES TO %s', schema_name, reader_role);
+                                  
+                                  RAISE NOTICE 'Granted reader permissions for schema: % database: % role: %', schema_name, db_name, reader_role;
+                                END LOOP;
+                              END IF;
+                              
+                              -- Grant permissions to writer role if it exists
+                              IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = writer_role) THEN
+                                -- Loop through all schemas in this database (except system schemas)
+                                FOR schema_name IN 
+                                  SELECT nspname FROM pg_namespace 
+                                  WHERE nspname NOT IN ('information_schema', 'pg_catalog', 'pg_toast')
+                                  AND nspname NOT LIKE 'pg_temp_%'
+                                  AND nspname NOT LIKE 'pg_toast_temp_%'
+                                LOOP
+                                  -- Grant schema usage for writer
+                                  EXECUTE format('GRANT USAGE ON SCHEMA %s TO %s', schema_name, writer_role);
+                                  
+                                  -- Grant existing object permissions for writer
+                                  EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA %s TO %s', schema_name, writer_role);
+                                  EXECUTE format('GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA %s TO %s', schema_name, writer_role);
+                                  
+                                  -- Set default privileges for future objects
+                                  EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA %s GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO %s', schema_name, writer_role);
+                                  EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA %s GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO %s', schema_name, writer_role);
+                                  
+                                  RAISE NOTICE 'Granted writer permissions for schema: % database: % role: %', schema_name, db_name, writer_role;
+                                END LOOP;
+                              END IF;
+                            END \$\$;
+                          "
+                        fi
+                      done
+                      
+                      echo "All permissions granted successfully!"
 {{- end }}

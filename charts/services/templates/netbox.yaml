@@ -31,8 +31,8 @@ spec:
       host: postgresql
       port: 5432
       database: netbox
-      username: postgres
-      existingSecretName: "postgres.postgresql.credentials.postgresql.acid.zalan.do"
+      username: netbox_owner_user
+      existingSecretName: "netbox-owner-user.postgresql.credentials.postgresql.acid.zalan.do"
       existingSecretKey: password
     valkey:
       enabled: false

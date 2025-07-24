@@ -50,10 +50,14 @@ spec:
                 DB_POSTGRESDB_HOST: postgresql
                 DB_POSTGRESDB_PORT: 5432
                 DB_POSTGRESDB_DATABASE: n8n
-                DB_POSTGRESDB_USER: postgres
+                DB_POSTGRESDB_USER:
+                  secretKeyRef:
+                    name: n8n-owner-user.postgresql.credentials.postgresql.acid.zalan.do
+                    key: username
+                    expandObjectName: false
                 DB_POSTGRESDB_PASSWORD:
                   secretKeyRef:
-                    name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                    name: n8n-owner-user.postgresql.credentials.postgresql.acid.zalan.do
                     key: password
                     expandObjectName: false
                 CACHE_DRIVER: redis

@@ -35,11 +35,15 @@ spec:
       POSTGRES_HOST: postgresql
       POSTGRES_DB: tandoor
       POSTGRES_PORT: "5432"
-      POSTGRES_USER: postgres
+      POSTGRES_USER:
+        valueFrom:
+          secretKeyRef:
+            name: tandoor-owner-user.postgresql.credentials.postgresql.acid.zalan.do
+            key: username
       POSTGRES_PASSWORD:
         valueFrom:
           secretKeyRef:
-            name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+            name: tandoor-owner-user.postgresql.credentials.postgresql.acid.zalan.do
             key: password
       SECRET_KEY:
         valueFrom:
