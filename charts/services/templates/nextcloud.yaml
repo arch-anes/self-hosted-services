@@ -114,15 +114,15 @@ spec:
                   name: redis
                   key: redis-password
             - name: POSTGRES_HOST
-              value: "postgresql"
+              value: "postgresql-test-primary"
             - name: POSTGRES_DB
               value: "nextcloud"
             - name: POSTGRES_USER
-              value: "postgres"
+              value: nextcloud
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  name: postgresql-test-pguser-nextcloud
                   key: password
             - name: SMTP_HOST
               valueFrom:
