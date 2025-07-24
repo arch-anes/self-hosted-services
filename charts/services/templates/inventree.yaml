@@ -133,15 +133,15 @@ spec:
             - name: INVENTREE_DB_ENGINE
               value: "postgresql"
             - name: INVENTREE_DB_HOST
-              value: "postgresql"
+              value: "postgresql-test-primary"
             - name: INVENTREE_DB_NAME
               value: "inventree"
             - name: INVENTREE_DB_USER
-              value: "postgres"
+              value: inventree
             - name: INVENTREE_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  name: postgresql-test-pguser-inventree
                   key: password
             - name: INVENTREE_AUTO_UPDATE
               value: "True"
@@ -201,15 +201,15 @@ spec:
             - name: INVENTREE_DB_ENGINE
               value: "postgresql"
             - name: INVENTREE_DB_HOST
-              value: "postgresql"
+              value: "postgresql-test-primary"
             - name: INVENTREE_DB_NAME
               value: "inventree"
             - name: INVENTREE_DB_USER
-              value: "postgres"
+              value: inventree
             - name: INVENTREE_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  name: postgresql-test-pguser-inventree
                   key: password
             - name: INVENTREE_AUTO_UPDATE
               value: "True"

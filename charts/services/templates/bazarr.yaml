@@ -160,10 +160,10 @@ data:
     postgresql:
       database: bazarr
       enabled: true
-      host: postgresql
+      host: postgresql-test-primary
       password: $POSTGRES_PASSWORD
       port: 5432
-      username: postgres
+      username: $POSTGRES_USERNAME
     radarr:
       apikey: $RADARR_API_KEY
       base_url: ''
@@ -314,10 +314,12 @@ spec:
                 secretKeyRef:
                   name: arr
                   key: anidb_api_client
+            - name: POSTGRES_USERNAME
+              value: bazarr
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  name: postgresql-test-pguser-bazarr
                   key: password
             - name: PGSSLCERT
               value: /tmp/postgresql.crt

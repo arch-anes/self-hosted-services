@@ -129,4 +129,257 @@ spec:
             sonarr_main: {}
             speedtest_tracker: {}
             tandoor: {}
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: postgres-operator-test
+  namespace: kube-system
+spec:
+  chart: oci://registry.developers.crunchydata.com/crunchydata/pgo
+  version: 5.8.2
+  targetNamespace: kube-system
+  valuesContent: |-
+    relatedImages:
+      postgres_17:
+        image: ghcr.io/arch-anes/crunchy-postgres:ubi9-17.5-2520
+    replicas: 2
+    resources:
+      controller:
+        requests:
+          cpu: 500m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: postgresql-test
+  namespace: default
+spec:
+  chart: generic
+  repo: https://arch-anes.github.io/charts
+  version: 0.2.1
+  targetNamespace: default
+  failurePolicy: abort # Do not uninstall this chart on failure, otherwise the cluster will be deleted
+  valuesContent: |-
+    objects:
+      - apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: postgresql-test
+          namespace: default
+        data:
+          bootstrap.sql: |
+            \c postgres
+            \o /tmp/grant_users_public_permissions.sql
+            \pset format unaligned
+            \pset tuples_only on
+
+            WITH dbs AS (
+              SELECT datname AS dbname,
+                    regexp_replace(datname, '(_main|_log|_cache)$', '') AS username
+              FROM pg_database
+              WHERE NOT datistemplate AND datallowconn
+            )
+            SELECT
+              'DO $$ BEGIN ' ||
+              'IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = ' || quote_literal(username) || ') THEN ' ||
+                'EXECUTE ''ALTER DATABASE ' || quote_ident(dbname) || ' OWNER TO ' || quote_ident(username) || '''; ' ||
+              'END IF; END $$;' || E'\n' ||
+
+              '\connect ' || quote_ident(dbname) || E';\n' ||
+
+              'DO $$ BEGIN ' ||
+              'IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = ' || quote_literal(username) || ') THEN ' ||
+                'EXECUTE ''GRANT ALL ON SCHEMA public TO ' || quote_ident(username) || '''; ' ||
+              'END IF; END $$;' || E'\n'
+            FROM dbs;
+            \o
+            \i /tmp/grant_users_public_permissions.sql
+
+            \c immich
+            BEGIN;
+            CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
+            CREATE EXTENSION IF NOT EXISTS vector CASCADE;
+            CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
+            COMMIT;
+      - apiVersion: postgres-operator.crunchydata.com/v1beta1
+        kind: PostgresCluster
+        metadata:
+          name: postgresql-test
+          namespace: default
+        spec:
+          postgresVersion: 17
+          instances:
+            - name: instance1
+              replicas: 3
+              # Schedule pods on separate nodes
+              affinity:
+                podAntiAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    - topologyKey: kubernetes.io/hostname
+                      labelSelector:
+                        matchLabels:
+                          postgres-operator.crunchydata.com/cluster: postgresql-test
+                          postgres-operator.crunchydata.com/instance-set: instance1
+              resources:
+                requests:
+                  cpu: "1000m"
+                  memory: "1Gi"
+                limits:
+                  memory: "4Gi"
+              dataVolumeClaimSpec:
+                accessModes:
+                - "ReadWriteOnce"
+                storageClassName: local-path-retain
+                resources:
+                  requests:
+                    storage: 10Gi
+          config:
+            parameters:
+              password_encryption: scram-sha-256
+              max_connections: "1000"
+              shared_preload_libraries: "cube,earthdistance,vector,vchord"
+          patroni:
+            dynamicConfiguration:
+              postgresql:
+                pg_hba:
+                  - "hostnossl all all 10.42.0.0/16 scram-sha-256"
+          users:
+            - name: postgres
+            - name: bazarr
+              password:
+                type: AlphaNumeric
+              databases:
+                - bazarr
+            - name: gotify
+              password:
+                type: AlphaNumeric
+              databases:
+                - gotify
+            - name: immich
+              password:
+                type: AlphaNumeric
+              databases:
+                - immich
+            - name: pholi-airtransat
+              password:
+                type: AlphaNumeric
+              databases:
+                - pholi-airtransat
+            - name: inventree
+              password:
+                type: AlphaNumeric
+              databases:
+                - inventree
+            - name: kubeclarity
+              password:
+                type: AlphaNumeric
+              databases:
+                - kubeclarity
+            - name: miniflux
+              password:
+                type: AlphaNumeric
+              databases:
+                - miniflux
+            - name: n8n
+              password:
+                type: AlphaNumeric
+              databases:
+                - n8n
+            - name: netbox
+              password:
+                type: AlphaNumeric
+              databases:
+                - netbox
+            - name: nextcloud
+              password:
+                type: AlphaNumeric
+              databases:
+                - nextcloud
+            - name: obico
+              password:
+                type: AlphaNumeric
+              databases:
+                - obico
+            - name: pgadmin4
+              password:
+                type: AlphaNumeric
+              databases:
+                - pgadmin4
+            - name: prowlarr
+              password:
+                type: AlphaNumeric
+              databases:
+                - prowlarr_log
+                - prowlarr_main
+            - name: radarr
+              password:
+                type: AlphaNumeric
+              databases:
+                - radarr_log
+                - radarr_main
+            - name: readarr
+              password:
+                type: AlphaNumeric
+              databases:
+                - readarr_cache
+                - readarr_log
+                - readarr_main
+            - name: sonarr
+              password:
+                type: AlphaNumeric
+              databases:
+                - sonarr_log
+                - sonarr_main
+            - name: speedtest-tracker
+              password:
+                type: AlphaNumeric
+              databases:
+                - speedtest-tracker
+            - name: tandoor
+              password:
+                type: AlphaNumeric
+              databases:
+                - tandoor
+          databaseInitSQL:
+            name: postgresql-test
+            key: bootstrap.sql
+          backups:
+            pgbackrest:
+              manual:
+                repoName: repo1
+                options:
+                  - --type=full
+              global:
+                repo1-s3-uri-style: path # Backblaze support
+                repo1-retention-full: "5" # Keep 5 full backups
+                repo1-cipher-type: aes-256-cbc
+                repo2-retention-full: "2"
+              configuration:
+                - secret:
+                    name: postgresql-backup-credentials
+              repos:
+                - name: repo1
+                  {{- .Values.applications.postgresql.remoteBackupLocation | toYaml | nindent 18 }}
+                  schedules:
+                    full: "0 0 * * 1" # Every Monday at midnight
+                    differential: "0 0 * * *" # Every day at midnight
+                    incremental: "0 */6 * * *" # Every 6 hours
+                - name: repo2
+                  schedules:
+                    full: "0 0 * * 1" # Every Monday at midnight
+                    incremental: "0 * * * *" # Every hour
+                  volume:
+                    volumeClaimSpec:
+                      accessModes:
+                      - "ReadWriteOnce"
+                      storageClassName: local-path-retain
+                      resources:
+                        requests:
+                          storage: 10Gi
 {{- end }}

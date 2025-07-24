@@ -96,7 +96,7 @@ spec:
             - name: READARR__AUTH__REQUIRED
               value: Enabled
             - name: READARR__POSTGRES__HOST
-              value: postgresql
+              value: postgresql-test-primary
             - name: READARR__POSTGRES__PORT
               value: "5432"
             - name: READARR__POSTGRES__MAINDB
@@ -106,7 +106,7 @@ spec:
             - name: READARR__POSTGRES__CACHEDB
               value: readarr_cache
             - name: READARR__POSTGRES__USER
-              value: postgres
+              value: readarr
             - name: READARR__AUTH__APIKEY
               valueFrom:
                 secretKeyRef:
@@ -115,7 +115,7 @@ spec:
             - name: READARR__POSTGRES__PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                  name: postgresql-test-pguser-readarr
                   key: password
           volumeMounts:
             - name: multimedia

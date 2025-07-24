@@ -45,13 +45,13 @@ spec:
                     key: app_key
                     expandObjectName: false
                 DB_CONNECTION: pgsql
-                DB_HOST: postgresql
+                DB_HOST: postgresql-test-primary
                 DB_PORT: "5432"
-                DB_DATABASE: speedtest_tracker
-                DB_USERNAME: postgres
+                DB_DATABASE: speedtest-tracker
+                DB_USERNAME: speedtest-tracker
                 DB_PASSWORD:
                   secretKeyRef:
-                    name: postgres.postgresql.credentials.postgresql.acid.zalan.do
+                    name: postgresql-test-pguser-speedtest-tracker
                     key: password
                     expandObjectName: false
                 CACHE_DRIVER: redis
