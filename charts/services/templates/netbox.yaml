@@ -28,11 +28,11 @@ spec:
     postgresql:
       enabled: false
     externalDatabase:
-      host: postgresql
+      host: postgresql-test-primary
       port: 5432
       database: netbox
-      username: postgres
-      existingSecretName: "postgres.postgresql.credentials.postgresql.acid.zalan.do"
+      username: netbox
+      existingSecretName: "postgresql-test-pguser-netbox"
       existingSecretKey: password
     valkey:
       enabled: false

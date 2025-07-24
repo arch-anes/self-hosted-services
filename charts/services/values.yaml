@@ -130,6 +130,11 @@ applications:
     enabled: true
   postgresql:
     enabled: true
+    backupLocations:
+      s3:
+        bucket: "some-bucket"
+        endpoint: "some-endpoint"
+        region: "some-region"
   prowlarr:
     enabled: true
   radarr:
