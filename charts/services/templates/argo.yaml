@@ -11,7 +11,7 @@ metadata:
 spec:
   chart: argo-cd
   repo: https://argoproj.github.io/argo-helm
-  version: 8.2.0
+  version: 8.2.2
   targetNamespace: kube-system
   valuesContent: |-
     global:
