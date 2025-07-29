@@ -220,6 +220,9 @@ spec:
                 options:
                   - --type=full
               global:
+                compress-level: '1'
+                compress-level-network: '1'
+                compress-type: zst
                 repo1-s3-uri-style: path # Backblaze support
                 repo1-retention-full: "5" # Keep 5 full backups
                 repo1-cipher-type: aes-256-cbc
