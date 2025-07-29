@@ -46,7 +46,6 @@ spec:
           memory: 2Gi
       env:
         DO_NOT_TRACK: 1
-        NETDATA_DISABLE_CLOUD: 1
       envFrom:
         - secretRef:
             name: netdata
@@ -74,7 +73,6 @@ spec:
           memory: 512Mi
       env:
         DO_NOT_TRACK: 1
-        NETDATA_DISABLE_CLOUD: 1
       extraVolumes:
         - name: smartd
           hostPath:
