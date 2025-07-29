@@ -49,6 +49,10 @@ spec:
       envFrom:
         - secretRef:
             name: netdata
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
       configs:
         health:
           enabled: true
