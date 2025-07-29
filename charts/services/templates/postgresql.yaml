@@ -232,8 +232,7 @@ spec:
                   {{- .Values.applications.postgresql.remoteBackupLocation | toYaml | nindent 18 }}
                   schedules:
                     full: "0 0 * * 1" # Every Monday at midnight
-                    differential: "0 0 * * *" # Every day at midnight
-                    incremental: "0 */6 * * *" # Every 6 hours
+                    incremental: "0 12 * * *" # Every day at noon
                 - name: repo2
                   schedules:
                     full: "0 0 * * 1" # Every Monday at midnight
