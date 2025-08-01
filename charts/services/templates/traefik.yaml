@@ -30,7 +30,7 @@ metadata:
 spec:
   chart: traefik
   repo: https://traefik.github.io/charts
-  version: 36.3.0
+  version: 37.0.0
   targetNamespace: kube-system
   valuesContent: |-
     extraObjects:
