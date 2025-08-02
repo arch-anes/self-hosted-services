@@ -111,6 +111,10 @@ spec:
                     key: password
                     expandObjectName: false
                 DATABASE_URL: postgresql://home-assistant:$(DATABASE_PASSWORD)@postgresql-primary/home-assistant
+                PGSSLMODE: verify-full
+                PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+                PGSSLCERT: /etc/postgres/tls/tls.crt
+                PGSSLKEY: /etc/postgres/tls/tls.key
                 {{- if .Values.applications.authentik.enabled }}
                 OIDC_CLIENT_ID:
                   secretKeyRef:
@@ -154,6 +158,14 @@ spec:
             hosts:
               - ha.{{ .Values.fqdn }}
     persistence:
+      postgresql-certs:
+        enabled: true
+        type: secret
+        objectName: postgresql-cluster-cert
+        expandObjectName: false
+        mountPath: /etc/postgres/tls
+        readOnly: true
+        defaultMode: "0400"
       config:
         enabled: true
         type: pvc

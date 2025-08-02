@@ -90,6 +90,7 @@ spec:
                     name: postgresql-pguser-immich
                     key: password
                     expandObjectName: false
+                DB_URL: postgresql://immich:$(DB_PASSWORD)@postgresql-primary:5432/immich?sslmode=verify-full&sslrootcert=/etc/postgres/tls/ca.crt&sslcert=/etc/postgres/tls/tls.crt&sslkey=/etc/postgres/tls/tls.key
                 REDIS_PASSWORD:
                   secretKeyRef:
                     name: redis
@@ -111,6 +112,7 @@ spec:
                     name: postgresql-pguser-immich
                     key: password
                     expandObjectName: false
+                DB_URL: postgresql://immich:$(DB_PASSWORD)@postgresql-primary:5432/immich?sslmode=verify-full&sslrootcert=/etc/postgres/tls/ca.crt&sslcert=/etc/postgres/tls/tls.crt&sslkey=/etc/postgres/tls/tls.key
                 REDIS_PASSWORD:
                   secretKeyRef:
                     name: redis
@@ -207,6 +209,19 @@ spec:
         creds:
           host: postgresql-primary
     persistence:
+      postgresql-certs:
+        enabled: true
+        type: secret
+        objectName: postgresql-cluster-cert
+        expandObjectName: false
+        mountPath: /etc/postgres/tls
+        readOnly: true
+        defaultMode: "0400"
+        targetSelector:
+          main:
+            main: {}
+          microservices:
+            microservices: {}
       generated-data:
         enabled: true
         type: pvc

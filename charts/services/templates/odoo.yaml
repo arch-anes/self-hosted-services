@@ -32,6 +32,9 @@ spec:
                 HOST: postgresql-primary
                 USER: odoo
                 DATABASE: odoo
+                PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+                PGSSLCERT: /etc/postgres/tls/tls.crt
+                PGSSLKEY: /etc/postgres/tls/tls.key
                 PASSWORD:
                   secretKeyRef:
                     name: postgresql-pguser-odoo
@@ -53,7 +56,7 @@ spec:
             http_port = 8069
             ; Database Details
             db_name = odoo
-            db_sslmode = disable
+            db_sslmode = verify-full
             ; Required to avoid the selector
             admin_passwd = admin
             list_db = False
@@ -82,6 +85,14 @@ spec:
             hosts:
               - odoo.{{ .Values.fqdn }}
     persistence:
+      postgresql-certs:
+        enabled: true
+        type: secret
+        objectName: postgresql-cluster-cert
+        expandObjectName: false
+        mountPath: /etc/postgres/tls
+        readOnly: true
+        defaultMode: "0400"
       odoo:
         type: pvc
         storageClass: local-path-persistent-namespaced

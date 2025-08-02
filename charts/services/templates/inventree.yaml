@@ -130,6 +130,14 @@ spec:
                 secretKeyRef:
                   name: postgresql-pguser-inventree
                   key: password
+            - name: PGSSLMODE
+              value: verify-full
+            - name: PGSSLROOTCERT
+              value: /etc/postgres/tls/ca.crt
+            - name: PGSSLCERT
+              value: /etc/postgres/tls/tls.crt
+            - name: PGSSLKEY
+              value: /etc/postgres/tls/tls.key
             - name: INVENTREE_AUTO_UPDATE
               value: "True"
             - name: INVENTREE_EMAIL_HOST
@@ -156,6 +164,8 @@ spec:
           volumeMounts:
             - name: inventree-data
               mountPath: /home/inventree/data
+            - name: postgresql-certs
+              mountPath: /etc/postgres/tls
       containers:
         - name: app
           image: ghcr.io/arch-anes/inventree:1.1.11
@@ -173,6 +183,8 @@ spec:
           volumeMounts:
             - name: inventree-data
               mountPath: /home/inventree/data
+            - name: postgresql-certs
+              mountPath: /etc/postgres/tls
         - name: worker
           image: ghcr.io/arch-anes/inventree:1.1.11
           command: ["invoke", "worker"]
@@ -186,7 +198,13 @@ spec:
           volumeMounts:
             - name: inventree-data
               mountPath: /home/inventree/data
+            - name: postgresql-certs
+              mountPath: /etc/postgres/tls
       volumes:
+        - name: postgresql-certs
+          secret:
+            secretName: postgresql-cluster-cert
+            defaultMode: 0400
         - name: inventree-data
           emptyDir: {}
 {{- end }}
