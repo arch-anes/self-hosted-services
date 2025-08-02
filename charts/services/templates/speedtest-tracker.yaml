@@ -54,6 +54,10 @@ spec:
                     name: postgresql-pguser-speedtest-tracker
                     key: password
                     expandObjectName: false
+                PGSSLMODE: verify-full
+                PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+                PGSSLCERT: /etc/postgres/tls/tls.crt
+                PGSSLKEY: /etc/postgres/tls/tls.key
                 CACHE_DRIVER: redis
                 REDIS_HOST_PASSWORD:
                   secretKeyRef:
@@ -97,6 +101,13 @@ spec:
     persistence:
       config:
         enabled: false
+      postgres-tls:
+        enabled: true
+        type: secret
+        objectName: postgresql-cluster-cert
+        expandObjectName: false
+        mountPath: /etc/postgres/tls
+        defaultMode: "0400"
     redis:
       enabled: false
     cnpg:

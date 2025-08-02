@@ -48,7 +48,11 @@ spec:
                     name: postgresql-pguser-miniflux
                     key: password
                     expandObjectName: false
-                DATABASE_URL: postgres://miniflux:$(DATABASE_PASSWORD)@postgresql-primary/miniflux?sslmode=disable
+                DATABASE_URL: postgres://miniflux:$(DATABASE_PASSWORD)@postgresql-primary/miniflux
+                PGSSLMODE: verify-full
+                PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+                PGSSLCERT: /etc/postgres/tls/tls.crt
+                PGSSLKEY: /etc/postgres/tls/tls.key
                 RUN_MIGRATIONS: 1
     resources:
       requests:
@@ -79,6 +83,13 @@ spec:
     persistence:
       config:
         enabled: false
+      postgres-tls:
+        enabled: true
+        type: secret
+        objectName: postgresql-cluster-cert
+        expandObjectName: false
+        mountPath: /etc/postgres/tls
+        defaultMode: "0400"
     cnpg:
       main:
         enabled: false

@@ -124,6 +124,14 @@ spec:
                 secretKeyRef:
                   name: postgresql-pguser-nextcloud
                   key: password
+            - name: PGSSLMODE
+              value: verify-full
+            - name: PGSSLROOTCERT
+              value: /etc/postgres/tls/ca.crt
+            - name: PGSSLCERT
+              value: /etc/postgres/tls/tls.crt
+            - name: PGSSLKEY
+              value: /etc/postgres/tls/tls.key
             - name: SMTP_HOST
               valueFrom:
                 secretKeyRef:
@@ -153,6 +161,8 @@ spec:
             - name: web
               containerPort: 80
           volumeMounts:
+            - name: postgresql-certs
+              mountPath: /etc/postgres/tls
             - name: app
               mountPath: /var/www/html
             - name: data
@@ -161,6 +171,10 @@ spec:
               mountPath: /usr/local/etc/php/conf.d/custom-php-config.ini
               subPath: custom-php-config.ini
       volumes:
+        - name: postgresql-certs
+          secret:
+            secretName: postgresql-cluster-cert
+            defaultMode: 0400
         - name: app
           hostPath:
             path: "{{ .Values.storageLocation }}/nextcloud/app"

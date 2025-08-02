@@ -143,6 +143,14 @@ spec:
                 secretKeyRef:
                   name: postgresql-pguser-inventree
                   key: password
+            - name: PGSSLMODE
+              value: verify-full
+            - name: PGSSLROOTCERT
+              value: /etc/postgres/tls/ca.crt
+            - name: PGSSLCERT
+              value: /etc/postgres/tls/tls.crt
+            - name: PGSSLKEY
+              value: /etc/postgres/tls/tls.key
             - name: INVENTREE_AUTO_UPDATE
               value: "True"
             - name: INVENTREE_EMAIL_HOST
@@ -169,6 +177,9 @@ spec:
           ports:
             - name: web
               containerPort: 80
+          volumeMounts:
+            - name: postgresql-certs
+              mountPath: /etc/postgres/tls
         - name: worker
           image: ghcr.io/arch-anes/inventree:0.17.14
           imagePullPolicy: Always
@@ -211,6 +222,14 @@ spec:
                 secretKeyRef:
                   name: postgresql-pguser-inventree
                   key: password
+            - name: PGSSLMODE
+              value: verify-full
+            - name: PGSSLROOTCERT
+              value: /etc/postgres/tls/ca.crt
+            - name: PGSSLCERT
+              value: /etc/postgres/tls/tls.crt
+            - name: PGSSLKEY
+              value: /etc/postgres/tls/tls.key
             - name: INVENTREE_AUTO_UPDATE
               value: "True"
             - name: INVENTREE_EMAIL_HOST
@@ -234,4 +253,12 @@ spec:
               value: "587"
             - name: INVENTREE_EMAIL_SENDER
               value: "inventree@{{ .Values.fqdn }}"
+          volumeMounts:
+            - name: postgresql-certs
+              mountPath: /etc/postgres/tls
+      volumes:
+        - name: postgresql-certs
+          secret:
+            secretName: postgresql-cluster-cert
+            defaultMode: 0400
 {{- end }}

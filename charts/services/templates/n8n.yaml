@@ -56,6 +56,10 @@ spec:
                     name: postgresql-pguser-n8n
                     key: password
                     expandObjectName: false
+                PGSSLMODE: verify-full
+                PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+                PGSSLCERT: /etc/postgres/tls/tls.crt
+                PGSSLKEY: /etc/postgres/tls/tls.key
                 CACHE_DRIVER: redis
                 QUEUE_BULL_REDIS_HOST: redis-master
                 QUEUE_BULL_REDIS_PORT: 6379
@@ -91,6 +95,13 @@ spec:
     persistence:
       data:
         enabled: false
+      postgres-tls:
+        enabled: true
+        type: secret
+        objectName: postgresql-cluster-cert
+        expandObjectName: false
+        mountPath: /etc/postgres/tls
+        defaultMode: "0400"
     redis:
       enabled: false
     cnpg:

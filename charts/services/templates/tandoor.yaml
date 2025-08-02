@@ -41,6 +41,10 @@ spec:
           secretKeyRef:
             name: postgresql-pguser-tandoor
             key: password
+      PGSSLMODE: verify-full
+      PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+      PGSSLCERT: /etc/postgres/tls/tls.crt
+      PGSSLKEY: /etc/postgres/tls/tls.key
       SECRET_KEY:
         valueFrom:
           secretKeyRef:
@@ -53,6 +57,13 @@ spec:
           secretKeyRef:
             name: redis
             key: redis-password
+    persistence:
+      postgres-tls:
+        enabled: true
+        type: secret
+        name: postgresql-cluster-cert
+        mountPath: /etc/postgres/tls
+        defaultMode: 0400
     resources:
       requests:
         memory: 256Mi

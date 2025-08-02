@@ -61,6 +61,10 @@ data:
   DB_DATABASE_NAME: "immich"
   DB_USERNAME: "immich"
   DB_VECTOR_EXTENSION: "vectorchord"
+  PGSSLMODE: verify-full
+  PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+  PGSSLCERT: /etc/postgres/tls/tls.crt
+  PGSSLKEY: /etc/postgres/tls/tls.key
 
 ---
 apiVersion: apps/v1
@@ -114,6 +118,8 @@ spec:
             - name: web
               containerPort: 2283
           volumeMounts:
+            - name: postgresql-certs
+              mountPath: /etc/postgres/tls
             - name: data
               mountPath: /usr/src/app/upload
         - name: jobs
@@ -160,9 +166,15 @@ spec:
             - name: IMMICH_WORKERS_EXCLUDE
               value: "api"
           volumeMounts:
+            - name: postgresql-certs
+              mountPath: /etc/postgres/tls
             - name: data
               mountPath: /usr/src/app/upload
       volumes:
+        - name: postgresql-certs
+          secret:
+            secretName: postgresql-cluster-cert
+            defaultMode: 0400
         - name: data
           hostPath:
             path: "{{ .Values.storageLocation }}/immich/data"

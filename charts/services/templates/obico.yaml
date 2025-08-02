@@ -50,6 +50,10 @@ spec:
               name: postgresql-pguser-obico
               key: password
         DATABASE_URL: postgres://obico:$(DATABASE_PASSWORD)@postgresql-primary/obico
+        PGSSLMODE: verify-full
+        PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+        PGSSLCERT: /etc/postgres/tls/tls.crt
+        PGSSLKEY: /etc/postgres/tls/tls.key
         REDIS_HOST_PASSWORD:
           valueFrom:
             secretKeyRef:
@@ -107,6 +111,13 @@ spec:
           memory: 250Mi
         limits:
           memory: 2Gi
+    persistence:
+      postgres-tls:
+        enabled: true
+        type: secret
+        name: postgresql-cluster-cert
+        mountPath: /etc/postgres/tls
+        defaultMode: 0400
     redis:
       enabled: false
 {{- end }}
