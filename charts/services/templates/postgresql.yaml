@@ -141,8 +141,8 @@ spec:
               postgresql:
                 # https://github.com/CrunchyData/postgres-operator/issues/2534#issuecomment-891202207
                 pg_hba:
-                  - "hostnossl all all 10.42.0.0/16 scram-sha-256"
-                  - "hostnossl all all 10.43.0.0/16 scram-sha-256"
+                  # - "hostnossl all all 10.42.0.0/16 scram-sha-256"
+                  # - "hostnossl all all 10.43.0.0/16 scram-sha-256"
                   - "hostssl all all 10.42.0.0/16 scram-sha-256"
                   - "hostssl all all 10.43.0.0/16 scram-sha-256"
           users:

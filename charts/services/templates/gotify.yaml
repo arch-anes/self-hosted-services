@@ -24,7 +24,7 @@ spec:
           secretKeyRef:
             name: postgresql-pguser-gotify
             key: password
-      GOTIFY_DATABASE_CONNECTION: host=postgresql-primary port=5432 user=gotify dbname=gotify password=$(DATABASE_PASSWORD) sslmode=disable
+      GOTIFY_DATABASE_CONNECTION: host=postgresql-primary port=5432 user=gotify dbname=gotify password=$(DATABASE_PASSWORD)
     resources:
       requests:
         memory: 64Mi
@@ -35,6 +35,13 @@ spec:
       runAsUser: 0
       runAsGroup: 0
       fsGroup: 0
+    persistence:
+      postgresTLS:
+        enabled: true
+        type: secret
+        name: postgresql-cluster-cert
+        mountPath: /etc/postgres/tls-copy
+        defaultMode: 0400
     ingress:
       main:
         enabled: true
