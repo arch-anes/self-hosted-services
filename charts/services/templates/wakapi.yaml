@@ -58,6 +58,10 @@ spec:
                     name: postgresql-pguser-wakapi
                     key: password
                     expandObjectName: false
+                PGSSLMODE: verify-full
+                PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+                PGSSLCERT: /etc/postgres/tls/tls.crt
+                PGSSLKEY: /etc/postgres/tls/tls.key
                 WAKAPI_MAIL_ENABLED: "true"
                 WAKAPI_MAIL_SENDER: "no-reply@{{ .Values.fqdn }}"
                 WAKAPI_MAIL_SMTP_HOST:
@@ -102,6 +106,11 @@ spec:
             hosts:
               - wakapi.{{ .Values.fqdn }}
     persistence:
+      postgresql-certs:
+        enabled: true
+        type: secret
+        existingSecret: postgresql-cluster-cert
+        defaultMode: 0400
       data:
         enabled: false
     configmap:

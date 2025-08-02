@@ -32,12 +32,21 @@ spec:
                 HOST: postgresql-primary
                 USER: odoo
                 DATABASE: odoo
+                PGSSLMODE: verify-full
+                PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+                PGSSLCERT: /etc/postgres/tls/tls.crt
+                PGSSLKEY: /etc/postgres/tls/tls.key
                 PASSWORD:
                   secretKeyRef:
                     name: postgresql-pguser-odoo
                     key: password
                     expandObjectName: false
     configmap:
+      postgresql-certs:
+        enabled: true
+        type: secret
+        existingSecret: postgresql-cluster-cert
+        defaultMode: 0400
       odoo-config:
         enabled: false
       config:

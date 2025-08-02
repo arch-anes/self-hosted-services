@@ -90,6 +90,10 @@ spec:
                     name: postgresql-pguser-immich
                     key: password
                     expandObjectName: false
+                PGSSLMODE: verify-full
+                PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+                PGSSLCERT: /etc/postgres/tls/tls.crt
+                PGSSLKEY: /etc/postgres/tls/tls.key
                 REDIS_PASSWORD:
                   secretKeyRef:
                     name: redis
@@ -111,6 +115,10 @@ spec:
                     name: postgresql-pguser-immich
                     key: password
                     expandObjectName: false
+                PGSSLMODE: verify-full
+                PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+                PGSSLCERT: /etc/postgres/tls/tls.crt
+                PGSSLKEY: /etc/postgres/tls/tls.key
                 REDIS_PASSWORD:
                   secretKeyRef:
                     name: redis
@@ -207,6 +215,11 @@ spec:
         creds:
           host: postgresql-primary
     persistence:
+      postgresql-certs:
+        enabled: true
+        type: secret
+        existingSecret: postgresql-cluster-cert
+        defaultMode: 0400
       generated-data:
         enabled: true
         type: pvc

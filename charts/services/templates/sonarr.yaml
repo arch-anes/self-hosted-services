@@ -52,6 +52,10 @@ spec:
                     name: postgresql-pguser-sonarr
                     key: password
                     expandObjectName: false
+                PGSSLMODE: verify-full
+                PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+                PGSSLCERT: /etc/postgres/tls/tls.crt
+                PGSSLKEY: /etc/postgres/tls/tls.key
             exportarr:
               env:
                 API_KEY:
@@ -84,6 +88,11 @@ spec:
             hosts:
               - sonarr.{{ .Values.fqdn }}
     persistence:
+      postgresql-certs:
+        enabled: true
+        type: secret
+        existingSecret: postgresql-cluster-cert
+        defaultMode: 0400
       config:
         type: emptyDir
       multimedia:

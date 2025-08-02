@@ -40,6 +40,10 @@ spec:
                     key: password
                     expandObjectName: false
                 DATABASE_URL: postgres://tracearr:$(DATABASE_PASSWORD)@postgresql-primary:5432/tracearr
+                PGSSLMODE: verify-full
+                PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+                PGSSLCERT: /etc/postgres/tls/tls.crt
+                PGSSLKEY: /etc/postgres/tls/tls.key
                 REDIS_HOST_PASSWORD:
                   secretKeyRef:
                     name: redis
@@ -75,6 +79,12 @@ spec:
     cnpg:
       main:
         enabled: false
+    peristence:
+      postgresql-certs:
+        enabled: true
+        type: secret
+        existingSecret: postgresql-cluster-cert
+        defaultMode: 0400
     extraTpl:
       - |
         apiVersion: external-secrets.io/v1

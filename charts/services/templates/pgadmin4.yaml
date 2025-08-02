@@ -44,6 +44,22 @@ spec:
             key: password
       - name: PGADMIN_CONFIG_CONFIG_DATABASE_URI
         value: '"postgresql://pgadmin4:$(DATABASE_PASSWORD)@postgresql-primary:5432/pgadmin4"'
+      - name: PGSSLMODE
+        value: verify-full
+      - name: PGSSLROOTCERT
+        value: /etc/postgres/tls/ca.crt
+      - name: PGSSLCERT
+        value: /etc/postgres/tls/tls.crt
+      - name: PGSSLKEY
+        value: /etc/postgres/tls/tls.key
+    extraVolumes:
+      - name: postgresql-certs
+        secret:
+          secretName: postgresql-cluster-cert
+          defaultMode: 0400
+    extraVolumeMounts:
+      - name: postgresql-certs
+        mountPath: /etc/postgres/tls
     persistentVolume:
       enabled: false
     ingress:

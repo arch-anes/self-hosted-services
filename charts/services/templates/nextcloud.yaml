@@ -140,6 +140,22 @@ spec:
           value: "nextcloud"
         - name: MAIL_DOMAIN
           value: "{{ .Values.fqdn }}"
+        - name: PGSSLMODE
+          value: verify-full
+        - name: PGSSLROOTCERT
+          value: /etc/postgres/tls/ca.crt
+        - name: PGSSLCERT
+          value: /etc/postgres/tls/tls.crt
+        - name: PGSSLKEY
+          value: /etc/postgres/tls/tls.key
+      extraVolumes:
+        - name: postgresql-certs
+          secret:
+            secretName: postgresql-cluster-cert
+            defaultMode: 0400
+      extraVolumeMounts:
+        - name: postgresql-certs
+          mountPath: /etc/postgres/tls
     internalDatabase:
       enabled: false
     externalDatabase:

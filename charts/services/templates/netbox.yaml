@@ -23,8 +23,24 @@ spec:
     loginRequired: true
     housekeeping:
       resourcesPreset: medium
+      extraVolumes:
+        - name: postgresql-certs
+          secret:
+            secretName: postgresql-cluster-cert
+            defaultMode: 0400
+      extraVolumeMounts:
+        - name: postgresql-certs
+          mountPath: /etc/postgres/tls
     worker:
       resourcesPreset: medium
+      extraVolumes:
+        - name: postgresql-certs
+          secret:
+            secretName: postgresql-cluster-cert
+            defaultMode: 0400
+      extraVolumeMounts:
+        - name: postgresql-certs
+          mountPath: /etc/postgres/tls
     postgresql:
       enabled: false
     externalDatabase:
@@ -34,6 +50,19 @@ spec:
       username: netbox
       existingSecretName: "postgresql-pguser-netbox"
       existingSecretKey: password
+      options:
+        sslmode: verify-full
+        sslrootcert: /etc/postgres/tls/ca.crt
+        sslcert: /etc/postgres/tls/tls.crt
+        sslkey: /etc/postgres/tls/tls.key
+    extraVolumes:
+      - name: postgresql-certs
+        secret:
+          secretName: postgresql-cluster-cert
+          defaultMode: 0400
+    extraVolumeMounts:
+      - name: postgresql-certs
+        mountPath: /etc/postgres/tls
     valkey:
       enabled: false
     tasksDatabase:
