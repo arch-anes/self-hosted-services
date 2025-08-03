@@ -71,6 +71,8 @@ spec:
       app: filebrowser
   template:
     metadata:
+      annotations:
+        backup.velero.io/backup-volumes: db
       labels:
         app: filebrowser
     spec:

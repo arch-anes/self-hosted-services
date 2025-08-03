@@ -74,8 +74,6 @@ applications:
     enabled: true
   descheduler:
     enabled: true
-  duplicati:
-    enabled: true
   epicgames_freegames:
     enabled: true
   filebrowser:
@@ -160,3 +158,15 @@ applications:
     # gpu_vendor: amd
   torrent_client:
     enabled: true
+  velero:
+    enabled: true
+    remoteBackupLocations:
+      - name: default
+        default: true
+        provider: aws
+        bucket: <some_bucket>
+        config:
+          checksumAlgorithm: "" # Sometimes needed, see https://github.com/vmware-tanzu/velero-plugin-for-aws/blob/main/README.md
+          s3ForcePathStyle: true # if using an S3-compatible service
+          region: <some_region>
+          s3Url: https://<some_endpoint> # if using an S3-compatible service

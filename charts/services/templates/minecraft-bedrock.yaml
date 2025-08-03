@@ -44,6 +44,8 @@ spec:
       app: minecraft-bedrock
   template:
     metadata:
+      annotations:
+        backup.velero.io/backup-volumes: data
       labels:
         app: minecraft-bedrock
     spec:
@@ -68,10 +70,10 @@ spec:
             - name: web
               containerPort: 19132
           volumeMounts:
-            - name: minecraft-bedrock
+            - name: data
               mountPath: /data
       volumes:
-        - name: minecraft-bedrock
+        - name: data
           persistentVolumeClaim:
             claimName: minecraft-bedrock
 {{- end }}

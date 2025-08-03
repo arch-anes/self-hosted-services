@@ -107,6 +107,8 @@ spec:
       app: immich
   template:
     metadata:
+      annotations:
+        backup.velero.io/backup-volumes: data
       labels:
         app: immich
     spec:

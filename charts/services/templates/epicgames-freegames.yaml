@@ -83,6 +83,8 @@ spec:
       app: epicgames-freegames
   template:
     metadata:
+      annotations:
+        backup.velero.io/backup-volumes: config
       labels:
         app: epicgames-freegames
     spec:

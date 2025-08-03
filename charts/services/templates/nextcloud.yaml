@@ -31,6 +31,8 @@ spec:
   version: 7.0.0
   targetNamespace: default
   valuesContent: |-
+    podAnnotations:
+      backup.velero.io/backup-volumes: nextcloud-main
     image:
       repository: ghcr.io/arch-anes/nextcloud
       flavor: fpm-alpine

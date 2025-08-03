@@ -73,6 +73,8 @@ spec:
       app: tdarr
   template:
     metadata:
+      annotations:
+        backup.velero.io/backup-volumes: config
       labels:
         app: tdarr
     spec:

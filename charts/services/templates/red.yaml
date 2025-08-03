@@ -23,6 +23,8 @@ spec:
     workload:
       main:
         podSpec:
+          annotations:
+            backup.velero.io/backup-volumes: data
           containers:
             main:
               env:
