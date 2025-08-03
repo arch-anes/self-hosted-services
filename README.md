@@ -25,6 +25,7 @@ all:
     skip_firewall_setup: false
     skip_vpn_setup: false
     skip_k8s_setup: false
+    skip_binary_update: false
     manifest_only_setup: false
     display_k8s_dashboard_password: false
     timezone: America/Vancouver

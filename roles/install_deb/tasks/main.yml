@@ -9,7 +9,7 @@
 
 - name: Install {{ install_deb_binary_name }}
   become: true
-  when: binary_existence_result.rc != 0
+  when: not skip_binary_update or binary_existence_result.rc != 0
   block:
     - name: Download {{ install_deb_binary_name }}
       ansible.builtin.get_url:
