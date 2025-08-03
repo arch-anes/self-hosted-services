@@ -13,7 +13,7 @@
   1. Enable the Write permission for Keys/Auth Keys, and add the "tag:ansible" tag.
   1. Save and write down the OAuth client secret.
 
-## Setup ZFS (optional, recommended)
+## Setup ZFS
 1. SSH into each host that supports ZFS.
 1. Create a pool
    ```
@@ -25,6 +25,10 @@
    ```
     sudo openssl rand -out /root/keyfile-zfs 32
     sudo zfs create -o encryption=on -o keylocation=file:///root/keyfile-zfs -o keyformat=raw -o mountpoint=/storage storage/encrypted
+   ```
+1. Create a block volume for OpenEBS' Mayastor
+   ```
+   sudo zfs create -V 100G storage/encrypted/mayastor
    ```
 
 ## Create an inventory

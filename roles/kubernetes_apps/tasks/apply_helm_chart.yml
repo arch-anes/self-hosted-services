@@ -13,6 +13,10 @@
       kubernetes.core.helm_template:
         chart_ref: "{{ chart_folder }}"
         values: "{{ chartValuesOverrides | default({}) }}"
+        set_values:
+          - value: "replicatedStorage.nodes={{ mayastor_device_nodes | to_json }}"
+            value_type: json
+
       delegate_to: localhost
       register: helm_template
 

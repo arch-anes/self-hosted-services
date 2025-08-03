@@ -1,0 +1,27 @@
+# code: language=ansible
+---
+
+- name: Load kernel modules
+  become: true
+  when: ansible_distribution == 'Ubuntu' and ansible_module_container_type == ""
+  block:
+    - name: Generate openebs kernel modules
+      ansible.builtin.template:
+        src: modules/openebs.conf.j2
+        dest: /usr/lib/modules-load.d/openebs.conf
+        mode: '644'
+      become: true
+      notify: Restart systemd-modules-load
+
+    - name: Flush handlers to restart the service immediately
+      ansible.builtin.meta: flush_handlers
+
+- name: Allocate huge pages
+  when: not is_raspberry_pi
+  become: true
+  ansible.posix.sysctl:
+    name: vm.nr_hugepages
+    value: "5120"  # 10Gi of huges pages
+    sysctl_file: /etc/sysctl.conf
+    state: present
+    reload: true

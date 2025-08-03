@@ -57,6 +57,10 @@ actionRunnerConfigs: []
   # - name: my-repo
   #   githubConfigUrl: https://github.com/my-username/my-repo
 
+replicatedStorage:
+  enabled: true
+  nodes: []
+
 disableAllApplications: false
 
 applications:

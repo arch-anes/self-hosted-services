@@ -12,6 +12,9 @@
       - { to_port: 30778, proto: any, rule: allow, comment: "Allow Minecraft Bedrock" }
   when: not (skip_firewall_setup or manifest_only_setup)
 
+- name: Fetch mayastor device nodes
+  ansible.builtin.include_tasks: mayastor_nodes.yml
+
 - name: Deploy manifests
   when:
     - k3s_control_node is defined

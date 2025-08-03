@@ -1,0 +1,35 @@
+# code: language=ansible
+---
+
+- name: Check if mayastor block device exists
+  ansible.builtin.stat:
+    path: /dev/zvol/storage/encrypted/mayastor
+  register: mayastor
+
+- name: Get diskpool nodes
+  when:
+    - k3s_control_node is defined
+    - k3s_control_node
+  become: true
+  block:
+    - name: Get nodes JSON
+      ansible.builtin.command: kubectl get nodes -o json
+      register: k8s_nodes_raw
+      changed_when: false
+
+    - name: Parse nodes JSON
+      ansible.builtin.set_fact:
+        k8s_nodes: "{{ k8s_nodes_raw.stdout | from_json }}"
+
+    - name: Match hostnames to node names
+      ansible.builtin.set_fact:
+        mayastor_device_nodes: "{{ mayastor_device_nodes + [matched_node] }}"
+      loop: "{{ groups['all'] }}"
+      vars:
+        mayastor_device_nodes: []
+        hostname_query: >-
+          items[?metadata.annotations."k3s.io/hostname"=='{{ item }}'].metadata.name
+        matched_node: "{{ k8s_nodes | json_query(hostname_query) | first }}"
+      when:
+        - hostvars[item].mayastor.stat.exists
+        - matched_node is defined
