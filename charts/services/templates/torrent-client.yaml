@@ -233,6 +233,8 @@ spec:
       app: torrent-client
   template:
     metadata:
+      annotations:
+        backup.velero.io/backup-volumes: transmission-config,joal-config
       labels:
         app: torrent-client
     spec:

@@ -1,0 +1,81 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.velero.enabled }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: velero-backup-credentials
+  namespace: kube-system
+type: Opaque
+# stringData:
+#   cloud: |-
+#     [global]
+#     aws_access_key_id="some-id"
+#     aws_secret_access_key="some-key"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: velero-repo-credentials
+  namespace: kube-system
+type: Opaque
+# stringData:
+#   repository-password: "some-kopia-encryption-key"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: velero
+  namespace: kube-system
+spec:
+  chart: velero
+  repo: https://vmware-tanzu.github.io/helm-charts
+  version: 10.0.11
+  targetNamespace: kube-system
+  failurePolicy: abort 
+  valuesContent: |-
+    cleanUpCRDs: false # Do not delete CRDs on chart uninstall to preserve any backups
+    credentials:
+      existingSecret: velero-backup-credentials
+    annotations:
+      reloader.stakater.com/auto: "true"
+    snapshotsEnabled: false # rancher/local-path-provisionner does not support snapshots
+    deployNodeAgent: true 
+    initContainers:
+      - name: velero-plugin-for-aws
+        image: velero/velero-plugin-for-aws:v1.12.2
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - mountPath: /target
+            name: plugins
+    configuration:
+      defaultVolumesToFsBackup: false # Opt-in mode via annotations
+      volumeSnapshotLocation: []
+      backupStorageLocation:
+        {{- .Values.applications.velero.remoteBackupLocations | toYaml | nindent 8 }}
+    schedules:
+      daily:
+        disabled: false
+        schedule: "0 8 * * *" # Everyday at 8 AM UTC
+        useOwnerReferencesInBackup: false
+        paused: false
+        skipImmediately: false
+        template:
+          ttl: "2160h" # 90d
+          storageLocation: default
+          excludedNamespaceScopedResources:
+            # Sensitive
+            - secrets
+            - configmaps
+            - serviceaccounts
+            # Noisy
+            - leases
+            - events
+            - endpoints
+          excludedClusterScopedResources:
+            # Noisy
+            - clusterroles
+            - clusterrolebindings
+            - certificateSigningRequests
+{{- end }}

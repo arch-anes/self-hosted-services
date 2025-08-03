@@ -104,6 +104,18 @@ To ensure no down time, make sure all the machines have key expiry disabled: htt
 
 ## Advanced use-cases
 
+### Restore backup from Velero
+
+Provided an S3-compatible bucket, the cluster and select volumes will be backed up by Velero and Kopia.
+
+#### Access files manually
+
+One can use the Kopia or Kopia UI to access the backed up files manually. Simply provide Kopia with the bucket, the keyID and keySecret to access the bucket, the respository encryption key and `kopia/default/` as the prefix.
+
+#### Restore cluster and files
+
+Read https://velero.io/docs/v1.16/restore-reference/.
+
 ### Load balancing
 In a typical home network setup, when HTTP(S) ports are forwarded to a specific machine, the entire service becomes unavailable if that machine goes offline. However, if your router supports OpenWRT (such as the GL-MT6000), you can install HAProxy to address this issue. For optimal security and high availability, configure the proxy as follows:
 

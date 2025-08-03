@@ -71,6 +71,8 @@ spec:
       app: jellyseerr
   template:
     metadata:
+      annotations:
+        backup.velero.io/backup-volumes: config
       labels:
         app: jellyseerr
     spec:

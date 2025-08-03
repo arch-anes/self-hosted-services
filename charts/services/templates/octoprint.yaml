@@ -101,6 +101,8 @@ spec:
       app: octoprint
   template:
     metadata:
+      annotations:
+        backup.velero.io/backup-volumes: data
       labels:
         app: octoprint
     spec:
@@ -130,10 +132,10 @@ spec:
             - name: OCTOPRINT_PORT
               value: "5000"
           volumeMounts:
-            - name: octoprint
+            - name: data
               mountPath: /octoprint
       volumes:
-        - name: octoprint
+        - name: data
           persistentVolumeClaim:
             claimName: octoprint
 {{- end }}

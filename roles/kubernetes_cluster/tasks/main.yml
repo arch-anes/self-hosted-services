@@ -35,9 +35,6 @@
     k3s_server:
       prefer-bundled-bin: true
       embedded-registry: true
-      etcd-s3: true
-      etcd-s3-config-secret: k3s-etcd-snapshot-s3-config
-      etcd-snapshot-retention: 20
       disable: traefik
       with-node-id: true
       node-ip: "{{ advertised_ip }}"
@@ -79,6 +76,16 @@
   vars:
     install_deb_binary_name: k9s
     install_deb_url: "https://github.com/derailed/k9s/releases/download/v0.50.9/k9s_linux_{{ cpu_arch }}.deb"
+  when:
+    - k3s_control_node is defined
+    - k3s_control_node
+
+- name: Install velero
+  ansible.builtin.import_role:
+    name: install_tar
+  vars:
+    install_tar_binary_name: velero
+    install_tar_url: "https://github.com/vmware-tanzu/velero/releases/download/v1.16.2/velero-v1.16.2-linux-{{ cpu_arch }}.tar.gz"
   when:
     - k3s_control_node is defined
     - k3s_control_node
