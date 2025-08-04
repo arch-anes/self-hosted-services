@@ -13,6 +13,20 @@
   1. Enable the Write permission for Keys/Auth Keys, and add the "tag:ansible" tag.
   1. Save and write down the OAuth client secret.
 
+## Setup ZFS (optional, recommended)
+1. SSH into each host that supports ZFS.
+1. Create a pool
+   ```
+    sudo zpool create -m /zfs-pool-dummy-mountpoint-do-not-use storage mirror SOME_DEVICE_1 SOME_DEVICE_2
+    sudo zfs set compression=lz4 storage
+    sudo zfs set atime=off storage
+   ```
+1. Create an encrypted dataset:
+   ```
+    sudo openssl rand -out /root/keyfile-zfs 32
+    sudo zfs create -o encryption=on -o keylocation=file:///root/keyfile-zfs -o keyformat=raw -o mountpoint=/storage storage/encrypted
+   ```
+
 ## Create an inventory
 
 ### Static
@@ -49,14 +63,17 @@ k3s_cluster:
       labels:
         - nas=true
         - local=true
+        - openebs.io/engine=mayastor
     small_manager:
       k3s_control_node: true
       labels:
         - public=true
         - local=true
+        - openebs.io/engine=mayastor
     big_server:
       labels:
         - local=true
+        - openebs.io/engine=mayastor
 # Optional
 headscale:
   hosts:
