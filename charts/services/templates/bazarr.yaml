@@ -335,6 +335,6 @@ spec:
             name: bazarr-scripts
             defaultMode: 0744
         - name: multimedia
-          hostPath:
-            path: "{{ .Values.storageLocation }}/Multimedia"
+          persistentVolumeClaim:
+            claimName: multimedia
 {{- end }}

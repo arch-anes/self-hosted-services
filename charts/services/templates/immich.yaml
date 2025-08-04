@@ -63,6 +63,20 @@ data:
   DB_VECTOR_EXTENSION: "vectorchord"
 
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: immich
+  namespace: default
+spec:
+  storageClassName: local-path-persistent
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Ti
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -164,8 +178,8 @@ spec:
               mountPath: /usr/src/app/upload
       volumes:
         - name: data
-          hostPath:
-            path: "{{ .Values.storageLocation }}/immich/data"
+          persistentVolumeClaim:
+            claimName: immich
 ---
 apiVersion: v1
 kind: Service

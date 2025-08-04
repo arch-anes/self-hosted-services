@@ -301,7 +301,8 @@ spec:
             - name: FILE__PASS
               value: /secrets/transmission/password
           volumeMounts:
-            - name: downloads
+            - name: multimedia
+              subPath: Downloads
               mountPath: /downloads
             - name: transmission-secrets
               mountPath: /secrets/transmission
@@ -337,9 +338,9 @@ spec:
             - name: joal-config
               mountPath: /data
       volumes:
-        - name: downloads
-          hostPath:
-            path: "{{ .Values.storageLocation }}/Multimedia/Downloads"
+        - name: multimedia
+          persistentVolumeClaim:
+            claimName: multimedia
         - name: transmission-config
           persistentVolumeClaim:
             claimName: transmission

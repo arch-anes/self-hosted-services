@@ -20,6 +20,20 @@ spec:
     app: nextcloud
 
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud
+  namespace: default
+spec:
+  storageClassName: local-path-persistent
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Ti
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -153,20 +167,15 @@ spec:
             - name: web
               containerPort: 80
           volumeMounts:
-            - name: app
-              mountPath: /var/www/html
             - name: data
-              mountPath: /var/www/html/data
+              mountPath: /var/www/html
             - name: nextcloud-configmap
               mountPath: /usr/local/etc/php/conf.d/custom-php-config.ini
               subPath: custom-php-config.ini
       volumes:
-        - name: app
-          hostPath:
-            path: "{{ .Values.storageLocation }}/nextcloud/app"
         - name: data
-          hostPath:
-            path: "{{ .Values.storageLocation }}/nextcloud/data"
+          persistentVolumeClaim:
+            claimName: nextcloud
         - name: nextcloud-configmap
           configMap:
             name: nextcloud

@@ -127,6 +127,6 @@ spec:
               mountPath: /jellyfin
       volumes:
         - name: multimedia
-          hostPath:
-            path: "{{ .Values.storageLocation }}/Multimedia"
+          persistentVolumeClaim:
+            claimName: multimedia
 {{- end }}

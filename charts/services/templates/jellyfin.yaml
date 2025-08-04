@@ -43,6 +43,20 @@ spec:
                   name: web
 
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: multimedia
+  namespace: default
+spec:
+  storageClassName: local-path-persistent
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Ti
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -104,13 +118,13 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-            - name: media
+            - name: multimedia
               mountPath: /media
       volumes:
         - name: config
           hostPath:
             path: "{{ .Values.storageLocation }}/jellyfin/config"
-        - name: media
-          hostPath:
-            path: "{{ .Values.storageLocation }}/Multimedia"
+        - name: multimedia
+          persistentVolumeClaim:
+            claimName: multimedia
 {{- end }}
