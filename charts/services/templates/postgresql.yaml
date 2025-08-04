@@ -128,7 +128,7 @@ spec:
               dataVolumeClaimSpec:
                 accessModes:
                 - "ReadWriteOnce"
-                storageClassName: local-path
+                storageClassName: local-path-ephemeral
                 resources:
                   requests:
                     storage: 10Gi
@@ -245,7 +245,7 @@ spec:
                     volumeClaimSpec:
                       accessModes:
                       - "ReadWriteOnce"
-                      storageClassName: local-path-retain
+                      storageClassName: local-path-persistent
                       resources:
                         requests:
                           storage: 10Gi

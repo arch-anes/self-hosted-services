@@ -20,7 +20,7 @@ spec:
           name: jaeger
           namespace: default
         spec:
-          storageClassName: "local-path-retain"
+          storageClassName: local-path-persistent
           accessModes:
             - ReadWriteOnce
           resources:

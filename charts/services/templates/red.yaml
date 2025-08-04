@@ -38,4 +38,11 @@ spec:
         cpu: 1000m
       limits:
         memory: 1Gi
+    persistence:
+      data:
+        enabled: true
+        type: pvc
+        storageClass: local-path-persistent
+        size: 1Gi
+        mountPath: /data
 {{- end }}

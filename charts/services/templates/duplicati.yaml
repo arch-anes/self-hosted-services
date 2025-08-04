@@ -51,6 +51,20 @@ type: Opaque
 #   settings_encryption_key: "somepassword"
 
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: duplicati
+  namespace: default
+spec:
+  storageClassName: local-path-persistent
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -105,8 +119,8 @@ spec:
               readOnly: true
       volumes:
         - name: config
-          hostPath:
-            path: "{{ .Values.storageLocation }}/duplicati/config"
+          persistentVolumeClaim:
+            claimName: duplicati
         - name: storage
           hostPath:
             path: {{ .Values.storageLocation }}

@@ -41,6 +41,20 @@ spec:
                   name: web
 
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: filebrowser
+  namespace: default
+spec:
+  storageClassName: local-path-persistent
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Mi
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -81,15 +95,16 @@ spec:
             - name: PGID
               value: "1000"
           volumeMounts:
-            - name: files
+            - name: multimedia
+              subPath: Miscellaneous
               mountPath: /srv
             - name: db
               mountPath: /database
       volumes:
-        - name: files
-          hostPath:
-            path: "{{ .Values.storageLocation }}/Multimedia/Miscellaneous"
+        - name: multimedia
+          persistentVolumeClaim:
+            claimName: multimedia
         - name: db
-          hostPath:
-            path: "{{ .Values.storageLocation }}/filebrowser/database"
+          persistentVolumeClaim:
+            claimName: filebrowser
 {{- end }}

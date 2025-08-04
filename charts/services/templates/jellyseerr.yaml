@@ -43,6 +43,20 @@ spec:
                   name: web
 
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyseerr
+  namespace: default
+spec:
+  storageClassName: local-path-persistent
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -85,6 +99,6 @@ spec:
               mountPath: /app/config
       volumes:
         - name: config
-          hostPath:
-            path: "{{ .Values.storageLocation }}/jellyseerr/config"
+          persistentVolumeClaim:
+            claimName: jellyseerr
 {{- end }}

@@ -17,6 +17,20 @@ spec:
     app: tdarr
 
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tdarr
+  namespace: default
+spec:
+  storageClassName: local-path-persistent
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -106,32 +120,27 @@ spec:
             - name: ffmpegVersion
               value: "6"
           volumeMounts:
-            - name: server
+            - name: config
+              subPath: server
               mountPath: /app/server
             - name: config
+              subPath: configs
               mountPath: /app/configs
-            - name: logs
+            - name: config
+              subPath: logs
               mountPath: /app/logs
-            - name: cache
+            - name: multimedia
+              subPath: transcoding-cache
               mountPath: /temp
-            - name: media
+            - name: multimedia
               mountPath: /media
       volumes:
-        - name: server
-          hostPath:
-            path: "{{ .Values.storageLocation }}/tdarr/server"
         - name: config
-          hostPath:
-            path: "{{ .Values.storageLocation }}/tdarr/config"
-        - name: logs
-          hostPath:
-            path: "{{ .Values.storageLocation }}/tdarr/logs"
-        - name: cache
-          hostPath:
-            path: "{{ .Values.storageLocation }}/Multimedia/transcoding-cache"
-        - name: media
-          hostPath:
-            path: "{{ .Values.storageLocation }}/Multimedia"
+          persistentVolumeClaim:
+            claimName: tdarr
+        - name: multimedia
+          persistentVolumeClaim:
+            claimName: multimedia
 
 ---
 apiVersion: apps/v1
@@ -213,24 +222,21 @@ spec:
                   key: tdarr_api_key
           volumeMounts:
             - name: config
+              subPath: configs
               mountPath: /app/configs
-            - name: logs
+            - name: config
+              subPath: logs
               mountPath: /app/logs
-            - name: cache
+            - name: multimedia
+              subPath: transcoding-cache
               mountPath: /temp
-            - name: media
+            - name: multimedia
               mountPath: /media
       volumes:
         - name: config
-          hostPath:
-            path: "{{ .Values.storageLocation }}/tdarr/config"
-        - name: logs
-          hostPath:
-            path: "{{ .Values.storageLocation }}/tdarr/logs"
-        - name: cache
-          hostPath:
-            path: "{{ .Values.storageLocation }}/Multimedia/transcoding-cache"
-        - name: media
-          hostPath:
-            path: "{{ .Values.storageLocation }}/Multimedia"
+          persistentVolumeClaim:
+            claimName: tdarr
+        - name: multimedia
+          persistentVolumeClaim:
+            claimName: multimedia
 {{- end }}

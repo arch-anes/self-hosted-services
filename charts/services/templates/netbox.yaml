@@ -44,6 +44,9 @@ spec:
       host: redis-master
       existingSecretName: redis
       existingSecretKey: redis-password
+    persistence:
+      enabled: true
+      storageClass: local-path-persistent
     ingress:
       enabled: true
       annotations:

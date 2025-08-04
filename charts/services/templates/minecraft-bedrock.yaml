@@ -16,6 +16,20 @@ spec:
     app: minecraft-bedrock
 
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minecraft-bedrock
+  namespace: default
+spec:
+  storageClassName: local-path-persistent
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -58,6 +72,6 @@ spec:
               mountPath: /data
       volumes:
         - name: minecraft-bedrock
-          hostPath:
-            path: "{{ .Values.storageLocation }}/minecraft-bedrock"
+          persistentVolumeClaim:
+            claimName: minecraft-bedrock
 {{- end }}

@@ -59,6 +59,7 @@ metadata:
   name: epicgames-freegames
   namespace: default
 spec:
+  storageClassName: local-path-persistent
   accessModes:
     - ReadWriteOnce
   resources:
