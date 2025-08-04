@@ -4,6 +4,9 @@
 - name: Setup packages
   ansible.builtin.include_tasks: packages.yml
 
+- name: Setup kernel
+  ansible.builtin.include_tasks: kernel.yml
+
 - name: Setup timezone
   ansible.builtin.include_tasks: tz.yml
 

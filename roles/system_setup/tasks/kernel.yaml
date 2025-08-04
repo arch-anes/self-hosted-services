@@ -1,0 +1,12 @@
+# code: language=ansible
+---
+
+- name: Allocate huge pages
+  when: not is_raspberry_pi
+  become: true
+  ansible.posix.sysctl:
+    name: vm.nr_hugepages
+    value: "5120"  # 10Gi of huges pages
+    sysctl_file: /etc/sysctl.conf
+    state: present
+    reload: true
