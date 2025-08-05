@@ -34,6 +34,39 @@ spec:
     image:
       repository: ghcr.io/arch-anes/nextcloud
       flavor: fpm-alpine
+    nginx:
+      enabled: true
+      resources:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 1Gi
+      config:
+        headers:
+          "Referrer-Policy": "no-referrer"
+          "X-Content-Type-Options": "nosniff"
+          "X-Frame-Options": "SAMEORIGIN"
+          "X-Permitted-Cross-Domain-Policies": "none"
+          "X-Robots-Tag": "noindex, nofollow"
+          "X-XSS-Protection": "1; mode=block"
+        custom: |-
+          http2 on;
+
+          # Trust X-Forwarded-For headers from proxy
+          set_real_ip_from 10.0.0.0/8;
+          real_ip_header X-Forwarded-For;
+          real_ip_recursive on;
+
+          # set max upload size and increase upload timeout:
+          client_max_body_size 10G;
+          client_body_timeout 300s;
+          fastcgi_buffers 64 4K;
+
+          # Increase timeouts for long-running PHP tasks
+          fastcgi_read_timeout 300s;
+          fastcgi_send_timeout 300s;
+          fastcgi_connect_timeout 300s;
     nodeSelector:
       # Schedule only on NAS nodes
       nas: "true"
