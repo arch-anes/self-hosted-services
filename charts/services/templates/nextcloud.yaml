@@ -7,20 +7,6 @@
 {{- end }}
 ---
 apiVersion: v1
-kind: Service
-metadata:
-  name: nextcloud
-  namespace: default
-spec:
-  ports:
-    - protocol: TCP
-      name: web
-      port: 80
-  selector:
-    app: nextcloud
-
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: nextcloud
@@ -34,150 +20,113 @@ spec:
       storage: 1Ti
 
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
   name: nextcloud
   namespace: default
-  annotations:
-    homer.service.name: Media
-    homer.item.rank: "2"
-    homer.item.logo: "https://github.com/nextcloud/server/raw/0450e47f8dda26d19a0a252ddd5a117fddfa6885/core/img/logo/logo.png"
-    homer.item.type: "Nextcloud"
 spec:
-  tls:
-    - hosts:
+  chart: nextcloud
+  repo: https://nextcloud.github.io/helm/
+  version: 7.0.0
+  targetNamespace: default
+  valuesContent: |-
+    image:
+      repository: ghcr.io/arch-anes/nextcloud
+      flavor: fpm-alpine
+    nodeSelector:
+      # Schedule only on NAS nodes
+      nas: "true"
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 1000m
+      limits:
+        memory: 3Gi
+    persistence:
+      enabled: true
+      existingClaim: nextcloud
+    nextcloud:
+      host: nextcloud.{{ .Values.fqdn }}
+      trustedDomains:
         - nextcloud.{{ .Values.fqdn }}
-      secretName: "{{ .Values.fqdn }}-tls"
-  rules:
-    - host: nextcloud.{{ .Values.fqdn }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: nextcloud
-                port:
-                  name: web
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nextcloud
-  namespace: default
-data:
-  custom-php-config.ini: |
-    apc.shm_size=1G
-    apc.ttl=7200
-    apc.entries_hint=10000
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nextcloud
-  namespace: default
-  labels:
-    app: nextcloud
-  annotations:
-    reloader.stakater.com/auto: "true"
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: nextcloud
-  template:
-    metadata:
-      labels:
-        app: nextcloud
-    spec:
-      nodeSelector:
-        # Schedule only on NAS nodes
-        nas: "true"
-      containers:
-        - name: app
-          image: ghcr.io/arch-anes/nextcloud:31.0.7-fpm-alpine
-          imagePullPolicy: Always
-          startupProbe:
-            exec:
-              command:
-                - curl
-                - -sSf
-                - http://localhost/status.php
-            initialDelaySeconds: 10
-            periodSeconds: 60
-            failureThreshold: 10
-          resources:
-            requests:
-              memory: 128Mi
-              cpu: 1000m
-            limits:
-              memory: 3Gi
-          env:
-            - name: PHP_MEMORY_LIMIT
-              value: "2G"
-            - name: PHP_OPCACHE_MEMORY_CONSUMPTION
-              value: "1G"
-            - name: REDIS_HOST
-              value: "redis-master"
-            - name: REDIS_HOST_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: redis
-                  key: redis-password
-            - name: POSTGRES_HOST
-              value: "postgresql-primary"
-            - name: POSTGRES_DB
-              value: "nextcloud"
-            - name: POSTGRES_USER
-              value: nextcloud
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql-pguser-nextcloud
-                  key: password
-            - name: SMTP_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: smtp
-                  key: hostname
-            - name: SMTP_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: smtp
-                  key: username
-            - name: SMTP_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: smtp
-                  key: password
-            - name: SMTP_SECURE
-              value: "tls"
-            - name: SMTP_PORT
-              value: "587"
-            - name: SMTP_AUTHTYPE
-              value: "login"
-            - name: MAIL_FROM_ADDRESS
-              value: "nextcloud"
-            - name: MAIL_DOMAIN
-              value: "{{ .Values.fqdn }}"
-          ports:
-            - name: web
-              containerPort: 80
-          volumeMounts:
-            - name: data
-              mountPath: /var/www/html
-            - name: nextcloud-configmap
-              mountPath: /usr/local/etc/php/conf.d/custom-php-config.ini
-              subPath: custom-php-config.ini
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: nextcloud
-        - name: nextcloud-configmap
-          configMap:
-            name: nextcloud
-            defaultMode: 0444
+      phpConfigs:
+        custom-php-config.ini: |
+          apc.shm_size=1G
+          apc.ttl=7200
+          apc.entries_hint=10000
+      extraEnv:
+        - name: PHP_MEMORY_LIMIT
+          value: "2G"
+        - name: PHP_OPCACHE_MEMORY_CONSUMPTION
+          value: "1G"
+        - name: TRUSTED_PROXIES
+          value: "127.0.0.1"
+        - name: REDIS_HOST
+          value: "redis-master"
+        - name: REDIS_HOST_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis
+              key: redis-password
+        - name: SMTP_HOST
+          valueFrom:
+            secretKeyRef:
+              name: smtp
+              key: hostname
+        - name: SMTP_NAME
+          valueFrom:
+            secretKeyRef:
+              name: smtp
+              key: username
+        - name: SMTP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: smtp
+              key: password
+        - name: SMTP_SECURE
+          value: "tls"
+        - name: SMTP_PORT
+          value: "587"
+        - name: SMTP_AUTHTYPE
+          value: "login"
+        - name: MAIL_FROM_ADDRESS
+          value: "nextcloud"
+        - name: MAIL_DOMAIN
+          value: "{{ .Values.fqdn }}"
+    internalDatabase:
+      enabled: false
+    externalDatabase:
+      enabled: true
+      type: postgresql
+      host: postgresql-primary
+      database: nextcloud
+      existingSecret:
+        enabled: true
+        secretName: postgresql-pguser-nextcloud
+        usernameKey: user
+        passwordKey: password
+    cronjob:
+      enabled: true
+      resources:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 1Gi
+    ingress:
+      enabled: true
+      annotations:
+        homer.service.name: Media
+        homer.item.rank: "2"
+        homer.item.logo: "https://github.com/nextcloud/server/raw/0450e47f8dda26d19a0a252ddd5a117fddfa6885/core/img/logo/logo.png"
+        homer.item.type: "Nextcloud"
+      hosts:
+        - host: nextcloud.{{ .Values.fqdn }}
+          paths:
+            - path: /
+      tls:
+        - secretName: {{ .Values.fqdn }}-tls
+          hosts:
+            - nextcloud.{{ .Values.fqdn }}
 {{- end }}
