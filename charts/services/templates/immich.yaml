@@ -77,6 +77,20 @@ spec:
       storage: 1Ti
 
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: immich-generated-data
+  namespace: default
+spec:
+  storageClassName: local-path-persistent
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Ti
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -128,8 +142,10 @@ spec:
             - name: web
               containerPort: 2283
           volumeMounts:
-            - name: data
+            - name: generated-data
               mountPath: /usr/src/app/upload
+            - name: data
+              mountPath: /usr/src/app/upload/upload
         - name: jobs
           image: ghcr.io/immich-app/immich-server:v1.137.3
           resources:
@@ -174,12 +190,18 @@ spec:
             - name: IMMICH_WORKERS_EXCLUDE
               value: "api"
           volumeMounts:
-            - name: data
+            - name: generated-data
               mountPath: /usr/src/app/upload
+            - name: data
+              mountPath: /usr/src/app/upload/upload
       volumes:
+        - name: generated-data
+          persistentVolumeClaim:
+            claimName: immich-generated-data
         - name: data
           persistentVolumeClaim:
             claimName: immich
+
 ---
 apiVersion: v1
 kind: Service
