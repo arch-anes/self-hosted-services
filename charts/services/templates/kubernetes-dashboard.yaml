@@ -17,6 +17,34 @@ spec:
           clusterName: "Home"
           itemsPerPage: 50
           labelsLimit: 10
+          defaultNamespace: _all
+          pinnedResources:
+            - kind: customresourcedefinition
+              name: helmcharts.helm.cattle.io
+              displayName: Helm Chart
+              namespaced: true
+            - kind: customresourcedefinition
+              name: applicationsets.argoproj.io
+              displayName: Application Set
+              namespaced: true
+            - kind: customresourcedefinition
+              name: certificates.cert-manager.io
+              displayName: Certificate
+              namespaced: true
+            - kind: customresourcedefinition
+              name: clusterissuers.cert-manager.io
+              displayName: Cluster Issuer
+              namespaced: false
+            {{- if .Values.applications.velero.enabled }}
+            - kind: customresourcedefinition
+              name: backups.velero.io
+              displayName: Velero Backup
+              namespaced: true
+            - kind: customresourcedefinition
+              name: podvolumebackups.velero.io
+              displayName: Velero Pod Volume Backup
+              namespaced: true
+            {{- end }}
       ingress:
         enabled: true
         useDefaultIngressClass: true
