@@ -176,17 +176,8 @@ spec:
           enabled: true
           endpoint: http://jaeger-collector.default.svc.cluster.local:4318/v1/traces
 {{- end }}
-    affinity:
-      nodeAffinity:
-        # Prefer local nodes
-        preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            preference:
-              matchExpressions:
-                - key: local
-                  operator: In
-                  values:
-                    - "true"
+    nodeSelector:
+      public: "true"
     ingressRoute:
       healthcheck:
         enabled: true
