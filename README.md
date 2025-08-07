@@ -63,22 +63,25 @@ k3s_cluster:
       labels:
         - nas=true
         - local=true
-        - openebs.io/engine=mayastor
     small_manager:
       k3s_control_node: true
       labels:
         - public=true
         - local=true
-        - openebs.io/engine=mayastor
     big_server:
       labels:
         - local=true
-        - openebs.io/engine=mayastor
 # Optional
 headscale:
   hosts:
     headscale_control_server: {}
 ```
+
+#### Note on labels
+
+- `public`: Add to nodes that will receive external traffic directly.
+- `nas`: Add to nodes that should store heavy files.
+- `local`: Add to nodes that are local to the site; useful when having a hybrid cloud.
 
 ### Dynamic (AWS)
 
