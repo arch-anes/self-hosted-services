@@ -62,9 +62,16 @@ spec:
       labels:
         app: readarr
     spec:
-      nodeSelector:
-        # Schedule only on NAS nodes
-        nas: "true"
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - jellyfin
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: app
           image: lscr.io/linuxserver/readarr:0.4.17-develop
