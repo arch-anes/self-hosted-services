@@ -49,9 +49,6 @@ spec:
       labels:
         app: minecraft-bedrock
     spec:
-      nodeSelector:
-        # Schedule only on NAS nodes
-        nas: "true"
       containers:
         - name: app
           image: itzg/minecraft-bedrock-server:2025.7.0
