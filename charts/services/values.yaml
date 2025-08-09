@@ -66,6 +66,8 @@ applications:
     enabled: true
   argo:
     enabled: true
+  authentik:
+    enabled: true
   bazarr:
     enabled: true
   crowdsec:

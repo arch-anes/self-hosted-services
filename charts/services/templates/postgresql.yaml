@@ -148,6 +148,9 @@ spec:
                   - "hostssl all all 10.43.0.0/16 scram-sha-256"
           users:
             - name: postgres
+            - name: authentik
+              databases:
+                - authentik
             - name: bazarr
               databases:
                 - bazarr

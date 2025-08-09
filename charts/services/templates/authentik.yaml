@@ -1,0 +1,188 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.authentik.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Authentik requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "Authentik requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: authentik
+  namespace: default
+type: Opaque
+# stringData:
+#   AUTHENTIK_SECRET_KEY: "somekey"
+
+---
+# Open https://<ingress-host-name>/if/flow/initial-setup/ for the initial setup.
+# Note: the trailing / is important.
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: authentik
+  namespace: default
+spec:
+  chart: authentik
+  repo: https://charts.goauthentik.io/
+  version: 2025.8.1
+  targetNamespace: default
+  valuesContent: |-
+    global:
+      env:
+        - name: AUTHENTIK_COOKIE_DOMAIN
+          value: "{{ .Values.fqdn }}"
+        - name: AUTHENTIK_ERROR_REPORTING__ENABLED
+          value: "false"
+        - name: AUTHENTIK_POSTGRESQL__HOST
+          value: "postgresql-primary"
+        - name: AUTHENTIK_POSTGRESQL__NAME
+          value: "authentik"
+        - name: AUTHENTIK_POSTGRESQL__USER
+          value: authentik
+        - name: AUTHENTIK_POSTGRESQL__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-pguser-authentik
+              key: password
+        - name: AUTHENTIK_POSTGRESQL__SSLMODE
+          value: verify-full
+        - name: AUTHENTIK_POSTGRESQL__SSLROOTCERT
+          value: /etc/postgres/tls/ca.crt
+        - name: AUTHENTIK_POSTGRESQL__SSLCERT
+          value: /etc/postgres/tls/tls.crt
+        - name: AUTHENTIK_POSTGRESQL__SSLKEY
+          value: /etc/postgres/tls/tls.key
+        - name: AUTHENTIK_REDIS__HOST
+          value: "redis-master"
+        - name: AUTHENTIK_REDIS__PORT
+          value: "6379"
+        - name: AUTHENTIK_REDIS__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis
+              key: redis-password
+        - name: AUTHENTIK_EMAIL__HOST
+          valueFrom:
+            secretKeyRef:
+              name: smtp
+              key: hostname
+        - name: AUTHENTIK_EMAIL__USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: smtp
+              key: username
+        - name: AUTHENTIK_EMAIL__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: smtp
+              key: password
+        - name: AUTHENTIK_EMAIL__USE_TLS
+          value: "true"
+        - name: AUTHENTIK_EMAIL__PORT
+          value: "587"
+        - name: AUTHENTIK_EMAIL__FROM
+          value: "auth@{{ .Values.fqdn }}"
+      volumeMounts:
+        - name: postgresql-certs
+          mountPath: /etc/postgres/tls
+      volumes:
+        - name: postgresql-certs
+          secret:
+            secretName: postgresql-cluster-cert
+            defaultMode: 0400
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 1000
+      affinity:
+        podAntiAffinity: hard
+      deploymentStrategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 50%
+      nodeSelector:
+        kubernetes.io/arch: amd64
+    server:
+      replicas: 3
+      resources:
+        requests:
+          memory: 256Mi
+          cpu: 250m
+        limits:
+          memory: 1Gi
+      ingress:
+        enabled: true
+        annotations:
+          homer.service.name: Administration
+          homer.item.name: Authentik
+          homer.item.logo: "https://raw.githubusercontent.com/goauthentik/authentik/c91c97178f5f3915d60ff50040588771143fd98d/web/icons/icon.png"
+        hosts:
+          - auth.{{ .Values.fqdn }}
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - auth.{{ .Values.fqdn }}
+    worker:
+      resources:
+        requests:
+          memory: 256Mi
+          cpu: 250m
+        limits:
+          memory: 1Gi
+    authentik:
+      enabled: false # Disable secret generation
+    postgresql:
+      enabled: false
+    redis:
+      enabled: false
+    additionalObjects:
+      - apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          name: authentik-admin
+          namespace: default
+          annotations:
+            homer.item.excluded: "true"
+            traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
+        spec:
+          tls:
+            - hosts:
+                - auth.{{ .Values.fqdn }}
+              secretName: "{{ .Values.fqdn }}-tls"
+          rules:
+            - host: auth.{{ .Values.fqdn }}
+              http:
+                paths:
+                  - path: /if/admin
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: authentik-server
+                        port:
+                          number: 80
+
+      - apiVersion: traefik.io/v1alpha1
+        kind: Middleware
+        metadata:
+          name: authentik
+          namespace: default
+        spec:
+          forwardAuth:
+            address: http://ak-outpost-authentik-embedded-outpost.default.svc.cluster.local:9000/outpost.goauthentik.io/auth/traefik
+            trustForwardHeader: true
+            authResponseHeaders:
+              - X-authentik-username
+              - X-authentik-groups
+              - X-authentik-entitlements
+              - X-authentik-email
+              - X-authentik-name
+              - X-authentik-uid
+              - X-authentik-jwt
+              - X-authentik-meta-jwks
+              - X-authentik-meta-outpost
+              - X-authentik-meta-provider
+              - X-authentik-meta-app
+              - X-authentik-meta-version
+{{- end }}
