@@ -235,8 +235,8 @@ spec:
                 - name: repo1
                   {{- .Values.applications.postgresql.remoteBackupLocation | toYaml | nindent 18 }}
                   schedules:
-                    full: "0 0 * * 1" # Every Monday at midnight
-                    incremental: "0 12 * * *" # Every day at noon
+                    full: "0 0 * * 2" # Every Tuesday at midnight
+                    incremental: "15 12 * * *" # Every day at 12:15 PM
                 - name: repo2
                   schedules:
                     full: "0 0 * * 1" # Every Monday at midnight
