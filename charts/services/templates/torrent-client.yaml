@@ -181,19 +181,19 @@ data:
 
     TORRENT_IDS=$($TRANSMISSION_COMMAND -l | awk '$1 ~ /^[0-9]+$/ {print $1}')
     for id in $TORRENT_IDS; do
-      TORRENT_INFO="$($TRANSMISSION_COMMAND -t $id -i)"
+      TORRENT_INFO="$($TRANSMISSION_COMMAND -t "$id" -i)"
 
-      NAME=$(grep "Name: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs || true)
-      PERCENT_DONE=$(grep "Percent Done: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs || true)
+      NAME=$(grep "Name: " <<< "$TORRENT_INFO" | cut -d ':' -f 2- | xargs || true)
+      PERCENT_DONE=$(grep "Percent Done: " <<< "$TORRENT_INFO" | cut -d ':' -f 2- | xargs || true)
 
-      DOWNLOADING_SECONDS=$(grep "Downloading Time: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs | cut -d'(' -f2 | cut -d' ' -f1 || true)
-      if [ $PERCENT_DONE == "0.00%" ] && [ $DOWNLOADING_SECONDS -ge $THRESHOLD_STUCK_SECONDS ]; then
+      DOWNLOADING_SECONDS=$(grep "Downloading Time: " <<< "$TORRENT_INFO" | cut -d ':' -f 2- | xargs | cut -d'(' -f2 | cut -d' ' -f1 || true)
+      if [ "$PERCENT_DONE" == "0.00%" ] && [ "$DOWNLOADING_SECONDS" -ge $THRESHOLD_STUCK_SECONDS ]; then
         echo "Removing stuck torrent '$NAME' at $PERCENT_DONE (stuck for $DOWNLOADING_SECONDS seconds)"
         $TRANSMISSION_COMMAND -t "$id" --remove-and-delete
         continue
       fi
 
-      ACTIVITY_DATE=$(grep "Latest activity: " <<< $TORRENT_INFO | cut -d ':' -f 2- | xargs || true)
+      ACTIVITY_DATE=$(grep "Latest activity: " <<< "$TORRENT_INFO" | cut -d ':' -f 2- | xargs || true)
       if [ -z "$ACTIVITY_DATE" ]; then
         continue
       fi
@@ -209,7 +209,7 @@ data:
       fi
 
       MINUTES_STUCK=$(( (CURRENT_SECONDS - ACTIVITY_SECONDS) / 60 ))
-      if [ $PERCENT_DONE != "100%" ] && [ $MINUTES_STUCK -ge $THRESHOLD_STUCK_MINUTES ]; then
+      if [ "$PERCENT_DONE" != "100%" ] && [ $MINUTES_STUCK -ge $THRESHOLD_STUCK_MINUTES ]; then
         echo "Removing stuck torrent '$NAME' at $PERCENT_DONE (stuck for $MINUTES_STUCK minutes)"
         $TRANSMISSION_COMMAND -t "$id" --remove-and-delete
         continue
