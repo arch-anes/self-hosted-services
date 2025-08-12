@@ -183,7 +183,7 @@ data:
     for id in $TORRENT_IDS; do
       TORRENT_INFO="$($TRANSMISSION_COMMAND -t "$id" -i)"
 
-      NAME=$(grep "Name: " <<< "$TORRENT_INFO" | cut -d ':' -f 2- | xargs || true)
+      NAME=$(grep "Name: " <<< "$TORRENT_INFO" | cut -d ':' -f 2- | tr -d "'" | xargs || true)
       PERCENT_DONE=$(grep "Percent Done: " <<< "$TORRENT_INFO" | cut -d ':' -f 2- | xargs || true)
 
       DOWNLOADING_SECONDS=$(grep "Downloading Time: " <<< "$TORRENT_INFO" | cut -d ':' -f 2- | xargs | cut -d'(' -f2 | cut -d' ' -f1 || true)
