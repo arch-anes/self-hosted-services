@@ -31,7 +31,7 @@ metadata:
 spec:
   chart: velero
   repo: https://vmware-tanzu.github.io/helm-charts
-  version: 10.0.11
+  version: 10.1.0
   targetNamespace: kube-system
   failurePolicy: abort 
   valuesContent: |-
