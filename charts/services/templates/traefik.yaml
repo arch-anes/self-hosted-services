@@ -19,6 +19,8 @@ type: Opaque
 # stringData:
 #   enroll_key: "somekey"
 #   bouncer_key: "somekey"
+#   csLapiSecret: "somesecret"
+#   registrationToken: "sometoken"
 {{- end }}
 
 ---
@@ -94,7 +96,17 @@ spec:
                 requests:
                   cpu: 500m
                   memory: 250Mi
+            secrets:
+              externalSecret:
+                name: crowdsec
             lapi:
+              replicas: 2
+              storeCAPICredentialsInSecret: true
+              persistentVolume:
+                data:
+                  enabled: false
+                config:
+                  enabled: false
               env:
                 - name: ENROLL_KEY
                   valueFrom:
@@ -116,6 +128,14 @@ spec:
                 requests:
                   cpu: 500m
                   memory: 500Mi
+              affinity:
+                podAntiAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    - topologyKey: "kubernetes.io/hostname"
+                      labelSelector:
+                        matchLabels:
+                          k8s-app: crowdsec
+                          type: lapi
       - apiVersion: traefik.io/v1alpha1
         kind: Middleware
         metadata:
