@@ -28,7 +28,7 @@ metadata:
 spec:
   chart: nextcloud
   repo: https://nextcloud.github.io/helm/
-  version: 7.0.0
+  version: 7.0.2
   targetNamespace: default
   valuesContent: |-
     podAnnotations:
