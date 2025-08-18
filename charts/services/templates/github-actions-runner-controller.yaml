@@ -62,7 +62,7 @@ spec:
       spec:
         containers:
           - name: runner
-            image: ghcr.io/arch-anes/github-actions-runner:2.327.1
+            image: ghcr.io/arch-anes/github-actions-runner:2.328.0
             command: ["/home/runner/run.sh"]
     listenerTemplate:
       spec:
