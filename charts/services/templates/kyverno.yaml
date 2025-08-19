@@ -1,0 +1,20 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kyverno
+  namespace: kube-system
+spec:
+  chart: kyverno
+  repo: https://kyverno.github.io/kyverno/
+  version: 3.3.9
+  targetNamespace: kube-system
+  valuesContent: |-
+    admissionController:
+      replicas: 3
+    backgroundController:
+      replicas: 3
+    cleanupController:
+      replicas: 3
+    reportsController:
+      replicas: 3
