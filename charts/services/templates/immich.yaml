@@ -117,7 +117,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: ghcr.io/immich-app/immich-server:v1.138.0
+          image: ghcr.io/immich-app/immich-server:v1.138.1
           resources:
             requests:
               memory: 128Mi
@@ -149,7 +149,7 @@ spec:
             - name: data
               mountPath: /usr/src/app/upload/upload
         - name: jobs
-          image: ghcr.io/immich-app/immich-server:v1.138.0
+          image: ghcr.io/immich-app/immich-server:v1.138.1
           resources:
             requests:
               memory: 128Mi
