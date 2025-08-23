@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: alexfozor/flaresolverr:pr-1300-experimental
+          image: 21hsmw/flaresolverr:nodriver
           imagePullPolicy: Always
           livenessProbe:
             httpGet:
