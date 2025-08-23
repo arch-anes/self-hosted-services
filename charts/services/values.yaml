@@ -104,6 +104,8 @@ applications:
     enabled: true
   kubernetes_dashboard:
     enabled: true
+  lazylibrarian:
+    enabled: true
   minecraft_bedrock:
     enabled: true
   miniflux:
@@ -138,8 +140,6 @@ applications:
   prowlarr:
     enabled: true
   radarr:
-    enabled: true
-  readarr:
     enabled: true
   red:
     enabled: true

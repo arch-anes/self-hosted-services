@@ -195,11 +195,6 @@ spec:
               databases:
                 - radarr_log
                 - radarr_main
-            - name: readarr
-              databases:
-                - readarr_cache
-                - readarr_log
-                - readarr_main
             - name: sonarr
               databases:
                 - sonarr_log

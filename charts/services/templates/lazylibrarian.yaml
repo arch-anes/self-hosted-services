@@ -1,0 +1,55 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.lazylibrarian.enabled }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: lazylibrarian
+  namespace: default
+spec:
+  chart: oci://tccr.io/truecharts/lazylibrarian
+  version: 21.3.4
+  targetNamespace: default
+  valuesContent: |-
+    workload:
+      main:
+        podSpec:
+          annotations:
+            backup.velero.io/backup-volumes: data
+          containers:
+            main:
+              fixedEnv:
+                PUID: "1000"
+                PGID: "1000"
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 1000m
+      limits:
+        memory: 1Gi
+    persistence:
+      config:
+        enabled: true
+        mountPath: "/config"
+        type: pvc
+        storageClass: local-path-persistent
+        size: 1Gi
+      multimedia:
+        enabled: true
+        type: pvc
+        mountPath: "/multimedia"
+        existingClaim: multimedia
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          homer.service.name: Arr
+          homer.item.logo: "https://lazylibrarian.gitlab.io/logo.svg"
+        hosts:
+          - host: lib.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - lib.{{ .Values.fqdn }}
+{{- end }}
