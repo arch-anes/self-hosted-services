@@ -23,7 +23,7 @@ metadata:
   namespace: default
 spec:
   chart: oci://tccr.io/truecharts/n8n
-  version: 17.7.0
+  version: 17.13.3
   targetNamespace: default
   valuesContent: |-
     deployment:
