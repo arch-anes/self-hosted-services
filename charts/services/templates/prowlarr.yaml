@@ -43,6 +43,16 @@ spec:
                   name: web
 
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prowlarr-custom-definitions
+  namespace: default
+# data:
+  # indexer1.yml: |-
+  #   example content
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -112,4 +122,12 @@ spec:
                 secretKeyRef:
                   name: postgresql-pguser-prowlarr
                   key: password
+          volumeMounts:
+            - name: custom-definitions
+              mountPath: /config/Definitions/Custom/
+      volumes:
+        - name: custom-definitions
+          configMap:
+            name: prowlarr-custom-definitions
+            defaultMode: 0444
 {{- end }}
