@@ -5,13 +5,13 @@
 {{- if not .Values.applications.redis.enabled }}
 {{- fail "n8n requires Redis to be enabled. Please enable Redis in your values.yaml" }}
 {{- end }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: nodemation
-  namespace: default
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: nodemation
+#   namespace: default
+# type: Opaque
 # stringData:
 #   encryption_key: "somekey"
 

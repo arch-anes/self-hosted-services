@@ -1,24 +1,24 @@
 {{- if and (not .Values.disableAllApplications) .Values.applications.velero.enabled }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: velero-backup-credentials
-  namespace: kube-system
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: velero-backup-credentials
+#   namespace: kube-system
+# type: Opaque
 # stringData:
 #   cloud: |-
 #     [global]
 #     aws_access_key_id="some-id"
 #     aws_secret_access_key="some-key"
 
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: velero-repo-credentials
-  namespace: kube-system
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: velero-repo-credentials
+#   namespace: kube-system
+# type: Opaque
 # stringData:
 #   repository-password: "some-kopia-encryption-key"
 

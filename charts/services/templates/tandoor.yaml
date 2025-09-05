@@ -5,13 +5,13 @@
 {{- if not .Values.applications.redis.enabled }}
 {{- fail "Tandoor requires Redis to be enabled. Please enable Redis in your values.yaml" }}
 {{- end }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: tandoor
-  namespace: default
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: tandoor
+#   namespace: default
+# type: Opaque
 # stringData:
 #   django_secret_key: "some_key"
 

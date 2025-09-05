@@ -17,17 +17,17 @@ spec:
       limits:
         memory: 128Mi
 
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: gha-runner-scale-set
-  namespace: default
-  annotations:
-    reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-    reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "gha-runner-.*"
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: gha-runner-scale-set
+#   namespace: default
+#   annotations:
+#     reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+#     reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+#     reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "gha-runner-.*"
+# type: Opaque
 # https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners-with-actions-runner-controller/authenticating-to-the-github-api#authenticating-arc-with-a-personal-access-token-classic
 # stringData:
 #   github_token: ""

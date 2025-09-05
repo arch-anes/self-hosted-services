@@ -23,13 +23,13 @@ spec:
         limits:
           memory: 256Mi
 
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: postgresql-backup-credentials
-  namespace: default
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: postgresql-backup-credentials
+#   namespace: default
+# type: Opaque
 # stringData:
 #   s3.conf: |-
 #     [global]

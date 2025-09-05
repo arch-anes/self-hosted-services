@@ -46,13 +46,13 @@ spec:
                 port:
                   name: web
 
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: inventree
-  namespace: default
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: inventree
+#   namespace: default
+# type: Opaque
 # stringData:
 #   django_secret_key: "some_key"
 #   admin_username: "admin"

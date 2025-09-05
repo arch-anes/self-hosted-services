@@ -5,13 +5,13 @@
 {{- if not .Values.applications.redis.enabled }}
 {{- fail "Authentik requires Redis to be enabled. Please enable Redis in your values.yaml" }}
 {{- end }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: authentik
-  namespace: default
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: authentik
+#   namespace: default
+# type: Opaque
 # stringData:
 #   AUTHENTIK_SECRET_KEY: "somekey"
 

@@ -5,13 +5,13 @@
 {{- if not .Values.applications.redis.enabled }}
 {{- fail "Speedtest Tracker requires Redis to be enabled. Please enable Redis in your values.yaml" }}
 {{- end }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: speedtest-tracker
-  namespace: default
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: speedtest-tracker
+#   namespace: default
+# type: Opaque
 # visit https://speedtest-tracker.dev/ to get a key
 # stringData:
 #   app_key: "somekey"

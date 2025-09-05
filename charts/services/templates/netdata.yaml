@@ -1,11 +1,11 @@
 {{- if and (not .Values.disableAllApplications) .Values.applications.netdata.enabled }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: netdata
-  namespace: default
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: netdata
+#   namespace: default
+# type: Opaque
 # stringData:
 #   GOTIFY_TOKEN: "sometoken"
 

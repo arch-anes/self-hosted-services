@@ -8,13 +8,13 @@
 {{- if not .Values.applications.octoprint.enabled }}
 {{- fail "Obico requires OctoPrint to be enabled. Please enable OctoPrint in your values.yaml" }}
 {{- end }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: obico
-  namespace: default
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: obico
+#   namespace: default
+# type: Opaque
 # stringData:
 #   django_secret_key: "some_key"
 

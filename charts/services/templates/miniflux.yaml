@@ -2,13 +2,13 @@
 {{- if not .Values.applications.postgresql.enabled }}
 {{- fail "Miniflux requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: miniflux
-  namespace: default
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: miniflux
+#   namespace: default
+# type: Opaque
 # stringData:
 #   admin_username: "someuser"
 #   admin_password: "somepass"

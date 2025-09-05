@@ -41,13 +41,13 @@ spec:
                 port:
                   name: web
 
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: epicgames-freegames
-  namespace: default
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: epicgames-freegames
+#   namespace: default
+# type: Opaque
 # stringData:
 #   epic_email: "someemail"
 #   gotify_token: "sometoken"

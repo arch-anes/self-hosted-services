@@ -42,12 +42,12 @@ spec:
                 port:
                   name: web
 
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: prowlarr-custom-definitions
-  namespace: default
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: prowlarr-custom-definitions
+#   namespace: default
 # data:
   # indexer1.yml: |-
   #   example content

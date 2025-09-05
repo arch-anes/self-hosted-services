@@ -2,13 +2,13 @@
 {{- if not .Values.applications.postgresql.enabled }}
 {{- fail "pgAdmin4 requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: pgadmin4
-  namespace: default
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: pgadmin4
+#   namespace: default
+# type: Opaque
 # stringData:
 #   password: "somepassword"
 

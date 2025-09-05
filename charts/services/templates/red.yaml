@@ -1,11 +1,11 @@
 {{- if and (not .Values.disableAllApplications) .Values.applications.red.enabled }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: red
-  namespace: default
-type: Opaque
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: red
+#   namespace: default
+# type: Opaque
 # stringData:
 #   token: "sometoken"
 
