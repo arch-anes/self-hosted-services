@@ -51,6 +51,12 @@ spec:
         requests:
           memory: 16Mi
           cpu: 100m
+    kubeEtcd:
+      enabled: true
+      service:
+        enabled: false
+      serviceMonitor:
+        enabled: false
     defaultRules:
       rules:
         windows: false
@@ -113,4 +119,49 @@ spec:
           requests:
             cpu: 500m
             memory: 1Gi
+    additionalServiceMonitors:
+      - name: kube-etcd-pushprox
+        namespaceSelector:
+          matchNames: 
+            - kube-system
+        selector:
+          matchLabels:
+            k8s-app: pushprox-kube-etcd-proxy
+        endpoints:
+          - targetPort: 8080
+            path: /metrics
+            interval: 30s
+            scrapeTimeout: 10s
+    extraManifests:
+      - apiVersion: helm.cattle.io/v1
+        kind: HelmChart
+        metadata:
+          name: pushprox-etcd
+          namespace: kube-system
+        spec:
+          chart: rancher-pushprox
+          repo: https://charts.rancher.io/
+          version: 103.0.1
+          targetNamespace: kube-system
+          valuesContent: |-
+            metricsPort: 2381
+            component: kube-etcd
+            clients:
+              port: 10014
+              useLocalhost: true
+              nodeSelector:
+                node-role.kubernetes.io/etcd: "true"
+              resources:
+                limits:
+                  memory: 64Mi
+                requests:
+                  memory: 16Mi
+                  cpu: 100m
+            proxy:
+              resources:
+                limits:
+                  memory: 64Mi
+                requests:
+                  memory: 16Mi
+                  cpu: 100m
 {{- end }}
