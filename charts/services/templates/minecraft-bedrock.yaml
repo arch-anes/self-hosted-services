@@ -56,7 +56,7 @@ spec:
           tty: true
           resources:
             requests:
-              memory: 512Mi
+              memory: 1Gi
               cpu: 2000m
             limits:
               memory: 4Gi

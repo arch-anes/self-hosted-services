@@ -92,7 +92,7 @@ spec:
             failureThreshold: 5
           resources:
             requests:
-              memory: 128Mi
+              memory: 1Gi
               cpu: 1000m
             limits:
               memory: 2Gi
@@ -175,7 +175,7 @@ spec:
           command: ["invoke", "worker"]
           resources:
             requests:
-              memory: 128Mi
+              memory: 1Gi
               cpu: 1000m
             limits:
               memory: 1Gi

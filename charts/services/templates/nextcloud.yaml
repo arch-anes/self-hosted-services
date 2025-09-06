@@ -74,7 +74,7 @@ spec:
       nas: "true"
     resources:
       requests:
-        memory: 128Mi
+        memory: 512Mi
         cpu: 1000m
       limits:
         memory: 3Gi

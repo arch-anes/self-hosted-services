@@ -152,7 +152,7 @@ spec:
           image: ghcr.io/immich-app/immich-server:v1.140.1
           resources:
             requests:
-              memory: 128Mi
+              memory: 1Gi
               cpu: 250m
             limits:
               memory: 4Gi
@@ -254,7 +254,7 @@ spec:
           image: ghcr.io/immich-app/immich-machine-learning:v1.140.1
           resources:
             requests:
-              memory: 128Mi
+              memory: 1Gi
               cpu: 250m
             limits:
               memory: 4Gi
