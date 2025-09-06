@@ -30,8 +30,12 @@ spec:
     enableCertificateOwnerRef: true
     dns01RecursiveNameserversOnly: true
     dns01RecursiveNameservers: "8.8.8.8:53,1.1.1.1:53"
+{{- if .Values.applications.prometheus.enabled }}
     prometheus:
-      enabled: false
+      enabled: true
+      servicemonitor:
+        enabled: true
+{{- end }}
     resources:
       requests:
         memory: 128Mi
