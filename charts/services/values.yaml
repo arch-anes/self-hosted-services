@@ -116,8 +116,6 @@ applications:
     enabled: true
   netbox:
     enabled: true
-  netdata:
-    enabled: true
   nextcloud:
     enabled: true
   node_problem_detector:
