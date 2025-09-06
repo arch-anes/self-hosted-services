@@ -45,6 +45,7 @@ spec:
             memory: 16Mi
             cpu: 100m
     prometheus-node-exporter:
+      hostNetwork: false
       resources:
         limits:
           memory: 64Mi
