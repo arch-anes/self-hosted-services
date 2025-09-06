@@ -84,10 +84,10 @@ spec:
             failureThreshold: 5
           resources:
             requests:
-              memory: 128Mi
+              memory: 256Mi
               cpu: 250m
             limits:
-              memory: 256Mi
+              memory: 1Gi
           ports:
             - name: web
               containerPort: 9696

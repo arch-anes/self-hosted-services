@@ -108,10 +108,10 @@ spec:
       replicas: 3
       resources:
         requests:
-          memory: 256Mi
+          memory: 512Mi
           cpu: 250m
         limits:
-          memory: 1Gi
+          memory: 2Gi
       ingress:
         enabled: true
         annotations:
@@ -127,10 +127,10 @@ spec:
     worker:
       resources:
         requests:
-          memory: 256Mi
+          memory: 512Mi
           cpu: 250m
         limits:
-          memory: 1Gi
+          memory: 2Gi
     authentik:
       enabled: false # Disable secret generation
     postgresql:

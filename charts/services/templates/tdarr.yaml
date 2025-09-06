@@ -93,7 +93,7 @@ spec:
           image: ghcr.io/haveagitgat/tdarr:2.45.01
           resources:
             requests:
-              memory: 256Mi
+              memory: 512Mi
               cpu: 250m
             limits:
               memory: 1Gi
@@ -179,7 +179,7 @@ spec:
           image: ghcr.io/haveagitgat/tdarr_node:2.45.01
           resources:
             requests:
-              memory: 256Mi
+              memory: 512Mi
               cpu: 250m
             limits:
               memory: 2Gi

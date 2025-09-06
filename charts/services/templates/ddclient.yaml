@@ -41,10 +41,10 @@ spec:
                     expandObjectName: false
     resources:
       requests:
-        memory: 32Mi
+        memory: 128Mi
         cpu: 125m
       limits:
-        memory: 128Mi
+        memory: 256Mi
         cpu: null
     podOptions:
       nodeSelector:
