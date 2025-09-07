@@ -183,6 +183,15 @@ spec:
         fields:
           headers:
             defaultmode: keep
+{{- if .Values.applications.prometheus.enabled }}
+    metrics:
+      addInternals: true
+      prometheus:
+        service:
+          enabled: true
+        serviceMonitor:
+          enabled: true
+{{- end }}
 {{- if and (not .Values.disableAllApplications) .Values.applications.jaeger.enabled }}
     tracing:
       capturedRequestHeaders:
