@@ -1,0 +1,106 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.minio.enabled }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: minio
+#   namespace: kube-system
+# type: Opaque
+# stringData:
+#   accessKey: "some_key"
+#   secretKey: "some_key"
+#   config.env: |
+#     export MINIO_ROOT_USER="some_user"
+#     export MINIO_ROOT_PASSWORD="some_pass"
+#     export MINIO_BROWSER="on"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: minio-operator
+  namespace: kube-system
+spec:
+  chart: operator
+  repo: https://operator.min.io
+  version: 7.1.1
+  targetNamespace: kube-system
+  valuesContent: |-
+    operator:
+      env:
+        - name: PROMETHEUS_NAMESPACE
+          value: "kube-system"
+      resources:
+        requests:
+          cpu: 200m
+          memory: 64Mi
+          ephemeral-storage: 500Mi
+        limits:
+          memory: 128Mi
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: minio
+  namespace: kube-system
+spec:
+  chart: tenant
+  repo: https://operator.min.io
+  version: 7.1.1
+  targetNamespace: kube-system
+  valuesContent: |-
+    tenant:
+      name: archanes
+      configSecret:
+        name: minio
+        existingSecret: true
+      configuration:
+        name: minio
+      certificate:
+        requestAutoCert: false
+      pools:
+        - name: pool-0
+          servers: 1
+          volumesPerServer: 1
+          size: 2Ti
+          storageClassName: local-path-persistent
+          nodeSelector:
+            # Schedule only on NAS nodes
+            nas: "true"
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 512Mi
+              ephemeral-storage: 500Mi
+            limits:
+              memory: 1Gi
+      metrics:
+        enabled: true
+      prometheusOperator: true
+    ingress:
+      api:
+        enabled: true
+        annotations:
+            homer.item.excluded: "true"
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - s3.{{ .Values.fqdn }}
+        host: s3.{{ .Values.fqdn }}
+        path: /
+        pathType: Prefix
+      console:
+        enabled: true
+        annotations:
+          homer.service.name: Media
+          homer.item.name: MinIO
+          homer.item.logo: "https://cdn.prod.website-files.com/681c8426519d8db8f867c1e8/68656cb290ee4fa91989c2dc_Brand-Logo%20%E2%9C%85.svg"
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - minio.{{ .Values.fqdn }}
+        host: minio.{{ .Values.fqdn }}
+        path: /
+        pathType: Prefix
+{{- end }}
