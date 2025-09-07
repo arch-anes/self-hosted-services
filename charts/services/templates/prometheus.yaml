@@ -109,8 +109,8 @@ spec:
                 requests:
                   storage: 50Gi
         nodeSelector:
-          # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
-          kubernetes.io/arch: amd64
+          # Schedule only on NAS nodes
+          nas: "true"
         resources:
           limits:
             memory: 3Gi
