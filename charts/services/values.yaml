@@ -108,6 +108,8 @@ applications:
     enabled: true
   lazylibrarian:
     enabled: true
+  loki:
+    enabled: true
   minecraft_bedrock:
     enabled: true
   miniflux:

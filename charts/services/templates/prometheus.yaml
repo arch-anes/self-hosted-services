@@ -56,6 +56,19 @@ spec:
       rules:
         windows: false
     grafana:
+      annotations:
+        reloader.stakater.com/auto: "true"
+{{- if and (not .Values.disableAllApplications) .Values.applications.loki.enabled }}
+      additionalDataSources:
+        - name: Loki
+          type: loki
+          access: proxy
+          url: http://loki.kube-system.svc.cluster.local:3100
+          isDefault: false
+          jsonData:
+            timeout: 60
+            maxLines: 1000
+{{- end }}
       grafana.ini:
         auth.anonymous:
           enabled: false

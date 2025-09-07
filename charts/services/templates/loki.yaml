@@ -1,0 +1,135 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.loki.enabled }}
+{{- if not .Values.applications.prometheus.enabled }}
+{{- fail "Loki requires Prometheus to be enabled. Please enable Prometheus in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.minio.enabled }}
+{{- fail "Loki requires MinIO to be enabled. Please enable MinIO in your values.yaml" }}
+{{- end }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: loki
+#   namespace: kube-system
+# type: Opaque
+# stringData:
+#   accessKey: "some_key"
+#   secretKey: "some_key"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: loki
+  namespace: kube-system
+spec:
+  chart: loki
+  repo: https://grafana.github.io/helm-charts
+  version: 6.39.0
+  targetNamespace: kube-system
+  valuesContent: |-
+    deploymentMode: SingleBinary
+    global:
+      extraEnv:
+        - name: S3_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: loki
+              key: accessKey
+        - name: S3_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: loki
+              key: secretKey
+    lokiCanary:
+      enabled: false
+    test:
+      enabled: false
+    loki:
+      auth_enabled: false
+      commonConfig:
+        replication_factor: 1
+      server:
+        http_listen_port: 3100
+      storage:
+        type: s3
+        bucketNames:
+          chunks: loki-chunks
+          ruler: loki-ruler
+          admin: loki-admin
+        s3:
+          endpoint: http://minio.kube-system.svc.cluster.local
+          region: us-east-1
+          s3ForcePathStyle: true
+          insecure: true
+      schemaConfig:
+        configs:
+          - from: 2025-01-01
+            store: tsdb
+            object_store: s3
+            schema: v13
+            index:
+              prefix: index_
+              period: 24h
+      limits_config:
+        retention_period: 8760h # 1 year
+        ingestion_rate_mb: 64          # MB/sec per tenant
+        ingestion_burst_size_mb: 128   # MB burst per tenant
+    singleBinary:
+      replicas: 1
+      extraEnv:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: loki
+              key: accessKey
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: loki
+              key: secretKey
+      persistence:
+        enabled: true
+        size: 20Gi
+        storageClass: local-path-ephemeral
+      resources:
+        requests:
+          cpu: 200m
+          memory: 512Mi
+        limits:
+          memory: 1Gi
+    chunksCache:
+      allocatedMemory: 1024 # MiB
+    resultsCache:
+      allocatedMemory: 512 # MiB
+    chunksCache:
+      allocatedMemory: 1024 # MiB
+    # disable simple-scalable targets
+    read:
+      replicas: 0
+    write:
+      replicas: 0
+    backend:
+      replicas: 0
+    serviceMonitor:
+      enabled: true
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: promtail
+  namespace: kube-system
+spec:
+  chart: promtail
+  repo: https://grafana.github.io/helm-charts
+  version: 6.17.0
+  targetNamespace: kube-system
+  valuesContent: |-
+    resources:
+      limits:
+        memory: 128Mi
+      requests:
+        cpu: 500m
+        memory: 64Mi
+{{- end }}
