@@ -46,6 +46,18 @@ spec:
             cpu: 100m
     prometheus-node-exporter:
       hostNetwork: false
+      prometheus:
+        monitor:
+          relabelings:
+            - sourceLabels: 
+              - __meta_kubernetes_pod_node_name
+              separator: ;
+              regex: ^(.*)$
+              targetLabel: nodename
+              replacement: $1
+              action: replace
+          attachMetadata:
+            node: true
       resources:
         limits:
           memory: 64Mi
