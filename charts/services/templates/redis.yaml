@@ -64,4 +64,22 @@ spec:
           cpu: 125m
         limits:
           memory: 256Mi
+{{- if .Values.applications.prometheus.enabled }}
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        # Sentinel metrics
+        additionalEndpoints:
+          - interval: "30s"
+            path: "/scrape"
+            port: "http-metrics"
+            params:
+              target: ["localhost:26379"]
+            metricRelabelings:
+              - targetLabel: "app"
+                replacement: "sentinel"
+      prometheusRule:
+        enabled: true
+{{- end }}
 {{- end }}
