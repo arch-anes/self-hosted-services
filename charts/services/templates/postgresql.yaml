@@ -13,7 +13,7 @@ spec:
   valuesContent: |-
     relatedImages:
       postgres_17:
-        image: ghcr.io/arch-anes/crunchy-postgres:ubi9-17.5-2520
+        image: ghcr.io/arch-anes/crunchy-postgres:ubi9-17.6-2534
     replicas: 2
     resources:
       controller:
