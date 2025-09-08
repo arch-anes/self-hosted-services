@@ -419,4 +419,47 @@ spec:
                 requests:
                   memory: 16Mi
                   cpu: 100m
+      - apiVersion: helm.cattle.io/v1
+        kind: HelmChart
+        metadata:
+          name: pushprox-kube-etcd
+          namespace: kube-system
+        spec:
+          chart: rancher-pushprox
+          repo: https://arch-anes.github.io/charts
+          version: 0.1.0
+          targetNamespace: kube-system
+          valuesContent: |-
+            metricsPort: 2381
+            component: kube-etcd
+            clients:
+              port: 10014
+              useLocalhost: true
+              nodeSelector:
+                node-role.kubernetes.io/etcd: "true"
+              resources:
+                limits:
+                  memory: 64Mi
+                requests:
+                  memory: 16Mi
+                  cpu: 100m
+              tolerations:
+                - effect: "NoExecute"
+                  operator: "Exists"
+                - effect: "NoSchedule"
+                  operator: "Exists"
+            serviceMonitor:
+              endpoints:
+                - port: metrics
+                  honorLabels: true
+                  relabelings:
+                    - targetLabel: source
+                      replacement: kubernetes
+            proxy:
+              resources:
+                limits:
+                  memory: 64Mi
+                requests:
+                  memory: 16Mi
+                  cpu: 100m
 {{- end }}
