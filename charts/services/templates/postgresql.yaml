@@ -212,6 +212,11 @@ spec:
           databaseInitSQL:
             name: postgresql
             key: bootstrap.sql
+{{- if .Values.applications.prometheus.enabled }}
+          monitoring:
+            pgmonitor:
+              exporter: {}
+{{- end }}
           backups:
             pgbackrest:
               manual:
@@ -247,4 +252,66 @@ spec:
                       resources:
                         requests:
                           storage: 10Gi
+{{- if .Values.applications.prometheus.enabled }}
+      # Source: https://github.com/ducnguyen-kasha-io/kasha-lab/blob/a954f765383ed322bdb1b6acda2be7628680ffc4/raw-templates/postgres-pgo/podmonitor.yaml
+      - apiVersion: monitoring.coreos.com/v1
+        kind: PodMonitor
+        metadata:
+          name: pgo-metrics
+          namespace: kube-system
+          labels:
+            app: postgres-operator
+        spec:
+          selector:
+            matchLabels:
+              postgres-operator.crunchydata.com/control-plane: "pgo"
+          podMetricsEndpoints:
+            - port: metrics
+              scheme: https
+              interval: 15s
+              scrapeTimeout: 15s
+              tlsConfig:
+                insecureSkipVerify: true
+      - apiVersion: monitoring.coreos.com/v1
+        kind: PodMonitor
+        metadata:
+          name: crunchy-postgres-exporter
+          namespace: kube-system
+        spec:
+          namespaceSelector:
+            any: true
+          selector:
+            matchLabels:
+              postgres-operator.crunchydata.com/crunchy-postgres-exporter: "true"
+          podMetricsEndpoints:
+            - honorLabels: true
+              path: /metrics
+              port: exporter
+              # Source: https://tinyurl.com/muyn5sc8
+              relabelings:
+                # Keep exporter port and drop all others
+                - sourceLabels: [__meta_kubernetes_pod_container_port_number]
+                  action: keep
+                  regex: "9187"
+                # Set label for namespace
+                - sourceLabels: [__meta_kubernetes_namespace]
+                  targetLabel: kubernetes_namespace
+                # Set label for pod name
+                - sourceLabels: [__meta_kubernetes_pod_name]
+                  targetLabel: pod
+                # Convert namespace and cluster name to pg_cluster=namespace:cluster
+                - sourceLabels: [__meta_kubernetes_namespace,__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_cluster]
+                  targetLabel: pg_cluster
+                  separator: ":"
+                  replacement: '$1$2'
+                # Convert kubernetes pod ip to ip
+                - sourceLabels: [__meta_kubernetes_pod_ip]
+                  targetLabel: ip
+                # Convert postgres-operator.crunchydata.com/instance to deployment
+                - sourceLabels: [__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_instance]
+                  targetLabel: deployment
+                # Convert postgres-operator.crunchydata.com/role to role
+                - sourceLabels: [__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_role]
+                  targetLabel: role
+{{- end }}
 {{- end }}
