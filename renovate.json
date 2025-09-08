@@ -36,6 +36,17 @@
   ],
   "packageRules": [
     {
+      "description": "Disable automerge for select packages",
+      "automerge": false,
+      "matchPackageNames": [
+        "crunchydata/pgo"
+      ],
+      "matchDatasources": [
+        "docker",
+        "helm"
+      ]
+    },
+    {
       "matchPackageNames": [
         "lscr.io/linuxserver/transmission"
       ],
