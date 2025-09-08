@@ -74,7 +74,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: app
-          image: lscr.io/linuxserver/radarr:5.26.2
+          image: lscr.io/linuxserver/radarr:5.27.5
           livenessProbe:
             httpGet:
               path: /ping
