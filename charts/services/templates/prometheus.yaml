@@ -14,6 +14,19 @@
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
+  name: prometheus-operator-crds
+  namespace: kube-system
+spec:
+  chart: prometheus-operator-crds
+  repo: https://prometheus-community.github.io/helm-charts
+  version: 23.0.0
+  targetNamespace: kube-system
+  bootstrap: true
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
   name: prometheus
   namespace: kube-system
 spec:
@@ -22,6 +35,8 @@ spec:
   version: 107.1.0
   targetNamespace: kube-system
   valuesContent: |-
+    crds:
+      enabled: false
     namespaceOverride: kube-system
     rancherMonitoring:
       enabled: false
