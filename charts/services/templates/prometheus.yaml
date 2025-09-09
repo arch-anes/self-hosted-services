@@ -224,7 +224,8 @@ spec:
       resources:
         limits:
           memory: 2Gi
-          cpu: null
+          # Need to set due to https://tinyurl.com/bd9j39u6
+          cpu: 2000m
         requests:
           memory: 1Gi
           cpu: 1000m
