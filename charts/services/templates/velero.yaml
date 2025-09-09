@@ -54,7 +54,7 @@ spec:
       volumeSnapshotLocation: []
       backupStorageLocation:
         {{- .Values.applications.velero.remoteBackupLocations | toYaml | nindent 8 }}
-{{- if .Values.applications.prometheus.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
     metrics:
       serviceMonitor:
         enabled: true

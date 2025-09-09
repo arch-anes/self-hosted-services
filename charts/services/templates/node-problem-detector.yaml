@@ -11,7 +11,7 @@ spec:
   version: 2.3.14
   targetNamespace: kube-system
   valuesContent: |-
-{{- if .Values.applications.prometheus.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
     metrics:
       enabled: true
       serviceMonitor:

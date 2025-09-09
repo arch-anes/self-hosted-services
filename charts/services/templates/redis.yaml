@@ -64,7 +64,7 @@ spec:
           cpu: 125m
         limits:
           memory: 256Mi
-{{- if .Values.applications.prometheus.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
     metrics:
       enabled: true
       serviceMonitor:

@@ -183,7 +183,7 @@ spec:
         fields:
           headers:
             defaultmode: keep
-{{- if .Values.applications.prometheus.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
     metrics:
       addInternals: true
       prometheus:

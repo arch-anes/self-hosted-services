@@ -1,4 +1,4 @@
-{{- if .Values.applications.prometheus.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
 # ---
 # apiVersion: v1
 # kind: Secret

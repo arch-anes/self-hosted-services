@@ -39,7 +39,7 @@ spec:
           - hosts:
               - argo.{{ .Values.fqdn }}
             secretName: "{{ .Values.fqdn }}-tls"
-{{- if .Values.applications.prometheus.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
       metrics:
         enabled: true
         serviceMonitor:
@@ -62,7 +62,7 @@ spec:
         requests:
           cpu: 500m
           memory: 128Mi
-{{- if .Values.applications.prometheus.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
       metrics:
         enabled: true
         serviceMonitor:
@@ -75,7 +75,7 @@ spec:
         requests:
           cpu: 500m
           memory: 128Mi
-{{- if .Values.applications.prometheus.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
       metrics:
         enabled: true
         serviceMonitor:
@@ -88,7 +88,7 @@ spec:
         requests:
           cpu: 250m
           memory: 64Mi
-{{- if .Values.applications.prometheus.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
       metrics:
         enabled: true
         serviceMonitor:

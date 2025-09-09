@@ -212,7 +212,7 @@ spec:
           databaseInitSQL:
             name: postgresql
             key: bootstrap.sql
-{{- if .Values.applications.prometheus.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
           monitoring:
             pgmonitor:
               exporter: {}
@@ -252,7 +252,7 @@ spec:
                       resources:
                         requests:
                           storage: 10Gi
-{{- if .Values.applications.prometheus.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
       # Source: https://github.com/ducnguyen-kasha-io/kasha-lab/blob/a954f765383ed322bdb1b6acda2be7628680ffc4/raw-templates/postgres-pgo/podmonitor.yaml
       - apiVersion: monitoring.coreos.com/v1
         kind: PodMonitor
