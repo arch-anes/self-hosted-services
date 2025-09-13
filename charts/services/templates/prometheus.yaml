@@ -132,6 +132,14 @@ spec:
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
+          crowdsec:
+            gnetId: 24049
+            revision: 1
+            datasource:
+              - name: DS_PROMETHEUS
+                value: Prometheus
+              - name: DS_LOKI
+                value: Loki
           loki:
             gnetId: 14055
             revision: 5

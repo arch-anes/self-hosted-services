@@ -96,6 +96,12 @@ spec:
                 requests:
                   cpu: 500m
                   memory: 250Mi
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+              metrics:
+                enabled: true
+                serviceMonitor:
+                  enabled: true
+{{- end }}
             secrets:
               externalSecret:
                 name: crowdsec
@@ -128,6 +134,12 @@ spec:
                 requests:
                   cpu: 500m
                   memory: 500Mi
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+              metrics:
+                enabled: true
+                serviceMonitor:
+                  enabled: true
+{{- end }}
               affinity:
                 podAntiAffinity:
                   requiredDuringSchedulingIgnoredDuringExecution:
