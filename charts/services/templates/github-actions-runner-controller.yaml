@@ -4,11 +4,11 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: gha-runner-scale-set-controller
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller
   version: 0.12.1
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     resources:
       requests:
@@ -22,7 +22,7 @@ spec:
 # kind: Secret
 # metadata:
 #   name: gha-runner-scale-set
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 #   annotations:
 #     reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
 #     reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
@@ -46,7 +46,7 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: gha-runner-scale-set-{{ .name }}
-  namespace: default
+  namespace: "{{ $.Values.applicationsNamespace }}"
 spec:
   chart: oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
   version: 0.12.1

@@ -7,7 +7,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: postgresql-pguser-kubeclarity
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 type: Opaque
 stringData:
   sslmode: "disable"
@@ -17,12 +17,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: kubeclarity
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: kubeclarity
   repo: https://openclarity.github.io/kubeclarity
   version: v2.23.3
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     kubeclarity-postgresql:
       enabled: false

@@ -7,12 +7,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: gotify
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: gotify
   repo: https://charts.gabe565.com
   version: 0.4.0
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     controller:
       annotations:

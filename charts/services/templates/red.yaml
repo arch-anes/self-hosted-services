@@ -4,7 +4,7 @@
 # kind: Secret
 # metadata:
 #   name: red
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 # type: Opaque
 # stringData:
 #   token: "sometoken"
@@ -14,11 +14,11 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: red
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://tccr.io/truecharts/red-discordbot
   version: 8.4.0
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     workload:
       main:

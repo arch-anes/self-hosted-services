@@ -10,7 +10,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: immich
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   ports:
     - protocol: TCP
@@ -24,7 +24,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: immich
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   annotations:
     homer.service.name: Media
     homer.item.name: immich
@@ -51,7 +51,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: immich-env
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 data:
   IMMICH_PORT: "2283"
   REDIS_HOSTNAME: "redis-master"
@@ -67,7 +67,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: immich
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   storageClassName: local-path-persistent
   accessModes:
@@ -81,7 +81,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: immich-generated-data
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   storageClassName: local-path-persistent
   accessModes:
@@ -95,7 +95,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: immich
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   labels:
     app: immich
   annotations:
@@ -209,7 +209,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: immich-machine-learning
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   ports:
     - protocol: TCP
@@ -223,7 +223,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: immich-machine-learning
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -236,7 +236,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: immich-machine-learning
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   labels:
     app: immich-machine-learning
 spec:

@@ -4,11 +4,11 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: lazylibrarian
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://tccr.io/truecharts/lazylibrarian
   version: 21.3.4
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     workload:
       main:

@@ -7,7 +7,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: sonarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   ports:
     - protocol: TCP
@@ -21,7 +21,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: sonarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   annotations:
     homer.service.name: Arr
     homer.item.logo: "https://raw.githubusercontent.com/Sonarr/Sonarr/1f785dd30ddf6f1ae61b171afc12ce691c100ee2/Logo/256.png"
@@ -47,7 +47,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sonarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   labels:
     app: sonarr
   annotations:

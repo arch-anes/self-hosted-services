@@ -10,7 +10,7 @@
 # kind: Secret
 # metadata:
 #   name: nodemation
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 # type: Opaque
 # stringData:
 #   encryption_key: "somekey"
@@ -20,11 +20,11 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: n8n
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://tccr.io/truecharts/n8n
   version: 17.17.0
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     deployment:
       N8N_DIAGNOSTICS_ENABLED: false

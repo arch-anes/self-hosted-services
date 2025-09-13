@@ -13,7 +13,7 @@
 # kind: Secret
 # metadata:
 #   name: obico
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 # type: Opaque
 # stringData:
 #   django_secret_key: "some_key"
@@ -23,12 +23,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: obico
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: obico
   repo: https://charts.gabe565.com
   version: 0.6.0
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     server:
       controller:

@@ -28,7 +28,7 @@ spec:
 # kind: Secret
 # metadata:
 #   name: postgresql-backup-credentials
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 # type: Opaque
 # stringData:
 #   s3.conf: |-
@@ -42,12 +42,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: postgresql
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: generic
   repo: https://arch-anes.github.io/charts
   version: 0.2.1
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   failurePolicy: abort # Do not uninstall this chart on failure, otherwise the cluster will be deleted
   # takeOwnership: true
   valuesContent: |-
@@ -56,7 +56,7 @@ spec:
         kind: ConfigMap
         metadata:
           name: postgresql
-          namespace: default
+          namespace: "{{ .Values.applicationsNamespace }}"
         data:
           bootstrap.sql: |
             \c postgres
@@ -103,7 +103,7 @@ spec:
         kind: PostgresCluster
         metadata:
           name: postgresql
-          namespace: default
+          namespace: "{{ .Values.applicationsNamespace }}"
         spec:
           postgresVersion: 17
           instances:

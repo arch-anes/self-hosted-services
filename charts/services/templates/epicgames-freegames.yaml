@@ -7,7 +7,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: epicgames-freegames
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   ports:
     - protocol: TCP
@@ -21,7 +21,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: epicgames-freegames
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   annotations:
     homer.item.excluded: "true"
 spec:
@@ -46,7 +46,7 @@ spec:
 # kind: Secret
 # metadata:
 #   name: epicgames-freegames
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 # type: Opaque
 # stringData:
 #   epic_email: "someemail"
@@ -57,7 +57,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: epicgames-freegames
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   storageClassName: local-path-persistent
   accessModes:
@@ -71,7 +71,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: epicgames-freegames
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   labels:
     app: epicgames-freegames
   annotations:

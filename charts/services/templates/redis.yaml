@@ -4,7 +4,7 @@
 # kind: Secret
 # metadata:
 #   name: redis
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 #   annotations:
 #     reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
 #     reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
@@ -18,12 +18,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: redis
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: redis
   repo: https://charts.bitnami.com/bitnami
   version: 22.0.7
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     auth:
       existingSecret: redis

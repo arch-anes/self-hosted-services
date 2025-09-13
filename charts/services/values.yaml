@@ -2,6 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Namespace where application charts reside
+applicationsNamespace: default
+
 # Path where files are stored
 storageLocation: /storage
 

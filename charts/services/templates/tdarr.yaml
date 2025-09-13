@@ -4,7 +4,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tdarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   ports:
     - protocol: TCP
@@ -21,7 +21,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: tdarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   storageClassName: local-path-persistent
   accessModes:
@@ -35,7 +35,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: tdarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   annotations:
     homer.service.name: Arr
     homer.item.logo: "https://home.tdarr.io/static/media/logo3-min.246d6df44c7f16ddebaf.png"
@@ -61,7 +61,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tdarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   labels:
     app: tdarr
   annotations:
@@ -149,7 +149,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tdarr-worker
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   labels:
     app: tdarr-worker
   annotations:

@@ -3,7 +3,7 @@
 # kind: Secret
 # metadata:
 #   name: arr
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 # type: Opaque
 # stringData:
 #   prowlarr_api_key: "some_key"

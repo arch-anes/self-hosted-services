@@ -7,7 +7,7 @@
 # kind: Secret
 # metadata:
 #   name: miniflux
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 # type: Opaque
 # stringData:
 #   admin_username: "someuser"
@@ -18,11 +18,11 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: miniflux
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://tccr.io/truecharts/miniflux
   version: 17.4.0
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     workload:
       main:

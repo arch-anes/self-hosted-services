@@ -10,7 +10,7 @@
 # kind: Secret
 # metadata:
 #   name: authentik
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 # type: Opaque
 # stringData:
 #   AUTHENTIK_SECRET_KEY: "somekey"
@@ -22,12 +22,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: authentik
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: authentik
   repo: https://charts.goauthentik.io/
   version: 2025.8.1
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     global:
       env:
@@ -142,7 +142,7 @@ spec:
         kind: Ingress
         metadata:
           name: authentik-admin
-          namespace: default
+          namespace: "{{ .Values.applicationsNamespace }}"
           annotations:
             homer.item.excluded: "true"
             traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
@@ -167,7 +167,7 @@ spec:
         kind: Middleware
         metadata:
           name: authentik
-          namespace: default
+          namespace: "{{ .Values.applicationsNamespace }}"
         spec:
           forwardAuth:
             address: http://ak-outpost-authentik-embedded-outpost.default.svc.cluster.local:9000/outpost.goauthentik.io/auth/traefik

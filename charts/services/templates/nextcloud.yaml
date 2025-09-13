@@ -10,7 +10,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: nextcloud
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   storageClassName: local-path-persistent
   accessModes:
@@ -24,12 +24,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: nextcloud
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: nextcloud
   repo: https://nextcloud.github.io/helm/
   version: 7.0.4
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     podAnnotations:
       backup.velero.io/backup-volumes: nextcloud-main

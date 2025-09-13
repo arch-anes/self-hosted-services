@@ -10,7 +10,7 @@
 # kind: Secret
 # metadata:
 #   name: speedtest-tracker
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 # type: Opaque
 # visit https://speedtest-tracker.dev/ to get a key
 # stringData:
@@ -21,11 +21,11 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: speedtest-tracker
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://tccr.io/truecharts/speedtest-tracker
   version: 8.9.0
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     workload:
       main:

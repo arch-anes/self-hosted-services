@@ -4,7 +4,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jellyfin
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   ports:
     - protocol: TCP
@@ -18,7 +18,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: jellyfin
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   annotations:
     homer.service.name: Media
     homer.service.icon: "fas fa-video"
@@ -47,7 +47,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: multimedia
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   storageClassName: local-path-persistent
   accessModes:
@@ -61,7 +61,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: jellyfin
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   storageClassName: local-path-persistent
   accessModes:
@@ -75,7 +75,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: jellyfin
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   labels:
     app: jellyfin
 spec:

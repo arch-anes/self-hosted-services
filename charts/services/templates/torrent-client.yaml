@@ -4,7 +4,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: transmission
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   ports:
     - protocol: TCP
@@ -18,7 +18,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: joal
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   ports:
     - protocol: TCP
@@ -33,7 +33,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: transmission
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   annotations:
     homer.service.name: Media
     homer.item.logo: "https://raw.githubusercontent.com/transmission/transmission/0ce4adf07ce4b6cfabf81e2d027f96197bb9a305/web/assets/img/logo.png"
@@ -59,7 +59,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: joal
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   annotations:
     homer.service.name: Media
     homer.item.logo: "https://raw.githubusercontent.com/anthonyraymond/joal/cad5df11990d4304476d574484003ccbcdd0b700/src/main/resources/public/favicon.ico"
@@ -85,7 +85,7 @@ spec:
 # kind: Secret
 # metadata:
 #   name: gluetun
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 # type: Opaque
 # stringData:
 #   vpn_service_provider: "someprovider" # https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers
@@ -97,7 +97,7 @@ spec:
 # kind: Secret
 # metadata:
 #   name: transmission
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 # type: Opaque
 # stringData:
 #   username: "someuser"
@@ -108,7 +108,7 @@ spec:
 # kind: Secret
 # metadata:
 #   name: joal
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 # type: Opaque
 # stringData:
 #   token: "somepass"
@@ -118,7 +118,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: transmission
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   storageClassName: local-path-persistent
   accessModes:
@@ -132,7 +132,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: joal
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   storageClassName: local-path-persistent
   accessModes:
@@ -146,7 +146,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: transmission-scripts
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 data:
   extract-files.sh: |
     #!/bin/bash
@@ -221,7 +221,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: torrent-client
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   labels:
     app: torrent-client
   annotations:

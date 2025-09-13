@@ -7,7 +7,7 @@
 # kind: Secret
 # metadata:
 #   name: pgadmin4
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 # type: Opaque
 # stringData:
 #   password: "somepassword"
@@ -17,12 +17,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: pgadmin4
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: pgadmin4
   repo: https://helm.runix.net
   version: 1.49.0
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     annotations:
       reloader.stakater.com/auto: "true"

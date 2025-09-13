@@ -3,7 +3,7 @@
 # kind: Secret
 # metadata:
 #   name: "{{ .Values.fqdn }}-cloudflare"
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 #   annotations:
 #     reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
 #     reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
@@ -92,7 +92,7 @@ spec:
         kind: Certificate
         metadata:
           name: {{ .Values.fqdn }}
-          namespace: default
+          namespace: "{{ .Values.applicationsNamespace }}"
         spec:
           secretName: "{{ .Values.fqdn }}-tls"
           secretTemplate:

@@ -4,16 +4,16 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: "ddclient-{{ .Values.fqdn | replace "." "-" }}"
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://tccr.io/truecharts/ddclient
   version: 13.3.2
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     configmap:
       config:
         enabled: true
-        namespace: default
+        namespace: "{{ .Values.applicationsNamespace }}"
         data:
           ddclient.conf: |
             daemon=300 # check every 300 seconds

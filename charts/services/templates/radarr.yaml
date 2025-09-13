@@ -7,7 +7,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: radarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   ports:
     - protocol: TCP
@@ -21,7 +21,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: radarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   annotations:
     homer.service.name: Arr
     homer.item.logo: "https://raw.githubusercontent.com/Radarr/Radarr/e4429d2919f73d8ffd1389614c74e58b9a447c50/Logo/256.png"
@@ -47,7 +47,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: radarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   labels:
     app: radarr
   annotations:

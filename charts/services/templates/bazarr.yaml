@@ -7,7 +7,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: bazarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   ports:
     - protocol: TCP
@@ -21,7 +21,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: bazarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   annotations:
     homer.service.name: Arr
     homer.item.logo: "https://raw.githubusercontent.com/morpheus65535/bazarr/8282899facad2bc0bb096664a76571fd4f5ec2c9/frontend/public/images/logo128.png"
@@ -46,7 +46,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: bazarr-scripts
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 data:
   create-config.sh: |
     #!/bin/bash
@@ -235,7 +235,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: bazarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   labels:
     app: bazarr
   annotations:

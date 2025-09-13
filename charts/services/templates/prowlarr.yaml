@@ -7,7 +7,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prowlarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   ports:
     - protocol: TCP
@@ -21,7 +21,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: prowlarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   annotations:
     homer.service.name: Arr
     homer.item.logo: "https://raw.githubusercontent.com/Prowlarr/Prowlarr/bc53fab96623c91783360cd9d3abce12e6c4f38a/Logo/256.png"
@@ -47,7 +47,7 @@ spec:
 # kind: ConfigMap
 # metadata:
 #   name: prowlarr-custom-definitions
-#   namespace: default
+#   namespace: "{{ .Values.applicationsNamespace }}"
 # data:
   # indexer1.yml: |-
   #   example content
@@ -57,7 +57,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prowlarr
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   labels:
     app: prowlarr
   annotations:

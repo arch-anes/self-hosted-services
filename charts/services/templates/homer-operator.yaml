@@ -4,12 +4,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: homer-operator
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: homer-operator
   repo: https://arch-anes.github.io/homer-operator/
   version: 0.1.29
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     replicaCount: 3
     podAnnotations:

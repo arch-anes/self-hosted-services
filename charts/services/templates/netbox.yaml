@@ -13,12 +13,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: netbox
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: netbox
   repo: https://charts.netbox.oss.netboxlabs.com
   version: 6.1.15
-  targetNamespace: default
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     loginRequired: true
     housekeeping:

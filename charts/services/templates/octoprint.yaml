@@ -4,7 +4,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: octoprint
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   ports:
     - protocol: TCP
@@ -21,7 +21,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: octoprint-webcam
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   annotations:
     homer.item.excluded: "true"
     traefik.ingress.kubernetes.io/router.middlewares: kube-system-cluster-admin-authentication@kubernetescrd
@@ -47,7 +47,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: octoprint
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   storageClassName: local-path-persistent
   accessModes:
@@ -61,7 +61,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: octoprint
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   annotations:
     homer.service.name: Automation
     homer.item.logo: "https://raw.githubusercontent.com/OctoPrint/OctoPrint/a93b4d397248dc406a75e634c1326fb1b8ddcb63/docs/images/octoprint-logo.png"
@@ -87,7 +87,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: octoprint
-  namespace: default
+  namespace: "{{ .Values.applicationsNamespace }}"
   labels:
     app: octoprint
 spec:
