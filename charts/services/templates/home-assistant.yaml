@@ -1,0 +1,133 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.home_assistant.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Home Assistant requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: home-assistant
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://tccr.io/truecharts/home-assistant
+  version: 28.6.3
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    homeassistant:
+      trusted_proxies:
+        - 10.42.0.0/16
+        - 10.43.0.0/16
+    configmap:
+      init:
+        data:
+          init.sh: |-
+            #!/bin/sh
+            config="/config/configuration.yaml"
+            default="/config/init"
+            if [ ! -f "$config" ]; then
+              echo "File [$config] does NOT exist. Creating..."
+              cp "$default/configuration.yaml.default" "$config"
+            fi
+            if ! grep -q "recorder:" "$config"; then
+              echo "Section [recorder] does NOT exist in [$config]. Appending..."
+              echo "" >> "$config"
+              cat "$default/recorder.default" >> "$config"
+            fi
+            if ! grep -q "http:" "$config"; then
+              echo "Section [http] does NOT exist in [$config]. Appending..."
+              echo "" >> "$config"
+              cat "$default/http.default" >> "$config"
+            fi
+
+            echo "Creating include files..."
+            for include_file in groups.yaml automations.yaml scripts.yaml scenes.yaml; do
+              if [ ! -f "/config/$include_file" ]; then
+                echo "File [$include_file] missing. Creating"
+                touch "/config/$include_file"
+              fi
+            done
+
+            cd "/config" || echo "Could not change path to /config"
+            echo "Creating custom_components directory..."
+            mkdir -p "/config/custom_components" || echo "custom_components directory already exists"
+
+            echo "Changing to the custom_components directory..."
+            cd "/config/custom_components" || echo "Could not change path to /config/custom_components"
+
+            echo "Downloading HACS"
+            wget "https://github.com/hacs/integration/releases/latest/download/hacs.zip" || exit 0
+
+            if [ -d "/config/custom_components/hacs" ]; then
+              echo "HACS directory already exist, cleaning up..."
+              rm -R "/config/custom_components/hacs"
+            fi
+
+            echo "Creating HACS directory..."
+            mkdir -p "/config/custom_components/hacs"
+
+            echo "Unpacking HACS..."
+            unzip "/config/custom_components/hacs.zip" -d "/config/custom_components/hacs" >/dev/null 2>&1
+
+            echo "Removing HACS zip file..."
+            rm "/config/custom_components/hacs.zip"
+            echo "Installation complete."
+          recorder.default: |-
+            recorder:
+              purge_keep_days: 30
+              commit_interval: 3
+              db_url: !env_var DATABASE_URL
+    workload:
+      main:
+        annotations:
+          backup.velero.io/backup-volumes: config
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          containers:
+            main:
+              env:
+                DATABASE_PASSWORD:
+                  secretKeyRef:
+                    name: postgresql-pguser-home-assistant
+                    key: password
+                    expandObjectName: false
+                DATABASE_URL: postgresql://home-assistant:$(DATABASE_PASSWORD)@postgresql-primary/home-assistant
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 1000m
+      limits:
+        memory: 1Gi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+    prometheus:
+      serviceMonitor:
+        enabled: true
+{{- end }}
+    ingress:
+      main:
+        enabled: true
+        annotations:    
+          homer.service.name: Automation
+          homer.item.name: "Home Assistant"
+          homer.item.logo: "https://upload.wikimedia.org/wikipedia/en/4/49/Home_Assistant_logo_%282023%29.svg"
+        hosts:
+          - host: ha.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - ha.{{ .Values.fqdn }}
+    persistence:
+      config:
+        enabled: true
+        type: pvc
+        storageClass: local-path-persistent
+        size: 1Gi
+    cnpg:
+      main:
+        enabled: false
+{{- end }}

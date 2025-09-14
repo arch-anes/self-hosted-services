@@ -93,6 +93,8 @@ applications:
     enabled: true
   gotify:
     enabled: true
+  home_assistant:
+    enabled: true
   homer_operator:
     enabled: true
   immich:

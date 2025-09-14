@@ -234,6 +234,9 @@ spec:
             - name: gotify
               databases:
                 - gotify
+            - name: home-assistant
+              databases:
+                - home-assistant
             - name: immich
               databases:
                 - immich
