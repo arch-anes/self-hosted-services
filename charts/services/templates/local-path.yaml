@@ -1,3 +1,4 @@
+{{- if .Values.primaryTenant }}
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -37,3 +38,4 @@ allowVolumeExpansion: true
 parameters:
   nodePath: "{{ .Values.storageLocation }}"
   pathPattern: "{{`{{ .PVC.Name }}`}}"
+{{- end }}

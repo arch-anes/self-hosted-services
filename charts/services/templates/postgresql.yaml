@@ -1,4 +1,5 @@
 {{- if and (not .Values.disableAllApplications) .Values.applications.postgresql.enabled }}
+{{- if .Values.primaryTenant }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -96,6 +97,7 @@ spec:
                 # Convert postgres-operator.crunchydata.com/role to role
                 - sourceLabels: [__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_role]
                   targetLabel: role
+{{- end }}
 {{- end }}
 
 # ---

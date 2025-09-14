@@ -1,4 +1,4 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.crowdsec.enabled }}
+{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.crowdsec.enabled }}
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:

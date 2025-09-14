@@ -1,3 +1,4 @@
+{{- if .Values.primaryTenant }}
 # ---
 # apiVersion: v1
 # kind: Secret
@@ -56,3 +57,4 @@ spec:
           cpu: 250m
         limits:
           memory: 256Mi
+{{- end }}

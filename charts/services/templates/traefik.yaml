@@ -1,3 +1,4 @@
+{{- if .Values.primaryTenant }}
 # ---
 # apiVersion: v1
 # kind: Secret
@@ -213,3 +214,4 @@ spec:
             target:
               type: Utilization
               averageUtilization: 60
+{{- end }}

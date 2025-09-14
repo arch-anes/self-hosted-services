@@ -5,6 +5,10 @@
 # Namespace where application charts reside
 applicationsNamespace: default
 
+# The current deployment is for the primary tenant.
+# A value of false would not deploy to `kube-system` namespace.
+primaryTenant: true
+
 # Path where files are stored
 storageLocation: /storage
 

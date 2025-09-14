@@ -1,3 +1,4 @@
+{{- if .Values.primaryTenant }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -9,3 +10,4 @@ spec:
   repo: https://stakater.github.io/stakater-charts
   version: 2.2.2
   targetNamespace: kube-system
+{{- end }}

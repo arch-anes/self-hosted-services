@@ -1,4 +1,4 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.loki.enabled }}
+{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.loki.enabled }}
 {{- if not .Values.applications.prometheus.enabled }}
 {{- fail "Loki requires Prometheus to be enabled. Please enable Prometheus in your values.yaml" }}
 {{- end }}
