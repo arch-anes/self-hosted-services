@@ -138,8 +138,8 @@ defaults
     log global
     mode tcp
     timeout connect 5s
-    timeout client 30s
-    timeout server 30s
+    timeout client  24h
+    timeout server  24h
     option redispatch
     retries 3
     option log-health-checks
