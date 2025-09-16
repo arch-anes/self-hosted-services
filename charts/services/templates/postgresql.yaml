@@ -328,7 +328,7 @@ spec:
                     volumeClaimSpec:
                       accessModes:
                       - "ReadWriteOnce"
-                      storageClassName: local-path-persistent
+                      storageClassName: local-path-persistent-namespaced
                       resources:
                         requests:
                           storage: 10Gi

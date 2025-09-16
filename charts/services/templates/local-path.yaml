@@ -38,4 +38,19 @@ allowVolumeExpansion: true
 parameters:
   nodePath: "{{ .Values.storageLocation }}"
   pathPattern: "{{`{{ .PVC.Name }}`}}"
+
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-path-persistent-namespaced
+  annotations:
+    defaultVolumeType: local
+provisioner: rancher.io/local-path
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+parameters:
+  nodePath: "{{ .Values.storageLocation }}"
+  pathPattern: "{{`{{ .PVC.Namespace }}_{{ .PVC.Name }}`}}"
 {{- end }}
