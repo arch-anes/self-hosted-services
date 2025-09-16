@@ -170,7 +170,7 @@ spec:
           namespace: "{{ .Values.applicationsNamespace }}"
         spec:
           forwardAuth:
-            address: http://ak-outpost-authentik-embedded-outpost.default.svc.cluster.local:9000/outpost.goauthentik.io/auth/traefik
+            address: http://ak-outpost-authentik-embedded-outpost.{{ .Values.applicationsNamespace }}.svc.cluster.local:9000/outpost.goauthentik.io/auth/traefik
             trustForwardHeader: true
             authResponseHeaders:
               - X-authentik-username

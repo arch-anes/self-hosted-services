@@ -52,7 +52,7 @@ spec:
     notifications:
       enabled: false
     externalRedis:
-      host: "redis-master.default.svc.cluster.local"
+      host: "redis-master.{{ .Values.applicationsNamespace }}.svc.cluster.local"
       port: 6379
       existingSecret: "redis"
     controller:
@@ -139,5 +139,5 @@ spec:
                   valuesObject:
                     {{- .Values | toYaml | nindent 20}}
               destination:
-                server: https://kubernetes.default.svc
+                server: https://kubernetes.{{ .Values.applicationsNamespace }}.svc
 {{- end }}

@@ -85,7 +85,7 @@ spec:
               containerPort: 5540
           env:
             - name: RI_REDIS_HOST
-              value: redis-master.default.svc.cluster.local
+              value: redis-master
             - name: RI_REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
