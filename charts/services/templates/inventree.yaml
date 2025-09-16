@@ -81,7 +81,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/arch-anes/inventree:0.17.14
+          image: ghcr.io/arch-anes/inventree:1.0.1
           imagePullPolicy: Always
           livenessProbe:
             httpGet:
@@ -127,9 +127,7 @@ spec:
                   name: redis
                   key: redis-password
             - name: INVENTREE_CACHE_HOST
-              # InvenTree lacks redis authentication at the moment https://github.com/inventree/InvenTree/blob/5e7e2582891b203ad3778d6c0b04879b7e1120a7/src/backend/InvenTree/InvenTree/cache.py#L82
-              # This is a hack to pass the password anyway
-              value: ":$(INVENTREE_CACHE_PASSWORD)@redis-master"
+              value: "redis-master"
             - name: INVENTREE_DB_ENGINE
               value: "postgresql"
             - name: INVENTREE_DB_HOST
@@ -170,7 +168,7 @@ spec:
             - name: web
               containerPort: 80
         - name: worker
-          image: ghcr.io/arch-anes/inventree:0.17.14
+          image: inventree/inventree:1.0.1
           imagePullPolicy: Always
           command: ["invoke", "worker"]
           resources:
@@ -195,9 +193,7 @@ spec:
                   name: redis
                   key: redis-password
             - name: INVENTREE_CACHE_HOST
-              # InvenTree lacks redis authentication at the moment https://github.com/inventree/InvenTree/blob/5e7e2582891b203ad3778d6c0b04879b7e1120a7/src/backend/InvenTree/InvenTree/cache.py#L82
-              # This is a hack to pass the password anyway
-              value: ":$(INVENTREE_CACHE_PASSWORD)@redis-master"
+              value: "redis-master"
             - name: INVENTREE_DB_ENGINE
               value: "postgresql"
             - name: INVENTREE_DB_HOST
