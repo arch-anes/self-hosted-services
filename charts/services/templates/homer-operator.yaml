@@ -8,9 +8,14 @@ metadata:
 spec:
   chart: homer-operator
   repo: https://arch-anes.github.io/homer-operator/
-  version: 0.1.29
+  version: 0.2.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
+    watchedNamespaces:
+      - {{ .Values.applicationsNamespace }}
+{{- if .Values.primaryTenant }}
+      - kube-system
+{{- end }}
     replicaCount: 3
     podAnnotations:
       reloader.stakater.com/auto: "true"
