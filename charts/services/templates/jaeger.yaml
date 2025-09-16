@@ -4,12 +4,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: jaeger
-  namespace: "{{ .Values.applicationsNamespace }}"
+  namespace: kube-system
 spec:
   chart: jaeger
   repo: https://jaegertracing.github.io/helm-charts
   version: 3.4.1
-  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  targetNamespace: kube-system
   valuesContent: |-
     provisionDataStore:
       cassandra: false
@@ -18,7 +18,7 @@ spec:
         kind: PersistentVolumeClaim
         metadata:
           name: jaeger
-          namespace: "{{ .Values.applicationsNamespace }}"
+          namespace: kube-system
         spec:
           storageClassName: local-path-persistent
           accessModes:

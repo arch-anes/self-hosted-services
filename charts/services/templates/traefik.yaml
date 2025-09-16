@@ -134,7 +134,7 @@ spec:
         enabled: true
         http:
           enabled: true
-          endpoint: http://jaeger-collector.default.svc.cluster.local:4318/v1/traces
+          endpoint: http://jaeger-collector.kube-system.svc.cluster.local:4318/v1/traces
 {{- end }}
     nodeSelector:
       public: "true"
