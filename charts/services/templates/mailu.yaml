@@ -1,0 +1,241 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.mailu.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Mailu requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "Mailu requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: mailu
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   secret-key: "somekey"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: mailu
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: mailu
+  repo: https://mailu.github.io/helm-charts/
+  version: 2.4.0
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    global:
+      storageClass: 
+    domain: {{ .Values.fqdn }}
+    hostnames:
+      - mail.{{ .Values.fqdn }}
+    existingSecret: mailu
+    webmail:
+      enabled: false
+    webdav:
+      enabled: false
+    welcomeMessage:
+      enabled: false
+    limits:
+      messageSizeLimitInMegabytes: 50
+      authRatelimit:
+        ip: 60/hour
+        ipv4Mask: 24
+        ipv6Mask: 56
+        user: 100/day
+      messageRatelimit:
+        value: 1000/day
+    externalDatabase:
+      enabled: true
+      type: postgresql
+      host: postgresql-primary
+      port: 5432
+      existingSecret: postgresql-pguser-mailu
+      existingSecretDatabaseKey: dbname
+      existingSecretUsernameKey: user
+      existingSecretPasswordKey: password
+    externalRedis:
+      enabled: true
+      host: redis-master
+      port: 6379
+    redis:
+      enabled: false
+    customization:
+      website: "https://mailu.{{ .Values.fqdn }}"
+    # expose only TLS client ports via the "front" service
+    front:
+      externalService:
+        enabled: true
+        type: LoadBalancer
+        annotations: {}   # add LB annotations if needed
+
+    # REQUIRED env per Mailu docs
+    env:
+      # Smarthost all outbound to SES
+      RELAYHOST: "[email-smtp.us-east-1.amazonaws.com]:587"
+      RELAYUSER: "AKIAxxxxxxxxxxxx"
+      RELAYPASSWORD: "ses_smtp_password"
+      OUTBOUND_TLS_LEVEL: "encrypt"        # enforce TLS to relay
+      DEFER_ON_TLS_ERROR: "True"           # safer with MTA-STS/DANE
+      MESSAGE_SIZE_LIMIT: "41943040"       # 40 MiB, matches SES receive limit
+      # Trust your edge proxy if any (avoid bans)
+      REAL_IP_HEADER: "X-Forwarded-For"
+      REAL_IP_FROM: "10.0.0.0/8, 192.168.0.0/16"
+
+      # Ports Mailu enables internally. 25/465/993 cannot be disabled in Mailu,
+      # but we simply DO NOT expose :25 externally.
+      PORTS: "25,465,993,4190"             # keep 587 if you want STARTTLS too
+
+    # Keep Mailu's SMTP service internal
+    services:
+      smtp:
+        enabled: true
+        type: ClusterIP
+      imap:
+        enabled: true
+        type: ClusterIP
+      pop3:
+        enabled: false
+
+    # Optionally auto-create an admin for the web UI
+    initialAccount:
+      enabled: true
+      username: admin
+      domain: example.com
+      password: "strong-admin-pass"
+      mode: ifmissing
+
+    # Persistence defaults are fine; tune for your storage class
+    persistent:
+      storageClass: ""
+      size: 20Gi
+
+
+
+    podAnnotations:
+      backup.velero.io/backup-volumes: mailu-main
+    image:
+      repository: ghcr.io/arch-anes/mailu
+      flavor: fpm-alpine
+    nginx:
+      enabled: true
+      resources:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 1Gi
+      config:
+        headers:
+          "Referrer-Policy": "no-referrer"
+          "X-Content-Type-Options": "nosniff"
+          "X-Frame-Options": "SAMEORIGIN"
+          "X-Permitted-Cross-Domain-Policies": "none"
+          "X-Robots-Tag": "noindex, nofollow"
+          "X-XSS-Protection": "1; mode=block"
+        custom: |-
+          http2 on;
+
+          # Trust X-Forwarded-For headers from proxy
+          set_real_ip_from 10.0.0.0/8;
+          real_ip_header X-Forwarded-For;
+          real_ip_recursive on;
+
+          # set max upload size and increase upload timeout:
+          client_max_body_size 10G;
+          client_body_timeout 300s;
+          fastcgi_buffers 64 4K;
+
+          # Increase timeouts for long-running PHP tasks
+          fastcgi_read_timeout 300s;
+          fastcgi_send_timeout 300s;
+          fastcgi_connect_timeout 300s;
+    nodeSelector:
+      # Schedule only on NAS nodes
+      nas: "true"
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 1000m
+      limits:
+        memory: 3Gi
+    persistence:
+      enabled: true
+      existingClaim: mailu
+
+    extraEnv:
+      - name: PHP_MEMORY_LIMIT
+        value: "2G"
+      - name: PHP_OPCACHE_MEMORY_CONSUMPTION
+        value: "1G"
+      - name: TRUSTED_PROXIES
+        value: "127.0.0.1"
+      - name: REDIS_HOST
+        value: "redis-master"
+      - name: REDIS_HOST_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: redis
+            key: redis-password
+      - name: SMTP_HOST
+        valueFrom:
+          secretKeyRef:
+            name: smtp
+            key: hostname
+      - name: SMTP_NAME
+        valueFrom:
+          secretKeyRef:
+            name: smtp
+            key: username
+      - name: SMTP_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: smtp
+            key: password
+      - name: SMTP_SECURE
+        value: "tls"
+      - name: SMTP_PORT
+        value: "587"
+      - name: SMTP_AUTHTYPE
+        value: "login"
+      - name: MAIL_FROM_ADDRESS
+        value: "mailu"
+      - name: MAIL_DOMAIN
+        value: "{{ .Values.fqdn }}"
+    externalDatabase:
+      enabled: true
+      type: postgresql
+      host: postgresql-primary
+      database: mailu
+      existingSecret:
+        enabled: true
+        secretName: postgresql-pguser-mailu
+        usernameKey: user
+        passwordKey: password
+    cronjob:
+      enabled: true
+      resources:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 1Gi
+    ingress:
+      enabled: true
+      annotations:
+        homer.service.name: Media
+        homer.item.rank: "2"
+        homer.item.logo: "https://github.com/mailu/server/raw/0450e47f8dda26d19a0a252ddd5a117fddfa6885/core/img/logo/logo.png"
+        homer.item.type: "Mailu"
+      hosts:
+        - host: mailu.{{ .Values.fqdn }}
+          paths:
+            - path: /
+      tls:
+        - secretName: {{ .Values.fqdn }}-tls
+          hosts:
+            - mailu.{{ .Values.fqdn }}
+{{- end }}

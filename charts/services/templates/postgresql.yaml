@@ -246,6 +246,9 @@ spec:
             - name: kubeclarity
               databases:
                 - kubeclarity
+            - name: mailu
+              databases:
+                - mailu
             - name: miniflux
               password:
                 type: AlphaNumeric
