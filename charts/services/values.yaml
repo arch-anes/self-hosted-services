@@ -166,6 +166,8 @@ applications:
     enabled: true
   speedtest_tracker:
     enabled: true
+  stalwart:
+    enabled: true
   tandoor:
     enabled: true
   tdarr:

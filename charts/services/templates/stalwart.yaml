@@ -1,0 +1,303 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.stalwart.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Stalwart requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: stalwart
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   bucket-access-key: "some_key"
+#   bucket-secret-key: "some_key"
+#   default-admin-password: "some_password"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: stalwart
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://codeberg.org/wrenix/helm-charts/stalwart-mail
+  version: 0.3.14
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    replicaCount: 1
+    certificate:
+      secretName: "{{ .Values.fqdn }}-tls"
+      certmanager:
+        enabled: false
+    backup:
+      enabled: false
+    twake: # Webmail client
+      enabled: false
+    config:
+      server:
+        hostname: {{ .Values.fqdn }}
+      certificate:
+        default:
+          default: true
+          cert: "%{file:/opt/stalwart/etc/certs/tls.crt}%"
+          private-key: "%{file:/opt/stalwart/etc/certs/tls.key}%"
+      storage:
+        data: postgresql
+        fts: postgresql
+        blob: minio
+        lookup: postgresql
+        directory: authentik
+      store:
+        postgresql:
+          type: postgresql
+          host: postgresql-primary
+          database: stalwart
+          user: stalwart
+          password: "%{env:POSTGRESQL_PASSWORD}%"
+        minio:
+          type: s3
+          bucket: "{{ .Values.applicationsNamespace }}-stalwart"
+          region: us-east-1
+          endpoint: http://minio.kube-system.svc.cluster.local
+          access-key: "%{env:BUCKET_ACCESS_KEY}%"
+          secret-key: "%{env:BUCKET_SECRET_KEY}%"
+      directory:
+        authentik:
+          type: oidc
+          endpoint:
+            url: http://authentik-server/application/o/userinfo/
+            method: userinfo
+          fields:
+            email: email
+            username: preferred_username
+            full-name: name
+      queue:
+        strategy:
+          route:
+            - if: "is_local_domain('', rcpt_domain)"
+              then: relay
+            - else: local
+        route:
+          ses-relay:
+            type: relay
+            address: "%{env:SMTP_HOST}%"
+            port: 587
+            protocol: smtp
+            tls:
+              implicit: true
+            auth:
+              username: "%{env:SMTP_NAME}%"
+              secret: "%{env:SMTP_PASSWORD}%"
+      session:
+        auth:
+          mechanisms:
+            - OAUTHBEARER
+            - XOAUTH2
+            - PLAIN
+          directory: authentik
+          require: true
+      imap:
+        inbound:
+          auth:
+            mechanisms:
+              - OAUTHBEARER
+              - XOAUTH2
+              - PLAIN
+            directory: authentik
+            require: true
+      authentication:
+        fallback-admin:
+          user: "admin"
+          secret: "%{env:DEFAULT_ADMIN_SECRET}%"
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+      metrics:
+        prometheus:
+          enable: true
+          auth:
+            username: "%{env:METRICS_USERNAME}%"
+            secret: "%{env:METRICS_SECRET}%"
+{{- end }}
+    secrets:
+      env: {}
+    env:
+      - name: METRICS_USERNAME
+        value: scrape_metrics_user
+      - name: METRICS_SECRET
+        value: scrape_metrics_password
+      - name: POSTGRESQL_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: postgresql-pguser-stalwart
+            key: password
+      - name: DEFAULT_ADMIN_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: stalwart
+            key: default-admin-password
+      - name: BUCKET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: stalwart
+            key: bucket-access-key
+      - name: BUCKET_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: stalwart
+            key: bucket-secret-key
+      - name: SMTP_HOST
+        valueFrom:
+          secretKeyRef:
+            name: smtp
+            key: hostname
+      - name: SMTP_NAME
+        valueFrom:
+          secretKeyRef:
+            name: smtp
+            key: username
+      - name: SMTP_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: smtp
+            key: password
+    nats:
+      # -- deploy a NATS and configure stalwart to use it as coordinator
+      # @section -- Cluster
+      enabled: false
+      # -- NATS configure
+      # @section -- Cluster
+      config: {}
+      promExporter:
+        # -- deploy prometheus exporter to NATS (in coordinator setup)
+        # @section -- Observability
+        enabled: false
+        podMonitor:
+          # -- deploy pod monitor for NATS prometheus exporter (in coordinator setup)
+          # @section -- Observability
+          enabled: false
+
+    serviceAccount:
+      # -- Specifies whether a service account should be created
+      create: false
+      # -- Automatically mount a ServiceAccount's API credentials?
+      automount: true
+      # -- Annotations to add to the service account
+      annotations: {}
+      # -- The name of the service account to use.
+      # If not set and create is true, a name is generated using the fullname template
+      name: ""
+
+    ingress:
+      enabled: true
+      annotations:
+        homer.service.name: Administration
+        homer.item.type: "Stalwart"
+      hosts:
+        - host: stalwart.{{ .Values.fqdn }}
+          paths:
+            - path: /
+              pathType: Prefix
+        - host: {{ .Values.fqdn }}
+          paths:
+            - path: /.well-known/autoconfig/mail/
+              pathType: Prefix
+        - host: autoconfig.{{ .Values.fqdn }}
+          paths:
+            - path: /mail/config-v1.1.xml
+              pathType: Exact
+      tls:
+        - secretName: {{ .Values.fqdn }}-tls
+          hosts:
+            - stalwart.{{ .Values.fqdn }}
+        - secretName: {{ .Values.fqdn }}-tls
+          hosts:
+            - autoconfig.{{ .Values.fqdn }}
+        - secretName: {{ .Values.fqdn }}-tls
+          hosts:
+            - {{ .Values.fqdn }}
+    traefik:
+      enabled: true
+      ports:
+        submissions:
+          match: HostSNI(`smtp.{{ .Values.fqdn }}`)
+          entrypoint: websecure
+          proxyProtocol: false
+          passthroughTLS: true
+        imaptls:
+          match: HostSNI(`imap.{{ .Values.fqdn }}`)
+          entrypoint: websecure
+          proxyProtocol: false
+          passthroughTLS: true
+        smtp: {} # MX port
+        imap: {}
+        pop3: {}
+        pop3s: {}
+        submission: {}
+        sieve: {}
+        http: {}
+        https: {}
+{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+    prometheus:
+      servicemonitor:
+        enabled: true
+    grafana:
+      dashboards:
+        enabled: true
+        labels:
+          grafana_dashboard: "1"
+{{- end }}
+    resources: {}
+      # We usually recommend not to specify default resources and to leave this as a conscious
+      # choice for the user. This also increases chances charts run on environments with little
+      # resources, such as Minikube. If you do want to specify resources, uncomment the following
+      # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+      # limits:
+      #   memory: 128Mi
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
+
+    # -- Additional volumes on the output Deployment definition.
+    volumes: []
+    # - name: foo
+    #   secret:
+    #     secretName: mysecret
+    #     optional: false
+
+    # -- Additional volumeMounts on the output Deployment definition.
+    volumeMounts: []
+    # - name: foo
+    #   mountPath: "/etc/foo"
+    #   readOnly: true
+
+    nodeSelector: {}
+
+    tolerations: []
+
+    affinity: {}
+
+    persistence:
+      # -- Enable persistence using Persistent Volume Claims
+      # ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+      enabled: true
+      annotations: {}
+      # -- Persistent Volume Storage Class
+      # If defined, storageClassName: <storageClass>
+      # If set to "-", storageClassName: "", which disables dynamic provisioning
+      # If undefined (the default) or set to null, no storageClassName spec is
+      #   set, choosing the default provisioner.  (gp2 on AWS, standard on
+      #   GKE, AWS & OpenStack)
+      storageClass:
+
+      # -- A manually managed Persistent Volume and Claim
+      # Requires persistence.enabled: true
+      # If defined, PVC must be created manually before volume will be bound
+      existingClaim:
+
+      # --  Do not create an PVC, direct use hostPath in Pod
+      hostPath:
+      # --  accessMode
+      accessMode: ReadWriteOnce
+      # -- size
+      size: 10Gi
+{{- end }}
