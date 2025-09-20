@@ -20,7 +20,7 @@ spec:
           program: traefik
       env:
         - name: PARSERS
-          value: "crowdsecurity/cri-logs"
+          value: "crowdsecurity/cri-logs crowdsecurity/jellyseerr-whitelist"
         - name: COLLECTIONS
           value: "crowdsecurity/traefik crowdsecurity/http-cve"
       resources:
