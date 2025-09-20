@@ -103,6 +103,11 @@ spec:
       - name: redis
         mountPath: /etc/traefik/secrets/redis/
         type: secret
+    env:
+      # work around trace setup error "error detecting resource: user: Current requires cgo or $USER set in environment"
+      # https://github.com/traefik/traefik/issues/11992#issuecomment-3178084711
+      - name: USER
+        value: nobody
     deployment:
       annotations:
         reloader.stakater.com/auto: "true"
