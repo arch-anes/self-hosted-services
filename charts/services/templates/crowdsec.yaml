@@ -43,6 +43,8 @@ spec:
     lapi:
       replicas: 2
       storeCAPICredentialsInSecret: true
+      strategy:
+        type: RollingUpdate
       persistentVolume:
         data:
           enabled: false
