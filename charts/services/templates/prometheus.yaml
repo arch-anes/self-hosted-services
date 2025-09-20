@@ -85,10 +85,12 @@ spec:
     grafana:
       annotations:
         reloader.stakater.com/auto: "true"
-{{- if and (not .Values.disableAllApplications) .Values.applications.loki.enabled }}
+{{- if and (not .Values.disableAllApplications) (or .Values.applications.loki.enabled .Values.applications.tempo.enabled) }}
       additionalDataSources:
+{{- if .Values.applications.loki.enabled }}
         - name: Loki
           type: loki
+          uid: loki
           access: proxy
           url: http://loki.kube-system.svc.cluster.local:3100
           isDefault: false
@@ -98,10 +100,31 @@ spec:
 {{- end }}
 {{- if .Values.applications.tempo.enabled }}
         - name: Tempo
+          uid: tempo
           type: tempo
           access: proxy
           url: http://tempo.kube-system.svc.cluster.local:3200
           isDefault: false
+          jsonData:
+            tracesToLogsV2:
+              datasourceUid: loki
+              spanStartTimeShift: -2m
+              spanEndTimeShift: 2m
+              tags: ['cluster','namespace','pod','service.name','service.namespace']
+              customQuery: true
+              query: '{ $$__tags } |~ "$${__span.traceId}"'
+            tracesToMetrics:
+              datasourceUid: prometheus
+              spanStartTimeShift: -2m
+              spanEndTimeShift: 2m
+              tags: [{ key: 'service.name', value: 'service' }, { key: 'service.namespace', value: 'namespace' }]
+              queries:
+                - name: Latency p95
+                  unit: ms
+                  query: 'histogram_quantile(0.95, sum by (le,service,span_name) (rate(traces_spanmetrics_latency_bucket{$$__tags}[5m])))'
+                - name: Error rate
+                  unit: ops
+                  query: 'sum by (service,span_name) (rate(traces_spanmetrics_calls_total{$$__tags,status_code="STATUS_CODE_ERROR"}[5m]))'
 {{- end }}
 {{- end }}
       defaultDashboards:

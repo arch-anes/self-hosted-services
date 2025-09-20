@@ -104,8 +104,6 @@ applications:
     enabled: true
   inventree:
     enabled: true
-  jaeger:
-    enabled: true
   jellyfin:
     enabled: true
     # gpu_vendor: intel
@@ -171,6 +169,8 @@ applications:
   tdarr:
     enabled: true
     # gpu_vendor: amd
+  tempo:
+    enabled: true
   torrent_client:
     enabled: true
   velero:

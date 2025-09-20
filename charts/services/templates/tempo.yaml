@@ -1,0 +1,69 @@
+{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.tempo.enabled }}
+{{- if not .Values.applications.prometheus.enabled }}
+{{- fail "Tempo requires Prometheus to be enabled. Please enable Prometheus in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.minio.enabled }}
+{{- fail "Tempo requires MinIO to be enabled. Please enable MinIO in your values.yaml" }}
+{{- end }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: tempo
+#   namespace: kube-system
+# type: Opaque
+# stringData:
+#   accessKey: "some_key"
+#   secretKey: "some_key"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: tempo
+  namespace: kube-system
+spec:
+  repo: https://grafana.github.io/helm-charts
+  chart: tempo
+  version: 1.23.3
+  targetNamespace: kube-system
+  valuesContent: |-
+    tempo:
+      reportingEnabled: false
+      extraEnv:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: tempo
+              key: accessKey
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: tempo
+              key: secretKey
+      storage:
+        trace:
+          backend: s3
+          s3:
+            bucket: tempo
+            endpoint: minio.kube-system.svc.cluster.local
+            region: us-east-1
+            insecure: true
+            forcepathstyle: true
+      retention: 8760h # 1 year
+      resources:
+        requests:
+          cpu: 200m
+          memory: 512Mi
+        limits:
+          memory: 1Gi
+    serviceMonitor:
+      enabled: true
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: local-path-ephemeral
+    nodeSelector:
+      # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
+      kubernetes.io/arch: amd64
+{{- end }}

@@ -128,7 +128,7 @@ spec:
         serviceMonitor:
           enabled: true
 {{- end }}
-{{- if and (not .Values.disableAllApplications) .Values.applications.jaeger.enabled }}
+{{- if and (not .Values.disableAllApplications) .Values.applications.tempo.enabled }}
     tracing:
       capturedRequestHeaders:
         - "X-Real-Ip"
@@ -139,7 +139,7 @@ spec:
         enabled: true
         http:
           enabled: true
-          endpoint: http://jaeger-collector.kube-system.svc.cluster.local:4318/v1/traces
+          endpoint: http://tempo.kube-system.svc.cluster.local:4318/v1/traces
 {{- end }}
     nodeSelector:
       public: "true"
