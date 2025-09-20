@@ -96,9 +96,14 @@ spec:
             timeout: 60
             maxLines: 1000
 {{- end }}
-      grafana.ini:
-        auth.anonymous:
-          enabled: false
+{{- if .Values.applications.tempo.enabled }}
+        - name: Tempo
+          type: tempo
+          access: proxy
+          url: http://tempo.kube-system.svc.cluster.local:3200
+          isDefault: false
+{{- end }}
+{{- end }}
       defaultDashboards:
         namespace: kube-system
         useExistingNamespace: true
@@ -205,6 +210,18 @@ spec:
         existingSecret: prometheus
         userKey: grafana-admin-user
         passwordKey: grafana-admin-password
+      grafana.ini:
+        auth.anonymous:
+          enabled: false
+        server:
+          root_url: https://grafana.{{ .Values.fqdn }}
+          domain: grafana.{{ .Values.fqdn }}
+          serve_from_sub_path: true
+      extraContainers: []
+      service:
+        enabled: true
+        port: 80
+        targetPort: 3000
       ingress:
         enabled: true
         annotations:
