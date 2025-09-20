@@ -35,6 +35,8 @@ spec:
         serviceMonitor:
           enabled: true
 {{- end }}
+      nodeSelector:
+        public: "true"
     secrets:
       externalSecret:
         name: crowdsec
