@@ -79,24 +79,11 @@ spec:
       labels:
         app: inventree
     spec:
-      containers:
-        - name: app
-          image: ghcr.io/arch-anes/inventree:0.17.14
-          imagePullPolicy: Always
-          livenessProbe:
-            httpGet:
-              path: /hc
-              port: 80
-            initialDelaySeconds: 15
-            periodSeconds: 30
-            failureThreshold: 5
-          resources:
-            requests:
-              memory: 1Gi
-              cpu: 1000m
-            limits:
-              memory: 2Gi
-          env:
+      initContainers:
+        - name: init-data
+          image: inventree/inventree:1.0.1
+          command: ["/bin/sh","-c", "invoke update --skip-backup --frontend"]
+          env: &inventreeEnv
             - name: INVENTREE_SECRET_KEY
               valueFrom:
                 secretKeyRef:
@@ -118,7 +105,9 @@ spec:
                   name: inventree
                   key: admin_password
             - name: INVENTREE_SITE_URL
-              value: "https://inventree.{{ .Values.fqdn }}"
+              value: "http://inventree.{{ .Values.fqdn }}"
+            - name: INVENTREE_TRUSTED_ORIGINS
+              value: "https://inventree.{{ .Values.fqdn }},http://inventree.{{ .Values.fqdn }},http://localhost"
             - name: INVENTREE_CACHE_ENABLED
               value: "True"
             - name: INVENTREE_CACHE_PASSWORD
@@ -127,9 +116,7 @@ spec:
                   name: redis
                   key: redis-password
             - name: INVENTREE_CACHE_HOST
-              # InvenTree lacks redis authentication at the moment https://github.com/inventree/InvenTree/blob/5e7e2582891b203ad3778d6c0b04879b7e1120a7/src/backend/InvenTree/InvenTree/cache.py#L82
-              # This is a hack to pass the password anyway
-              value: ":$(INVENTREE_CACHE_PASSWORD)@redis-master"
+              value: "redis-master"
             - name: INVENTREE_DB_ENGINE
               value: "postgresql"
             - name: INVENTREE_DB_HOST
@@ -166,12 +153,28 @@ spec:
               value: "587"
             - name: INVENTREE_EMAIL_SENDER
               value: "inventree@{{ .Values.fqdn }}"
+          volumeMounts:
+            - name: inventree-data
+              mountPath: /home/inventree/data
+      containers:
+        - name: app
+          image: ghcr.io/arch-anes/inventree:1.0.1
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 1Gi
+              cpu: 1000m
+            limits:
+              memory: 2Gi
+          env: *inventreeEnv
           ports:
             - name: web
               containerPort: 80
+          volumeMounts:
+            - name: inventree-data
+              mountPath: /home/inventree/data
         - name: worker
-          image: ghcr.io/arch-anes/inventree:0.17.14
-          imagePullPolicy: Always
+          image: inventree/inventree:1.0.1
           command: ["invoke", "worker"]
           resources:
             requests:
@@ -179,59 +182,11 @@ spec:
               cpu: 1000m
             limits:
               memory: 1Gi
-          env:
-            - name: INVENTREE_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: inventree
-                  key: django_secret_key
-            - name: INVENTREE_SITE_URL
-              value: "https://inventree.{{ .Values.fqdn }}"
-            - name: INVENTREE_CACHE_ENABLED
-              value: "True"
-            - name: INVENTREE_CACHE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: redis
-                  key: redis-password
-            - name: INVENTREE_CACHE_HOST
-              # InvenTree lacks redis authentication at the moment https://github.com/inventree/InvenTree/blob/5e7e2582891b203ad3778d6c0b04879b7e1120a7/src/backend/InvenTree/InvenTree/cache.py#L82
-              # This is a hack to pass the password anyway
-              value: ":$(INVENTREE_CACHE_PASSWORD)@redis-master"
-            - name: INVENTREE_DB_ENGINE
-              value: "postgresql"
-            - name: INVENTREE_DB_HOST
-              value: "postgresql-primary"
-            - name: INVENTREE_DB_NAME
-              value: "inventree"
-            - name: INVENTREE_DB_USER
-              value: inventree
-            - name: INVENTREE_DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql-pguser-inventree
-                  key: password
-            - name: INVENTREE_AUTO_UPDATE
-              value: "True"
-            - name: INVENTREE_EMAIL_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: smtp
-                  key: hostname
-            - name: INVENTREE_EMAIL_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: smtp
-                  key: username
-            - name: INVENTREE_EMAIL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: smtp
-                  key: password
-            - name: INVENTREE_EMAIL_TLS
-              value: "True"
-            - name: INVENTREE_EMAIL_PORT
-              value: "587"
-            - name: INVENTREE_EMAIL_SENDER
-              value: "inventree@{{ .Values.fqdn }}"
+          env: *inventreeEnv
+          volumeMounts:
+            - name: inventree-data
+              mountPath: /home/inventree/data
+      volumes:
+        - name: inventree-data
+          emptyDir: {}
 {{- end }}
