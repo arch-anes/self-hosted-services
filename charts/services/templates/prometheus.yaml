@@ -82,6 +82,8 @@ spec:
     defaultRules:
       rules:
         windows: false
+    windowsExporter:
+      enabled: false
     grafana:
       annotations:
         reloader.stakater.com/auto: "true"
