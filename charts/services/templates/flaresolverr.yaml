@@ -1,54 +1,64 @@
 {{- if and (not .Values.disableAllApplications) .Values.applications.flaresolverr.enabled }}
 ---
-apiVersion: v1
-kind: Service
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
   name: flaresolverr
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  ports:
-    - protocol: TCP
-      name: web
-      port: 8191
-  selector:
-    app: flaresolverr
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: flaresolverr
-  namespace: "{{ .Values.applicationsNamespace }}"
-  labels:
-    app: flaresolverr
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: flaresolverr
-  template:
-    metadata:
-      labels:
-        app: flaresolverr
-    spec:
-      containers:
-        - name: app
-          image: 21hsmw/flaresolverr:nodriver
-          imagePullPolicy: Always
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 8191
-            initialDelaySeconds: 15
-            periodSeconds: 30
-            failureThreshold: 5
-          resources:
-            requests:
-              memory: 512Mi
-              cpu: 250m
-            limits:
-              memory: 2Gi
+  chart: generic
+  repo: https://arch-anes.github.io/charts
+  version: 0.2.1
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    objects:
+      - kind: Service
+        apiVersion: v1
+        metadata:
+          name: flaresolverr
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
           ports:
-            - name: web
-              containerPort: 8191
+            - protocol: TCP
+              name: web
+              port: 8191
+          selector:
+            app: flaresolverr
+      - kind: Deployment
+        apiVersion: apps/v1
+        metadata:
+          name: flaresolverr
+          namespace: "{{ .Values.applicationsNamespace }}"
+          labels:
+            app: flaresolverr
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: flaresolverr
+          template:
+            metadata:
+              labels:
+                app: flaresolverr
+            spec:
+              containers:
+                - name: app
+                  image: 21hsmw/flaresolverr:nodriver
+                  imagePullPolicy: Always
+                  livenessProbe:
+                    httpGet:
+                      path: /
+                      port: 8191
+                    initialDelaySeconds: 15
+                    periodSeconds: 30
+                    failureThreshold: 5
+                  resources:
+                    requests:
+                      memory: 512Mi
+                      cpu: 250m
+                    limits:
+                      memory: 2Gi
+                  ports:
+                    - name: web
+                      containerPort: 8191
 {{- end }}
