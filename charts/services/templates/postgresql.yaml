@@ -243,9 +243,6 @@ spec:
             - name: inventree
               databases:
                 - inventree
-            - name: kubeclarity
-              databases:
-                - kubeclarity
             - name: miniflux
               password:
                 type: AlphaNumeric

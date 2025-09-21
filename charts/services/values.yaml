@@ -109,8 +109,6 @@ applications:
     # gpu_vendor: intel
   jellyseerr:
     enabled: true
-  kubeclarity:
-    enabled: true
   kubernetes_dashboard:
     enabled: true
   lazylibrarian:
