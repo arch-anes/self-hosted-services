@@ -76,7 +76,7 @@
     name: install_deb
   vars:
     install_deb_binary_name: k9s
-    install_deb_url: "https://github.com/derailed/k9s/releases/download/v0.50.9/k9s_linux_{{ cpu_arch }}.deb"
+    install_deb_url: "https://github.com/derailed/k9s/releases/download/v0.50.12/k9s_linux_{{ cpu_arch }}.deb"
   when:
     - k3s_control_node is defined
     - k3s_control_node
