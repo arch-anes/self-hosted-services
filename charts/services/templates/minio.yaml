@@ -36,7 +36,7 @@ spec:
           memory: 64Mi
           ephemeral-storage: 500Mi
         limits:
-          memory: 128Mi
+          memory: 256Mi
 
 ---
 apiVersion: helm.cattle.io/v1
