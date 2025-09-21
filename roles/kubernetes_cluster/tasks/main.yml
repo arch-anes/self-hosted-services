@@ -86,5 +86,6 @@
         name:
           - k9s
           - krr
+          - trivy
           - velero
         state: latest
