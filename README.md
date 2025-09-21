@@ -1,5 +1,9 @@
 # Self-hosted services
 
+## Prerequisites
+- Ubuntu 24.04 LTS
+- Homebrew
+
 ## Setup tailscale
 1. Create an account at https://login.tailscale.com.
 1. Add the following ACL rule at https://login.tailscale.com/admin/acls/file:

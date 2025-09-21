@@ -71,22 +71,14 @@
     k3s_use_experimental: true
   become: true
 
-- name: Install k9s
-  ansible.builtin.import_role:
-    name: install_deb
-  vars:
-    install_deb_binary_name: k9s
-    install_deb_url: "https://github.com/derailed/k9s/releases/download/v0.50.12/k9s_linux_{{ cpu_arch }}.deb"
+- name: Install kubernetes CLI utilities
   when:
     - k3s_control_node is defined
     - k3s_control_node
-
-- name: Install velero
-  ansible.builtin.import_role:
-    name: install_tar
-  vars:
-    install_tar_binary_name: velero
-    install_tar_url: "https://github.com/vmware-tanzu/velero/releases/download/v1.17.0/velero-v1.17.0-linux-{{ cpu_arch }}.tar.gz"
-  when:
-    - k3s_control_node is defined
-    - k3s_control_node
+  block:
+    - name: Install homebrew packages
+      community.general.homebrew:
+        name:
+          - k9s
+          - velero
+        state: latest
