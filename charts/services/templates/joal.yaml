@@ -1,0 +1,125 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.joal.enabled }}
+{{- if not .Values.applications.gluetun.enabled }}
+{{- fail "Joal requires gluetun to be enabled. Please enable gluetun in your values.yaml" }}
+{{- end }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: joal
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   token: "somepass"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: joal
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: generic
+  repo: https://arch-anes.github.io/charts
+  version: 0.2.1
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    objects:
+      - kind: Service
+        apiVersion: v1
+        metadata:
+          name: joal
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          ports:
+            - protocol: TCP
+              name: joal
+              port: 12345
+          selector:
+            app: joal
+      - kind: Ingress
+        apiVersion: networking.k8s.io/v1
+        metadata:
+          name: joal
+          namespace: "{{ .Values.applicationsNamespace }}"
+          annotations:
+            homer.service.name: Media
+            homer.item.logo: "https://raw.githubusercontent.com/anthonyraymond/joal/cad5df11990d4304476d574484003ccbcdd0b700/src/main/resources/public/favicon.ico"
+        spec:
+          tls:
+            - hosts:
+                - joal.{{ .Values.fqdn }}
+              secretName: "{{ .Values.fqdn }}-tls"
+          rules:
+            - host: joal.{{ .Values.fqdn }}
+              http:
+                paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: joal
+                        port:
+                          name: joal
+      - kind: PersistentVolumeClaim
+        apiVersion: v1
+        metadata:
+          name: joal
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          storageClassName: local-path-persistent
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 100Mi
+      - kind: Deployment
+        apiVersion: apps/v1
+        metadata:
+          name: joal
+          namespace: "{{ .Values.applicationsNamespace }}"
+          labels:
+            app: joal
+          annotations:
+            reloader.stakater.com/auto: "true"
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: joal
+          template:
+            metadata:
+              annotations:
+                backup.velero.io/backup-volumes: config
+              labels:
+                app: joal
+            spec:
+              containers:
+                {{- include "tunnel.sidecar" . | nindent 16 }}
+                - name: joal
+                  image: anthonyraymond/joal:2.1.36
+                  command: ["bash"]
+                  args: ["-c", "java -jar /joal/joal.jar --server.port=12345 --joal-conf=/data --spring.main.web-environment=true --joal.ui.path.prefix=app --joal.ui.secret-token=$$SECRET_TOKEN"]
+                  resources:
+                    requests:
+                      memory: 128Mi
+                      cpu: 250m
+                    limits:
+                      memory: 1Gi
+                  ports:
+                    - name: joal
+                      containerPort: 12345
+                  env:
+                    - name: SECRET_TOKEN
+                      valueFrom:
+                        secretKeyRef:
+                          name: joal
+                          key: token
+                  volumeMounts:
+                    - name: config
+                      mountPath: /data
+              volumes:
+                - name: config
+                  persistentVolumeClaim:
+                    claimName: joal
+{{- end }}

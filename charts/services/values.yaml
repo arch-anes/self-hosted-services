@@ -91,6 +91,8 @@ applications:
     enabled: true
   github_actions_runner_controller:
     enabled: true
+  gluetun:
+    enabled: true
   gotify:
     enabled: true
   home_assistant:
@@ -108,6 +110,8 @@ applications:
     enabled: true
     # gpu_vendor: intel
   jellyseerr:
+    enabled: true
+  joal:
     enabled: true
   kubernetes_dashboard:
     enabled: true
@@ -169,7 +173,7 @@ applications:
     # gpu_vendor: amd
   tempo:
     enabled: true
-  torrent_client:
+  transmission:
     enabled: true
   velero:
     enabled: true

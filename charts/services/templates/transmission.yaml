@@ -1,0 +1,232 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.transmission.enabled }}
+{{- if not .Values.applications.gluetun.enabled }}
+{{- fail "Transmission requires gluetun to be enabled. Please enable gluetun in your values.yaml" }}
+{{- end }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: transmission
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   username: "someuser"
+#   password: "somepass"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: transmission
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: generic
+  repo: https://arch-anes.github.io/charts
+  version: 0.2.1
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    objects:
+      - kind: Service
+        apiVersion: v1
+        metadata:
+          name: transmission
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          ports:
+            - protocol: TCP
+              name: transmission
+              port: 9091
+          selector:
+            app: transmission
+      - kind: Ingress
+        apiVersion: networking.k8s.io/v1
+        metadata:
+          name: transmission
+          namespace: "{{ .Values.applicationsNamespace }}"
+          annotations:
+            homer.service.name: Media
+            homer.item.logo: "https://raw.githubusercontent.com/transmission/transmission/0ce4adf07ce4b6cfabf81e2d027f96197bb9a305/web/assets/img/logo.png"
+        spec:
+          tls:
+            - hosts:
+                - transmission.{{ .Values.fqdn }}
+              secretName: "{{ .Values.fqdn }}-tls"
+          rules:
+            - host: transmission.{{ .Values.fqdn }}
+              http:
+                paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: transmission
+                        port:
+                          name: transmission
+      - kind: PersistentVolumeClaim
+        apiVersion: v1
+        metadata:
+          name: transmission
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          storageClassName: local-path-persistent
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 100Mi
+      - kind: ConfigMap
+        apiVersion: v1
+        metadata:
+          name: transmission-scripts
+          namespace: "{{ .Values.applicationsNamespace }}"
+        data:
+          extract-files.sh: |
+            #!/bin/bash
+
+            # Transmission completion script for automatic extraction
+
+            find "${TR_TORRENT_DIR}" -type f \( -iname "*.rar" -o -iname "*.zip" -o -iname "*.7z" \) | while read -r file; do
+                file_dir=$(dirname "${file}")
+                case "${file,,}" in
+                    *.rar)
+                        unrar x -o- "${file}" "${file_dir}" &>/dev/null
+                        ;;
+                    *.zip)
+                        unzip -o "${file}" -d "${file_dir}" &>/dev/null
+                        ;;
+                    *.7z)
+                        7z x -aoa "${file}" -o"${file_dir}" &>/dev/null
+                        ;;
+                esac
+            done
+          idle-or-stuck-cleaner.sh: |
+            #!/bin/bash
+            set -euo pipefail
+
+            USERNAME=$(cat /secrets/transmission/username)
+            PASSWORD=$(cat /secrets/transmission/password)
+            TRANSMISSION_COMMAND="transmission-remote -n $USERNAME:$PASSWORD"
+
+            THRESHOLD_IDLE_DAYS=7
+            THRESHOLD_STUCK_MINUTES=60
+            THRESHOLD_STUCK_SECONDS=3600
+
+            TORRENT_IDS=$($TRANSMISSION_COMMAND -l | awk '$1 ~ /^[0-9]+$/ {print $1}')
+            for id in $TORRENT_IDS; do
+              TORRENT_INFO="$($TRANSMISSION_COMMAND -t "$id" -i)"
+
+              NAME=$(grep "Name: " <<< "$TORRENT_INFO" | cut -d ':' -f 2- | tr -d "'" | xargs || true)
+              PERCENT_DONE=$(grep "Percent Done: " <<< "$TORRENT_INFO" | cut -d ':' -f 2- | xargs || true)
+
+              DOWNLOADING_SECONDS=$(grep "Downloading Time: " <<< "$TORRENT_INFO" | cut -d ':' -f 2- | xargs | cut -d'(' -f2 | cut -d' ' -f1 || true)
+              if [ "$PERCENT_DONE" == "0.00%" ] && [ "$DOWNLOADING_SECONDS" -ge $THRESHOLD_STUCK_SECONDS ]; then
+                echo "Removing stuck torrent '$NAME' at $PERCENT_DONE (stuck for $DOWNLOADING_SECONDS seconds)"
+                $TRANSMISSION_COMMAND -t "$id" --remove-and-delete
+                continue
+              fi
+
+              ACTIVITY_DATE=$(grep "Latest activity: " <<< "$TORRENT_INFO" | cut -d ':' -f 2- | xargs || true)
+              if [ -z "$ACTIVITY_DATE" ]; then
+                continue
+              fi
+              
+              ACTIVITY_SECONDS=$(date -d "$ACTIVITY_DATE" +%s 2>/dev/null)
+              CURRENT_SECONDS=$(date +%s)
+
+              DAYS_INACTIVE=$(( (CURRENT_SECONDS - ACTIVITY_SECONDS) / 86400 ))
+              if [ $DAYS_INACTIVE -ge $THRESHOLD_IDLE_DAYS ]; then
+                echo "Removing inative torrent '$NAME' (inactive for $DAYS_INACTIVE days)"
+                $TRANSMISSION_COMMAND -t "$id" --remove-and-delete
+                continue
+              fi
+
+              MINUTES_STUCK=$(( (CURRENT_SECONDS - ACTIVITY_SECONDS) / 60 ))
+              if [ "$PERCENT_DONE" != "100%" ] && [ $MINUTES_STUCK -ge $THRESHOLD_STUCK_MINUTES ]; then
+                echo "Removing stuck torrent '$NAME' at $PERCENT_DONE (stuck for $MINUTES_STUCK minutes)"
+                $TRANSMISSION_COMMAND -t "$id" --remove-and-delete
+                continue
+              fi
+            done
+      - kind: Deployment
+        apiVersion: apps/v1
+        metadata:
+          name: transmission
+          namespace: "{{ .Values.applicationsNamespace }}"
+          labels:
+            app: transmission
+          annotations:
+            reloader.stakater.com/auto: "true"
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: transmission
+          template:
+            metadata:
+              annotations:
+                backup.velero.io/backup-volumes: config
+              labels:
+                app: transmission
+            spec:
+              affinity:
+                podAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    - labelSelector:
+                        matchExpressions:
+                          - key: app
+                            operator: In
+                            values:
+                              - jellyfin
+                      topologyKey: "kubernetes.io/hostname"
+              containers:
+                {{- include "tunnel.sidecar" . | nindent 16 }}
+                - name: transmission
+                  image: lscr.io/linuxserver/transmission:4.0.6
+                  resources:
+                    requests:
+                      memory: 128Mi
+                      cpu: 1000m
+                    limits:
+                      memory: 2Gi
+                  ports:
+                    - name: transmission
+                      containerPort: 9091
+                  env:
+                    - name: PUID
+                      value: "1000"
+                    - name: PGID
+                      value: "1000"
+                    - name: FILE__USER
+                      value: /secrets/transmission/username
+                    - name: FILE__PASS
+                      value: /secrets/transmission/password
+                  volumeMounts:
+                    - name: multimedia
+                      subPath: Downloads
+                      mountPath: /downloads
+                    - name: transmission-secrets
+                      mountPath: /secrets/transmission
+                      readOnly: true
+                    - name: config
+                      mountPath: /config
+                    - name: transmission-scripts
+                      mountPath: /scripts/extract-files.sh
+                      subPath: extract-files.sh
+                    - name: transmission-scripts
+                      mountPath: /etc/periodic/15min/idle-or-stuck-cleaner.sh
+                      subPath: idle-or-stuck-cleaner.sh
+              volumes:
+                - name: multimedia
+                  persistentVolumeClaim:
+                    claimName: multimedia
+                - name: config
+                  persistentVolumeClaim:
+                    claimName: transmission
+                - name: transmission-scripts
+                  configMap:
+                    name: transmission-scripts
+                    defaultMode: 0755
+                - name: transmission-secrets
+                  secret:
+                    secretName: transmission
+{{- end }}
