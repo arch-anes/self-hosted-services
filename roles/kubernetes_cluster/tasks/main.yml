@@ -86,7 +86,7 @@
     name: install_tar
   vars:
     install_tar_binary_name: velero
-    install_tar_url: "https://github.com/vmware-tanzu/velero/releases/download/v1.16.2/velero-v1.16.2-linux-{{ cpu_arch }}.tar.gz"
+    install_tar_url: "https://github.com/vmware-tanzu/velero/releases/download/v1.17.0/velero-v1.17.0-linux-{{ cpu_arch }}.tar.gz"
   when:
     - k3s_control_node is defined
     - k3s_control_node
