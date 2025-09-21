@@ -230,6 +230,7 @@ spec:
             gnetId: 15469
             revision: 1
             datasource: Prometheus
+      prune: true
       sidecar:
         dashboards:
           searchNamespace: ALL
