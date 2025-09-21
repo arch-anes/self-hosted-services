@@ -273,10 +273,10 @@ spec:
         limits:
           memory: 2Gi
           # Need to set due to https://tinyurl.com/bd9j39u6
-          cpu: 2000m
+          cpu: 4000m
         requests:
           memory: 1Gi
-          cpu: 1000m
+          cpu: 2000m
     prometheus:
       prometheusSpec:
         podMonitorSelectorNilUsesHelmValues: false
