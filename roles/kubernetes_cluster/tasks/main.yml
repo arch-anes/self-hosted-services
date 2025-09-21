@@ -76,9 +76,15 @@
     - k3s_control_node is defined
     - k3s_control_node
   block:
+    - name: Add homebrew taps
+      community.general.homebrew_tap:
+        name:
+          - robusta-dev/homebrew-krr
+
     - name: Install homebrew packages
       community.general.homebrew:
         name:
           - k9s
+          - krr
           - velero
         state: latest
