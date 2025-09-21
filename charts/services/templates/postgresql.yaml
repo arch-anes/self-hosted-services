@@ -323,7 +323,7 @@ spec:
                 - name: repo2
                   schedules:
                     full: "0 0 * * 1" # Every Monday at midnight
-                    incremental: "0 * * * *" # Every hour
+                    incremental: "45 * * * *" # Every hour at :45
                   volume:
                     volumeClaimSpec:
                       accessModes:
