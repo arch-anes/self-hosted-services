@@ -1,4 +1,7 @@
 {{- if and (not .Values.disableAllApplications) .Values.applications.flaresolverr.enabled }}
+{{- if not .Values.applications.gluetun.enabled }}
+{{- fail "Flaresolverr requires gluetun to be enabled. Please enable gluetun in your values.yaml" }}
+{{- end }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -42,6 +45,7 @@ spec:
                 app: flaresolverr
             spec:
               containers:
+                {{- include "tunnel.sidecar" . | nindent 16 }}
                 - name: app
                   image: 21hsmw/flaresolverr:nodriver
                   imagePullPolicy: Always

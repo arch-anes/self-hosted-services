@@ -2,6 +2,9 @@
 {{- if not .Values.applications.postgresql.enabled }}
 {{- fail "Prowlarr requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
+{{- if not .Values.applications.gluetun.enabled }}
+{{- fail "Prowlarr requires gluetun to be enabled. Please enable gluetun in your values.yaml" }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -73,6 +76,7 @@ spec:
         app: prowlarr
     spec:
       containers:
+        {{- include "tunnel.sidecar" . | nindent 8 }}
         - name: app
           image: lscr.io/linuxserver/prowlarr:2.0.5
           livenessProbe:
