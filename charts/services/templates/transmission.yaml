@@ -179,7 +179,7 @@ spec:
                               - jellyfin
                       topologyKey: "kubernetes.io/hostname"
               containers:
-                {{- include "tunnel.sidecar" . | nindent 16 }}
+                {{- include "tunnel.deployment.container" . | nindent 16 }}
                 - name: transmission
                   image: lscr.io/linuxserver/transmission:4.0.6
                   resources:

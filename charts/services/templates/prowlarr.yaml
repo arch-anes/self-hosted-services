@@ -76,7 +76,7 @@ spec:
         app: prowlarr
     spec:
       containers:
-        {{- include "tunnel.sidecar" . | nindent 8 }}
+        {{- include "tunnel.deployment.container" . | nindent 8 }}
         - name: app
           image: lscr.io/linuxserver/prowlarr:2.0.5
           livenessProbe:

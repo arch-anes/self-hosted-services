@@ -45,7 +45,7 @@ spec:
                 app: flaresolverr
             spec:
               containers:
-                {{- include "tunnel.sidecar" . | nindent 16 }}
+                {{- include "tunnel.deployment.container" . | nindent 16 }}
                 - name: app
                   image: 21hsmw/flaresolverr:nodriver
                   imagePullPolicy: Always

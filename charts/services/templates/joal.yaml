@@ -95,7 +95,7 @@ spec:
                 app: joal
             spec:
               containers:
-                {{- include "tunnel.sidecar" . | nindent 16 }}
+                {{- include "tunnel.deployment.container" . | nindent 16 }}
                 - name: joal
                   image: anthonyraymond/joal:2.1.36
                   command: ["bash"]
