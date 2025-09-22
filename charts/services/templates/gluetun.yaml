@@ -91,6 +91,8 @@ spec:
                           key: server_countries
                 - name: socks5
                   image: httptoolkit/docker-socks-tunnel:v1.2.1
+                  args:
+                    - -q
                   ports:
                     - name: socks5
                       containerPort: 1080
