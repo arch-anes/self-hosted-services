@@ -3,130 +3,92 @@
 {{- fail "Radarr requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
 ---
-apiVersion: v1
-kind: Service
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
   name: radarr
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  ports:
-    - protocol: TCP
-      name: web
-      port: 7878
-  selector:
-    app: radarr
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: radarr
-  namespace: "{{ .Values.applicationsNamespace }}"
-  annotations:
-    homer.service.name: Arr
-    homer.item.logo: "https://raw.githubusercontent.com/Radarr/Radarr/e4429d2919f73d8ffd1389614c74e58b9a447c50/Logo/256.png"
-spec:
-  tls:
-    - hosts:
-        - radarr.{{ .Values.fqdn }}
-      secretName: "{{ .Values.fqdn }}-tls"
-  rules:
-    - host: radarr.{{ .Values.fqdn }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: radarr
-                port:
-                  name: web
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: radarr
-  namespace: "{{ .Values.applicationsNamespace }}"
-  labels:
-    app: radarr
-  annotations:
-    reloader.stakater.com/auto: "true"
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: radarr
-  template:
-    metadata:
-      labels:
-        app: radarr
-    spec:
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                      - jellyfin
-              topologyKey: "kubernetes.io/hostname"
-      containers:
-        - name: app
-          image: lscr.io/linuxserver/radarr:5.27.5
-          livenessProbe:
-            httpGet:
-              path: /ping
-              port: 7878
-            initialDelaySeconds: 15
-            periodSeconds: 30
-            failureThreshold: 5
-          resources:
-            requests:
-              memory: 256Mi
-              cpu: 250m
-            limits:
-              memory: 1Gi
-          ports:
-            - name: web
-              containerPort: 7878
-          env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
-            - name: RADARR__APP__THEME
-              value: dark
-            - name: RADARR__AUTH__METHOD
-              value: Forms
-            - name: RADARR__AUTH__REQUIRED
-              value: Enabled
-            - name: RADARR__POSTGRES__HOST
-              value: postgresql-primary
-            - name: RADARR__POSTGRES__PORT
-              value: "5432"
-            - name: RADARR__POSTGRES__MAINDB
-              value: radarr_main
-            - name: RADARR__POSTGRES__LOGDB
-              value: radarr_log
-            - name: RADARR__POSTGRES__USER
-              value: radarr
-            - name: RADARR__AUTH__APIKEY
-              valueFrom:
-                secretKeyRef:
-                  name: arr
-                  key: radarr_api_key
-            - name: RADARR__POSTGRES__PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql-pguser-radarr
-                  key: password
-          volumeMounts:
-            - name: multimedia
-              mountPath: /jellyfin
-      volumes:
-        - name: multimedia
-          persistentVolumeClaim:
-            claimName: multimedia
+  chart: oci://oci.trueforge.org/truecharts/radarr
+  version: 24.6.2
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - jellyfin
+                  topologyKey: "kubernetes.io/hostname"
+          containers:
+            main:
+              env:
+                RADARR__APP__THEME: dark
+                RADARR__AUTH__METHOD: Forms
+                RADARR__AUTH__REQUIRED: Enabled
+                RADARR__POSTGRES__HOST: postgresql-primary
+                RADARR__POSTGRES__PORT: "5432"
+                RADARR__POSTGRES__MAINDB: radarr_main
+                RADARR__POSTGRES__LOGDB: radarr_log
+                RADARR__POSTGRES__USER: radarr
+                RADARR__AUTH__APIKEY:
+                  secretKeyRef:
+                    name: arr
+                    key: radarr_api_key
+                    expandObjectName: false
+                RADARR__POSTGRES__PASSWORD:
+                  secretKeyRef:
+                    name: postgresql-pguser-radarr
+                    key: password
+                    expandObjectName: false
+            exportarr:
+              env:
+                API_KEY:
+                  secretKeyRef:
+                    name: arr
+                    key: radarr_api_key
+                    expandObjectName: false
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:    
+          homer.service.name: Arr
+          homer.item.logo: "https://raw.githubusercontent.com/Radarr/Radarr/e4429d2919f73d8ffd1389614c74e58b9a447c50/Logo/256.png"
+        hosts:
+          - host: radarr.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - radarr.{{ .Values.fqdn }}
+    persistence:
+      config:
+        type: emptyDir
+      multimedia:
+        enabled: true
+        type: pvc
+        mountPath: /jellyfin
+        existingClaim: multimedia
+    metrics:
+      main:
+        enabled: {{ and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
 {{- end }}
