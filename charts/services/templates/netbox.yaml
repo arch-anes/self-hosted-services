@@ -17,7 +17,7 @@ metadata:
 spec:
   chart: netbox
   repo: https://charts.netbox.oss.netboxlabs.com
-  version: 6.1.17
+  version: 7.0.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     loginRequired: true
