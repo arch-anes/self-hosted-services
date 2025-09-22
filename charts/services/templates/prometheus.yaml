@@ -156,6 +156,9 @@ spec:
             gnetId: 14584
             revision: 1
             datasource: Prometheus
+          arr:
+            url: https://raw.githubusercontent.com/onedr0p/exportarr/3cd394508cf9456f8df4ce4a5d1adc33bb51da2b/examples/grafana/dashboard2.json
+            datasource: Prometheus
           authentik:
             gnetId: 14837
             revision: 2
