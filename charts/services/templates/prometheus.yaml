@@ -32,7 +32,7 @@ metadata:
 spec:
   chart: rancher-monitoring
   repo: https://charts.rancher.io/
-  version: 107.1.0
+  version: 107.2.0+up69.8.2-rancher.20
   targetNamespace: kube-system
   valuesContent: |-
     crds:
