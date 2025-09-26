@@ -30,6 +30,9 @@ spec:
                   topologyKey: "kubernetes.io/hostname"
           containers:
             main:
+              securityContext:
+                runAsUser: 1000
+                runAsGroup: 1000
               env:
                 RADARR__APP__THEME: dark
                 RADARR__AUTH__METHOD: Forms
