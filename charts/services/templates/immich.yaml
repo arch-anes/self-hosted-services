@@ -28,7 +28,7 @@ metadata:
   annotations:
     homer.service.name: Media
     homer.item.name: immich
-    homer.item.logo: "https://immich.app/img/immich-logo-stacked-dark.svg"
+    homer.item.logo: "https://raw.githubusercontent.com/immich-app/immich/3bcb4b7af7b903cf6d2df6933b6ad092b12296ce/design/immich-logo.svg"
 spec:
   tls:
     - hosts:
