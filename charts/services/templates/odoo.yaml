@@ -1,0 +1,97 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.odoo.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Odoo requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: odoo
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://oci.trueforge.org/truecharts/odoo
+  version: 22.2.2
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+          backup.velero.io/backup-volumes: odoo
+        podSpec:
+          initContainers:
+            init-db:
+              enabled: false
+          containers:
+            main:
+              args:
+                - --init=base
+                - --without-demo=all
+              env:
+                HOST: postgresql-primary
+                USER: odoo
+                DATABASE: odoo
+                PASSWORD:
+                  secretKeyRef:
+                    name: postgresql-pguser-odoo
+                    key: password
+                    expandObjectName: false
+    configmap:
+      odoo-config:
+        enabled: false
+      config:
+        enabled: true
+        data:
+          odoo.conf: |-
+            [options]
+            ; Paths
+            data_dir = /var/lib/odoo
+            addons_path = /var/lib/odoo/extra-addons
+            ; Network Details
+            http_enable = True
+            http_port = 8069
+            ; Database Details
+            db_name = odoo
+            db_sslmode = disable
+            ; Required to avoid the selector
+            admin_passwd = admin
+            list_db = False
+    resources:
+      requests:
+        memory: 500Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          homer.service.name: Administration
+          homer.item.logo: "https://djeqr6to3dedg.cloudfront.net/repo-logos/library/odoo/live/logo-1720462245016.png"
+        hosts:
+          - host: odoo.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - odoo.{{ .Values.fqdn }}
+    persistence:
+      odoo:
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+      addons:
+        enabled: false
+      odoo-config:
+        objectName: config
+    cnpg:
+      main:
+        enabled: false
+        creds:
+          host: "dummy"
+          password: "dummy"
+{{- end }}
