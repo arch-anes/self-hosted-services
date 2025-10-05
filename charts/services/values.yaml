@@ -139,6 +139,8 @@ applications:
     enabled: true
   octoprint:
     enabled: true
+  odoo:
+    enabled: true
   pgadmin4:
     enabled: true
   postgresql:

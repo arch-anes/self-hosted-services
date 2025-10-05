@@ -262,6 +262,9 @@ spec:
                 type: AlphaNumeric
               databases:
                 - obico
+            - name: odoo
+              databases:
+                - odoo
             - name: pgadmin4
               password:
                 type: AlphaNumeric
