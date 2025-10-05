@@ -284,6 +284,11 @@ spec:
               databases:
                 - obico
 {{- end }}
+{{- if .Values.applications.odoo.enabled }}
+            - name: odoo
+              databases:
+                - odoo
+{{- end }}
 {{- if .Values.applications.pgadmin4.enabled }}
             - name: pgadmin4
               password:
