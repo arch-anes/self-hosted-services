@@ -61,7 +61,7 @@ spec:
                     expandObjectName: false
     resources:
       requests:
-        memory: 256Mi
+        memory: 500Mi
         cpu: 250m
       limits:
         memory: 1Gi
