@@ -105,10 +105,10 @@ spec:
             failureThreshold: 5
           resources:
             requests:
-              memory: 1Gi
+              memory: 2Gi
               cpu: 1000m
             limits:
-              memory: 2Gi
+              memory: 4Gi
               {{- $gpuVendor := .Values.applications.jellyfin.gpu_vendor }}
               {{- if eq $gpuVendor "intel" }}
                 {{- if not .Values.applications.intel_gpu.enabled }}
