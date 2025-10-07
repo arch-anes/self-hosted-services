@@ -152,27 +152,38 @@ spec:
                 path: /var/lib/grafana/dashboards/default
       dashboards:
         default:
-          app-logs:
-            gnetId: 13639
-            revision: 2
-            datasource: Loki
-          argo-cd:
-            gnetId: 14584
-            revision: 1
-            datasource: Prometheus
-          arr:
-            url: https://raw.githubusercontent.com/onedr0p/exportarr/3cd394508cf9456f8df4ce4a5d1adc33bb51da2b/examples/grafana/dashboard2.json
-            datasource: Prometheus
-          authentik:
-            gnetId: 14837
-            revision: 2
-            datasource: Prometheus
           cert-manager:
             gnetId: 20340
             revision: 1
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
+          traefik:
+            gnetId: 17347
+            revision: 9
+            datasource: Prometheus
+          node-exporter-full:
+            gnetId: 1860
+            revision: 41
+            datasource: Prometheus
+{{- if .Values.applications.argo.enabled }}
+          argo-cd:
+            gnetId: 14584
+            revision: 1
+            datasource: Prometheus
+{{- end }}
+{{- if or .Values.applications.prowlarr.enabled .Values.applications.radarr.enabled .Values.applications.sonarr.enabled }}
+          arr:
+            url: https://raw.githubusercontent.com/onedr0p/exportarr/3cd394508cf9456f8df4ce4a5d1adc33bb51da2b/examples/grafana/dashboard2.json
+            datasource: Prometheus
+{{- end }}
+{{- if .Values.applications.authentik.enabled }}
+          authentik:
+            gnetId: 14837
+            revision: 2
+            datasource: Prometheus
+{{- end }}
+{{- if .Values.applications.crowdsec.enabled }}
           crowdsec:
             gnetId: 24049
             revision: 1
@@ -181,6 +192,12 @@ spec:
                 value: Prometheus
               - name: DS_LOKI
                 value: Loki
+{{- end }}
+{{- if .Values.applications.loki.enabled }}
+          app-logs:
+            gnetId: 13639
+            revision: 2
+            datasource: Loki
           loki:
             gnetId: 14055
             revision: 5
@@ -189,6 +206,8 @@ spec:
                 value: Prometheus
               - name: DS_LOKI
                 value: Loki
+{{- end }}
+{{- if .Values.applications.postgresql.enabled }}
           pgbackrest:
             url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/6b9bb005f171690d228bf49ca19f8f4caff95451/kustomize/monitoring/grafana/dashboards/pgbackrest.json
             datasource: Prometheus
@@ -204,26 +223,24 @@ spec:
           postgresql-query-statistics:
             url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/6b9bb005f171690d228bf49ca19f8f4caff95451/kustomize/monitoring/grafana/dashboards/query_statistics.json
             datasource: Prometheus
+{{- end }}
+{{- if .Values.applications.minio.enabled }}
           minio:
             gnetId: 13502
             revision: 26
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
-          node-exporter-full:
-            gnetId: 1860
-            revision: 41
-            datasource: Prometheus
+{{- end }}
+{{- if .Values.applications.node_problem_detector.enabled }}
           node-problem-detector:
             gnetId: 15549
             revision: 1
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
-          traefik:
-            gnetId: 17347
-            revision: 9
-            datasource: Prometheus
+{{- end }}
+{{- if .Values.applications.redis.enabled }}
           redis:
             gnetId: 763
             revision: 6
@@ -234,11 +251,14 @@ spec:
             gnetId: 14091
             revision: 1
             datasource: Prometheus
+{{- end }}
+{{- if .Values.applications.velero.enabled }}
           velero:
             # gnetId: 23838
             gnetId: 15469
             revision: 1
             datasource: Prometheus
+{{- end }}
       prune: true
       sidecar:
         dashboards:
