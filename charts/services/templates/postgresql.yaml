@@ -225,71 +225,105 @@ spec:
                   - "hostssl all all 10.43.0.0/16 scram-sha-256"
           users:
             - name: postgres
+{{- if .Values.applications.authentik.enabled }}
             - name: authentik
               databases:
                 - authentik
+{{- end }}
+{{- if .Values.applications.bazarr.enabled }}
             - name: bazarr
               databases:
                 - bazarr
+{{- end }}
+{{- if .Values.applications.gotify.enabled }}
             - name: gotify
               databases:
                 - gotify
+{{- end }}
+{{- if .Values.applications.home_assistant.enabled }}
             - name: home-assistant
               databases:
                 - home-assistant
+{{- end }}
+{{- if .Values.applications.immich.enabled }}
             - name: immich
               databases:
                 - immich
+{{- end }}
+{{- if .Values.applications.inventree.enabled }}
             - name: inventree
               databases:
                 - inventree
+{{- end }}
+{{- if .Values.applications.miniflux.enabled }}
             - name: miniflux
               password:
                 type: AlphaNumeric
               databases:
                 - miniflux
+{{- end }}
+{{- if .Values.applications.n8n.enabled }}
             - name: n8n
               databases:
                 - n8n
+{{- end }}
+{{- if .Values.applications.netbox.enabled }}
             - name: netbox
               databases:
                 - netbox
+{{- end }}
+{{- if .Values.applications.nextcloud.enabled }}
             - name: nextcloud
               databases:
                 - nextcloud
+{{- end }}
+{{- if .Values.applications.obico.enabled }}
             - name: obico
               password:
                 type: AlphaNumeric
               databases:
                 - obico
+{{- end }}
+{{- if .Values.applications.pgadmin4.enabled }}
             - name: pgadmin4
               password:
                 type: AlphaNumeric
               databases:
                 - pgadmin4
+{{- end }}
+{{- if .Values.applications.prowlarr.enabled }}
             - name: prowlarr
               databases:
                 - prowlarr_log
                 - prowlarr_main
+{{- end }}
+{{- if .Values.applications.radarr.enabled }}
             - name: radarr
               databases:
                 - radarr_log
                 - radarr_main
+{{- end }}
+{{- if .Values.applications.sonarr.enabled }}
             - name: sonarr
               databases:
                 - sonarr_log
                 - sonarr_main
+{{- end }}
+{{- if .Values.applications.speedtest_tracker.enabled }}
             - name: speedtest-tracker
               databases:
                 - speedtest-tracker
+{{- end }}
+{{- if .Values.applications.tandoor.enabled }}
             - name: tandoor
               databases:
                 - tandoor
+{{- end }}
             {{- .Values.applications.postgresql.additionalUsers | toYaml | nindent 12 }}
           databaseInitSQL:
             name: postgresql
             key: bootstrap.sql
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+{{- if .Values.applications.prometheus.enabled }}
           monitoring:
             pgmonitor:
               exporter: {}
