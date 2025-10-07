@@ -9,6 +9,7 @@
 # stringData:
 #   grafana-admin-user: "someuser"
 #   grafana-admin-password: "somepass"
+#   grafana-gotify-token: "sometoken"
 
 ---
 apiVersion: helm.cattle.io/v1
@@ -91,6 +92,30 @@ spec:
     grafana:
       annotations:
         reloader.stakater.com/auto: "true"
+{{- if .Values.applications.gotify.enabled }}
+      envValueFrom:
+        GOTIFY_TOKEN:
+          secretKeyRef:
+            name: prometheus
+            key: grafana-gotify-token
+      alerting:
+        contactpoints.yaml:
+          secret:
+            apiVersion: 1
+            contactPoints:
+              - orgId: 1
+                name: gotify
+                receivers:
+                  - uid: gotify-webhook
+                    type: webhook
+                    disableResolveMessage: false
+                    settings:
+                      url: "http://gotify.{{ .Values.applicationsNamespace }}.svc.cluster.local/message?token=${GOTIFY_TOKEN}"
+                      httpMethod: POST
+                      httpHeader:
+                        - key: Content-Type
+                          value: application/json
+{{- end }}
 {{- if and (not .Values.disableAllApplications) (or .Values.applications.loki.enabled .Values.applications.tempo.enabled) }}
       additionalDataSources:
 {{- if .Values.applications.loki.enabled }}
