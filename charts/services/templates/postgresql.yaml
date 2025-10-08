@@ -25,6 +25,7 @@ spec:
 
 {{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
 ---
+# Source: https://github.com/CrunchyData/postgres-operator-examples
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -37,23 +38,60 @@ spec:
   targetNamespace: kube-system
   valuesContent: |-
     objects:
-      # Source: https://github.com/ducnguyen-kasha-io/kasha-lab/blob/a954f765383ed322bdb1b6acda2be7628680ffc4/raw-templates/postgres-pgo/podmonitor.yaml
+      - apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: prometheus-pgo
+          namespace: kube-system
+      - apiVersion: v1
+        kind: Secret
+        type: kubernetes.io/service-account-token
+        metadata:
+          name: prometheus-pgo
+          namespace: kube-system
+          annotations:
+            kubernetes.io/service-account.name: prometheus-pgo
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRole
+        metadata:
+          name: prometheus-pgo
+        rules:
+          - nonResourceURLs:
+              - /metrics
+            verbs:
+              - get
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        metadata:
+          name: prometheus-pgo
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: prometheus-pgo
+        subjects:
+          - kind: ServiceAccount
+            name: prometheus-pgo
+            namespace: postgres-operator
       - apiVersion: monitoring.coreos.com/v1
         kind: PodMonitor
         metadata:
           name: pgo-metrics
           namespace: kube-system
-          labels:
-            app: postgres-operator
         spec:
           selector:
-            matchLabels:
-              postgres-operator.crunchydata.com/control-plane: "pgo"
+            matchExpressions:
+              - key: postgres-operator.crunchydata.com/control-plane
+                operator: Exists
           podMetricsEndpoints:
             - port: metrics
               scheme: https
               interval: 15s
               scrapeTimeout: 15s
+              authorization:
+                type: Bearer
+                credentials:
+                  name: prometheus-pgo
+                  key: token
               tlsConfig:
                 insecureSkipVerify: true
       - apiVersion: monitoring.coreos.com/v1
