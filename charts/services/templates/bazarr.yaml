@@ -45,35 +45,20 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: bazarr-scripts
+  name: bazarr
   namespace: "{{ .Values.applicationsNamespace }}"
 data:
-  create-config.sh: |
-    #!/bin/bash
-
-    set -e
-    set -u
-
-    mkdir -p /config/config
-
-    cat <<EOCONF > /config/config/config.yaml
-    ---
+  config.yaml: |-
     analytics:
       enabled: false
     anidb:
-      api_client: $ANIDB_API_CLIENT
       api_client_ver: 1
     animetosho:
-      anidb_api_client: $ANIDB_API_CLIENT
       anidb_api_client_ver: 1
       search_threshold: 6
     auth:
-      apikey: $BAZARR_API_KEY
-      password: $BAZARR_ADMIN_PASSWORD_HASH
       type: form
       username: admin
-    betaseries:
-      token: $BETASERIES_API_KEY
     cors:
       enabled: false
     embeddedsubtitles:
@@ -100,11 +85,11 @@ data:
       embedded_subs_show_desired: true
       embedded_subtitles_parser: ffprobe
       enabled_integrations:
-      - anidb
+        - anidb
       enabled_providers:
-      - betaseries
-      - embeddedsubtitles
-      - animetosho
+        - betaseries
+        - embeddedsubtitles
+        - animetosho
       hi_extension: hi
       ignore_ass_subs: false
       ignore_pgs_subs: false
@@ -161,11 +146,9 @@ data:
       database: bazarr
       enabled: true
       host: postgresql-primary
-      password: $POSTGRES_PASSWORD
       port: 5432
-      username: $POSTGRES_USERNAME
+      username: bazarr
     radarr:
-      apikey: $RADARR_API_KEY
       base_url: ''
       defer_search_signalr: false
       excluded_tags: []
@@ -194,7 +177,6 @@ data:
       video_codec: 2
       year: 90
     sonarr:
-      apikey: $SONARR_API_KEY
       base_url: ''
       defer_search_signalr: false
       exclude_season_zero: false
@@ -226,9 +208,6 @@ data:
       use_subsync: true
       use_subsync_movie_threshold: true
       use_subsync_threshold: true
-    EOCONF
-
-    chown -R $PUID:$PGID /config
 
 ---
 apiVersion: apps/v1
@@ -260,6 +239,16 @@ spec:
                     values:
                       - jellyfin
               topologyKey: "kubernetes.io/hostname"
+      initContainers:
+        # This copy is needed because otherwise the configMap is read-only and bazarr crashes
+        - name: seed-config
+          image: busybox:stable
+          command: [sh, -c, "cp /seed/config.yaml /config/config.yaml"]
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: config-seed
+              mountPath: /seed
       containers:
         - name: app
           image: lscr.io/linuxserver/bazarr:1.5.2
@@ -284,39 +273,44 @@ spec:
               value: "1000"
             - name: PGID
               value: "1000"
-            - name: SONARR_API_KEY
+            - name: ENVVAR_PREFIX_FOR_DYNACONF
+              value: BAZARR_CONFIG
+            - name: BAZARR_CONFIG_sonarr__apikey
               valueFrom:
                 secretKeyRef:
                   name: arr
                   key: sonarr_api_key
-            - name: RADARR_API_KEY
+            - name: BAZARR_CONFIG_radarr__apikey
               valueFrom:
                 secretKeyRef:
                   name: arr
                   key: radarr_api_key
-            - name: BAZARR_API_KEY
+            - name: BAZARR_CONFIG_auth__apikey
               valueFrom:
                 secretKeyRef:
                   name: arr
                   key: bazarr_api_key
-            - name: BAZARR_ADMIN_PASSWORD_HASH
+            - name: BAZARR_CONFIG_auth__password
               valueFrom:
                 secretKeyRef:
                   name: arr
                   key: bazarr_admin_password_hash
-            - name: BETASERIES_API_KEY
+            - name: BAZARR_CONFIG_betaseries__token
               valueFrom:
                 secretKeyRef:
                   name: arr
                   key: betaseries_api_key
-            - name: ANIDB_API_CLIENT
+            - name: BAZARR_CONFIG_anidb__api_client
               valueFrom:
                 secretKeyRef:
                   name: arr
                   key: anidb_api_client
-            - name: POSTGRES_USERNAME
-              value: bazarr
-            - name: POSTGRES_PASSWORD
+            - name: BAZARR_CONFIG_animetosho__anidb_api_client
+              valueFrom:
+                secretKeyRef:
+                  name: arr
+                  key: anidb_api_client
+            - name: BAZARR_CONFIG_postgresql__password
               valueFrom:
                 secretKeyRef:
                   name: postgresql-pguser-bazarr
@@ -324,16 +318,17 @@ spec:
             - name: PGSSLCERT
               value: /tmp/postgresql.crt
           volumeMounts:
-            - name: scripts
-              mountPath: /custom-cont-init.d/create-config.sh
-              subPath: create-config.sh
+            - name: config
+              mountPath: /config/config
             - name: multimedia
               mountPath: /jellyfin
       volumes:
-        - name: scripts
+        - name: config-seed
           configMap:
-            name: bazarr-scripts
-            defaultMode: 0744
+            name: bazarr
+            defaultMode: 0644
+        - name: config
+          emptyDir: {}
         - name: multimedia
           persistentVolumeClaim:
             claimName: multimedia
