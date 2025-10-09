@@ -94,4 +94,14 @@ spec:
     metrics:
       main:
         enabled: {{ and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+        endpoints:
+          - port: metrics
+            path: /metrics
+            relabelings:
+              - action: replace
+                # Stable “instance” = app.kubernetes.io/instance (radarr|sonarr|prowlarr|bazarr)
+                sourceLabels: [__meta_kubernetes_namespace, __meta_kubernetes_pod_label_app_kubernetes_io_instance]
+                separator: ":"
+                replacement: "$1$2"
+                targetLabel: instance
 {{- end }}
