@@ -20,7 +20,7 @@ metadata:
 spec:
   chart: prometheus-operator-crds
   repo: https://prometheus-community.github.io/helm-charts
-  version: 24.0.0
+  version: 24.0.1
   targetNamespace: kube-system
   bootstrap: true
 
@@ -31,35 +31,13 @@ metadata:
   name: prometheus
   namespace: kube-system
 spec:
-  chart: rancher-monitoring
-  repo: https://charts.rancher.io/
-  version: 107.2.0+up69.8.2-rancher.20
+  chart: kube-prometheus-stack
+  repo: https://prometheus-community.github.io/helm-charts
+  version: 78.3.1
   targetNamespace: kube-system
   valuesContent: |-
     crds:
       enabled: false
-    namespaceOverride: kube-system
-    rancherMonitoring:
-      enabled: false
-    prometheus-adapter:
-      prometheus:
-        url: http://rancher-monitoring-prometheus.kube-system.svc
-    k3sServer:
-      enabled: true
-      clients:
-        resources:
-          limits:
-            memory: 64Mi
-          requests:
-            memory: 16Mi
-            cpu: 100m
-      proxy:
-        resources:
-          limits:
-            memory: 64Mi
-          requests:
-            memory: 16Mi
-            cpu: 100m
     prometheus-node-exporter:
       hostNetwork: false
       prometheus:
@@ -87,8 +65,6 @@ spec:
     defaultRules:
       rules:
         windows: false
-    windowsExporter:
-      enabled: false
     grafana:
       annotations:
         reloader.stakater.com/auto: "true"
@@ -293,17 +269,10 @@ spec:
         userKey: grafana-admin-user
         passwordKey: grafana-admin-password
       grafana.ini:
-        auth.anonymous:
-          enabled: false
         server:
           root_url: https://grafana.{{ .Values.fqdn }}
           domain: grafana.{{ .Values.fqdn }}
           serve_from_sub_path: true
-      extraContainers: []
-      service:
-        enabled: true
-        port: 80
-        targetPort: 3000
       ingress:
         enabled: true
         annotations:
@@ -331,8 +300,6 @@ spec:
       resources:
         limits:
           memory: 2Gi
-          # Need to set due to https://tinyurl.com/bd9j39u6
-          cpu: 4000m
         requests:
           memory: 1Gi
           cpu: 2000m
@@ -359,4 +326,101 @@ spec:
           requests:
             cpu: 500m
             memory: 1Gi
+    ## k3s only ##
+    # Avoid duplicated metrics in k3s: https://tinyurl.com/mrhjre9n
+    kubelet:
+      jobNameOverride: k3s-server
+      service:
+        enabled: false
+      serviceMonitor:
+        enabled: false
+    # Disable community scrapers and let pushprox scrape metrics instead for k3s
+    kubeControllerManager:
+      jobNameOverride: k3s-server
+      service:
+        enabled: false
+      serviceMonitor:
+        enabled: false
+    kubeScheduler:
+      jobNameOverride: k3s-server
+      service:
+        enabled: false
+      serviceMonitor:
+        enabled: false
+    kubeProxy:
+      jobNameOverride: k3s-server
+      service:
+        enabled: false
+      serviceMonitor:
+        enabled: false
+    kubeEtcd:
+      service:
+        enabled: false
+      serviceMonitor:
+        enabled: false
+    extraManifests:
+      - apiVersion: helm.cattle.io/v1
+        kind: HelmChart
+        metadata:
+          name: pushprox-k3s-server
+          namespace: kube-system
+        spec:
+          chart: rancher-pushprox
+          repo: https://arch-anes.github.io/charts
+          version: 0.1.0
+          targetNamespace: kube-system
+          valuesContent: |-
+            metricsPort: 10250
+            component: k3s-server
+            clients:
+              port: 10013
+              useLocalhost: true
+              resources:
+                limits:
+                  memory: 64Mi
+                requests:
+                  memory: 16Mi
+                  cpu: 100m
+              https:
+                enabled: true
+                useServiceAccountCredentials: true
+                insecureSkipVerify: true
+              rbac:
+                additionalRules:
+                  - nonResourceURLs: ["/metrics/cadvisor"]
+                    verbs: ["get"]
+                  - apiGroups: [""]
+                    resources: ["nodes/metrics"]
+                    verbs: ["get"]
+              tolerations:
+                - effect: "NoExecute"
+                  operator: "Exists"
+                - effect: "NoSchedule"
+                  operator: "Exists"
+            serviceMonitor:
+              endpoints:
+                - port: metrics
+                  honorLabels: true
+                  relabelings:
+                    - sourceLabels: [__metrics_path__]
+                      targetLabel: metrics_path
+                - port: metrics
+                  path: /metrics/cadvisor
+                  honorLabels: true
+                  relabelings:
+                    - sourceLabels: [__metrics_path__]
+                      targetLabel: metrics_path
+                - port: metrics
+                  path: /metrics/probes
+                  honorLabels: true
+                  relabelings:
+                    - sourceLabels: [__metrics_path__]
+                      targetLabel: metrics_path
+            proxy:
+              resources:
+                limits:
+                  memory: 64Mi
+                requests:
+                  memory: 16Mi
+                  cpu: 100m
 {{- end }}
