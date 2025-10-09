@@ -3,333 +3,320 @@
 {{- fail "Bazarr requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
 ---
-apiVersion: v1
-kind: Service
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
   name: bazarr
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  ports:
-    - protocol: TCP
-      name: web
-      port: 6767
-  selector:
-    app: bazarr
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: bazarr
-  namespace: "{{ .Values.applicationsNamespace }}"
-  annotations:
-    homer.service.name: Arr
-    homer.item.logo: "https://raw.githubusercontent.com/morpheus65535/bazarr/8282899facad2bc0bb096664a76571fd4f5ec2c9/frontend/public/images/logo128.png"
-spec:
-  tls:
-    - hosts:
-        - bazarr.{{ .Values.fqdn }}
-      secretName: "{{ .Values.fqdn }}-tls"
-  rules:
-    - host: bazarr.{{ .Values.fqdn }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: bazarr
-                port:
-                  name: web
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: bazarr
-  namespace: "{{ .Values.applicationsNamespace }}"
-data:
-  config.yaml: |-
-    analytics:
-      enabled: false
-    anidb:
-      api_client_ver: 1
-    animetosho:
-      anidb_api_client_ver: 1
-      search_threshold: 6
-    auth:
-      type: form
-      username: admin
-    cors:
-      enabled: false
-    embeddedsubtitles:
-      fallback_lang: en
-      hi_fallback: false
-      included_codecs: []
-      timeout: 600
-      unknown_as_fallback: false
-    general:
-      adaptive_searching: true
-      adaptive_searching_delay: 3w
-      adaptive_searching_delta: 1w
-      anti_captcha_provider: null
-      auto_update: false
-      base_url: ''
-      branch: master
-      chmod: '0640'
-      chmod_enabled: false
-      days_to_upgrade_subs: 7
-      debug: false
-      default_und_audio_lang: en
-      default_und_embedded_subtitles_lang: ''
-      dont_notify_manual_actions: false
-      embedded_subs_show_desired: true
-      embedded_subtitles_parser: ffprobe
-      enabled_integrations:
-        - anidb
-      enabled_providers:
-        - betaseries
-        - embeddedsubtitles
-        - animetosho
-      hi_extension: hi
-      ignore_ass_subs: false
-      ignore_pgs_subs: false
-      ignore_vobsub_subs: false
-      ip: 0.0.0.0
-      language_equals: []
-      minimum_score: 90
-      minimum_score_movie: 80
-      movie_default_enabled: true
-      movie_default_profile: 1
-      multithreading: true
-      page_size: 25
-      parse_embedded_audio_track: true
-      path_mappings: []
-      path_mappings_movie: []
-      port: 6767
-      postprocessing_cmd: ''
-      postprocessing_threshold: 90
-      postprocessing_threshold_movie: 70
-      serie_default_enabled: true
-      serie_default_profile: 1
-      single_language: false
-      skip_hashing: false
-      subfolder: current
-      subfolder_custom: ''
-      subzero_mods: ''
-      theme: auto
-      upgrade_frequency: 12
-      upgrade_manual: true
-      upgrade_subs: true
-      use_embedded_subs: true
-      use_postprocessing: false
-      use_postprocessing_threshold: false
-      use_postprocessing_threshold_movie: false
-      use_radarr: true
-      use_scenename: true
-      use_sonarr: true
-      utf8_encode: true
-      wanted_search_frequency: 6
-      wanted_search_frequency_movie: 6
-    movie_scores:
-      audio_codec: 3
-      edition: 1
-      hash: 119
-      hearing_impaired: 1
-      release_group: 13
-      resolution: 2
-      source: 7
-      streaming_service: 1
-      title: 60
-      video_codec: 2
-      year: 30
-    postgresql:
-      database: bazarr
-      enabled: true
-      host: postgresql-primary
-      port: 5432
-      username: bazarr
-    radarr:
-      base_url: ''
-      defer_search_signalr: false
-      excluded_tags: []
-      full_update: Daily
-      full_update_day: 6
-      full_update_hour: 4
-      http_timeout: 60
-      ip: radarr
-      movies_sync: 60
-      only_monitored: false
-      port: 7878
-      ssl: false
-      sync_only_monitored_movies: false
-      use_ffprobe_cache: true
-    series_scores:
-      audio_codec: 3
-      episode: 30
-      hash: 359
-      hearing_impaired: 1
-      release_group: 14
-      resolution: 2
-      season: 30
-      series: 180
-      source: 7
-      streaming_service: 1
-      video_codec: 2
-      year: 90
-    sonarr:
-      base_url: ''
-      defer_search_signalr: false
-      exclude_season_zero: false
-      excluded_series_types: []
-      excluded_tags: []
-      full_update: Daily
-      full_update_day: 6
-      full_update_hour: 4
-      http_timeout: 60
-      ip: sonarr
-      only_monitored: false
-      port: 8989
-      series_sync: 60
-      ssl: false
-      sync_only_monitored_episodes: false
-      sync_only_monitored_series: false
-      use_ffprobe_cache: true
-    subsync:
-      checker:
-        blacklisted_languages: []
-        blacklisted_providers: []
-      debug: false
-      force_audio: false
-      gss: true
-      max_offset_seconds: 60
-      no_fix_framerate: true
-      subsync_movie_threshold: 86
-      subsync_threshold: 96
-      use_subsync: true
-      use_subsync_movie_threshold: true
-      use_subsync_threshold: true
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: bazarr
-  namespace: "{{ .Values.applicationsNamespace }}"
-  labels:
-    app: bazarr
-  annotations:
-    reloader.stakater.com/auto: "true"
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: bazarr
-  template:
-    metadata:
-      labels:
-        app: bazarr
-    spec:
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                      - jellyfin
-              topologyKey: "kubernetes.io/hostname"
-      initContainers:
-        # This copy is needed because otherwise the configMap is read-only and bazarr crashes
-        - name: seed-config
-          image: busybox:stable
-          command: [sh, -c, "cp /seed/config.yaml /config/config.yaml"]
-          volumeMounts:
-            - name: config
-              mountPath: /config
-            - name: config-seed
+  chart: oci://oci.trueforge.org/truecharts/bazarr
+  version: 22.9.0
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - jellyfin
+                  topologyKey: "kubernetes.io/hostname"
+          initContainers:
+            init:
+              securityContext:
+                runAsUser: 1000
+                runAsGroup: 1000
+              enabled: true
+              type: init
+              imageSelector: alpineImage
+              command: [/bin/sh]
+              args: [-c, "mkdir -p /config/config && cp /seed/config.yaml /config/config/config.yaml"]
+          containers:
+            main:
+              securityContext:
+                runAsUser: 1000
+                runAsGroup: 1000
+              env:
+                ENVVAR_PREFIX_FOR_DYNACONF: BAZARR_CONFIG
+                BAZARR_CONFIG_sonarr__apikey:
+                  secretKeyRef:
+                    name: arr
+                    key: sonarr_api_key
+                    expandObjectName: false
+                BAZARR_CONFIG_radarr__apikey:
+                  secretKeyRef:
+                    name: arr
+                    key: radarr_api_key
+                    expandObjectName: false
+                BAZARR_CONFIG_auth__apikey:
+                  secretKeyRef:
+                    name: arr
+                    key: bazarr_api_key
+                    expandObjectName: false
+                BAZARR_CONFIG_auth__password:
+                  secretKeyRef:
+                    name: arr
+                    key: bazarr_admin_password_hash
+                    expandObjectName: false
+                BAZARR_CONFIG_betaseries__token:
+                  secretKeyRef:
+                    name: arr
+                    key: betaseries_api_key
+                    expandObjectName: false
+                BAZARR_CONFIG_anidb__api_client:
+                  secretKeyRef:
+                    name: arr
+                    key: anidb_api_client
+                    expandObjectName: false
+                BAZARR_CONFIG_animetosho__anidb_api_client:
+                  secretKeyRef:
+                    name: arr
+                    key: anidb_api_client
+                    expandObjectName: false
+                BAZARR_CONFIG_postgresql__password:
+                  secretKeyRef:
+                    name: postgresql-pguser-bazarr
+                    key: password
+                    expandObjectName: false
+                PGSSLCERT: /tmp/postgresql.crt
+            exportarr:
+              env:
+                API_KEY:
+                  secretKeyRef:
+                    name: arr
+                    key: bazarr_api_key
+                    expandObjectName: false
+    resources:
+      requests:
+        memory: 500Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:    
+          homer.service.name: Arr
+          homer.item.logo: "https://raw.githubusercontent.com/morpheus65535/bazarr/8282899facad2bc0bb096664a76571fd4f5ec2c9/frontend/public/images/logo128.png"
+        hosts:
+          - host: bazarr.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - bazarr.{{ .Values.fqdn }}
+    persistence:
+      seed:
+        enabled: true
+        type: "configmap"
+        objectName: seed
+        targetSelector:
+          main:
+            init:
               mountPath: /seed
-      containers:
-        - name: app
-          image: lscr.io/linuxserver/bazarr:1.5.2
-          livenessProbe:
-            httpGet:
-              path: /ping
+      config:
+        type: emptyDir
+        targetSelector:
+          main:
+            init:
+              mountPath: /config
+            main:
+              mountPath: /config
+            exportarr:
+              mountPath: /config
+              readOnly: true
+      multimedia:
+        enabled: true
+        type: pvc
+        mountPath: /jellyfin
+        existingClaim: multimedia
+    metrics:
+      main:
+        enabled: {{ and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+        endpoints:
+          - port: metrics
+            path: /metrics
+            relabelings:
+              - action: replace
+                # Stable “instance” = app.kubernetes.io/instance (bazarr|sonarr|prowlarr|bazarr)
+                sourceLabels: [__meta_kubernetes_namespace, __meta_kubernetes_pod_label_app_kubernetes_io_instance]
+                separator: ":"
+                replacement: "$1$2"
+                targetLabel: instance
+    configmap:
+      seed:
+        enabled: true
+        data:
+          config.yaml: |-
+            analytics:
+              enabled: false
+            anidb:
+              api_client_ver: 1
+            animetosho:
+              anidb_api_client_ver: 1
+              search_threshold: 6
+            auth:
+              type: form
+              username: admin
+            cors:
+              enabled: false
+            embeddedsubtitles:
+              fallback_lang: en
+              hi_fallback: false
+              included_codecs: []
+              timeout: 600
+              unknown_as_fallback: false
+            general:
+              adaptive_searching: true
+              adaptive_searching_delay: 3w
+              adaptive_searching_delta: 1w
+              anti_captcha_provider: null
+              auto_update: false
+              base_url: ''
+              branch: master
+              chmod: '0640'
+              chmod_enabled: false
+              days_to_upgrade_subs: 7
+              debug: false
+              default_und_audio_lang: en
+              default_und_embedded_subtitles_lang: ''
+              dont_notify_manual_actions: false
+              embedded_subs_show_desired: true
+              embedded_subtitles_parser: ffprobe
+              enabled_integrations:
+                - anidb
+              enabled_providers:
+                - betaseries
+                - embeddedsubtitles
+                - animetosho
+              hi_extension: hi
+              ignore_ass_subs: false
+              ignore_pgs_subs: false
+              ignore_vobsub_subs: false
+              ip: 0.0.0.0
+              language_equals: []
+              minimum_score: 90
+              minimum_score_movie: 80
+              movie_default_enabled: true
+              movie_default_profile: 1
+              multithreading: true
+              page_size: 25
+              parse_embedded_audio_track: true
+              path_mappings: []
+              path_mappings_movie: []
               port: 6767
-            initialDelaySeconds: 15
-            periodSeconds: 30
-            failureThreshold: 5
-          resources:
-            requests:
-              memory: 256Mi
-              cpu: 250m
-            limits:
-              memory: 1Gi
-          ports:
-            - name: web
-              containerPort: 6767
-          env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
-            - name: ENVVAR_PREFIX_FOR_DYNACONF
-              value: BAZARR_CONFIG
-            - name: BAZARR_CONFIG_sonarr__apikey
-              valueFrom:
-                secretKeyRef:
-                  name: arr
-                  key: sonarr_api_key
-            - name: BAZARR_CONFIG_radarr__apikey
-              valueFrom:
-                secretKeyRef:
-                  name: arr
-                  key: radarr_api_key
-            - name: BAZARR_CONFIG_auth__apikey
-              valueFrom:
-                secretKeyRef:
-                  name: arr
-                  key: bazarr_api_key
-            - name: BAZARR_CONFIG_auth__password
-              valueFrom:
-                secretKeyRef:
-                  name: arr
-                  key: bazarr_admin_password_hash
-            - name: BAZARR_CONFIG_betaseries__token
-              valueFrom:
-                secretKeyRef:
-                  name: arr
-                  key: betaseries_api_key
-            - name: BAZARR_CONFIG_anidb__api_client
-              valueFrom:
-                secretKeyRef:
-                  name: arr
-                  key: anidb_api_client
-            - name: BAZARR_CONFIG_animetosho__anidb_api_client
-              valueFrom:
-                secretKeyRef:
-                  name: arr
-                  key: anidb_api_client
-            - name: BAZARR_CONFIG_postgresql__password
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql-pguser-bazarr
-                  key: password
-            - name: PGSSLCERT
-              value: /tmp/postgresql.crt
-          volumeMounts:
-            - name: config
-              mountPath: /config/config
-            - name: multimedia
-              mountPath: /jellyfin
-      volumes:
-        - name: config-seed
-          configMap:
-            name: bazarr
-            defaultMode: 0644
-        - name: config
-          emptyDir: {}
-        - name: multimedia
-          persistentVolumeClaim:
-            claimName: multimedia
+              postprocessing_cmd: ''
+              postprocessing_threshold: 90
+              postprocessing_threshold_movie: 70
+              serie_default_enabled: true
+              serie_default_profile: 1
+              single_language: false
+              skip_hashing: false
+              subfolder: current
+              subfolder_custom: ''
+              subzero_mods: ''
+              theme: auto
+              upgrade_frequency: 12
+              upgrade_manual: true
+              upgrade_subs: true
+              use_embedded_subs: true
+              use_postprocessing: false
+              use_postprocessing_threshold: false
+              use_postprocessing_threshold_movie: false
+              use_radarr: true
+              use_scenename: true
+              use_sonarr: true
+              utf8_encode: true
+              wanted_search_frequency: 6
+              wanted_search_frequency_movie: 6
+            movie_scores:
+              audio_codec: 3
+              edition: 1
+              hash: 119
+              hearing_impaired: 1
+              release_group: 13
+              resolution: 2
+              source: 7
+              streaming_service: 1
+              title: 60
+              video_codec: 2
+              year: 30
+            postgresql:
+              database: bazarr
+              enabled: true
+              host: postgresql-primary
+              port: 5432
+              username: bazarr
+            radarr:
+              base_url: ''
+              defer_search_signalr: false
+              excluded_tags: []
+              full_update: Daily
+              full_update_day: 6
+              full_update_hour: 4
+              http_timeout: 60
+              ip: radarr
+              movies_sync: 60
+              only_monitored: false
+              port: 7878
+              ssl: false
+              sync_only_monitored_movies: false
+              use_ffprobe_cache: true
+            series_scores:
+              audio_codec: 3
+              episode: 30
+              hash: 359
+              hearing_impaired: 1
+              release_group: 14
+              resolution: 2
+              season: 30
+              series: 180
+              source: 7
+              streaming_service: 1
+              video_codec: 2
+              year: 90
+            sonarr:
+              base_url: ''
+              defer_search_signalr: false
+              exclude_season_zero: false
+              excluded_series_types: []
+              excluded_tags: []
+              full_update: Daily
+              full_update_day: 6
+              full_update_hour: 4
+              http_timeout: 60
+              ip: sonarr
+              only_monitored: false
+              port: 8989
+              series_sync: 60
+              ssl: false
+              sync_only_monitored_episodes: false
+              sync_only_monitored_series: false
+              use_ffprobe_cache: true
+            subsync:
+              checker:
+                blacklisted_languages: []
+                blacklisted_providers: []
+              debug: false
+              force_audio: false
+              gss: true
+              max_offset_seconds: 60
+              no_fix_framerate: true
+              subsync_movie_threshold: 86
+              subsync_threshold: 96
+              use_subsync: true
+              use_subsync_movie_threshold: true
+              use_subsync_threshold: true
 {{- end }}
