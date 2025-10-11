@@ -9,8 +9,11 @@
       ansible.builtin.apt:
         pkg:
           - curl
+          - build-essential
+          - git
           - rasdaemon
           - rsync
           - smartmontools
           - ufw
+          - unzip
         update_cache: true
