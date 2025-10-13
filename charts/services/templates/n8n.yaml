@@ -23,7 +23,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://tccr.io/truecharts/n8n
-  version: 17.17.0
+  version: 17.31.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     deployment:
