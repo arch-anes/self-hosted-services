@@ -10,7 +10,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/radarr
-  version: 25.0.0
+  version: 25.3.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     workload:
