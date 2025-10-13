@@ -158,7 +158,7 @@ spec:
               mountPath: /home/inventree/data
       containers:
         - name: app
-          image: ghcr.io/arch-anes/inventree:1.0.2
+          image: ghcr.io/arch-anes/inventree:1.0.5
           imagePullPolicy: Always
           resources:
             requests:
