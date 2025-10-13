@@ -22,7 +22,7 @@ metadata:
 spec:
   chart: cert-manager
   repo: https://charts.jetstack.io
-  version: v1.18.2
+  version: v1.19.0
   targetNamespace: kube-system
   valuesContent: |-
     crds:
