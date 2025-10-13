@@ -17,7 +17,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://tccr.io/truecharts/red-discordbot
-  version: 8.8.0
+  version: 8.9.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     workload:
