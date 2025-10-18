@@ -324,7 +324,9 @@ spec:
               databases:
                 - tandoor
 {{- end }}
-            {{- .Values.applications.postgresql.additionalUsers | toYaml | nindent 12 }}
+{{- with .Values.applications.postgresql.additionalUsers }}
+{{- toYaml . | nindent 12 }}
+{{- end }}
           databaseInitSQL:
             name: postgresql
             key: bootstrap.sql
