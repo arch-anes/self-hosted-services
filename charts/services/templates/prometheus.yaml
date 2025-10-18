@@ -195,10 +195,6 @@ spec:
                 value: Loki
 {{- end }}
 {{- if .Values.applications.loki.enabled }}
-          app-logs:
-            gnetId: 13639
-            revision: 2
-            datasource: Loki
           loki:
             gnetId: 14055
             revision: 5
