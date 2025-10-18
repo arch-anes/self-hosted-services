@@ -48,7 +48,7 @@ spec:
               targetLabel: instance
               action: replace
             - sourceLabels: 
-              - __meta_kubernetes_pod_node_name
+                - __meta_kubernetes_pod_node_name
               separator: ;
               regex: ^(.*)$
               targetLabel: nodename
@@ -400,18 +400,30 @@ spec:
                   relabelings:
                     - sourceLabels: [__metrics_path__]
                       targetLabel: metrics_path
+                    - sourceLabels:
+                        - __meta_kubernetes_pod_node_name
+                      targetLabel: instance
+                      action: replace
                 - port: metrics
                   path: /metrics/cadvisor
                   honorLabels: true
                   relabelings:
                     - sourceLabels: [__metrics_path__]
                       targetLabel: metrics_path
+                    - sourceLabels:
+                        - __meta_kubernetes_pod_node_name
+                      targetLabel: instance
+                      action: replace
                 - port: metrics
                   path: /metrics/probes
                   honorLabels: true
                   relabelings:
                     - sourceLabels: [__metrics_path__]
                       targetLabel: metrics_path
+                    - sourceLabels:
+                        - __meta_kubernetes_pod_node_name
+                      targetLabel: instance
+                      action: replace
             proxy:
               resources:
                 limits:
@@ -455,6 +467,10 @@ spec:
                   relabelings:
                     - targetLabel: source
                       replacement: kubernetes
+                    - sourceLabels:
+                        - __meta_kubernetes_pod_node_name
+                      targetLabel: instance
+                      action: replace
             proxy:
               resources:
                 limits:
