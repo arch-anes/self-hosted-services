@@ -153,6 +153,16 @@ spec:
 {{- end }}
     nodeSelector:
       public: "true"
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              topologyKey: topology.kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: traefik
+                  app.kubernetes.io/instance: traefik-kube-system
     ingressRoute:
       healthcheck:
         enabled: true
