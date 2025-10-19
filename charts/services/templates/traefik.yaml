@@ -60,6 +60,16 @@ spec:
       - apiVersion: traefik.io/v1alpha1
         kind: Middleware
         metadata:
+          name: traefik-redirect-www
+          namespace: kube-system
+        spec:
+          redirectRegex:
+            regex: ^https?://www\.(.*)
+            replacement: https://$1
+            permanent: true
+      - apiVersion: traefik.io/v1alpha1
+        kind: Middleware
+        metadata:
           name: intranet-allowlist
           namespace: kube-system
         spec:
@@ -196,6 +206,7 @@ spec:
           respondingTimeouts:
             readTimeout: 0
         middlewares:
+          - kube-system-traefik-redirect-www@kubernetescrd
           - kube-system-traefik-websecure@kubernetescrd
 {{- if and (not .Values.disableAllApplications) .Values.applications.crowdsec.enabled }}
           - kube-system-crowdsec@kubernetescrd
