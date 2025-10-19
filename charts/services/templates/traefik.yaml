@@ -221,7 +221,7 @@ spec:
         memory: 512Mi
     autoscaling:
       enabled: true
-      minReplicas: 1
+      minReplicas: 3
       maxReplicas: 10
       metrics:
         - type: Resource
