@@ -67,6 +67,12 @@ spec:
 {{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
     metrics:
       enabled: true
+      resources:
+        requests:
+          memory: 128Mi
+          cpu: 125m
+        limits:
+          memory: 256Mi
       serviceMonitor:
         enabled: true
         # Sentinel metrics
