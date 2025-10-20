@@ -64,9 +64,8 @@ spec:
           cpu: 125m
         limits:
           memory: 256Mi
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
     metrics:
-      enabled: true
+      enabled: {{ include "metrics.enabled" . }}
       resources:
         requests:
           memory: 128Mi
@@ -74,7 +73,7 @@ spec:
         limits:
           memory: 256Mi
       serviceMonitor:
-        enabled: true
+        enabled: {{ include "metrics.enabled" . }}
         # Sentinel metrics
         additionalEndpoints:
           - interval: "30s"
@@ -86,6 +85,5 @@ spec:
               - targetLabel: "app"
                 replacement: "sentinel"
       prometheusRule:
-        enabled: true
-{{- end }}
+        enabled: {{ include "metrics.enabled" . }}
 {{- end }}

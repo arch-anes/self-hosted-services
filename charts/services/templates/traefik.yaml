@@ -129,15 +129,13 @@ spec:
         fields:
           headers:
             defaultmode: keep
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
     metrics:
-      addInternals: true
+      addInternals: {{ include "metrics.enabled" . }}
       prometheus:
         service:
-          enabled: true
+          enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:
-          enabled: true
-{{- end }}
+          enabled: {{ include "metrics.enabled" . }}
 {{- if and (not .Values.disableAllApplications) .Values.applications.tempo.enabled }}
     tracing:
       capturedRequestHeaders:

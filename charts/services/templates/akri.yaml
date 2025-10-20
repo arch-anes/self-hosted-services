@@ -24,5 +24,5 @@ spec:
             - 'KERNEL=="video[0-9]*", ENV{ID_VENDOR}=="Sonix_Technology_Co.__Ltd."'
             - 'KERNEL=="ttyUSB[0-9]*", ENV{ID_VENDOR}=="FTDI"'
     prometheus:
-      enabled: {{ and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+      enabled: {{ include "metrics.enabled" . }}
 {{- end }}

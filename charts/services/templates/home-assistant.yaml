@@ -101,11 +101,9 @@ spec:
     global:
       traefik:
         fixedMiddlewares: []
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
     prometheus:
       serviceMonitor:
-        enabled: true
-{{- end }}
+        enabled: {{ include "metrics.enabled" . }}
     ingress:
       main:
         enabled: true

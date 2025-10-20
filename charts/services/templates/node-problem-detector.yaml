@@ -11,14 +11,12 @@ spec:
   version: 2.3.14
   targetNamespace: kube-system
   valuesContent: |-
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
     metrics:
-      enabled: true
+      enabled: {{ include "metrics.enabled" . }}
       serviceMonitor:
-        enabled: true
+        enabled: {{ include "metrics.enabled" . }}
       prometheusRule:
-        enabled: true
-{{- end }}
+        enabled: {{ include "metrics.enabled" . }}
     resources:
       requests:
         cpu: 100m

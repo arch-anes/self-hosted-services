@@ -29,12 +29,10 @@ spec:
         requests:
           cpu: 500m
           memory: 250Mi
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
       metrics:
-        enabled: true
+        enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:
-          enabled: true
-{{- end }}
+          enabled: {{ include "metrics.enabled" . }}
       nodeSelector:
         public: "true"
     secrets:
@@ -71,12 +69,10 @@ spec:
         requests:
           cpu: 500m
           memory: 500Mi
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
       metrics:
-        enabled: true
+        enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:
-          enabled: true
-{{- end }}
+          enabled: {{ include "metrics.enabled" . }}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

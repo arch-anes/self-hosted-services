@@ -54,12 +54,11 @@ spec:
       volumeSnapshotLocation: []
       backupStorageLocation:
         {{- .Values.applications.velero.remoteBackupLocations | toYaml | nindent 8 }}
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
     metrics:
       serviceMonitor:
-        enabled: true
+        enabled: {{ include "metrics.enabled" . }}
       prometheusRule:
-        enabled: true
+        enabled: {{ include "metrics.enabled" . }}
         spec:
           - alert: VeleroBackupFailed
             annotations:
@@ -98,7 +97,6 @@ spec:
             for: 15m
             labels:
               severity: warning
-{{- end }}
     schedules:
       daily:
         disabled: false

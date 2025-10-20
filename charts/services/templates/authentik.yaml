@@ -124,12 +124,10 @@ spec:
           - secretName: "{{ .Values.fqdn }}-tls"
             hosts:
               - auth.{{ .Values.fqdn }}
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
       metrics:
-        enabled: true
+        enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:
-          enabled: true
-{{- end }}
+          enabled: {{ include "metrics.enabled" . }}
     worker:
       resources:
         requests:
@@ -137,12 +135,10 @@ spec:
           cpu: 250m
         limits:
           memory: 2Gi
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
       metrics:
-        enabled: true
+        enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:
-          enabled: true
-{{- end }}
+          enabled: {{ include "metrics.enabled" . }}
     authentik:
       enabled: false # Disable secret generation
     postgresql:

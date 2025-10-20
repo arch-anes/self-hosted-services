@@ -144,7 +144,7 @@ spec:
         existingClaim: multimedia
     metrics:
       main:
-        enabled: {{ and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+        enabled: {{ include "metrics.enabled" . }}
         endpoints:
           - port: metrics
             path: /metrics

@@ -39,12 +39,10 @@ spec:
           - hosts:
               - argo.{{ .Values.fqdn }}
             secretName: "{{ .Values.fqdn }}-tls"
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
       metrics:
-        enabled: true
+        enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:
-          enabled: true
-{{- end }}
+          enabled: {{ include "metrics.enabled" . }}
     redis:
       enabled: false
     dex:
@@ -62,12 +60,10 @@ spec:
         requests:
           cpu: 500m
           memory: 128Mi
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
       metrics:
-        enabled: true
+        enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:
-          enabled: true
-{{- end }}
+          enabled: {{ include "metrics.enabled" . }}
     repoServer:
       resources:
         limits:
@@ -75,12 +71,10 @@ spec:
         requests:
           cpu: 500m
           memory: 128Mi
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
       metrics:
-        enabled: true
+        enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:
-          enabled: true
-{{- end }}
+          enabled: {{ include "metrics.enabled" . }}
     applicationSet:
       resources:
         limits:
@@ -88,12 +82,10 @@ spec:
         requests:
           cpu: 250m
           memory: 64Mi
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
       metrics:
-        enabled: true
+        enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:
-          enabled: true
-{{- end }}
+          enabled: {{ include "metrics.enabled" . }}
 
 ---
 apiVersion: helm.cattle.io/v1
