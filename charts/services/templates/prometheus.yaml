@@ -167,6 +167,22 @@ spec:
             gnetId: 1860
             revision: 41
             datasource: Prometheus
+          kubernetes-views-global:
+            gnetId: 15757
+            revision: 1
+            datasource: Prometheus
+          kubernetes-views-nodes:
+            gnetId: 15759
+            revision: 37
+            datasource: Prometheus
+          kubernetes-views-namespaces:
+            gnetId: 15758
+            revision: 42
+            datasource: Prometheus
+          prometheus:
+            gnetId: 19105
+            revision: 7
+            datasource: Prometheus
 {{- if .Values.applications.argo.enabled }}
           argo-cd:
             gnetId: 14584
@@ -265,6 +281,8 @@ spec:
         userKey: grafana-admin-user
         passwordKey: grafana-admin-password
       grafana.ini:
+        dashboards:
+          default_home_dashboard_path: /var/lib/grafana/dashboards/default/kubernetes-views-global.json
         server:
           root_url: https://grafana.{{ .Values.fqdn }}
           domain: grafana.{{ .Values.fqdn }}
