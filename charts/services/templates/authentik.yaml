@@ -370,6 +370,117 @@ spec:
                   provider: !KeyOf nextcloud-provider
                   policy_engine_mode: any
 {{- end }}
+{{- if .Values.applications.stalwart.enabled }}
+          50-stalwart.yaml: |
+            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+            version: 1
+            metadata:
+              name: Stalwart provisionning
+            entries:
+              - id: postmaster-mail
+                model: authentik_core.group
+                identifiers:
+                  name: postmaster
+                attrs:
+                  attributes:
+                    mailLocalAddress: "postmaster@{{ .Values.fqdn }}"
+
+              - id: info-mail
+                model: authentik_core.group
+                identifiers:
+                  name: info
+                attrs:
+                  attributes:
+                    mailLocalAddress: "info@{{ .Values.fqdn }}"
+
+              - id: stage-seed-mail
+                model: authentik_stages_user_write.userwritestage
+                identifiers:
+                  name: "seed-mailLocalAddress-stage"
+                attrs:
+                  user_creation_mode: never_create
+                  user_type: internal
+
+              - id: policy-mailLocalAddress
+                model: authentik_policies_expression.expressionpolicy
+                identifiers:
+                  name: "seed-mailLocalAddress-policy"
+                attrs:
+                  expression: |
+                    u = request.user
+                    if not u or not hasattr(u, "attributes"):
+                      return True
+                    attrs = dict(u.attributes or {})
+                    local = u.username or ""
+                    if (not local) and u.email and "@" in u.email:
+                      local = u.email.split("@", 1)[0]
+                    if not local:
+                      return True
+                    domain = "{{ .Values.fqdn }}"
+                    alias = f"{local}@{domain}"
+                    if not attrs.get("mailLocalAddress"):
+                      attrs["mailLocalAddress"] = alias
+                      u.attributes = attrs
+                      u.save()
+                    return True
+
+              - id: bind-stage-to-auth
+                model: authentik_flows.flowstagebinding
+                identifiers:
+                  stage: !Find [authentik_stages_user_write.userwritestage, [name, seed-mailLocalAddress-stage]]
+                  target: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
+                  order: 200
+                attrs:
+                  evaluate_on_plan: true
+                  re_evaluate_policies: true
+
+              - id: bind-policy-to-stage-to-auth
+                model: authentik_policies.policybinding
+                identifiers:
+                  policy: !Find [authentik_policies_expression.expressionpolicy, [name, seed-mailLocalAddress-policy]]
+                  target: !KeyOf bind-stage-to-auth
+                  order: 0
+                attrs:
+                  enabled: true
+
+              - id: bind-stage-to-source-auth
+                model: authentik_flows.flowstagebinding
+                identifiers:
+                  stage: !Find [authentik_stages_user_write.userwritestage, [name, seed-mailLocalAddress-stage]]
+                  target: !Find [authentik_flows.flow, [slug, default-source-authentication]]
+                  order: 200
+                attrs:
+                  evaluate_on_plan: true
+                  re_evaluate_policies: true
+
+              - id: bind-policy-to-stage-to-source-auth
+                model: authentik_policies.policybinding
+                identifiers:
+                  policy: !Find [authentik_policies_expression.expressionpolicy, [name, seed-mailLocalAddress-policy]]
+                  target: !KeyOf bind-stage-to-source-auth
+                  order: 0
+                attrs:
+                  enabled: true
+
+              - id: bind-stage-to-enrollment
+                model: authentik_flows.flowstagebinding
+                identifiers:
+                  stage: !Find [authentik_stages_user_write.userwritestage, [name, seed-mailLocalAddress-stage]]
+                  target: !Find [authentik_flows.flow, [slug, default-source-enrollment]]
+                  order: 200
+                attrs:
+                  evaluate_on_plan: true
+                  re_evaluate_policies: true
+
+              - id: bind-policy-to-stage-to-enrollment
+                model: authentik_policies.policybinding
+                identifiers:
+                  policy: !Find [authentik_policies_expression.expressionpolicy, [name, seed-mailLocalAddress-policy]]
+                  target: !KeyOf bind-stage-to-enrollment
+                  order: 0
+                attrs:
+                  enabled: true
+{{- end }}
 {{- if .Values.applications.stirling_pdf.enabled }}
           50-stirling-pdf.yaml: |
             # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json

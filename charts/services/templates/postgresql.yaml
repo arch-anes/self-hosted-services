@@ -319,6 +319,11 @@ spec:
               databases:
                 - speedtest-tracker
 {{- end }}
+{{- if .Values.applications.stalwart.enabled }}
+            - name: stalwart
+              databases:
+                - stalwart
+{{- end }}
 {{- if .Values.applications.stirling_pdf.enabled }}
             - name: stirling-pdf
               databases:

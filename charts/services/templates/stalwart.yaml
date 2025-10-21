@@ -1,0 +1,335 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.stalwart.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Stalwart requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.authentik.enabled }}
+{{- fail "Stalwart requires Authentik to be enabled. Please enable Authentik in your values.yaml" }}
+{{- end }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: stalwart
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   bucket-access-key: "some_key"
+#   bucket-secret-key: "some_key"
+#   default-admin-password: "some_password"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: stalwart
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://codeberg.org/wrenix/helm-charts/stalwart-mail
+  version: 0.4.1
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    replicaCount: 1
+    certificate:
+      secretName: "{{ .Values.fqdn }}-tls"
+      certmanager:
+        enabled: false
+    backup:
+      enabled: false
+    twake: # Webmail client
+      enabled: false
+    config:
+      config:
+        local-keys:
+          - "store.*"
+          - "storage.*"
+          - "directory.*"
+          - "tracer.*"
+          - "server.*"
+          - "!server.blocked-ip.*"
+          - "authentication.fallback-admin.*"
+          - "cluster.*"
+          - "config.local-keys.*"
+          - "certificate.default.*"
+          - "metrics.prometheus.*"
+          - "auth.dkim.*"
+          - "http.*"
+          - "webadmin.auto-update"
+          - "session.*"
+          - "queue.*"
+          - "lookup.allow-list-domain.*"
+          - "spam-filter.bayes.*"
+          - "sieve.trusted.scripts.*"
+      server:
+        hostname: mail.{{ .Values.fqdn }}
+        allowed-ip:
+          {{- include "ip.mail_ranges.map" . | trim | nindent 10 }}
+        listener:
+          smtp:
+            tls:
+              implicit: true
+          submission: null
+          imap: null
+          pop3: null
+          pop3s: null
+      webadmin:
+        auto-update: true
+      http:
+        url: "'https://mail.{{ .Values.fqdn }}'"
+        use-x-forwarded: true
+      certificate:
+        default:
+          default: true
+          cert: "%{file:/opt/stalwart/etc/certs/tls.crt}%"
+          private-key: "%{file:/opt/stalwart/etc/certs/tls.key}%"
+      storage:
+        data: postgresql
+        fts: postgresql
+        blob: minio
+        lookup: postgresql
+        directory: ldap
+      store:
+        postgresql:
+          type: postgresql
+          host: postgresql-primary
+          database: stalwart
+          user: stalwart
+          password: "%{env:POSTGRESQL_PASSWORD}%"
+        minio:
+          type: s3
+          compression: lz4
+          bucket: "{{ .Values.applicationsNamespace }}-stalwart"
+          region: us-east-1
+          endpoint: http://minio.kube-system.svc.cluster.local
+          access-key: "%{env:BUCKET_ACCESS_KEY}%"
+          secret-key: "%{env:BUCKET_SECRET_KEY}%"
+      directory:
+        # https://github.com/stalwartlabs/stalwart/discussions/521
+        ldap:
+          type: ldap
+          url: ldap://ak-outpost-ldap-outpost:389
+          base-dn: {{ include "ldap.base_dn" . }}
+          bind:
+            dn: "cn=ldapservice,{{ include "ldap.base_dn" . }}"
+            secret: "%{env:LDAP_BIND_PASSWORD}%"
+            auth:
+              method: lookup
+              dn: "cn={local},ou=users,{{ include "ldap.base_dn" . }}"
+              enable: true
+          attributes:
+            class: objectClass
+            name: cn
+            email: mailLocalAddress
+            description: sAMAccountName
+            groups: memberOf
+            quota: diskQuota
+            secret-changed: "pwdChangedTime"
+          filter:
+            # https://github.com/goauthentik/authentik/issues/17956
+            name: "(cn={local})"
+            email: "(mailLocalAddress=?)"
+            # Group membership is not displayed correctly in the UI
+            # https://github.com/stalwartlabs/stalwart/discussions/521#discussioncomment-12108062
+            expand:
+              - if: "type == 'group'"
+                then: "(&(objectClass=posixGroup)(cn=?))"
+              - else: false
+          options:
+            catch-all: true
+            subgroups: true
+      session:
+        auth:
+          mechanisms: "[plain, login]"
+          directory: "'ldap'"
+          require: "listener != 'smtp'"
+        rcpt:
+          directory:
+            - if: "is_local_domain('', rcpt_domain)"
+              then: "'ldap'"
+            - else: "''"
+      lookup:
+        allow-list-domain:
+          {{ .Values.fqdn }}: true
+      spam-filter:
+        bayes:
+          account:
+            enable: true
+          auto-learn:
+            card-is-ham: true
+            trusted-reply: true
+      sieve:
+        trusted:
+          scripts:
+            ses_verdict:
+              contents: |
+                require ["fileinto"];
+                if header :contains "X-SES-Spam-Verdict" "FAIL" {
+                    fileinto "Junk";
+                    stop;
+                }
+                if header :contains "X-SES-Virus-Verdict" "FAIL" {
+                    fileinto "Junk";
+                    stop;
+                }
+      queue:
+        strategy:
+          route:
+            - if: "is_local_domain('', rcpt_domain)"
+              then: "'local'"
+            - else: "'relay'"
+        route:
+          relay:
+            type: relay
+            address: "%{env:SMTP_HOST}%"
+            port: 587
+            protocol: smtp
+            tls:
+              implicit: false
+              starttls: "require"
+            auth:
+              username: "%{env:SMTP_NAME}%"
+              secret: "%{env:SMTP_PASSWORD}%"
+      authentication:
+        fallback-admin:
+          user: "admin"
+          secret: "%{env:DEFAULT_ADMIN_SECRET}%"
+      auth:
+        dkim:
+          sign:
+            - if: "listener != 'smtp' && is_local_domain('', sender_domain)"
+              then: "['rsa-' + sender_domain, 'ed25519-' + sender_domain]"
+            - else: false
+          verify: "relaxed"
+      tracer:
+        stdout:
+          enable: true
+          type: stdout
+          level: info
+        otel:
+          level: trace
+          enable:
+            log-exporter: false
+            span-exporter: {{ .Values.applications.tempo.enabled }}
+          transport: http
+          endpoint: http://tempo.kube-system.svc.cluster.local:4318/v1/traces
+      metrics:
+        prometheus:
+          enable: {{ include "metrics.enabled" . }}
+          auth: null
+    secrets:
+      create: false
+      env: {}
+    env:
+      - name: POSTGRESQL_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: postgresql-pguser-stalwart
+            key: password
+      - name: DEFAULT_ADMIN_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: stalwart
+            key: default-admin-password
+      - name: LDAP_BIND_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: ldap
+            key: bind_password
+      - name: BUCKET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: stalwart
+            key: bucket-access-key
+      - name: BUCKET_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: stalwart
+            key: bucket-secret-key
+      - name: SMTP_HOST
+        valueFrom:
+          secretKeyRef:
+            name: smtp
+            key: hostname
+      - name: SMTP_NAME
+        valueFrom:
+          secretKeyRef:
+            name: smtp
+            key: username
+      - name: SMTP_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: smtp
+            key: password
+    nats:
+      enabled: false
+      config: {}
+      promExporter:
+        enabled: {{ include "metrics.enabled" . }}
+        podMonitor:
+          enabled: {{ include "metrics.enabled" . }}
+    ingress:
+      enabled: true
+      annotations:
+        homer.service.name: Administration
+        homer.item.name: Stalwart
+        homer.item.logo: https://raw.githubusercontent.com/stalwartlabs/stalwart/de7f0e8e37edce397a196bf47f08f1eaa2743078/img/logo-red.svg
+      hosts:
+        - host: mail.{{ .Values.fqdn }}
+          paths:
+            - path: /
+              pathType: Prefix
+        - host: {{ .Values.fqdn }}
+          paths:
+            - path: /.well-known/
+              pathType: Prefix
+      tls:
+        - secretName: {{ .Values.fqdn }}-tls
+          hosts:
+            - mail.{{ .Values.fqdn }}
+        - secretName: {{ .Values.fqdn }}-tls
+          hosts:
+            - {{ .Values.fqdn }}
+    traefik:
+      enabled: true
+      ports:
+        submissions:
+          match: HostSNI(`mail.{{ .Values.fqdn }}`)
+          entrypoint: smtp
+          proxyProtocol: false
+          passthroughTLS: true
+        imaptls:
+          match: HostSNI(`mail.{{ .Values.fqdn }}`)
+          entrypoint: imap
+          proxyProtocol: false
+          passthroughTLS: true
+        smtp: # MX port
+          match: HostSNI(`mail.{{ .Values.fqdn }}`)
+          entrypoint: mx
+          proxyProtocol: false
+          passthroughTLS: true
+        imap: null
+        pop3: null
+        pop3s: null
+        submission: null
+        sieve: null
+        http: null
+        https: null
+    prometheus:
+      servicemonitor:
+        enabled: {{ include "metrics.enabled" . }}
+    grafana:
+      dashboards:
+        enabled: {{ include "metrics.enabled" . }}
+        labels:
+          grafana_dashboard: "1"
+    resources:
+      limits:
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    persistence:
+      enabled: true
+      storageClass: local-path-persistent-namespaced
+      accessMode: ReadWriteOnce
+      size: 10Gi
+{{- end }}

@@ -237,3 +237,25 @@ When using a TCP router, make sure to set the proxy protocol version to 2:
   proxyProtocol:
     version: 2
 ```
+
+## Application specific setup
+
+### Stalwart
+- https://docs.aws.amazon.com/ses/latest/dg/eb-ingress.html
+- https://stalw.art/docs/install/dns
+
+#### AWS-relay
+
+Install [aws-smtp-relay ](https://github.com/arch-anes/aws-smtp-relay) on your AWS account to relay emails from and to your Stalwart instance.
+
+#### Cloudflare proxy
+When using Cloudflare proxy, ensure CNAME `mail.example.org` record is not proxied through Cloudflare, otherwise the proxy will block the mail traffic [ref](https://community.cloudflare.com/t/emails-blocked-since-cloudflare-firewall-applied/659995).
+
+#### DNS records
+
+Open https://mail.example.org/manage/dns/example.org/view to downloads the zone file to import to the DNS provider.
+
+For this setup, replace:
+1. Replace `MX` record with `inbound-smtp.<aws-region>.amazonaws.com`
+2. Replace `TXT` records that contain `v=spf1` with `v=spf1 include:amazonses.com ~all`
+3. Skip `TLSA` records
