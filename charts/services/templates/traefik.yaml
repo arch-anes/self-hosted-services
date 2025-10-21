@@ -75,7 +75,7 @@ spec:
         spec:
           ipAllowList:
             sourceRange:
-              {{- concat .Values.localIpRanges .Values.tailscaleIpRanges | toYaml | nindent 14 }}
+              {{- include "ip.private_ranges" . | nindent 14 }}
 {{- if and (not .Values.disableAllApplications) .Values.applications.crowdsec.enabled }}
       - apiVersion: traefik.io/v1alpha1
         kind: Middleware
@@ -98,9 +98,9 @@ spec:
               redisCacheDatabase: "3"
               redisUnreachableBlock: false
               forwardedHeadersTrustedIPs:
-                {{- concat .Values.localIpRanges .Values.cloudFlareIpRanges | toYaml | nindent 16 }}
+                {{- include "ip.proxy_ranges" . | nindent 16 }}
               clientTrustedIPs:
-                {{- concat .Values.localIpRanges .Values.tailscaleIpRanges | toYaml | nindent 16 }}
+                {{- include "ip.private_ranges" . | nindent 16 }}
     experimental:
       plugins:
         crowdsec-bouncer-traefik-plugin:
@@ -199,17 +199,17 @@ spec:
             permanent: true
         proxyProtocol:
           trustedIPs:
-            {{- concat .Values.localIpRanges .Values.cloudFlareIpRanges | toYaml | nindent 12 }}
+            {{- include "ip.proxy_ranges" . | nindent 12 }}
         forwardedHeaders:
           trustedIPs:
-            {{- concat .Values.localIpRanges .Values.cloudFlareIpRanges | toYaml | nindent 12 }}
+            {{- include "ip.proxy_ranges" . | nindent 12 }}
       websecure:
         proxyProtocol:
           trustedIPs:
-            {{- concat .Values.localIpRanges .Values.cloudFlareIpRanges | toYaml | nindent 12 }}
+            {{- include "ip.proxy_ranges" . | nindent 12 }}
         forwardedHeaders:
           trustedIPs:
-            {{- concat .Values.localIpRanges .Values.cloudFlareIpRanges | toYaml | nindent 12 }}
+            {{- include "ip.proxy_ranges" . | nindent 12 }}
         transport:
           respondingTimeouts:
             readTimeout: 0
