@@ -221,6 +221,33 @@ spec:
 {{- end }}
         tls:
           enabled: true
+      imap:
+        proxyProtocol:
+          trustedIPs:
+            {{- include "ip.proxy_ranges" . | nindent 12 }}
+        port: 993
+        expose:
+          default: true
+        exposedPort: 993
+        protocol: TCP
+      smtp:
+        proxyProtocol:
+          trustedIPs:
+            {{- include "ip.proxy_ranges" . | nindent 12 }}
+        port: 465
+        expose:
+          default: true
+        exposedPort: 465
+        protocol: TCP
+      mx:
+        proxyProtocol:
+          trustedIPs:
+            {{- include "ip.proxy_ranges" . | nindent 12 }}
+        port: 2465
+        expose:
+          default: true
+        exposedPort: 2465
+        protocol: TCP
     resources:
       requests:
         memory: 512Mi

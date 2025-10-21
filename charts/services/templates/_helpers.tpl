@@ -11,6 +11,10 @@
 {{- concat .Values.localIpRanges .Values.cloudFlareIpRanges | toYaml }}
 {{- end -}}
 
+{{- define "ip.mail_ranges" -}}
+{{- concat .Values.localIpRanges .Values.sesRanges | toYaml }}
+{{- end -}}
+
 {{- define "ip.private_ranges" -}}
 {{- concat .Values.localIpRanges .Values.tailscaleIpRanges | toYaml }}
 {{- end -}}
