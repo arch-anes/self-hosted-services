@@ -6,3 +6,11 @@
 {{- $d := trimSuffix "." (lower .Values.fqdn) -}}
 {{- printf "dc=%s" (join ",dc=" (splitList "." $d)) -}}
 {{- end -}}
+
+{{- define "ip.proxy_ranges" -}}
+{{- concat .Values.localIpRanges .Values.cloudFlareIpRanges | toYaml }}
+{{- end -}}
+
+{{- define "ip.private_ranges" -}}
+{{- concat .Values.localIpRanges .Values.tailscaleIpRanges | toYaml }}
+{{- end -}}
