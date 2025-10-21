@@ -57,6 +57,16 @@ spec:
           memory: 512Mi
         limits:
           memory: 1Gi
+      metricsGenerator:
+        enabled: true
+        remoteWriteUrl: "http://prometheus-kube-prometheus-prometheus:9090/api/v1/write"
+      overrides:
+        defaults:
+          metrics_generator:
+            processors:
+              - span-metrics
+              - service-graphs
+              - local-blocks
     serviceMonitor:
       enabled: true
     persistence:
