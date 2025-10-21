@@ -129,6 +129,8 @@ spec:
         serviceMonitor:
           enabled: {{ include "metrics.enabled" . }}
     worker:
+      deploymentAnnotations:
+        reloader.stakater.com/auto: "true"
       resources:
         requests:
           memory: 512Mi
@@ -145,7 +147,140 @@ spec:
       enabled: false
     redis:
       enabled: false
+    blueprints:
+      secrets:
+        - authentik-blueprints
     additionalObjects:
+      - apiVersion: v1
+        kind: Secret
+        type: Opaque
+        metadata:
+          name: authentik-blueprints
+          namespace: "{{ .Values.applicationsNamespace }}"
+        stringData:
+          10-ldap.yaml: |
+            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+            version: 1
+            metadata:
+              name: LDAP provider app outpost
+            entries:
+              # ---- Service Account ----
+              - id: ldap-bind-user
+                model: authentik_core.user
+                identifiers:
+                  username: ldapservice
+                attrs:
+                  name: "LDAP Service Account"
+                  email: "ldapservice@{{ .Values.fqdn }}"
+                  is_active: true
+                  type: service_account
+                  password: {{`{{ "\"{{ random_uuid }}\"" }}`}}
+
+              # ---- Application ----
+              - id: ldap-app
+                model: authentik_core.application
+                identifiers:
+                  slug: ldap
+                attrs:
+                  name: LDAP
+                  policy_engine_mode: any
+
+              # ---- Stages ----
+              - id: ldap-password
+                model: authentik_stages_password.passwordstage
+                identifiers:
+                  name: "ldap-password"
+                attrs:
+                  backends:
+                    - authentik.core.auth.InbuiltBackend
+                    - authentik.core.auth.TokenBackend
+                    - authentik.sources.ldap.auth.LDAPBackend
+                    - authentik.sources.kerberos.auth.KerberosBackend
+
+              - id: ldap-identification
+                model: authentik_stages_identification.identificationstage
+                identifiers:
+                  name: "ldap-identification"
+                attrs:
+                  user_fields: ["username", "email"]
+                  password_stage: !Find [authentik_stages_password.passwordstage, [name, ldap-password]]
+
+              - id: ldap-user-login
+                model: authentik_stages_user_login.userloginstage
+                identifiers:
+                  name: "ldap-user-login"
+                attrs:
+                  terminate_other_sessions: false
+
+              # ---- Flows ----
+              - id: ldap-auth-flow
+                model: authentik_flows.flow
+                identifiers:
+                  slug: "ldap-authentication-flow"
+                attrs:
+                  name: "LDAP Authentication"
+                  title: "Sign in"
+                  designation: authentication
+                  require_outpost: true
+
+              # ---- Flow bindings ----
+              - id: ldap-auth-flow-bind-ident
+                model: authentik_flows.flowstagebinding
+                identifiers:
+                  target: !Find [authentik_flows.flow, [slug, ldap-authentication-flow]]
+                  stage:  !KeyOf ldap-identification
+                  order: 10
+                attrs:
+                  evaluate_on_plan: true
+                  re_evaluate_policies: false
+
+              - id: ldap-auth-flow-bind-login
+                model: authentik_flows.flowstagebinding
+                identifiers:
+                  target: !Find [authentik_flows.flow, [slug, ldap-authentication-flow]]
+                  stage:  !KeyOf ldap-user-login
+                  order: 30
+                attrs:
+                  evaluate_on_plan: true
+                  re_evaluate_policies: false
+
+              # ---- LDAP Provider ----
+              - id: ldap-provider
+                model: authentik_providers_ldap.ldapprovider
+                identifiers:
+                  name: "Provider for LDAP"
+                attrs:
+                  base_dn: "{{ include "ldap.base_dn" . }}"
+                  bind_mode: cached
+                  search_mode: cached
+                  mfa_support: true
+                  tls_server_name: ""
+                  authorization_flow: !Find [authentik_flows.flow, [slug, ldap-authentication-flow]]
+                  invalidation_flow: !Find [authentik_flows.flow, [slug, default-invalidation-flow]]
+                permissions:
+                  - permission: search_full_directory
+                    user: !Find [authentik_core.user, [username, ldapservice]]
+
+              # ---- Attach Provider to Application ----
+              - id: ldap-app-provider-link
+                model: authentik_core.application
+                identifiers:
+                  slug: ldap
+                attrs:
+                  provider: !KeyOf ldap-provider
+
+              # ---- LDAP Outpost ----
+              - id: ldap-outpost
+                model: authentik_outposts.outpost
+                identifiers:
+                  name: "LDAP outpost"
+                attrs:
+                  type: ldap
+                  providers:
+                    - !Find [authentik_providers_ldap.ldapprovider, [name, "Provider for LDAP"]]
+                  service_connection: !Find [authentik_outposts.kubernetesserviceconnection, [name, "Local Kubernetes Cluster"]]
+                  config:
+                    authentik_host: "https://auth.{{ .Values.fqdn }}"
       - apiVersion: networking.k8s.io/v1
         kind: Ingress
         metadata:
