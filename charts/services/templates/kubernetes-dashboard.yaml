@@ -70,6 +70,42 @@ spec:
         tls:
           enabled: false
           servicePort: 80
+    api:
+      containers:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 1Gi
+    web:
+      containers:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 400Mi
+    auth:
+      containers:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 400Mi
+    metricsScraper:
+      containers:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 400Mi
     nginx:
       enabled: false
     cert-manager:
