@@ -81,7 +81,7 @@ spec:
     spec:
       initContainers:
         - name: init-data
-          image: inventree/inventree:1.0.1
+          image: inventree/inventree:1.0.7
           command: ["/bin/sh","-c", "invoke update --skip-backup --frontend"]
           env: &inventreeEnv
             - name: INVENTREE_SECRET_KEY
@@ -174,7 +174,7 @@ spec:
             - name: inventree-data
               mountPath: /home/inventree/data
         - name: worker
-          image: inventree/inventree:1.0.1
+          image: inventree/inventree:1.0.7
           command: ["invoke", "worker"]
           resources:
             requests:
