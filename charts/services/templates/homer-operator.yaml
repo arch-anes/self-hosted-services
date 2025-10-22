@@ -8,7 +8,7 @@ metadata:
 spec:
   chart: homer-operator
   repo: https://arch-anes.github.io/homer-operator/
-  version: 0.2.7
+  version: 0.2.10
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     watchedNamespaces:
