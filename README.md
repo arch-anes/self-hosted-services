@@ -177,9 +177,9 @@ backend http-servers
     http-check connect port 8080
     http-check send meth GET uri /ping
     default-server inter 3s fall 3 rise 2
-    server s1 192.168.1.11:80 send-proxy check
-    server s2 192.168.1.12:80 send-proxy check
-    server s3 192.168.1.13:80 send-proxy check
+    server s1 192.168.1.11:80 send-proxy-v2 check
+    server s2 192.168.1.12:80 send-proxy-v2 check
+    server s3 192.168.1.13:80 send-proxy-v2 check
 
 backend https-servers
     mode tcp
@@ -188,9 +188,9 @@ backend https-servers
     http-check connect port 8080
     http-check send meth GET uri /ping
     default-server inter 3s fall 3 rise 2
-    server s1 192.168.1.11:443 send-proxy check
-    server s2 192.168.1.12:443 send-proxy check
-    server s3 192.168.1.13:443 send-proxy check
+    server s1 192.168.1.11:443 send-proxy-v2 check
+    server s2 192.168.1.12:443 send-proxy-v2 check
+    server s3 192.168.1.13:443 send-proxy-v2 check
 
 backend smtp-servers
     mode tcp
@@ -198,9 +198,9 @@ backend smtp-servers
     option tcp-check
     tcp-check connect port 465
     default-server inter 3s fall 3 rise 2
-    server s1 192.168.1.11:465 send-proxy check
-    server s2 192.168.1.12:465 send-proxy check
-    server s3 192.168.1.13:465 send-proxy check
+    server s1 192.168.1.11:465 send-proxy-v2 check
+    server s2 192.168.1.12:465 send-proxy-v2 check
+    server s3 192.168.1.13:465 send-proxy-v2 check
 
 backend imap-servers
     mode tcp
@@ -208,9 +208,17 @@ backend imap-servers
     option tcp-check
     tcp-check connect port 993
     default-server inter 3s fall 3 rise 2
-    server s1 192.168.1.11:993 send-proxy check
-    server s2 192.168.1.12:993 send-proxy check
-    server s3 192.168.1.13:993 send-proxy check
+    server s1 192.168.1.11:993 send-proxy-v2 check
+    server s2 192.168.1.12:993 send-proxy-v2 check
+    server s3 192.168.1.13:993 send-proxy-v2 check
 ```
 
 With this configuration, all incoming HTTP(S) traffic must now flow through the gateway ports 9080/9443 where HAProxy is installed. This is because the router forwards traffic to the HAProxy instance, which then distributes it to the backend servers. This setup ensures that even if one server goes down, the service remains available, as HAProxy will route traffic to the remaining operational servers.
+
+#### Traefik TCP router
+
+When using a TCP router, make sure to set the proxy protocol version to 2:
+```
+  proxyProtocol:
+    version: 2
+```
