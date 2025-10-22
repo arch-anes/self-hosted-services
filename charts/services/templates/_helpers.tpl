@@ -15,6 +15,13 @@
 {{- concat .Values.localIpRanges .Values.sesRanges | toYaml }}
 {{- end -}}
 
+{{- define "ip.mail_ranges.map" -}}
+{{- $ranges := concat .Values.localIpRanges .Values.sesRanges -}}
+{{- range $ranges -}}
+{{ . }}: ""
+{{ end -}}
+{{- end -}}
+
 {{- define "ip.private_ranges" -}}
 {{- concat .Values.localIpRanges .Values.tailscaleIpRanges | toYaml }}
 {{- end -}}
