@@ -281,6 +281,71 @@ spec:
                   service_connection: !Find [authentik_outposts.kubernetesserviceconnection, [name, "Local Kubernetes Cluster"]]
                   config:
                     authentik_host: "https://auth.{{ .Values.fqdn }}"
+          20-stalwart.yaml: |
+            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+            version: 1
+            metadata:
+              name: Stalwart
+            entries:
+              # --- Expression policy: set/repair user.attributes.mailLocalAddress ---
+              - id: policy-mailLocalAddress
+                model: authentik_policies_expression.expressionpolicy
+                identifiers:
+                  name: "seed-mailLocalAddress"
+                attrs:
+                  name: "seed-mailLocalAddress"
+                  expression: |
+                    from authentik.core.models import User
+                    u = request.user
+                    if not u or not hasattr(u, "attributes"):
+                        return True
+                    attrs = dict(u.attributes or {})
+                    # choose local part: prefer username, else email local part
+                    local = u.username or ""
+                    if (not local) and u.email and "@" in u.email:
+                        local = u.email.split("@", 1)[0]
+                    if not local:
+                        return True
+                    domain = "{{ .Values.fqdn }}"
+                    alias = f"{local}@{domain}"
+                    if not attrs.get("mailLocalAddress"):
+                        attrs["mailLocalAddress"] = alias
+                        u.attributes = attrs
+                        u.save()
+                    return True
+
+              # --- Bind policy to the default Authentication flow (runs every login) ---
+              - id: bind-policy-to-default-authn-flow
+                model: authentik_policies.policybinding
+                identifiers:
+                  policy: !Find [authentik_policies_expression.expressionpolicy, [name, seed-mailLocalAddress]]
+                  target: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
+                  order: 0
+                attrs:
+                  enabled: true
+                  negate: false
+                  timeout: 30
+
+              # --- Optional: Enrollment flow pieces so NEW users get it before first login ---
+              - id: stage-user-write
+                model: authentik_stages_user_write.userwritestage
+                identifiers:
+                  name: "write-user-mailLocalAddress"
+                attrs:
+                  name: "write-user-mailLocalAddress"
+                  create_users_as_inactive: false
+
+              # Bind the same policy to the write stage, so enrollment also seeds it
+              - id: bind-policy-to-write-stage
+                model: authentik_policies.policybinding
+                identifiers:
+                  policy: !Find [authentik_policies_expression.expressionpolicy, [name, seed-mailLocalAddress]]
+                  target: !Find [authentik_stages_user_write.userwritestage, [name, write-user-mailLocalAddress]]
+                  order: 0
+                attrs:
+                  enabled: true
+                  negate: false
+                  timeout: 30
       - apiVersion: networking.k8s.io/v1
         kind: Ingress
         metadata:

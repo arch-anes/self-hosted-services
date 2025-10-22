@@ -1,0 +1,301 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.stalwart.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Stalwart requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: stalwart
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   bucket-access-key: "some_key"
+#   bucket-secret-key: "some_key"
+#   ldap-bind-password: "some_password"
+#   default-admin-password: "some_password"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: stalwart
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://codeberg.org/wrenix/helm-charts/stalwart-mail
+  version: 0.3.19
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    replicaCount: 1
+    certificate:
+      secretName: "{{ .Values.fqdn }}-tls"
+      certmanager:
+        enabled: false
+    backup:
+      enabled: false
+    twake: # Webmail client
+      enabled: false
+    config:
+      config:
+        local-keys:
+          - "store.*"
+          - "directory.*"
+          - "tracer.*"
+          - "!server.blocked-ip.*"
+          - "server.*"
+          - "authentication.fallback-admin.*"
+          - "cluster.*"
+          - "config.local-keys.*"
+          - "storage.data"
+          - "storage.blob"
+          - "storage.lookup"
+          - "storage.fts"
+          - "storage.directory"
+          - "certificate.*"
+          - "server.allowed-ip.*"
+          - "metrics.prometheus.*"
+          - "auth.dkim.sign.*"
+          - "auth.dkim.verify"
+          - "http.use-x-forwarded"
+          - "report.domain"
+          # - "session.*"
+          - "queue.*"
+      server:
+        hostname: {{ .Values.fqdn }}
+      certificate:
+        default:
+          default: true
+          cert: "%{file:/opt/stalwart/etc/certs/tls.crt}%"
+          private-key: "%{file:/opt/stalwart/etc/certs/tls.key}%"
+      storage:
+        data: postgresql
+        fts: postgresql
+        blob: minio
+        lookup: postgresql
+        directory: ldap
+      store:
+        postgresql:
+          type: postgresql
+          host: postgresql-primary
+          database: stalwart
+          user: stalwart
+          password: "%{env:POSTGRESQL_PASSWORD}%"
+        minio:
+          type: s3
+          bucket: "{{ .Values.applicationsNamespace }}-stalwart"
+          region: us-east-1
+          endpoint: http://minio.kube-system.svc.cluster.local
+          access-key: "%{env:BUCKET_ACCESS_KEY}%"
+          secret-key: "%{env:BUCKET_SECRET_KEY}%"
+      directory:
+        ldap:
+          type: ldap
+          url: ldap://ak-outpost-ldap-outpost:389
+          base-dn: {{ include "ldap.base_dn" . }}
+          bind:
+            dn: "cn=stalwart,{{ include "ldap.base_dn" . }}"
+            secret: "%{env:LDAP_BIND_PASSWORD}%"
+            auth:
+              dn: "cn=?,ou=users,{{ include "ldap.base_dn" . }}"
+              enable: true
+              search: true
+          attributes:
+            class: objectClass
+            name: cn
+            email: mailLocalAddress
+            groups: memberOf
+            qutoa: diskQuota
+            secret: userPassword
+          filter:
+            name: "(&(objectClass=posixAccount)(cn=?))"
+            email: "(&(objectClass=posixAccount)(|(mail=?)(mailLocalAddress=?)))"
+      # session:
+      #   auth:
+      #     must-match-sender: false
+      #     mechanisms:
+      #       - if: "listener != 'http'"
+      #         then: "[plain, xoauth2, oauthbearer]"
+      #       - else: "[plain, login]"
+      #     directory:
+      #       - if: "listener != 'http'"
+      #         then: "'ldap'"
+      #       - else: false
+      #     require:
+      #       - if: "listener != 'http'"
+      #         then: true
+      #       - else: false
+      queue:
+        strategy:
+          route:
+            - if: "is_local_domain('', rcpt_domain)"
+              then: "'relay'"
+            - else: "'local'"
+        route:
+          local:
+            type: local
+          relay:
+            type: relay
+            address: "%{env:SMTP_HOST}%"
+            port: 587
+            protocol: smtp
+            tls:
+              implicit: true
+            auth:
+              username: "%{env:SMTP_NAME}%"
+              secret: "%{env:SMTP_PASSWORD}%"
+      authentication:
+        fallback-admin:
+          user: "admin"
+          secret: "%{env:DEFAULT_ADMIN_SECRET}%"
+      tracer:
+        otel:
+          enable:
+            log-exporter: false
+            span-exporter: {{ .Values.applications.tempo.enabled }}
+          transport: http
+          level: trace
+          endpoint: http://tempo.kube-system.svc.cluster.local:4318/v1/traces
+      metrics:
+        prometheus:
+          enable: {{ include "metrics.enabled" . }}
+          auth:
+            username: "%{env:METRICS_USERNAME}%"
+            secret: "%{env:METRICS_SECRET}%"
+    secrets:
+      env: {}
+    env:
+      - name: METRICS_USERNAME
+        value: scrape_metrics_user
+      - name: METRICS_SECRET
+        value: scrape_metrics_password
+      - name: POSTGRESQL_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: postgresql-pguser-stalwart
+            key: password
+      - name: DEFAULT_ADMIN_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: stalwart
+            key: default-admin-password
+      - name: LDAP_BIND_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: stalwart
+            key: ldap-bind-password
+      - name: BUCKET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: stalwart
+            key: bucket-access-key
+      - name: BUCKET_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: stalwart
+            key: bucket-secret-key
+      - name: SMTP_HOST
+        valueFrom:
+          secretKeyRef:
+            name: smtp
+            key: hostname
+      - name: SMTP_NAME
+        valueFrom:
+          secretKeyRef:
+            name: smtp
+            key: username
+      - name: SMTP_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: smtp
+            key: password
+    nats:
+      # -- deploy a NATS and configure stalwart to use it as coordinator
+      # @section -- Cluster
+      enabled: false
+      # -- NATS configure
+      # @section -- Cluster
+      config: {}
+      promExporter:
+        enabled: {{ include "metrics.enabled" . }}
+        podMonitor:
+          enabled: {{ include "metrics.enabled" . }}
+
+    serviceAccount:
+      # -- Specifies whether a service account should be created
+      create: false
+
+    ingress:
+      enabled: true
+      annotations:
+        homer.service.name: Administration
+      hosts:
+        - host: stalwart.{{ .Values.fqdn }}
+          paths:
+            - path: /
+              pathType: Prefix
+        - host: {{ .Values.fqdn }}
+          paths:
+            - path: /.well-known/autoconfig/mail/
+              pathType: Prefix
+        - host: autoconfig.{{ .Values.fqdn }}
+          paths:
+            - path: /mail/config-v1.1.xml
+              pathType: Exact
+      tls:
+        - secretName: {{ .Values.fqdn }}-tls
+          hosts:
+            - stalwart.{{ .Values.fqdn }}
+        - secretName: {{ .Values.fqdn }}-tls
+          hosts:
+            - autoconfig.{{ .Values.fqdn }}
+        - secretName: {{ .Values.fqdn }}-tls
+          hosts:
+            - {{ .Values.fqdn }}
+    traefik:
+      enabled: true
+      ports:
+        submissions:
+          match: HostSNI(`{{ .Values.fqdn }}`)
+          entrypoint: smtp
+          proxyProtocol: false
+          passthroughTLS: true
+        imaptls:
+          match: HostSNI(`{{ .Values.fqdn }}`)
+          entrypoint: imap
+          proxyProtocol: false
+          passthroughTLS: true
+        smtp: null # MX port
+        imap: null
+        pop3: null
+        pop3s: null
+        submission: null
+        sieve: null
+        http: null
+        https: null
+    prometheus:
+      servicemonitor:
+        enabled: {{ include "metrics.enabled" . }}
+    grafana:
+      dashboards:
+        enabled: {{ include "metrics.enabled" . }}
+        labels:
+          grafana_dashboard: "1"
+    resources: {}
+      # We usually recommend not to specify default resources and to leave this as a conscious
+      # choice for the user. This also increases chances charts run on environments with little
+      # resources, such as Minikube. If you do want to specify resources, uncomment the following
+      # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+      # limits:
+      #   memory: 128Mi
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
+
+    nodeSelector: {}
+
+    persistence:
+      enabled: true
+      storageClass: local-path-persistent-namespaced
+      accessMode: ReadWriteOnce
+      size: 10Gi
+{{- end }}
