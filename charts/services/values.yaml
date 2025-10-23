@@ -108,6 +108,8 @@ applications:
     enabled: true
   inventree:
     enabled: true
+  ipmi_exporter:
+    enabled: true
   jellyfin:
     enabled: true
     # gpu_vendor: intel
