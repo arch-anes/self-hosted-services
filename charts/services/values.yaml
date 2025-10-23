@@ -99,6 +99,8 @@ applications:
     enabled: true
   homer_operator:
     enabled: true
+  idrac_exporter:
+    enabled: true
   immich:
     enabled: true
     # gpu_vendor: nvidia

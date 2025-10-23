@@ -1,0 +1,52 @@
+{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.idrac_exporter.enabled }}
+{{- if not .Values.applications.prometheus.enabled }}
+{{- fail "iDRAC Exporter requires Prometheus to be enabled. Please enable Prometheus in your values.yaml" }}
+{{- end }}
+
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: idrac-exporter-config
+#   namespace: kube-system
+# type: Opaque
+# stringData:
+#   idrac.yml: |
+#     address: 0.0.0.0
+#     port: 9348
+#     timeout: 60
+#     hosts:
+#       host1:
+#         username: USERNAME
+#         password: PASSWORD
+#       host2:
+#         username: USERNAME
+#         password: PASSWORD
+#     metrics:
+#       all: true
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: idrac-exporter
+  namespace: kube-system
+spec:
+  chart: idrac-exporter
+  repo: https://arch-anes.github.io/charts
+  version: 2.3.1
+  targetNamespace: kube-system
+  valuesContent: |-
+    deploymentAnnotations:
+      reloader.stakater.com/auto: "true"
+    existingSecret: idrac-exporter-config
+    resources:
+      limits:
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+    prometheus:
+      scrapeConfig:
+        enabled: true
+{{- end }}
