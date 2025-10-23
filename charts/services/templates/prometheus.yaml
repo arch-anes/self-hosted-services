@@ -243,6 +243,23 @@ spec:
             url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/6b9bb005f171690d228bf49ca19f8f4caff95451/kustomize/monitoring/grafana/dashboards/query_statistics.json
             datasource: Prometheus
 {{- end }}
+{{- if .Values.applications.idrac_exporter.enabled }}
+          bmc:
+            url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/8d5d7e3da3d98f773dbfcc2709f21b1d3045f845/grafana/idrac.json
+            datasource:
+              - name: DS_PROMETHEUS
+                value: Prometheus
+          bmc-overview:
+            url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/8d5d7e3da3d98f773dbfcc2709f21b1d3045f845/grafana/idrac_overview.json
+            datasource:
+              - name: DS_PROMETHEUS
+                value: Prometheus
+          bmc-status:
+            url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/8d5d7e3da3d98f773dbfcc2709f21b1d3045f845/grafana/status-alternative.json
+            datasource:
+              - name: DS_PROMETHEUS
+                value: Prometheus
+{{- end }}
 {{- if .Values.applications.minio.enabled }}
           minio:
             gnetId: 13502
