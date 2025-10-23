@@ -260,6 +260,14 @@ spec:
               - name: DS_PROMETHEUS
                 value: Prometheus
 {{- end }}
+{{- if .Values.applications.ipmi_exporter.enabled }}
+          ipmi:
+            gnetId: 15765
+            revision: 2
+            datasource:
+              - name: DS_PROMETHEUS
+                value: Prometheus
+{{- end }}
 {{- if .Values.applications.minio.enabled }}
           minio:
             gnetId: 13502
@@ -366,6 +374,10 @@ spec:
           requests:
             cpu: 500m
             memory: 1Gi
+{{- if .Values.applications.ipmi_exporter.enabled }}
+        secrets:
+          - ipmi-exporter
+{{- end }}
     ## k3s only ##
     # Avoid duplicated metrics in k3s: https://tinyurl.com/mrhjre9n
     kubelet:
