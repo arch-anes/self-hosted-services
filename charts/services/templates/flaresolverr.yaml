@@ -9,60 +9,42 @@ metadata:
   name: flaresolverr
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  chart: generic
-  repo: https://arch-anes.github.io/charts
-  version: 0.2.1
+  chart: oci://oci.trueforge.org/truecharts/flaresolverr
+  version: 16.12.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
-    objects:
-      - kind: Service
-        apiVersion: v1
-        metadata:
-          name: flaresolverr
-          namespace: "{{ .Values.applicationsNamespace }}"
-        spec:
-          ports:
-            - protocol: TCP
-              name: web
-              port: 8191
-          selector:
-            app: flaresolverr
-      - kind: Deployment
-        apiVersion: apps/v1
-        metadata:
-          name: flaresolverr
-          namespace: "{{ .Values.applicationsNamespace }}"
-          labels:
-            app: flaresolverr
-        spec:
-          replicas: 1
-          selector:
-            matchLabels:
-              app: flaresolverr
-          template:
-            metadata:
-              labels:
-                app: flaresolverr
-            spec:
-              containers:
-                {{- include "tunnel.deployment.container" . | nindent 16 }}
-                - name: app
-                  image: 21hsmw/flaresolverr:nodriver
-                  imagePullPolicy: Always
-                  livenessProbe:
-                    httpGet:
-                      path: /
-                      port: 8191
-                    initialDelaySeconds: 15
-                    periodSeconds: 30
-                    failureThreshold: 5
-                  resources:
-                    requests:
-                      memory: 512Mi
-                      cpu: 250m
-                    limits:
-                      memory: 2Gi
-                  ports:
-                    - name: web
-                      containerPort: 8191
+    {{- include "tunnel.truecharts.image" . | nindent 4 }}
+    image:
+      repository: 21hsmw/flaresolverr
+      pullPolicy: Always
+      tag: nodriver
+    workload:
+      main:
+        podSpec:
+          containers:
+            {{- include "tunnel.truecharts.container" . | nindent 12 }}
+            main:
+              probes:
+                readiness:
+                  enabled: true
+                  type: http
+                  path: /
+                liveness:
+                  enabled: true
+                  type: http
+                  path: /
+                startup:
+                  enabled: true
+                  type: http
+                  path: /
+              env: {}
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 250m
+      limits:
+        memory: 2Gi
+    persistence:
+      config:
+        enabled: false
 {{- end }}
