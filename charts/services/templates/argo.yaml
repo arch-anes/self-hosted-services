@@ -87,49 +87,39 @@ spec:
         serviceMonitor:
           enabled: {{ include "metrics.enabled" . }}
 
+{{- if .Capabilities.APIVersions.Has "argoproj.io/v1alpha1/ApplicationSet" }}
 ---
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
 metadata:
-  name: argo-cd-applicationset
+  name: self-hosted-services
   namespace: kube-system
 spec:
-  chart: generic
-  repo: https://arch-anes.github.io/charts
-  version: 0.2.1
-  targetNamespace: kube-system
-  valuesContent: |-
-    objects:
-      - apiVersion: argoproj.io/v1alpha1
-        kind: ApplicationSet
-        metadata:
-          name: self-hosted-services
-          namespace: kube-system
-        spec:
-          goTemplate: true
-          goTemplateOptions: ["missingkey=error"]
-          generators:
-            - list:
-                elements:
-                  - environment: prod
-          syncPolicy:
-            preserveResourcesOnDeletion: true
-          template:
-            metadata:
-              name: self-hosted-services-cd
-              namespace: kube-system
-            spec:
-              syncPolicy:
-                automated:
-                  selfHeal: true
-              project: default
-              source:
-                repoURL: {{ .Values.gitRepo }}
-                targetRevision: HEAD
-                path: charts/services
-                helm:
-                  valuesObject:
-                    {{- .Values | toYaml | nindent 20}}
-              destination:
-                server: https://kubernetes.{{ .Values.applicationsNamespace }}.svc
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - environment: prod
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+  template:
+    metadata:
+      name: self-hosted-services-cd
+      namespace: kube-system
+    spec:
+      syncPolicy:
+        automated:
+          selfHeal: true
+      project: default
+      source:
+        repoURL: {{ .Values.gitRepo }}
+        targetRevision: HEAD
+        path: charts/services
+        helm:
+          valuesObject:
+            {{- .Values | toYaml | nindent 12}}
+      destination:
+        server: https://kubernetes.{{ .Values.applicationsNamespace }}.svc
+{{- end }}
 {{- end }}

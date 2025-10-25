@@ -24,79 +24,71 @@ spec:
           memory: 512Mi
 
 {{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+{{- if .Capabilities.APIVersions.Has "monitoring.coreos.com/v1/PodMonitor" }}
 ---
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
+# Source: https://github.com/ducnguyen-kasha-io/kasha-lab/blob/a954f765383ed322bdb1b6acda2be7628680ffc4/raw-templates/postgres-pgo/podmonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
 metadata:
-  name: postgresql-monitoring
+  name: pgo-metrics
+  namespace: kube-system
+  labels:
+    app: postgres-operator
+spec:
+  selector:
+    matchLabels:
+      postgres-operator.crunchydata.com/control-plane: "pgo"
+  podMetricsEndpoints:
+    - port: metrics
+      scheme: https
+      interval: 15s
+      scrapeTimeout: 15s
+      tlsConfig:
+        insecureSkipVerify: true
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: crunchy-postgres-exporter
   namespace: kube-system
 spec:
-  chart: generic
-  repo: https://arch-anes.github.io/charts
-  version: 0.2.1
-  targetNamespace: kube-system
-  valuesContent: |-
-    objects:
-      # Source: https://github.com/ducnguyen-kasha-io/kasha-lab/blob/a954f765383ed322bdb1b6acda2be7628680ffc4/raw-templates/postgres-pgo/podmonitor.yaml
-      - apiVersion: monitoring.coreos.com/v1
-        kind: PodMonitor
-        metadata:
-          name: pgo-metrics
-          namespace: kube-system
-          labels:
-            app: postgres-operator
-        spec:
-          selector:
-            matchLabels:
-              postgres-operator.crunchydata.com/control-plane: "pgo"
-          podMetricsEndpoints:
-            - port: metrics
-              scheme: https
-              interval: 15s
-              scrapeTimeout: 15s
-              tlsConfig:
-                insecureSkipVerify: true
-      - apiVersion: monitoring.coreos.com/v1
-        kind: PodMonitor
-        metadata:
-          name: crunchy-postgres-exporter
-          namespace: kube-system
-        spec:
-          namespaceSelector:
-            any: true
-          selector:
-            matchLabels:
-              postgres-operator.crunchydata.com/crunchy-postgres-exporter: "true"
-          podMetricsEndpoints:
-            - honorLabels: true
-              path: /metrics
-              port: exporter
-              # Source: https://tinyurl.com/muyn5sc8
-              relabelings:
-                # Keep exporter port and drop all others
-                - sourceLabels: [__meta_kubernetes_pod_container_port_number]
-                  action: keep
-                  regex: "9187"
-                # Set label for namespace
-                - sourceLabels: [__meta_kubernetes_namespace]
-                  targetLabel: kubernetes_namespace
-                # Set label for pod name
-                - sourceLabels: [__meta_kubernetes_pod_name]
-                  targetLabel: pod
-                # Convert namespace and cluster name to pg_cluster=namespace:cluster
-                - sourceLabels: [__meta_kubernetes_namespace,__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_cluster]
-                  targetLabel: pg_cluster
-                  separator: ":"
-                  replacement: '$1$2'
-                # Convert kubernetes pod ip to ip
-                - sourceLabels: [__meta_kubernetes_pod_ip]
-                  targetLabel: ip
-                # Convert postgres-operator.crunchydata.com/instance to deployment
-                - sourceLabels: [__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_instance]
-                  targetLabel: deployment
-                # Convert postgres-operator.crunchydata.com/role to role
-                - sourceLabels: [__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_role]
-                  targetLabel: role
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels:
+      postgres-operator.crunchydata.com/crunchy-postgres-exporter: "true"
+  podMetricsEndpoints:
+    - honorLabels: true
+      path: /metrics
+      port: exporter
+      # Source: https://tinyurl.com/muyn5sc8
+      relabelings:
+        # Keep exporter port and drop all others
+        - sourceLabels: [__meta_kubernetes_pod_container_port_number]
+          action: keep
+          regex: "9187"
+        # Set label for namespace
+        - sourceLabels: [__meta_kubernetes_namespace]
+          targetLabel: kubernetes_namespace
+        # Set label for pod name
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod
+        # Convert namespace and cluster name to pg_cluster=namespace:cluster
+        - sourceLabels: [__meta_kubernetes_namespace,__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_cluster]
+          targetLabel: pg_cluster
+          separator: ":"
+          replacement: '$1$2'
+        # Convert kubernetes pod ip to ip
+        - sourceLabels: [__meta_kubernetes_pod_ip]
+          targetLabel: ip
+        # Convert postgres-operator.crunchydata.com/instance to deployment
+        - sourceLabels: [__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_instance]
+          targetLabel: deployment
+        # Convert postgres-operator.crunchydata.com/role to role
+        - sourceLabels: [__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_role]
+          targetLabel: role
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -115,27 +107,13 @@ spec:
 #     repo1-cipher-pass="some-encryption-key"
 
 ---
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
+apiVersion: v1
+kind: ConfigMap
 metadata:
   name: postgresql
   namespace: "{{ .Values.applicationsNamespace }}"
-spec:
-  chart: generic
-  repo: https://arch-anes.github.io/charts
-  version: 0.2.1
-  targetNamespace: "{{ .Values.applicationsNamespace }}"
-  failurePolicy: abort # Do not uninstall this chart on failure, otherwise the cluster will be deleted
-  # takeOwnership: true
-  valuesContent: |-
-    objects:
-      - apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: postgresql
-          namespace: "{{ .Values.applicationsNamespace }}"
-        data:
-          bootstrap.sql: |
+data:
+  bootstrap.sql: |
             \c postgres
             \o /tmp/grant_users_public_permissions.sql
             \pset format unaligned
@@ -176,198 +154,202 @@ spec:
             CREATE EXTENSION IF NOT EXISTS vector CASCADE;
             CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
             COMMIT;
-      - apiVersion: postgres-operator.crunchydata.com/v1beta1
-        kind: PostgresCluster
-        metadata:
-          name: postgresql
-          namespace: "{{ .Values.applicationsNamespace }}"
-        spec:
-          postgresVersion: 17
-          instances:
-            - name: instance1
-              replicas: 3
-              # Schedule pods on separate nodes
-              affinity:
-                podAntiAffinity:
-                  requiredDuringSchedulingIgnoredDuringExecution:
-                    - topologyKey: kubernetes.io/hostname
-                      labelSelector:
-                        matchLabels:
-                          postgres-operator.crunchydata.com/cluster: postgresql
-                          postgres-operator.crunchydata.com/instance-set: instance1
-              resources:
-                requests:
-                  cpu: "1000m"
-                  memory: "1Gi"
-                limits:
-                  hugepages-2Mi: "2Gi"
-                  memory: "4Gi"
-              dataVolumeClaimSpec:
-                accessModes:
-                - "ReadWriteOnce"
-                storageClassName: local-path-ephemeral
-                resources:
-                  requests:
-                    storage: 10Gi
-          config:
-            parameters:
-              password_encryption: scram-sha-256
-              max_connections: "1000"
-              shared_preload_libraries: "cube,earthdistance,vector,vchord"
-          patroni:
-            dynamicConfiguration:
-              postgresql:
-                # https://github.com/CrunchyData/postgres-operator/issues/2534#issuecomment-891202207
-                pg_hba:
-                  - "hostnossl all all 10.42.0.0/16 scram-sha-256"
-                  - "hostnossl all all 10.43.0.0/16 scram-sha-256"
-                  - "hostssl all all 10.42.0.0/16 scram-sha-256"
-                  - "hostssl all all 10.43.0.0/16 scram-sha-256"
-          users:
-            - name: postgres
+
+{{- if .Capabilities.APIVersions.Has "postgres-operator.crunchydata.com/v1beta1/PostgresCluster" }}
+---
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
+metadata:
+  name: postgresql
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  postgresVersion: 17
+  instances:
+    - name: instance1
+      replicas: 3
+      # Schedule pods on separate nodes
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  postgres-operator.crunchydata.com/cluster: postgresql
+                  postgres-operator.crunchydata.com/instance-set: instance1
+      resources:
+        requests:
+          cpu: "1000m"
+          memory: "1Gi"
+        limits:
+          hugepages-2Mi: "2Gi"
+          memory: "4Gi"
+      dataVolumeClaimSpec:
+        accessModes:
+        - "ReadWriteOnce"
+        storageClassName: local-path-ephemeral
+        resources:
+          requests:
+            storage: 10Gi
+  config:
+    parameters:
+      password_encryption: scram-sha-256
+      max_connections: "1000"
+      shared_preload_libraries: "cube,earthdistance,vector,vchord"
+  patroni:
+    dynamicConfiguration:
+      postgresql:
+        # https://github.com/CrunchyData/postgres-operator/issues/2534#issuecomment-891202207
+        pg_hba:
+          - "hostnossl all all 10.42.0.0/16 scram-sha-256"
+          - "hostnossl all all 10.43.0.0/16 scram-sha-256"
+          - "hostssl all all 10.42.0.0/16 scram-sha-256"
+          - "hostssl all all 10.43.0.0/16 scram-sha-256"
+  users:
+    - name: postgres
 {{- if .Values.applications.authentik.enabled }}
-            - name: authentik
-              databases:
-                - authentik
+    - name: authentik
+      databases:
+        - authentik
 {{- end }}
 {{- if .Values.applications.bazarr.enabled }}
-            - name: bazarr
-              databases:
-                - bazarr
+    - name: bazarr
+      databases:
+        - bazarr
 {{- end }}
 {{- if .Values.applications.gotify.enabled }}
-            - name: gotify
-              databases:
-                - gotify
+    - name: gotify
+      databases:
+        - gotify
 {{- end }}
 {{- if .Values.applications.home_assistant.enabled }}
-            - name: home-assistant
-              databases:
-                - home-assistant
+    - name: home-assistant
+      databases:
+        - home-assistant
 {{- end }}
 {{- if .Values.applications.immich.enabled }}
-            - name: immich
-              databases:
-                - immich
+    - name: immich
+      databases:
+        - immich
 {{- end }}
 {{- if .Values.applications.inventree.enabled }}
-            - name: inventree
-              databases:
-                - inventree
+    - name: inventree
+      databases:
+        - inventree
 {{- end }}
 {{- if .Values.applications.miniflux.enabled }}
-            - name: miniflux
-              password:
-                type: AlphaNumeric
-              databases:
-                - miniflux
+    - name: miniflux
+      password:
+        type: AlphaNumeric
+      databases:
+        - miniflux
 {{- end }}
 {{- if .Values.applications.n8n.enabled }}
-            - name: n8n
-              databases:
-                - n8n
+    - name: n8n
+      databases:
+        - n8n
 {{- end }}
 {{- if .Values.applications.netbox.enabled }}
-            - name: netbox
-              databases:
-                - netbox
+    - name: netbox
+      databases:
+        - netbox
 {{- end }}
 {{- if .Values.applications.nextcloud.enabled }}
-            - name: nextcloud
-              databases:
-                - nextcloud
+    - name: nextcloud
+      databases:
+        - nextcloud
 {{- end }}
 {{- if .Values.applications.obico.enabled }}
-            - name: obico
-              password:
-                type: AlphaNumeric
-              databases:
-                - obico
+    - name: obico
+      password:
+        type: AlphaNumeric
+      databases:
+        - obico
 {{- end }}
 {{- if .Values.applications.odoo.enabled }}
-            - name: odoo
-              databases:
-                - odoo
+    - name: odoo
+      databases:
+        - odoo
 {{- end }}
 {{- if .Values.applications.pgadmin4.enabled }}
-            - name: pgadmin4
-              password:
-                type: AlphaNumeric
-              databases:
-                - pgadmin4
+    - name: pgadmin4
+      password:
+        type: AlphaNumeric
+      databases:
+        - pgadmin4
 {{- end }}
 {{- if .Values.applications.prowlarr.enabled }}
-            - name: prowlarr
-              databases:
-                - prowlarr_log
-                - prowlarr_main
+    - name: prowlarr
+      databases:
+        - prowlarr_log
+        - prowlarr_main
 {{- end }}
 {{- if .Values.applications.radarr.enabled }}
-            - name: radarr
-              databases:
-                - radarr_log
-                - radarr_main
+    - name: radarr
+      databases:
+        - radarr_log
+        - radarr_main
 {{- end }}
 {{- if .Values.applications.sonarr.enabled }}
-            - name: sonarr
-              databases:
-                - sonarr_log
-                - sonarr_main
+    - name: sonarr
+      databases:
+        - sonarr_log
+        - sonarr_main
 {{- end }}
 {{- if .Values.applications.speedtest_tracker.enabled }}
-            - name: speedtest-tracker
-              databases:
-                - speedtest-tracker
+    - name: speedtest-tracker
+      databases:
+        - speedtest-tracker
 {{- end }}
 {{- if .Values.applications.tandoor.enabled }}
-            - name: tandoor
-              databases:
-                - tandoor
+    - name: tandoor
+      databases:
+        - tandoor
 {{- end }}
 {{- with .Values.applications.postgresql.additionalUsers }}
-{{- toYaml . | nindent 12 }}
+{{- toYaml . | nindent 4 }}
 {{- end }}
-          databaseInitSQL:
-            name: postgresql
-            key: bootstrap.sql
+  databaseInitSQL:
+    name: postgresql
+    key: bootstrap.sql
 {{- if .Values.applications.prometheus.enabled }}
-          monitoring:
-            pgmonitor:
-              exporter: {}
+  monitoring:
+    pgmonitor:
+      exporter: {}
 {{- end }}
-          backups:
-            pgbackrest:
-              manual:
-                repoName: repo1
-                options:
-                  - --type=full
-              global:
-                compress-level: '1'
-                compress-level-network: '1'
-                compress-type: zst
-                repo1-s3-uri-style: path # Backblaze support
-                repo1-retention-full: "5" # Keep 5 full backups
-                repo1-cipher-type: aes-256-cbc
-                repo2-retention-full: "2"
-              configuration:
-                - secret:
-                    name: postgresql-backup-credentials
-              repos:
-                - name: repo1
-                  {{- .Values.applications.postgresql.remoteBackupLocation | toYaml | nindent 18 }}
-                  schedules:
-                    full: "0 8 * * 2" # Every Tuesday at 8:00 AM
-                    incremental: "15 12 * * *" # Every day at 12:15 PM
-                - name: repo2
-                  schedules:
-                    full: "0 8 * * 1" # Every Monday at 8:00 AM
-                    incremental: "45 * * * *" # Every hour at :45
-                  volume:
-                    volumeClaimSpec:
-                      accessModes:
-                      - "ReadWriteOnce"
-                      storageClassName: local-path-persistent-namespaced
-                      resources:
-                        requests:
-                          storage: 10Gi
+  backups:
+    pgbackrest:
+      manual:
+        repoName: repo1
+        options:
+          - --type=full
+      global:
+        compress-level: '1'
+        compress-level-network: '1'
+        compress-type: zst
+        repo1-s3-uri-style: path # Backblaze support
+        repo1-retention-full: "5" # Keep 5 full backups
+        repo1-cipher-type: aes-256-cbc
+        repo2-retention-full: "2"
+      configuration:
+        - secret:
+            name: postgresql-backup-credentials
+      repos:
+        - name: repo1
+          {{- .Values.applications.postgresql.remoteBackupLocation | toYaml | nindent 10 }}
+          schedules:
+            full: "0 8 * * 2" # Every Tuesday at 8:00 AM
+            incremental: "15 12 * * *" # Every day at 12:15 PM
+        - name: repo2
+          schedules:
+            full: "0 8 * * 1" # Every Monday at 8:00 AM
+            incremental: "45 * * * *" # Every hour at :45
+          volume:
+            volumeClaimSpec:
+              accessModes:
+              - "ReadWriteOnce"
+              storageClassName: local-path-persistent-namespaced
+              resources:
+                requests:
+                  storage: 10Gi
+{{- end }}
 {{- end }}
