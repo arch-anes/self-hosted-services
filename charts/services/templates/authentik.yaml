@@ -14,6 +14,8 @@
 # type: Opaque
 # stringData:
 #   AUTHENTIK_SECRET_KEY: "somekey"
+#   ldap-bind-user: "ldapservice"
+#   ldap-bind-password: "some_pass"
 
 ---
 # Open https://<ingress-host-name>/if/flow/initial-setup/ for the initial setup.
@@ -174,7 +176,6 @@ spec:
                   email: "ldapservice@{{ .Values.fqdn }}"
                   is_active: true
                   type: service_account
-                  password: {{`{{ "\"{{ random_uuid }}\"" }}`}}
 
               # ---- Application ----
               - id: ldap-app
