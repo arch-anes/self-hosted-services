@@ -239,6 +239,15 @@ spec:
           default: true
         exposedPort: 465
         protocol: TCP
+      mx:
+        proxyProtocol:
+          trustedIPs:
+            {{- include "ip.proxy_ranges" . | nindent 12 }}
+        port: 25
+        expose:
+          default: true
+        exposedPort: 25
+        protocol: TCP
     resources:
       requests:
         memory: 512Mi

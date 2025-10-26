@@ -160,6 +160,11 @@ frontend https-in
     mode tcp
     default_backend https-servers
 
+frontend mx-in
+    bind :9925
+    mode tcp
+    default_backend mx-servers
+
 frontend smtp-in
     bind :9465
     mode tcp
@@ -191,6 +196,16 @@ backend https-servers
     server s1 192.168.1.11:443 send-proxy-v2 check
     server s2 192.168.1.12:443 send-proxy-v2 check
     server s3 192.168.1.13:443 send-proxy-v2 check
+
+backend mx-servers
+    mode tcp
+    balance roundrobin
+    option tcp-check
+    tcp-check connect port 25
+    default-server inter 3s fall 3 rise 2
+    server s1 192.168.1.11:25 send-proxy-v2 check
+    server s2 192.168.1.12:25 send-proxy-v2 check
+    server s3 192.168.1.13:25 send-proxy-v2 check
 
 backend smtp-servers
     mode tcp
