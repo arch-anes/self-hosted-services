@@ -25,7 +25,7 @@ metadata:
 spec:
   chart: loki
   repo: https://grafana.github.io/helm-charts
-  version: 6.43.0
+  version: 6.44.0
   targetNamespace: kube-system
   valuesContent: |-
     deploymentMode: SingleBinary
