@@ -32,11 +32,11 @@ spec:
           value: "kube-system"
       resources:
         requests:
-          cpu: 200m
-          memory: 64Mi
+          cpu: 1000m
+          memory: 256Mi
           ephemeral-storage: 500Mi
         limits:
-          memory: 256Mi
+          memory: 512Mi
 
 ---
 apiVersion: helm.cattle.io/v1
@@ -71,10 +71,10 @@ spec:
           resources:
             requests:
               cpu: 1000m
-              memory: 512Mi
+              memory: 1Gi
               ephemeral-storage: 500Mi
             limits:
-              memory: 1Gi
+              memory: 2Gi
       metrics:
         enabled: true
       prometheusOperator: true
