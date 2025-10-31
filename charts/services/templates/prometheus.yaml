@@ -92,8 +92,21 @@ spec:
                         - key: Content-Type
                           value: application/json
 {{- end }}
-{{- if and (not .Values.disableAllApplications) (or .Values.applications.loki.enabled .Values.applications.tempo.enabled) }}
+{{- if .Values.applications.thanos.enabled }}
+      defaultDatasourceEnabled: false
+{{- end }}
+{{- if and (not .Values.disableAllApplications) (or .Values.applications.thanos.enabled .Values.applications.loki.enabled .Values.applications.tempo.enabled) }}
       additionalDataSources:
+{{- if .Values.applications.thanos.enabled }}
+        - name: Prometheus
+          type: prometheus
+          uid: prometheus
+          access: proxy
+          url: http://thanos-query-frontend.kube-system.svc.cluster.local:9090
+          isDefault: true
+          jsonData:
+            timeInterval: 30s
+{{- end }}
 {{- if .Values.applications.loki.enabled }}
         - name: Loki
           type: loki
@@ -369,6 +382,13 @@ spec:
               resources:
                 requests:
                   storage: 50Gi
+{{- if .Values.applications.thanos.enabled }}
+        thanos:
+          objectStorageConfig:
+            existingSecret:
+              name: thanos
+              key: objstore.yml
+{{- end }}
         nodeSelector:
           # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
           kubernetes.io/arch: amd64
@@ -382,6 +402,10 @@ spec:
         secrets:
           - ipmi-exporter
 {{- end }}
+      thanosService:
+        enabled: {{ .Values.applications.thanos.enabled }}
+      thanosServiceMonitor:
+        enabled: {{ .Values.applications.thanos.enabled }}
     ## k3s only ##
     # Avoid duplicated metrics in k3s: https://tinyurl.com/mrhjre9n
     kubelet:

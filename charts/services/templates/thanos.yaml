@@ -1,0 +1,98 @@
+{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.thanos.enabled }}
+{{- if not .Values.applications.prometheus.enabled }}
+{{- fail "Thanos requires Prometheus to be enabled. Please enable Prometheus in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.minio.enabled }}
+{{- fail "Thanos requires MinIO to be enabled. Please enable MinIO in your values.yaml" }}
+{{- end }}
+
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: thanos
+#   namespace: kube-system
+# type: Opaque
+# stringData:
+#   objstore.yml: |
+#     type: s3
+#     config:
+#       bucket: thanos
+#       endpoint: minio.kube-system.svc.cluster.local
+#       region: us-east-1
+#       access_key: "<access_key>"
+#       secret_key: "<secret_key>"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: thanos
+  namespace: kube-system
+spec:
+  chart: thanos
+  repo: https://stevehipwell.github.io/helm-charts/
+  version: 1.21.1
+  targetNamespace: kube-system
+  valuesContent: |-
+    objstoreConfig:
+      create: false
+      name: thanos
+      key: objstore.yml
+    additionalEndpoints:
+      - dnssrv+_grpc._tcp.prometheus-kube-prometheus-thanos-discovery.kube-system.svc.cluster.local
+    query:
+      replicas: 1
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
+        hosts:
+          - thanos.{{ .Values.fqdn }}
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - thanos.{{ .Values.fqdn }}
+    queryFrontend:
+      enabled: true
+      replicas: 1
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
+    compact:
+      enabled: true
+      persistence:
+        enabled: true
+        storageClass: local-path-ephemeral
+        size: 10Gi
+      resources:
+        requests:
+          cpu: 250m
+          memory: 512Mi
+        limits:
+          memory: 1Gi
+      nodeSelector:
+        kubernetes.io/arch: amd64
+    storeGateway:
+      enabled: true
+      replicas: 1
+      persistence:
+        enabled: true
+        storageClass: local-path-ephemeral
+        size: 10Gi
+      resources:
+        requests:
+          cpu: 250m
+          memory: 512Mi
+        limits:
+          memory: 1Gi
+      nodeSelector:
+        kubernetes.io/arch: amd64
+    serviceMonitor:
+      enabled: true
+{{- end }}

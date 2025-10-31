@@ -179,6 +179,8 @@ applications:
     # gpu_vendor: amd
   tempo:
     enabled: true
+  thanos:
+    enabled: true
   transmission:
     enabled: true
   velero:
