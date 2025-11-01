@@ -33,7 +33,7 @@ metadata:
   namespace: kube-system
 spec:
   chart: idrac-exporter
-  repo: https://arch-anes.github.io/charts
+  repo: https://mrlhansen.github.io/idrac_exporter
   version: 2.3.1
   targetNamespace: kube-system
   valuesContent: |-
