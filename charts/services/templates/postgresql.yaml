@@ -170,6 +170,13 @@ spec:
             \o
             \i /tmp/grant_users_public_permissions.sql
 
+            \c appflowy
+            BEGIN;
+            ALTER ROLE appflowy SET search_path TO public,auth;
+            CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
+            CREATE EXTENSION IF NOT EXISTS vector CASCADE;
+            COMMIT;
+
             \c immich
             BEGIN;
             CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
@@ -229,6 +236,13 @@ spec:
             - name: authentik
               databases:
                 - authentik
+{{- end }}
+{{- if .Values.applications.appflowy.enabled }}
+            - name: appflowy
+              password:
+                type: AlphaNumeric
+              databases:
+                - appflowy
 {{- end }}
 {{- if .Values.applications.bazarr.enabled }}
             - name: bazarr

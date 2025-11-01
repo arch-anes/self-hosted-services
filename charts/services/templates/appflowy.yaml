@@ -1,0 +1,135 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.appflowy.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "AppFlowy requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "AppFlowy requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.minio.enabled }}
+{{- fail "AppFlowy requires Minio to be enabled. Please enable Minio in your values.yaml" }}
+{{- end }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: appflowy
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   gotrue-admin-email: "some_email"
+#   gotrue-admin-password: "some_pass"
+#   jwt-secret: "some_key"
+#   s3-access-key: "some_key"
+#   s3-secret-key: "some_key"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: appflowy
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: appflowy
+  repo: https://arch-anes.github.io/charts
+  version: 0.1.0
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    replicaCount: 1
+    deploymentAnnotations:
+      reloader.stakater.com/auto: "true"
+    smtp:
+      host:
+        secret:
+          name: smtp
+          key: hostname
+      port:
+        value: "587"
+      username:
+        secret:
+          name: smtp
+          key: username
+      password:
+        secret:
+          name: smtp
+          key: password
+      fromEmail: "appflowy@{{ .Values.fqdn }}"
+      tlsKind: required
+    gotrue:
+      resources: {}
+      disableSignup: true
+      adminEmail:
+        secret:
+          name: appflowy
+          key: "gotrue-admin-email"
+      adminPassword:
+        secret:
+          name: appflowy
+          key: gotrue-admin-password
+      jwtSecret:
+        secret:
+          name: appflowy
+          key: jwt-secret
+      jwtExp: "7200"
+      jwtAdminGroupName: appflowy
+      smtpAdminEmail: "appflowy@{{ .Values.fqdn }}"
+      smtpMaxFrequency: "1ns"
+    appflowy:
+      baseFqdn: "appflowy.{{ .Values.fqdn }}"
+      externalDatabase:
+        host: postgresql-primary
+        port: "5432"
+        username:
+          secret:
+            name: postgresql-pguser-appflowy
+            key: user
+        password:
+          secret:
+            name: postgresql-pguser-appflowy
+            key: password
+        database: appflowy
+      externalRedis:
+        host: redis-master
+        port: "6379"
+        password:
+          secret:
+            name: redis
+            key: redis-password
+      s3:
+        createBucket: false
+        useMinio: true
+        minioUrl: https://s3.{{ .Values.fqdn }}
+        accessKey:
+          secret:
+            name: appflowy
+            key: s3-access-key
+        secretKey:
+          secret:
+            name: appflowy
+            key: s3-secret-key
+        bucket: "{{ .Values.applicationsNamespace }}-appflowy"
+        region: us-east-1
+    ai:
+      enabled: false
+    cloud:
+      resources: {}
+    worker:
+      resources: {}
+    web:
+      resources: {}
+    adminFrontend:
+      resources: {}
+    ingress:
+      enabled: true
+      annotations:
+        homer.service.name: Feed
+        homer.item.logo: "https://raw.githubusercontent.com/AppFlowy-IO/AppFlowy/41ca1dd8eef815becc407058b883e9d0d667494d/frontend/scripts/flatpack-buildfiles/logo.svg"
+      hosts:
+        - host: appflowy.{{ .Values.fqdn }}
+      tls:
+        - secretName: {{ .Values.fqdn }}-tls
+          hosts:
+            - appflowy.{{ .Values.fqdn }}
+      traefik:
+        stripPrefix:
+          enabled: true
+{{- end }}
