@@ -71,6 +71,8 @@ applications:
     enabled: true
   amd_gpu:
     enabled: true
+  appflowy:
+    enabled: true
   argo:
     enabled: true
   authentik:
