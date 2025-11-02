@@ -67,6 +67,8 @@ actionRunnerConfigs: []
 disableAllApplications: false
 
 applications:
+  affine:
+    enabled: true
   akri:
     enabled: true
   amd_gpu:

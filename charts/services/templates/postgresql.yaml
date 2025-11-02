@@ -170,6 +170,12 @@ spec:
             \o
             \i /tmp/grant_users_public_permissions.sql
 
+            \c affine
+            BEGIN;
+            CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
+            CREATE EXTENSION IF NOT EXISTS vector CASCADE;
+            COMMIT;
+
             \c immich
             BEGIN;
             CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
@@ -225,6 +231,13 @@ spec:
                   - "hostssl all all 10.43.0.0/16 scram-sha-256"
           users:
             - name: postgres
+{{- if .Values.applications.affine.enabled }}
+            - name: affine
+              password:
+                type: AlphaNumeric
+              databases:
+                - affine
+{{- end }}
 {{- if .Values.applications.authentik.enabled }}
             - name: authentik
               databases:

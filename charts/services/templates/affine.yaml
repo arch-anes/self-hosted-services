@@ -1,0 +1,90 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.affine.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Affine requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "Affine requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: affine
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   gotrue-admin-email: "some_email"
+#   gotrue-admin-password: "some_pass"
+#   jwt-secret: "some_key"
+#   s3-access-key: "some_key"
+#   s3-secret-key: "some_key"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: affine
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: affine
+  repo: https://arch-anes.github.io/charts
+  version: 0.1.0
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    replicaCount: 1
+    baseFqdn: "affine.{{ .Values.fqdn }}"
+    smtp:
+      host:
+        secret:
+          name: smtp
+          key: hostname
+      port:
+        value: "587"
+      username:
+        secret:
+          name: smtp
+          key: username
+      password:
+        secret:
+          name: smtp
+          key: password
+      sender:
+        value: "affine@{{ .Values.fqdn }}"
+    externalDatabase:
+      host: postgresql-primary
+      port: "5432"
+      username:
+        secret:
+          name: postgresql-pguser-affine
+          key: user
+      password:
+        secret:
+          name: postgresql-pguser-affine
+          key: password
+      database: affine
+    externalRedis:
+      host: redis-master
+      port: "6379"
+      password:
+        secret:
+          name: redis
+          key: redis-password  
+    resources: {}
+    deploymentAnnotations:
+      backup.velero.io/backup-volumes: data
+      reloader.stakater.com/auto: "true"
+    persistence:
+      enabled: true
+      storageClass: local-path-persistent-namespaced
+    ingress:
+      enabled: true
+      annotations:
+        homer.service.name: Feed
+        homer.item.logo: "https://raw.githubusercontent.com/AppFlowy-IO/AppFlowy/41ca1dd8eef815becc407058b883e9d0d667494d/frontend/scripts/flatpack-buildfiles/logo.svg"
+      hosts:
+        - host: affine.{{ .Values.fqdn }}
+      tls:
+        - secretName: {{ .Values.fqdn }}-tls
+          hosts:
+            - affine.{{ .Values.fqdn }}
+{{- end }}
