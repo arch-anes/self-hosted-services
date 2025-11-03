@@ -2,9 +2,6 @@
 {{- if not .Values.applications.postgresql.enabled }}
 {{- fail "Authentik requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
-{{- if not .Values.applications.redis.enabled }}
-{{- fail "Authentik requires Redis to be enabled. Please enable Redis in your values.yaml" }}
-{{- end }}
 # ---
 # apiVersion: v1
 # kind: Secret
@@ -56,15 +53,6 @@ spec:
           value: /etc/postgres/tls/tls.crt
         - name: AUTHENTIK_POSTGRESQL__SSLKEY
           value: /etc/postgres/tls/tls.key
-        - name: AUTHENTIK_REDIS__HOST
-          value: "redis-master"
-        - name: AUTHENTIK_REDIS__PORT
-          value: "6379"
-        - name: AUTHENTIK_REDIS__PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: redis
-              key: redis-password
         - name: AUTHENTIK_EMAIL__HOST
           valueFrom:
             secretKeyRef:
@@ -146,8 +134,6 @@ spec:
     authentik:
       enabled: false # Disable secret generation
     postgresql:
-      enabled: false
-    redis:
       enabled: false
     blueprints:
       secrets:
