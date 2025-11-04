@@ -24,7 +24,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://tccr.io/truecharts/speedtest-tracker
-  version: 8.19.1
+  version: 8.23.11
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     workload:
