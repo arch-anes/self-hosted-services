@@ -239,7 +239,7 @@ spec:
                 attrs:
                   base_dn: "{{ include "ldap.base_dn" . }}"
                   bind_mode: cached
-                  search_mode: cached
+                  search_mode: direct
                   mfa_support: true
                   tls_server_name: ""
                   authorization_flow: !Find [authentik_flows.flow, [slug, ldap-authentication-flow]]
