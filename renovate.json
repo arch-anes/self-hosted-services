@@ -50,6 +50,12 @@
       ]
     },
     {
+      "matchJsonata": [
+        "registryUrl = 'https://oci.trueforge.org'"
+      ],
+      "changelogUrl": "https://trueforge.org/truetech/truecharts/charts/stable/{{depName}}/changelog/"
+    },
+    {
       "matchPackageNames": [
         "lscr.io/linuxserver/transmission"
       ],
