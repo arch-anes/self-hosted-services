@@ -57,6 +57,30 @@
     },
     {
       "matchPackageNames": [
+        "**/tdarr-*"
+      ],
+      "sourceUrl": "https://github.com/HaveAGitGat/tdarr"
+    },
+    {
+      "matchPackageNames": [
+        "**/jellyfin"
+      ],
+      "sourceUrl": "https://github.com/jellyfin/jellyfin"
+    },
+    {
+      "matchPackageNames": [
+        "**/octoprint"
+      ],
+      "sourceUrl": "https://github.com/OctoPrint/octoprint"
+    },
+    {
+      "matchPackageNames": [
+        "**/transmission"
+      ],
+      "sourceUrl": "https://github.com/transmission/transmission"
+    },
+    {
+      "matchPackageNames": [
         "lscr.io/linuxserver/transmission"
       ],
       "allowedVersions": "!/^202[0-9]\\./",
