@@ -95,6 +95,8 @@ spec:
       nodeSelector:
         kubernetes.io/arch: amd64
     server:
+      deploymentAnnotations:
+        reloader.stakater.com/auto: "true"
       replicas: 3
       resources:
         requests:
