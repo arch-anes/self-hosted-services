@@ -2,18 +2,6 @@
 {{- if not .Values.applications.postgresql.enabled }}
 {{- fail "Authentik requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
-# ---
-# apiVersion: v1
-# kind: Secret
-# metadata:
-#   name: authentik
-#   namespace: "{{ .Values.applicationsNamespace }}"
-# type: Opaque
-# stringData:
-#   AUTHENTIK_SECRET_KEY: "somekey"
-#   ldap-bind-user: "ldapservice"
-#   ldap-bind-password: "some_pass"
-
 ---
 # Open https://<ingress-host-name>/if/flow/initial-setup/ for the initial setup.
 # Note: the trailing / is important.
@@ -140,7 +128,48 @@ spec:
     blueprints:
       secrets:
         - authentik-blueprints
+        - ldap
     additionalObjects:
+      - apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        metadata:
+          name: authentik
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          refreshPolicy: CreatedOnce
+          creationPolicy: Owner
+          deletionPolicy: Retain
+          target:
+            name: authentik
+          dataFrom:
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-ascii-password-generator
+              rewrite:
+                - transform:
+                    template: "AUTHENTIK_SECRET_KEY"
+      - apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        metadata:
+          name: ldap
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          refreshPolicy: CreatedOnce
+          creationPolicy: Owner
+          deletionPolicy: Retain
+          target:
+            name: ldap
+          dataFrom:
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: ascii-password-generator
+              rewrite:
+                - transform:
+                    template: "bind_password"
       - apiVersion: v1
         kind: Secret
         type: Opaque
@@ -162,6 +191,7 @@ spec:
                 attrs:
                   name: "LDAP Service Account"
                   email: "ldapservice@{{ .Values.fqdn }}"
+                  password: !File /blueprints/mounted/secret-ldap/bind_password
                   is_active: true
                   type: service_account
 
