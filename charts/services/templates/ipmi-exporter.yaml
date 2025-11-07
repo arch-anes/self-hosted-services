@@ -119,7 +119,7 @@ metadata:
 spec:
   chart: prometheus-ipmi-exporter
   repo: https://prometheus-community.github.io/helm-charts
-  version: 0.7.0
+  version: 0.8.0
   targetNamespace: kube-system
   valuesContent: |-
     image:
