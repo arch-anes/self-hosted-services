@@ -16,7 +16,7 @@ metadata:
   name: red
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  chart: oci://tccr.io/truecharts/red-discordbot
+  chart: oci://oci.trueforge.org/truecharts/red-discordbot
   version: 8.11.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-

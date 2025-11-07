@@ -9,7 +9,7 @@ metadata:
   name: home-assistant
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  chart: oci://tccr.io/truecharts/home-assistant
+  chart: oci://oci.trueforge.org/truecharts/home-assistant
   version: 28.12.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-

@@ -20,7 +20,7 @@ metadata:
   name: miniflux
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  chart: oci://tccr.io/truecharts/miniflux
+  chart: oci://oci.trueforge.org/truecharts/miniflux
   version: 17.9.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-

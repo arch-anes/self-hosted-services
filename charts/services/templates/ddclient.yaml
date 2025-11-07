@@ -6,7 +6,7 @@ metadata:
   name: "ddclient-{{ .Values.fqdn | replace "." "-" }}"
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  chart: oci://tccr.io/truecharts/ddclient
+  chart: oci://oci.trueforge.org/truecharts/ddclient
   version: 13.9.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-

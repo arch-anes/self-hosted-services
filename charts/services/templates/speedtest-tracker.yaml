@@ -23,7 +23,7 @@ metadata:
   name: speedtest-tracker
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  chart: oci://tccr.io/truecharts/speedtest-tracker
+  chart: oci://oci.trueforge.org/truecharts/speedtest-tracker
   version: 8.23.11
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-

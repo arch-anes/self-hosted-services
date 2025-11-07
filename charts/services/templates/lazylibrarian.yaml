@@ -6,7 +6,7 @@ metadata:
   name: lazylibrarian
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  chart: oci://tccr.io/truecharts/lazylibrarian
+  chart: oci://oci.trueforge.org/truecharts/lazylibrarian
   version: 21.9.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-

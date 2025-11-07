@@ -22,7 +22,7 @@ metadata:
   name: n8n
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  chart: oci://tccr.io/truecharts/n8n
+  chart: oci://oci.trueforge.org/truecharts/n8n
   version: 17.31.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
