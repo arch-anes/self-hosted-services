@@ -189,6 +189,8 @@ applications:
     enabled: true
   speedtest_tracker:
     enabled: true
+  stirling_pdf:
+    enabled: true
   tandoor:
     enabled: true
   tdarr:

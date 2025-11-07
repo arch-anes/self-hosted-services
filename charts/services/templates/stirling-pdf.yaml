@@ -1,0 +1,113 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.stirling_pdf.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Stirling-PDF requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: "stirling-pdf"
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   admin_password: "somepass"
+#   client_id: "someid"
+#   client_secret: "somesecret"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: stirling-pdf
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://oci.trueforge.org/truecharts/stirling-pdf
+  version: 5.26.3
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+          backup.velero.io/backup-volumes: custom-files
+        podSpec:
+          containers:
+            main:
+              imageSelector: fatImage
+              env:
+                SYSTEM_ENABLEANALYTICS: "false"
+                SECURITY_ENABLELOGIN: "true"
+{{- if .Values.applications.authentik.enabled }}
+                SECURITY_LOGINMETHOD: oauth2
+                SECURITY_OAUTH2_ENABLED: "true"
+                SECURITY_OAUTH2_AUTOCREATEUSER: "true"
+                SECURITY_OAUTH2_PROVIDER: authentik
+                SECURITY_OAUTH2_ISSUER: https://auth.{{ .Values.fqdn }}/application/o/stirling-pdf/
+                SECURITY_OAUTH2_CLIENTID:
+                  secretKeyRef:
+                    name: stirling-pdf
+                    key: client_id
+                    expandObjectName: false
+                SECURITY_OAUTH2_CLIENTSECRET:
+                  secretKeyRef:
+                    name: stirling-pdf
+                    key: client_secret
+                    expandObjectName: false
+                SECURITY_OAUTH2_USEASUSERNAME: "preferred_username"
+                SECURITY_OAUTH2_SCOPES: "openid,profile,email"
+{{- else }}
+                SECURITY_INITIALLOGIN_USERNAME: admin
+                SECURITY_INITIALLOGIN_PASSWORD:
+                  secretKeyRef:
+                    name: stirling-pdf
+                    key: admin_password
+                    expandObjectName: false
+{{- end }}
+                SYSTEM_DATASOURCE_ENABLECUSTOMDATABASE: "true"
+                SYSTEM_DATASOURCE_CUSTOMDATABASEURL: "jdbc:postgresql://postgresql-primary:5432/stirling-pdf"
+                SYSTEM_DATASOURCE_USERNAME: "stirling-pdf"
+                SYSTEM_DATASOURCE_PASSWORD:
+                  secretKeyRef:
+                    name: postgresql-pguser-stirling-pdf
+                    key: password
+                    expandObjectName: false
+    resources:
+      requests:
+        memory: 1Gi
+        cpu: 500m
+      limits:
+        memory: 2Gi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:    
+          homer.service.name: Media
+          homer.item.logo: "https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/2acb3aa6e5dd8534233e234ce8af1da38e0373ed/docs/stirling.svg"
+        hosts:
+          - host: pdf.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - pdf.{{ .Values.fqdn }}
+    persistence:
+      configs:
+        enabled: true
+        type: pvc
+        storageClass: local-path-ephemeral
+      tessdata:
+        enabled: true
+        type: pvc
+        storageClass: local-path-ephemeral
+      custom-files:
+        enabled: true
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+      logs:
+        enabled: false
+{{- end }}
