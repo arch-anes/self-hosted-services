@@ -126,8 +126,21 @@ spec:
     postgresql:
       enabled: false
     blueprints:
+      configMaps:
+        - authentik-ldap-blueprint
+{{- if .Values.applications.immich.enabled }}
+        - authentik-immich-blueprint
+{{- end }}
+{{- if .Values.applications.nextcloud.enabled }}
+        - authentik-nextcloud-blueprint
+{{- end }}
+{{- if .Values.applications.stalwart.enabled }}
+        - authentik-stalwart-blueprint
+{{- end }}
+{{- if .Values.applications.stirling_pdf.enabled }}
+        - authentik-stirling-pdf-blueprint
+{{- end }}
       secrets:
-        - authentik-blueprints
         - ldap
     additionalObjects:
       - apiVersion: external-secrets.io/v1
@@ -171,13 +184,12 @@ spec:
                 - transform:
                     template: "bind_password"
       - apiVersion: v1
-        kind: Secret
-        type: Opaque
+        kind: ConfigMap
         metadata:
-          name: authentik-blueprints
+          name: authentik-ldap-blueprint
           namespace: "{{ .Values.applicationsNamespace }}"
-        stringData:
-          10-ldap.yaml: |
+        data:
+          blueprint.yaml: |
             # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
             version: 1
             metadata:
@@ -300,219 +312,6 @@ spec:
                   service_connection: !Find [authentik_outposts.kubernetesserviceconnection, [name, "Local Kubernetes Cluster"]]
                   config:
                     authentik_host: "https://auth.{{ .Values.fqdn }}"
-{{- if .Values.applications.immich.enabled }}
-          50-immich.yaml: |
-            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
-            version: 1
-            metadata:
-              name: Immich OAuth2 Provider
-            entries:
-              - id: immich-provider
-                model: authentik_providers_oauth2.oauth2provider
-                identifiers:
-                  name: Provider for immich
-                attrs:
-                  authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
-                  invalidation_flow: !Find [authentik_flows.flow, [slug, default-invalidation-flow]]
-                  client_type: confidential
-                  redirect_uris:
-                    - matching_mode: strict
-                      url: "https://immich.{{ .Values.fqdn }}/auth/login"
-                    - matching_mode: strict
-                      url: "https://immich.{{ .Values.fqdn }}/user-settings"
-                    - matching_mode: strict
-                      url: "app.immich:///oauth-callback"
-                  signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
-                  property_mappings:
-                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
-                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
-                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
-              - id: immich-app
-                model: authentik_core.application
-                identifiers:
-                  slug: immich
-                attrs:
-                  name: immich
-                  provider: !KeyOf immich-provider
-                  policy_engine_mode: any
-{{- end }}
-{{- if .Values.applications.nextcloud.enabled }}
-          50-nextcloud.yaml: |
-            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
-            version: 1
-            metadata:
-              name: Nextcloud OAuth2 Provider
-            entries:
-              - id: nextcloud-provider
-                model: authentik_providers_oauth2.oauth2provider
-                identifiers:
-                  name: Provider for Nextcloud
-                attrs:
-                  authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
-                  invalidation_flow: !Find [authentik_flows.flow, [slug, default-invalidation-flow]]
-                  client_type: confidential
-                  sub_mode: user_username
-                  redirect_uris: 
-                    - matching_mode: strict
-                      url: "https://nextcloud.{{ .Values.fqdn }}/apps/user_oidc/code"
-                  signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
-                  property_mappings:
-                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
-                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
-                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
-
-              - id: nextcloud-app
-                model: authentik_core.application
-                identifiers:
-                  slug: nextcloud
-                attrs:
-                  name: Nextcloud
-                  provider: !KeyOf nextcloud-provider
-                  policy_engine_mode: any
-{{- end }}
-{{- if .Values.applications.stalwart.enabled }}
-          50-stalwart.yaml: |
-            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
-            version: 1
-            metadata:
-              name: Stalwart provisionning
-            entries:
-              - id: postmaster-mail
-                model: authentik_core.group
-                identifiers:
-                  name: postmaster
-                attrs:
-                  attributes:
-                    mailLocalAddress: "postmaster@{{ .Values.fqdn }}"
-
-              - id: info-mail
-                model: authentik_core.group
-                identifiers:
-                  name: info
-                attrs:
-                  attributes:
-                    mailLocalAddress: "info@{{ .Values.fqdn }}"
-
-              - id: stage-seed-mail
-                model: authentik_stages_user_write.userwritestage
-                identifiers:
-                  name: "seed-mailLocalAddress-stage"
-                attrs:
-                  user_creation_mode: never_create
-                  user_type: internal
-
-              - id: policy-mailLocalAddress
-                model: authentik_policies_expression.expressionpolicy
-                identifiers:
-                  name: "seed-mailLocalAddress-policy"
-                attrs:
-                  expression: |
-                    u = request.user
-                    if not u or not hasattr(u, "attributes"):
-                      return True
-                    attrs = dict(u.attributes or {})
-                    local = u.username or ""
-                    if (not local) and u.email and "@" in u.email:
-                      local = u.email.split("@", 1)[0]
-                    if not local:
-                      return True
-                    domain = "{{ .Values.fqdn }}"
-                    alias = f"{local}@{domain}"
-                    if not attrs.get("mailLocalAddress"):
-                      attrs["mailLocalAddress"] = alias
-                      u.attributes = attrs
-                      u.save()
-                    return True
-
-              - id: bind-stage-to-auth
-                model: authentik_flows.flowstagebinding
-                identifiers:
-                  stage: !Find [authentik_stages_user_write.userwritestage, [name, seed-mailLocalAddress-stage]]
-                  target: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
-                  order: 200
-                attrs:
-                  evaluate_on_plan: true
-                  re_evaluate_policies: true
-
-              - id: bind-policy-to-stage-to-auth
-                model: authentik_policies.policybinding
-                identifiers:
-                  policy: !Find [authentik_policies_expression.expressionpolicy, [name, seed-mailLocalAddress-policy]]
-                  target: !KeyOf bind-stage-to-auth
-                  order: 0
-                attrs:
-                  enabled: true
-
-              - id: bind-stage-to-source-auth
-                model: authentik_flows.flowstagebinding
-                identifiers:
-                  stage: !Find [authentik_stages_user_write.userwritestage, [name, seed-mailLocalAddress-stage]]
-                  target: !Find [authentik_flows.flow, [slug, default-source-authentication]]
-                  order: 200
-                attrs:
-                  evaluate_on_plan: true
-                  re_evaluate_policies: true
-
-              - id: bind-policy-to-stage-to-source-auth
-                model: authentik_policies.policybinding
-                identifiers:
-                  policy: !Find [authentik_policies_expression.expressionpolicy, [name, seed-mailLocalAddress-policy]]
-                  target: !KeyOf bind-stage-to-source-auth
-                  order: 0
-                attrs:
-                  enabled: true
-
-              - id: bind-stage-to-enrollment
-                model: authentik_flows.flowstagebinding
-                identifiers:
-                  stage: !Find [authentik_stages_user_write.userwritestage, [name, seed-mailLocalAddress-stage]]
-                  target: !Find [authentik_flows.flow, [slug, default-source-enrollment]]
-                  order: 200
-                attrs:
-                  evaluate_on_plan: true
-                  re_evaluate_policies: true
-
-              - id: bind-policy-to-stage-to-enrollment
-                model: authentik_policies.policybinding
-                identifiers:
-                  policy: !Find [authentik_policies_expression.expressionpolicy, [name, seed-mailLocalAddress-policy]]
-                  target: !KeyOf bind-stage-to-enrollment
-                  order: 0
-                attrs:
-                  enabled: true
-{{- end }}
-{{- if .Values.applications.stirling_pdf.enabled }}
-          50-stirling-pdf.yaml: |
-            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
-            version: 1
-            metadata:
-              name: Stirling-PDF OAuth2 Provider
-            entries:
-              - id: stirling-pdf-provider
-                model: authentik_providers_oauth2.oauth2provider
-                identifiers:
-                  name: Provider for Stirling-PDF
-                attrs:
-                  authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
-                  invalidation_flow: !Find [authentik_flows.flow, [slug, default-invalidation-flow]]
-                  client_type: confidential
-                  redirect_uris:
-                    - matching_mode: strict
-                      url: "https://pdf.{{ .Values.fqdn }}/login/oauth2/code/oidc"
-                  signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
-                  property_mappings:
-                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
-                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
-                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
-              - id: stirling-pdf-app
-                model: authentik_core.application
-                identifiers:
-                  slug: stirling-pdf
-                attrs:
-                  name: Stirling-PDF
-                  provider: !KeyOf stirling-pdf-provider
-                  policy_engine_mode: any
-{{- end }}
       - apiVersion: networking.k8s.io/v1
         kind: Ingress
         metadata:
