@@ -334,6 +334,11 @@ spec:
               databases:
                 - tandoor
 {{- end }}
+{{- if .Values.applications.wakapi.enabled }}
+            - name: wakapi
+              databases:
+                - wakapi
+{{- end }}
 {{- with .Values.applications.postgresql.additionalUsers }}
 {{- toYaml . | nindent 12 }}
 {{- end }}

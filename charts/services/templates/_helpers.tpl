@@ -11,6 +11,10 @@
 {{- concat .Values.localIpRanges .Values.cloudFlareIpRanges | toYaml }}
 {{- end -}}
 
+{{- define "ip.local_proxy_ranges.string" -}}
+{{- .Values.localIpRanges | join "," }}
+{{- end -}}
+
 {{- define "ip.mail_ranges" -}}
 {{- concat .Values.localIpRanges .Values.sesRanges | toYaml }}
 {{- end -}}

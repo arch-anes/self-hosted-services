@@ -141,8 +141,14 @@ spec:
 {{- if .Values.applications.stirling_pdf.enabled }}
         - authentik-stirling-pdf-blueprint
 {{- end }}
+{{- if and .Values.applications.wakapi.enabled (not .Values.applications.wakapi.trusted_header_auth) }}
+        - wakapi-authentik-blueprint
+{{- end }}
       secrets:
         - ldap
+{{- if and .Values.applications.wakapi.enabled (not .Values.applications.wakapi.trusted_header_auth) }}
+        - wakapi
+{{- end }}
     additionalObjects:
       - apiVersion: external-secrets.io/v1
         kind: ExternalSecret
