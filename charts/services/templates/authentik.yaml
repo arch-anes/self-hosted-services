@@ -130,7 +130,7 @@ spec:
         - authentik-ldap-blueprint
         - authentik-traefik-forward-auth
 {{- if .Values.applications.immich.enabled }}
-        - authentik-immich-blueprint
+        - immich-authentik-blueprint
 {{- end }}
 {{- if .Values.applications.nextcloud.enabled }}
         - authentik-nextcloud-blueprint
@@ -146,6 +146,9 @@ spec:
 {{- end }}
       secrets:
         - ldap
+{{- if .Values.applications.immich.enabled }}
+        - immich
+{{- end }}
 {{- if and .Values.applications.wakapi.enabled (not .Values.applications.wakapi.trusted_header_auth) }}
         - wakapi
 {{- end }}

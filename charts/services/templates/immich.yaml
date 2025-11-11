@@ -5,108 +5,6 @@
 {{- if not .Values.applications.redis.enabled }}
 {{- fail "Immich requires Redis to be enabled. Please enable Redis in your values.yaml" }}
 {{- end }}
-
-{{- if .Values.applications.authentik.enabled }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: authentik-immich-blueprint
-  namespace: "{{ .Values.applicationsNamespace }}"
-data:
-  blueprint.yaml: |
-    # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
-    version: 1
-    metadata:
-      name: Immich OAuth2 Provider
-    entries:
-      - id: immich-provider
-        model: authentik_providers_oauth2.oauth2provider
-        identifiers:
-          name: Provider for immich
-        attrs:
-          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
-          invalidation_flow: !Find [authentik_flows.flow, [slug, default-invalidation-flow]]
-          client_type: confidential
-          redirect_uris:
-            - matching_mode: strict
-              url: "https://immich.{{ .Values.fqdn }}/auth/login"
-            - matching_mode: strict
-              url: "https://immich.{{ .Values.fqdn }}/user-settings"
-            - matching_mode: strict
-              url: "app.immich:///oauth-callback"
-          signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
-          property_mappings:
-            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
-            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
-            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
-      - id: immich-app
-        model: authentik_core.application
-        identifiers:
-          slug: immich
-        attrs:
-          name: immich
-          provider: !KeyOf immich-provider
-          policy_engine_mode: any
-{{- end }}
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: immich
-  namespace: "{{ .Values.applicationsNamespace }}"
-spec:
-  ports:
-    - protocol: TCP
-      name: web
-      port: 2283
-  selector:
-    app: immich
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: immich
-  namespace: "{{ .Values.applicationsNamespace }}"
-  annotations:
-    homer.service.name: Media
-    homer.item.name: immich
-    homer.item.logo: "https://raw.githubusercontent.com/immich-app/immich/3bcb4b7af7b903cf6d2df6933b6ad092b12296ce/design/immich-logo.svg"
-spec:
-  tls:
-    - hosts:
-        - immich.{{ .Values.fqdn }}
-      secretName: "{{ .Values.fqdn }}-tls"
-  rules:
-    - host: immich.{{ .Values.fqdn }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: immich
-                port:
-                  name: web
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: immich-env
-  namespace: "{{ .Values.applicationsNamespace }}"
-data:
-  IMMICH_PORT: "2283"
-  REDIS_HOSTNAME: "redis-master"
-  REDIS_PORT: "6379"
-  DB_HOSTNAME: "postgresql-primary"
-  DB_PORT: "5432"
-  DB_DATABASE_NAME: "immich"
-  DB_USERNAME: "immich"
-  DB_VECTOR_EXTENSION: "vectorchord"
-
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -136,185 +34,232 @@ spec:
       storage: 1Ti
 
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
   name: immich
   namespace: "{{ .Values.applicationsNamespace }}"
-  labels:
-    app: immich
-  annotations:
-    reloader.stakater.com/auto: "true"
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: immich
-  template:
-    metadata:
-      annotations:
-        backup.velero.io/backup-volumes: data
-      labels:
-        app: immich
-    spec:
-      nodeSelector:
-        # Schedule only on NAS nodes
-        nas: "true"
-      containers:
-        - name: app
-          image: ghcr.io/immich-app/immich-server:v2.2.3
-          resources:
-            requests:
-              memory: 128Mi
-              cpu: 1000m
-            limits:
-              memory: 2Gi
-          envFrom:
-            - configMapRef:
-                name: immich-env
-          env:
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: redis
-                  key: redis-password
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql-pguser-immich
-                  key: password
-            - name: IMMICH_WORKERS_INCLUDE
-              value: "api"
-          ports:
-            - name: web
-              containerPort: 2283
-          volumeMounts:
-            - name: generated-data
-              mountPath: /usr/src/app/upload
-            - name: data
-              mountPath: /usr/src/app/upload/upload
-        - name: jobs
-          image: ghcr.io/immich-app/immich-server:v2.2.3
-          resources:
-            requests:
-              memory: 1Gi
-              cpu: 250m
-            limits:
-              memory: 4Gi
-              {{- $gpuVendor := .Values.applications.immich.gpu_vendor }}
-              {{- if eq $gpuVendor "intel" }}
-                {{- if not .Values.applications.intel_gpu.enabled }}
-                  {{- fail "Intel GPU is selected for Immich but intel_gpu is not enabled" }}
-                {{- end }}
-              gpu.intel.com/i915: 1
-              {{- else if eq $gpuVendor "nvidia" }}
-                {{- if not .Values.applications.nvidia_gpu.enabled }}
-                  {{- fail "NVIDIA GPU is selected for Immich but nvidia_gpu is not enabled" }}
-                {{- end }}
-              nvidia.com/gpu: 1
-              {{- else if eq $gpuVendor "amd" }}
-                {{- if not .Values.applications.amd_gpu.enabled }}
-                  {{- fail "AMD GPU is selected for Immich but amd_gpu is not enabled" }}
-                {{- end }}
-              amd.com/gpu: 1
-              {{- else if $gpuVendor }}
-                {{- fail (printf "Unknown GPU vendor '%s' selected for Immich" $gpuVendor) }}
-              {{- end }}
-          envFrom:
-            - configMapRef:
-                name: immich-env
-          env:
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: redis
-                  key: redis-password
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql-pguser-immich
-                  key: password
-            - name: IMMICH_WORKERS_EXCLUDE
-              value: "api"
-          volumeMounts:
-            - name: generated-data
-              mountPath: /usr/src/app/upload
-            - name: data
-              mountPath: /usr/src/app/upload/upload
-      volumes:
-        - name: generated-data
-          persistentVolumeClaim:
-            claimName: immich-generated-data
-        - name: data
-          persistentVolumeClaim:
-            claimName: immich
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: immich-machine-learning
-  namespace: "{{ .Values.applicationsNamespace }}"
-spec:
-  ports:
-    - protocol: TCP
-      name: web
-      port: 3003
-  selector:
-    app: immich-machine-learning
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: immich-machine-learning
-  namespace: "{{ .Values.applicationsNamespace }}"
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: immich-machine-learning
-  namespace: "{{ .Values.applicationsNamespace }}"
-  labels:
-    app: immich-machine-learning
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: immich-machine-learning
-  template:
-    metadata:
-      labels:
-        app: immich-machine-learning
-    spec:
-      containers:
-        - name: app
-          image: ghcr.io/immich-app/immich-machine-learning:v2.2.3
-          resources:
-            requests:
-              memory: 1Gi
-              cpu: 250m
-            limits:
-              memory: 4Gi
-          env:
-            - name: IMMICH_PORT
-              value: "3003"
-          ports:
-            - name: web
-              containerPort: 3003
-          volumeMounts:
-            - name: cache
-              mountPath: /cache
-              subPath: cache
-      volumes:
-        - name: cache
-          persistentVolumeClaim:
-            claimName: immich-machine-learning
+  chart: oci://oci.trueforge.org/truecharts/immich
+  version: 25.5.23
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+          backup.velero.io/backup-volumes: uploads
+        podSpec:
+          nodeSelector:
+            # Schedule only on NAS nodes
+            nas: "true"
+          containers:
+            main:
+              env:
+                DB_VECTOR_EXTENSION: vectorchord
+                DB_PASSWORD:
+                  secretKeyRef:
+                    name: postgresql-pguser-immich
+                    key: password
+                    expandObjectName: false
+                REDIS_PASSWORD:
+                  secretKeyRef:
+                    name: redis
+                    key: redis-password
+                    expandObjectName: false
+      microservices:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          nodeSelector:
+            # Schedule only on NAS nodes
+            nas: "true"
+          containers:
+            microservices:
+              env:
+                DB_VECTOR_EXTENSION: vectorchord
+                DB_PASSWORD:
+                  secretKeyRef:
+                    name: postgresql-pguser-immich
+                    key: password
+                    expandObjectName: false
+                REDIS_PASSWORD:
+                  secretKeyRef:
+                    name: redis
+                    key: redis-password
+                    expandObjectName: false
+              resources:
+                requests:
+                  memory: 1Gi
+                  cpu: 250m
+                limits:
+                  cpu: null
+                  memory: 4Gi
+                  {{- $gpuVendor := .Values.applications.immich.gpu_vendor }}
+                  {{- if eq $gpuVendor "intel" }}
+                    {{- if not .Values.applications.intel_gpu.enabled }}
+                      {{- fail "Intel GPU is selected for Immich but intel_gpu is not enabled" }}
+                    {{- end }}
+                  gpu.intel.com/i915: 1
+                  {{- else if eq $gpuVendor "nvidia" }}
+                    {{- if not .Values.applications.nvidia_gpu.enabled }}
+                      {{- fail "NVIDIA GPU is selected for Immich but nvidia_gpu is not enabled" }}
+                    {{- end }}
+                  nvidia.com/gpu: 1
+                  {{- else if eq $gpuVendor "amd" }}
+                    {{- if not .Values.applications.amd_gpu.enabled }}
+                      {{- fail "AMD GPU is selected for Immich but amd_gpu is not enabled" }}
+                    {{- end }}
+                  amd.com/gpu: 1
+                  {{- else if $gpuVendor }}
+                    {{- fail (printf "Unknown GPU vendor '%s' selected for Immich" $gpuVendor) }}
+                  {{- end }}
+      machinelearning:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          containers:
+            machinelearning:
+              resources:
+                requests:
+                  memory: 1Gi
+                  cpu: 250m
+                limits:
+                  cpu: null
+                  memory: 4Gi
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 1000m
+      limits:
+        cpu: null
+        memory: 2Gi
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          homer.service.name: Media
+          homer.item.name: immich
+          homer.item.logo: "https://raw.githubusercontent.com/immich-app/immich/3bcb4b7af7b903cf6d2df6933b6ad092b12296ce/design/immich-logo.svg"
+        hosts:
+          - host: immich.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - immich.{{ .Values.fqdn }}
+    redis:
+      enabled: false
+      creds:
+        plainhost: redis-master
+    cnpg:
+      main:
+        enabled: false
+        database: immich
+        user: immich
+        creds:
+          host: postgresql-primary
+    persistence:
+      generated-data:
+        enabled: true
+        type: pvc
+        existingClaim: immich-generated-data
+        mountPath: /usr/src/app/upload
+        targetSelector:
+          # Main pod/container is server
+          main:
+            main: {}
+          microservices:
+            microservices: {}
+      uploads:
+        type: pvc
+        existingClaim: immich
+      mlcache:
+        type: pvc
+        storageClass: local-path-ephemeral
+      # No need to split the folders under different volume
+      backups:
+        enabled: false
+      video:
+        enabled: false
+      library:
+        enabled: false
+      profile:
+        enabled: false
+      thumbs:
+        enabled: false
+    configmap:
+      authentik-blueprint:
+        enabled: {{ and .Values.applications.immich.enabled (not .Values.applications.immich.trusted_header_auth) }}
+        data:
+          blueprint.yaml: |
+            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+            version: 1
+            metadata:
+              name: Immich OAuth2 Provider
+            entries:
+              - id: immich-provider
+                model: authentik_providers_oauth2.oauth2provider
+                identifiers:
+                  name: Provider for immich
+                attrs:
+                  authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+                  invalidation_flow: !Find [authentik_flows.flow, [slug, default-invalidation-flow]]
+                  client_type: confidential
+                  redirect_uris:
+                    - matching_mode: strict
+                      url: "https://immich.{{ .Values.fqdn }}/auth/login"
+                    - matching_mode: strict
+                      url: "https://immich.{{ .Values.fqdn }}/user-settings"
+                    - matching_mode: strict
+                      url: "app.immich:///oauth-callback"
+                  signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
+                  client_id: !File /blueprints/mounted/secret-immich/client_id
+                  client_secret: !File /blueprints/mounted/secret-immich/client_secret
+                  property_mappings:
+                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
+                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
+                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
+              - id: immich-app
+                model: authentik_core.application
+                identifiers:
+                  slug: immich
+                attrs:
+                  name: immich
+                  provider: !KeyOf immich-provider
+                  policy_engine_mode: any
+    extraTpl:
+      - |
+        apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        metadata:
+          name: immich
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          refreshPolicy: CreatedOnce
+          creationPolicy: Owner
+          deletionPolicy: Retain
+          target:
+            name: immich
+          dataFrom:
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: client_id
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: client_secret
 {{- end }}
