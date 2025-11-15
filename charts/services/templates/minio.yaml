@@ -78,6 +78,20 @@ spec:
       metrics:
         enabled: {{ include "metrics.enabled" . }}
       prometheusOperator: {{ include "metrics.enabled" . }}
+{{- if or (and .Values.primaryTenant (or .Values.applications.loki.enabled .Values.applications.tempo.enabled)) .Values.applications.stalwart.enabled }}
+      buckets:
+{{- if and .Values.primaryTenant .Values.applications.loki.enabled }}
+        - name: loki-admin
+        - name: loki-chunks
+        - name: loki-ruler
+{{- end }}
+{{- if and .Values.primaryTenant .Values.applications.tempo.enabled }}
+        - name: tempo
+{{- end }}
+{{- if .Values.applications.stalwart.enabled }}
+        - name: stalwart
+{{- end }}
+{{- end }}
     ingress:
       api:
         enabled: true
