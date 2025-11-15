@@ -76,8 +76,8 @@ spec:
             limits:
               memory: 2Gi
       metrics:
-        enabled: true
-      prometheusOperator: true
+        enabled: {{ include "metrics.enabled" . }}
+      prometheusOperator: {{ include "metrics.enabled" . }}
     ingress:
       api:
         enabled: true
