@@ -58,7 +58,7 @@ spec:
           ruler: loki-ruler
           admin: loki-admin
         s3:
-          endpoint: http://minio.kube-system.svc.cluster.local
+          endpoint: http://minio.{{ .Values.applicationsNamespace }}.svc.cluster.local
           region: us-east-1
           s3ForcePathStyle: true
           insecure: true

@@ -46,7 +46,7 @@ spec:
           backend: s3
           s3:
             bucket: tempo
-            endpoint: minio.kube-system.svc.cluster.local
+            endpoint: minio.{{ .Values.applicationsNamespace }}.svc.cluster.local
             region: us-east-1
             insecure: true
             forcepathstyle: true
