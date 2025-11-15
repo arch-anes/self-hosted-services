@@ -7,17 +7,28 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"redhat.vscode-yaml",
-				"redhat.ansible",
-				"visualstudioexptteam.vscodeintellicode",
+				"bierner.markdown-mermaid",
+				"bmarkovic.haproxy",
+				"chrislajoie.vscode-modelines",
+				"christian-kohler.path-intellisense",
+				"docker.docker",
+				"eamodio.gitlens",
+				"mads-hartmann.bash-ide-vscode",
+				"mitchdenny.ecdc",
+				"ms-azuretools.vscode-containers",
+				"ms-azuretools.vscode-docker",
+				"ms-kubernetes-tools.vscode-kubernetes-tools",
 				"ms-python.python",
 				"ms-python.vscode-pylance",
-				"mads-hartmann.bash-ide-vscode",
-				"ms-azuretools.vscode-docker",
+				"PascalReitermann93.vscode-yaml-sort",
+				"redhat.ansible",
+				"redhat.vscode-yaml",
+				"sandipchitale.vscode-kubernetes-helm-extras",
+				"signageos.signageos-vscode-sops",
+				"Tim-Koehler.helm-intellisense",
+				"VadzimNestsiarenka.helm-template-preview-and-more",
 				"wholroyd.jinja",
-				"ms-kubernetes-tools.vscode-kubernetes-tools",
-				"chrislajoie.vscode-modelines",
-				"eamodio.gitlens"
+				"yzhang.markdown-all-in-one"
 			]
 		}
 	}
