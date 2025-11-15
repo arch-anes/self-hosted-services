@@ -5,6 +5,9 @@
 {{- if not .Values.applications.authentik.enabled }}
 {{- fail "Stalwart requires Authentik to be enabled. Please enable Authentik in your values.yaml" }}
 {{- end }}
+{{- if not .Values.applications.minio.enabled }}
+{{- fail "Stalwart requires MinIO to be enabled. Please enable MinIO in your values.yaml" }}
+{{- end }}
 
 # ---
 # apiVersion: v1
