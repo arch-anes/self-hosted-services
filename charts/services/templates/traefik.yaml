@@ -90,7 +90,7 @@ spec:
               crowdsecAppsecUnreachableBlock: false
               crowdsecMode: stream
               crowdsecLapiScheme: http
-              crowdsecLapiHost: crowdsec-service.kube-system.svc.cluster.local:8080
+              crowdsecLapiHost: crowdsec-service:8080
               crowdsecLapiKeyFile: /etc/traefik/secrets/crowdsec/bouncer_key
               redisCacheEnabled: true
               redisCacheHost: redis-master.{{ .Values.applicationsNamespace }}.svc.cluster.local:6379
@@ -142,7 +142,7 @@ spec:
         enabled: true
         http:
           enabled: true
-          endpoint: http://tempo.kube-system.svc.cluster.local:4318/v1/traces
+          endpoint: http://tempo:4318/v1/traces
 {{- end }}
     nodeSelector:
       public: "true"

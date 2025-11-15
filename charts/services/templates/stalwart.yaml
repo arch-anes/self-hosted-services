@@ -220,7 +220,7 @@ spec:
           compression: lz4
           bucket: "stalwart"
           region: us-east-1
-          endpoint: http://minio.{{ .Values.applicationsNamespace }}.svc.cluster.local
+          endpoint: http://minio
           access-key: "%{env:BUCKET_ACCESS_KEY}%"
           secret-key: "%{env:BUCKET_SECRET_KEY}%"
       directory:

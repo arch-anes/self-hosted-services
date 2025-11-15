@@ -22,7 +22,7 @@ spec:
       v: 5
 {{- if and (not .Values.disableAllApplications) .Values.applications.tempo.enabled }}
       # https://github.com/kubernetes-sigs/descheduler/issues/1428
-      otel-collector-endpoint: tempo.kube-system.svc.cluster.local:4317
+      otel-collector-endpoint: tempo:4317
 {{- end }}
     deschedulerPolicy:
       metricsProviders:
