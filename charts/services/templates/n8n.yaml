@@ -23,7 +23,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/n8n
-  version: 17.31.0
+  version: 17.39.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     deployment:
