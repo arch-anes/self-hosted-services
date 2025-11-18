@@ -193,8 +193,6 @@ applications:
     enabled: true
   stirling_pdf:
     enabled: true
-  tandoor:
-    enabled: true
   tdarr:
     enabled: true
     # gpu_vendor: amd

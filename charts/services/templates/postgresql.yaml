@@ -329,11 +329,6 @@ spec:
               databases:
                 - stirling-pdf
 {{- end }}
-{{- if .Values.applications.tandoor.enabled }}
-            - name: tandoor
-              databases:
-                - tandoor
-{{- end }}
 {{- if .Values.applications.wakapi.enabled }}
             - name: wakapi
               databases:
