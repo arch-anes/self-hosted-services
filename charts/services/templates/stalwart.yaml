@@ -146,7 +146,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://codeberg.org/wrenix/helm-charts/stalwart-mail
-  version: 0.4.1
+  version: 0.4.3
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     replicaCount: 1
