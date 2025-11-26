@@ -71,13 +71,14 @@ metadata:
 spec:
   chart: nextcloud
   repo: https://nextcloud.github.io/helm/
-  version: 8.5.2
+  version: 8.6.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     podAnnotations:
       backup.velero.io/backup-volumes: nextcloud-main
     image:
-      repository: ghcr.io/arch-anes/nextcloud
+      registry: ghcr.io
+      repository: arch-anes/nextcloud
       flavor: fpm-alpine
     nginx:
       enabled: true
