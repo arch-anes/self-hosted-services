@@ -20,7 +20,7 @@ metadata:
 spec:
   chart: prometheus-operator-crds
   repo: https://prometheus-community.github.io/helm-charts
-  version: 24.0.2
+  version: 25.0.0
   targetNamespace: kube-system
   bootstrap: true
 
