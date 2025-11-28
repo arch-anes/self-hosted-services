@@ -108,14 +108,6 @@ spec:
                     key: admin_password
                     expandObjectName: false
 {{- end }}
-                SYSTEM_DATASOURCE_ENABLECUSTOMDATABASE: "true"
-                SYSTEM_DATASOURCE_CUSTOMDATABASEURL: "jdbc:postgresql://postgresql-primary:5432/stirling-pdf"
-                SYSTEM_DATASOURCE_USERNAME: "stirling-pdf"
-                SYSTEM_DATASOURCE_PASSWORD:
-                  secretKeyRef:
-                    name: postgresql-pguser-stirling-pdf
-                    key: password
-                    expandObjectName: false
     resources:
       requests:
         memory: 1Gi

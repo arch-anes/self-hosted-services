@@ -324,11 +324,6 @@ spec:
               databases:
                 - stalwart
 {{- end }}
-{{- if .Values.applications.stirling_pdf.enabled }}
-            - name: stirling-pdf
-              databases:
-                - stirling-pdf
-{{- end }}
 {{- if .Values.applications.wakapi.enabled }}
             - name: wakapi
               databases:
