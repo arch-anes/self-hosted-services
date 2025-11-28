@@ -63,7 +63,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/stirling-pdf
-  version: 5.26.3
+  version: 5.30.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     workload:
@@ -76,8 +76,12 @@ spec:
             main:
               imageSelector: fatImage
               env:
+                DISABLE_ADDITIONAL_FEATURES: "false"
+                DOCKER_ENABLE_SECURITY: "true"
                 SYSTEM_ENABLEANALYTICS: "false"
-                SECURITY_ENABLELOGIN: "true"
+                SYSTEM_ENABLEPOSTHOG: "false"
+                SYSTEM_ENABLESCARF: "false"
+                SECURITY_ENABLE_LOGIN: "true"
 {{- if .Values.applications.authentik.enabled }}
                 SECURITY_LOGINMETHOD: oauth2
                 SECURITY_OAUTH2_ENABLED: "true"
