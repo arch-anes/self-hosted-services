@@ -126,7 +126,7 @@ spec:
   version: 0.2.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   failurePolicy: abort # Do not uninstall this chart on failure, otherwise the cluster will be deleted
-  # takeOwnership: true
+  takeOwnership: true
   valuesContent: |-
     objects:
       - apiVersion: v1
