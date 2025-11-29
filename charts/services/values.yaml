@@ -24,12 +24,6 @@ localIpRanges:
   - 172.16.0.0/12
   - 192.168.0.0/16
 
-# Tailscale IP ranges
-tailscaleIpRanges:
-  # https://tailscale.com/kb/1015/100.x-addresses
-  - 100.64.0.0/10
-  - fd7a:115c:a1e0::/48
-
 # Cloudflare IP ranges
 cloudFlareIpRanges:
   # https://www.cloudflare.com/ips-v4
