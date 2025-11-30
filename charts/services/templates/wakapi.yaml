@@ -31,15 +31,10 @@ spec:
                     key: password_salt
                     expandObjectName: false
                 WAKAPI_INSECURE_COOKIES: "false"
-                WAKAPI_ALLOW_SIGNUP: "false"
                 WAKAPI_INVITE_CODES: "false"
 {{- if .Values.applications.authentik.enabled }}
-{{- if .Values.applications.wakapi.trusted_header_auth }}
-                WAKAPI_TRUSTED_HEADER_AUTH: "true"
-                WAKAPI_TRUSTED_HEADER_AUTH_KEY: "X-authentik-username"
-                WAKAPI_TRUSTED_HEADER_AUTH_ALLOW_SIGNUP: "true"
-                WAKAPI_TRUST_REVERSE_PROXY_IPS: "{{ include "ip.local_proxy_ranges.string" . }}"
-{{- else }}
+                WAKAPI_ALLOW_SIGNUP: "false"
+                WAKAPI_OIDC_ALLOW_SIGNUP: "true"
                 WAKAPI_OIDC_PROVIDERS_0_NAME: authentik
                 WAKAPI_OIDC_PROVIDERS_0_CLIENT_ID:
                   secretKeyRef:
@@ -52,7 +47,6 @@ spec:
                     key: client_secret
                     expandObjectName: false
                 WAKAPI_OIDC_PROVIDERS_0_ENDPOINT: "https://auth.{{ .Values.fqdn }}/application/o/wakapi/"
-{{- end }}
 {{- end }}
                 WAKAPI_DB_TYPE: postgres
                 WAKAPI_DB_HOST: postgresql-primary
@@ -97,9 +91,6 @@ spec:
       main:
         enabled: true
         annotations:
-{{- if and .Values.applications.wakapi.enabled .Values.applications.wakapi.trusted_header_auth }}
-          traefik.ingress.kubernetes.io/router.middlewares: "{{ .Values.applicationsNamespace }}-authentik@kubernetescrd"
-{{- end }}
           homer.service.name: Monitoring
           homer.item.logo: "https://raw.githubusercontent.com/muety/wakapi/b3924c41191cdbad2fefdd22c8cf3308bb59616a/static/assets/images/logo.svg"
         hosts:

@@ -208,4 +208,3 @@ applications:
           s3Url: https://<some_endpoint> # if using an S3-compatible service
   wakapi:
     enabled: true
-    trusted_header_auth: false
