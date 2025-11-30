@@ -13,6 +13,7 @@ spec:
   repo: https://argoproj.github.io/argo-helm
   version: 9.1.3
   targetNamespace: kube-system
+  takeOwnership: true
   valuesContent: |-
     global:
       domain: argo.{{ .Values.fqdn }}
