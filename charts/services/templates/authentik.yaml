@@ -139,7 +139,7 @@ spec:
         - authentik-stalwart-blueprint
 {{- end }}
 {{- if .Values.applications.stirling_pdf.enabled }}
-        - authentik-stirling-pdf-blueprint
+        - stirling-pdf-authentik-blueprint
 {{- end }}
 {{- if and .Values.applications.wakapi.enabled (not .Values.applications.wakapi.trusted_header_auth) }}
         - wakapi-authentik-blueprint
