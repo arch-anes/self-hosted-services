@@ -192,7 +192,7 @@ spec:
                 generatorRef:
                   apiVersion: generators.external-secrets.io/v1alpha1
                   kind: ClusterGenerator
-                  name: ascii-password-generator
+                  name: alphanumerical-password-generator
               rewrite:
                 - transform:
                     template: "bind_password"
