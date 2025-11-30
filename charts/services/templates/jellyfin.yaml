@@ -63,7 +63,7 @@ metadata:
   name: jellyfin
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  storageClassName: local-path-persistent
+  storageClassName: local-path-persistent-namespaced
   accessModes:
     - ReadWriteOnce
   resources:

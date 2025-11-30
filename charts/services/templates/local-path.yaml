@@ -52,5 +52,5 @@ reclaimPolicy: Retain
 allowVolumeExpansion: true
 parameters:
   nodePath: "{{ .Values.storageLocation }}"
-  pathPattern: "{{`{{ .PVC.Namespace }}_{{ .PVC.Name }}`}}"
+  pathPattern: "{{`{{ .PVC.Namespace }}/{{ .PVC.Name }}`}}"
 {{- end }}

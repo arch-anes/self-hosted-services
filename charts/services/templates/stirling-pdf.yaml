@@ -136,7 +136,7 @@ spec:
       configs:
         enabled: true
         type: pvc
-        storageClass: local-path-ephemeral
+        storageClass: local-path-persistent-namespaced
       tessdata:
         enabled: true
         type: pvc

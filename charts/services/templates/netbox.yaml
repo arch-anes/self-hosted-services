@@ -46,7 +46,7 @@ spec:
       existingSecretKey: redis-password
     persistence:
       enabled: true
-      storageClass: local-path-persistent
+      storageClass: local-path-persistent-namespaced
     ingress:
       enabled: true
       annotations:

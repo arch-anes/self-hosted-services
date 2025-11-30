@@ -31,7 +31,7 @@ spec:
         enabled: true
         mountPath: "/config"
         type: pvc
-        storageClass: local-path-persistent
+        storageClass: local-path-persistent-namespaced
         size: 1Gi
       multimedia:
         enabled: true

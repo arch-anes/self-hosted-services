@@ -23,7 +23,7 @@ metadata:
   name: tdarr
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  storageClassName: local-path-persistent
+  storageClassName: local-path-persistent-namespaced
   accessModes:
     - ReadWriteOnce
   resources:

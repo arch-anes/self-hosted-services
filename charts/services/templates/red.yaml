@@ -44,7 +44,7 @@ spec:
       data:
         enabled: true
         type: pvc
-        storageClass: local-path-persistent
+        storageClass: local-path-persistent-namespaced
         size: 1Gi
         mountPath: /data
 {{- end }}
