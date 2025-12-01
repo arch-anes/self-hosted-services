@@ -50,14 +50,6 @@ data:
           attributes:
             mailLocalAddress: "info@{{ .Values.fqdn }}"
 
-      - id: stage-seed-mail
-        model: authentik_stages_user_write.userwritestage
-        identifiers:
-          name: "seed-mailLocalAddress-stage"
-        attrs:
-          user_creation_mode: never_create
-          user_type: internal
-
       - id: policy-mailLocalAddress
         model: authentik_policies_expression.expressionpolicy
         identifiers:
@@ -81,59 +73,29 @@ data:
               u.save()
             return True
 
-      - id: bind-stage-to-auth
-        model: authentik_flows.flowstagebinding
-        identifiers:
-          stage: !Find [authentik_stages_user_write.userwritestage, [name, seed-mailLocalAddress-stage]]
-          target: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
-          order: 200
-        attrs:
-          evaluate_on_plan: true
-          re_evaluate_policies: true
-
       - id: bind-policy-to-stage-to-auth
         model: authentik_policies.policybinding
         identifiers:
           policy: !Find [authentik_policies_expression.expressionpolicy, [name, seed-mailLocalAddress-policy]]
-          target: !KeyOf bind-stage-to-auth
+          target: !Find [authentik_flows.flowstagebinding, [stage__name, default-authentication-login]]
           order: 0
         attrs:
           enabled: true
-
-      - id: bind-stage-to-source-auth
-        model: authentik_flows.flowstagebinding
-        identifiers:
-          stage: !Find [authentik_stages_user_write.userwritestage, [name, seed-mailLocalAddress-stage]]
-          target: !Find [authentik_flows.flow, [slug, default-source-authentication]]
-          order: 200
-        attrs:
-          evaluate_on_plan: true
-          re_evaluate_policies: true
 
       - id: bind-policy-to-stage-to-source-auth
         model: authentik_policies.policybinding
         identifiers:
           policy: !Find [authentik_policies_expression.expressionpolicy, [name, seed-mailLocalAddress-policy]]
-          target: !KeyOf bind-stage-to-source-auth
+          target: !Find [authentik_flows.flowstagebinding, [stage__name, default-source-authentication-login]]
           order: 0
         attrs:
           enabled: true
-
-      - id: bind-stage-to-enrollment
-        model: authentik_flows.flowstagebinding
-        identifiers:
-          stage: !Find [authentik_stages_user_write.userwritestage, [name, seed-mailLocalAddress-stage]]
-          target: !Find [authentik_flows.flow, [slug, default-source-enrollment]]
-          order: 200
-        attrs:
-          evaluate_on_plan: true
-          re_evaluate_policies: true
 
       - id: bind-policy-to-stage-to-enrollment
         model: authentik_policies.policybinding
         identifiers:
           policy: !Find [authentik_policies_expression.expressionpolicy, [name, seed-mailLocalAddress-policy]]
-          target: !KeyOf bind-stage-to-enrollment
+          target: !Find [authentik_flows.flowstagebinding, [stage__name, default-source-enrollment-login]]
           order: 0
         attrs:
           enabled: true
