@@ -1,18 +1,4 @@
 {{- if and (not .Values.disableAllApplications) .Values.applications.redis.enabled }}
-# ---
-# apiVersion: v1
-# kind: Secret
-# metadata:
-#   name: redis
-#   namespace: "{{ .Values.applicationsNamespace }}"
-#   annotations:
-#     reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-#     reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-#     reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kube-system"
-# type: Opaque
-# stringData:
-#   redis-password: "somepassword"
-
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -86,4 +72,33 @@ spec:
                 replacement: "sentinel"
       prometheusRule:
         enabled: {{ include "metrics.enabled" . }}
+    extraDeploy:
+      - apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        metadata:
+          name: redis
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          refreshPolicy: CreatedOnce
+          creationPolicy: Owner
+          deletionPolicy: Retain
+          target:
+            name: redis
+{{- if .Values.primaryTenant }}
+            template:
+              metadata:
+                annotations:
+                  reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+                  reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+                  reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kube-system"
+{{- end }}
+          dataFrom:
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: redis-password
 {{- end }}
