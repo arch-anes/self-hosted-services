@@ -7,7 +7,7 @@ metadata:
 spec:
   chart: crowdsec
   repo: https://crowdsecurity.github.io/helm-charts
-  version: 0.20.1
+  version: 0.21.0
   targetNamespace: kube-system
   valuesContent: |-
     container_runtime: containerd
