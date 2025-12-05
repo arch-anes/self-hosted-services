@@ -5,17 +5,6 @@
 {{- if not .Values.applications.redis.enabled }}
 {{- fail "Speedtest Tracker requires Redis to be enabled. Please enable Redis in your values.yaml" }}
 {{- end }}
-# ---
-# apiVersion: v1
-# kind: Secret
-# metadata:
-#   name: speedtest-tracker
-#   namespace: "{{ .Values.applicationsNamespace }}"
-# type: Opaque
-# visit https://speedtest-tracker.dev/ to get a key
-# stringData:
-#   app_key: "somekey"
-
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -102,4 +91,30 @@ spec:
     cnpg:
       main:
         enabled: false
+    extraTpl:
+      - |
+        apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        metadata:
+          name: speedtest-tracker
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          refreshPolicy: CreatedOnce
+          creationPolicy: Owner
+          deletionPolicy: Retain
+          target:
+            name: speedtest-tracker
+            creationPolicy: Owner
+            template:
+              data:
+                app_key: "base64:{{ base64.Encode .random_key }}"
+          dataFrom:
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: random_key
 {{- end }}
