@@ -102,4 +102,14 @@ spec:
     cnpg:
       main:
         enabled: false
+    metrics:
+      main:
+        enabled: {{ include "metrics.enabled" . }}
+        type: servicemonitor
+        targetSelector: main
+        endpoints:
+          - port: main
+            path: /prometheus
+            interval: 30m
+            scrapeTimeout: 30s
 {{- end }}
