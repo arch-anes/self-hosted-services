@@ -14,10 +14,6 @@ spec:
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     {{- include "tunnel.truecharts.image" . | nindent 4 }}
-    image:
-      repository: 21hsmw/flaresolverr
-      pullPolicy: Always
-      tag: nodriver
     workload:
       main:
         podSpec:
