@@ -1,0 +1,47 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: helm-release-pruner-safe
+  namespace: kube-system
+spec:
+  schedule: "0 3 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: prune
+            image: bitnami/kubectl:latest
+            command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+
+              KEEP=5
+
+              kubectl get secrets --all-namespaces -o json \
+              | jq -r --argjson k "$KEEP" '
+                  .items
+                  | map(select(
+                      .type == "helm.sh/release.v1"
+                      and (.metadata.name | test("^sh\\.helm\\.release\\.v1\\..+\\.v[0-9]+$"))
+                    ))
+                  | group_by(.metadata.namespace, .metadata.labels."name")
+                  | .[]
+                  | sort_by(.metadata.labels."version" | tonumber)
+                  | .[:-$k]
+                  | .[].metadata | "\(.namespace) \(.name)"
+                ' \
+              | while read ns name; do
+                  # Final safety check before deletion
+                  if kubectl get secret "$name" -n "$ns" -o json \
+                      | jq -e '
+                          .type == "helm.sh/release.v1" and
+                          (.metadata.name | test("^sh\\.helm\\.release\\.v1\\..+\\.v[0-9]+$"))
+                        ' > /dev/null; then
+                      kubectl delete secret "$name" -n "$ns"
+                  fi
+                done
