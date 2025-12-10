@@ -7,7 +7,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/lazylibrarian
-  version: 21.11.11
+  version: 21.14.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     workload:
