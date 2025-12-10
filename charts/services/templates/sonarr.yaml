@@ -10,7 +10,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/sonarr
-  version: 25.0.0
+  version: 25.2.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     workload:
