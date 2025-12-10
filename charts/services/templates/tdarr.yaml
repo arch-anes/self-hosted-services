@@ -90,7 +90,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: app
-          image: ghcr.io/haveagitgat/tdarr:2.46.01
+          image: ghcr.io/haveagitgat/tdarr:2.58.02
           resources:
             requests:
               memory: 512Mi
