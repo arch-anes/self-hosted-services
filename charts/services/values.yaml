@@ -68,13 +68,6 @@ sesRanges:
   - 206.55.144.0/20
   - 24.110.64.0/18
 
-# Github actions runner config
-actionRunnerConfigs: []
-  # - name: my-org
-  #   githubConfigUrl: https://github.com/my-org
-  # - name: my-repo
-  #   githubConfigUrl: https://github.com/my-username/my-repo
-
 disableAllApplications: false
 
 applications:
@@ -99,8 +92,6 @@ applications:
   filebrowser:
     enabled: true
   flaresolverr:
-    enabled: true
-  github_actions_runner_controller:
     enabled: true
   gluetun:
     enabled: true
