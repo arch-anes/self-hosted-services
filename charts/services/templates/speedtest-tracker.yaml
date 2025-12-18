@@ -12,7 +12,6 @@
 #   name: speedtest-tracker
 #   namespace: "{{ .Values.applicationsNamespace }}"
 # type: Opaque
-# visit https://speedtest-tracker.dev/ to get a key
 # stringData:
 #   app_key: "somekey"
 

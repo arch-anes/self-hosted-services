@@ -1,4 +1,16 @@
 {{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.crowdsec.enabled }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: crowdsec
+#   namespace: kube-system
+# type: Opaque
+# stringData:
+#   enroll_key: "somekey" # Obtainable from https://app.crowdsec.net/security-engines
+#   bouncer_key: "somekey" 
+
+---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:

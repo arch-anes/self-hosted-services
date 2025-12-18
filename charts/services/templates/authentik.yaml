@@ -3,8 +3,6 @@
 {{- fail "Authentik requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
 ---
-# Open https://<ingress-host-name>/if/flow/initial-setup/ for the initial setup.
-# Note: the trailing / is important.
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:

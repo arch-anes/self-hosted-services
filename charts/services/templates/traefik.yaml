@@ -9,21 +9,6 @@
 # stringData:
 #   credentials: "admin:$2y$12$8KtQ4SQb6QpebcgYvMPjwOv3Jz9ojkNq8FVWZmk5q1BW9BoEX2aAy" # admin:admin by default, bcrypted password: https://bcrypt-generator.com/
 
-{{- if and (not .Values.disableAllApplications) .Values.applications.crowdsec.enabled }}
-# ---
-# apiVersion: v1
-# kind: Secret
-# metadata:
-#   name: crowdsec
-#   namespace: kube-system
-# type: Opaque
-# stringData:
-#   enroll_key: "somekey"
-#   bouncer_key: "somekey"
-#   csLapiSecret: "somesecret"
-#   registrationToken: "sometoken"
-{{- end }}
-
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
