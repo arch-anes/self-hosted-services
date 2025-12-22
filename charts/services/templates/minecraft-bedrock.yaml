@@ -51,7 +51,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: itzg/minecraft-bedrock-server:2025.11.0
+          image: itzg/minecraft-bedrock-server:2025.12.1
           stdin: true
           tty: true
           resources:
