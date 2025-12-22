@@ -2,7 +2,7 @@ version: "3"
 
 services:
   dind:
-    image: docker:28.0.2-dind
+    image: docker:28.5.2-dind
     container_name: self-hosted-services-dind
     privileged: true
     restart: unless-stopped
