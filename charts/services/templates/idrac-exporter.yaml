@@ -34,7 +34,7 @@ metadata:
 spec:
   chart: idrac-exporter
   repo: https://mrlhansen.github.io/idrac_exporter
-  version: 2.3.1
+  version: 2.3.2
   targetNamespace: kube-system
   valuesContent: |-
     deploymentAnnotations:
