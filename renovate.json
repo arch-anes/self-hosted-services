@@ -50,6 +50,13 @@
       ]
     },
     {
+      "description": "Helm release commit messages",
+      "commitMessageTopic": "Helm release {{depName}}",
+      "matchManagers": [
+        "regex"
+      ]
+    },
+    {
       "matchJsonata": [
         "registryUrl = 'https://oci.trueforge.org'"
       ],
