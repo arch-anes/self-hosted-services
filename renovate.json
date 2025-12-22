@@ -61,7 +61,7 @@
       "description": "Helm release commit messages",
       "commitMessageTopic": "Helm release {{depName}}",
       "matchManagers": [
-        "regex"
+        "custom.regex"
       ]
     },
     {
