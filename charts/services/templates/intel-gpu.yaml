@@ -20,7 +20,7 @@ metadata:
 spec:
   chart: intel-device-plugins-gpu
   repo: https://intel.github.io/helm-charts/
-  version: 0.34.0
+  version: 0.34.1
   targetNamespace: kube-system
   valuesContent: |-
     resourceManager: false
