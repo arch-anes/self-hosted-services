@@ -39,6 +39,14 @@
   ],
   "packageRules": [
     {
+      "description": "Custom commit messages",
+      "commitMessageExtra": "from {{currentVersion}} to {{newVersion}} ([changelog]({{#if changelogUrl}}{{changelogUrl}}{{else}}{{sourceUrl}}{{/if}}))",
+      "matchDatasources": [
+        "helm",
+        "docker"
+      ]
+    },
+    {
       "description": "Disable automerge for select packages",
       "automerge": false,
       "matchPackageNames": [
