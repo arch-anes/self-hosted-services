@@ -8,7 +8,7 @@ metadata:
   namespace: kube-system
 spec:
   chart: oci://registry.developers.crunchydata.com/crunchydata/pgo
-  version: 5.8.5
+  version: 6.0.0
   targetNamespace: kube-system
   valuesContent: |-
     relatedImages:
@@ -176,7 +176,7 @@ spec:
             CREATE EXTENSION IF NOT EXISTS vector CASCADE;
             CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
             COMMIT;
-      - apiVersion: postgres-operator.crunchydata.com/v1beta1
+      - apiVersion: postgres-operator.crunchydata.com/v1
         kind: PostgresCluster
         metadata:
           name: postgresql
