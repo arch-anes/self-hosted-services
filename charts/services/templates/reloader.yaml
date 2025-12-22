@@ -8,6 +8,6 @@ metadata:
 spec:
   chart: reloader
   repo: https://stakater.github.io/stakater-charts
-  version: 2.2.5
+  version: 2.2.7
   targetNamespace: kube-system
 {{- end }}
