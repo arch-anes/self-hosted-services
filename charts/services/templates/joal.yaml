@@ -97,7 +97,7 @@ spec:
               containers:
                 {{- include "tunnel.deployment.container" . | nindent 16 }}
                 - name: joal
-                  image: anthonyraymond/joal:2.1.36
+                  image: anthonyraymond/joal:2.1.37
                   command: ["bash"]
                   args: ["-c", "java -jar /joal/joal.jar --server.port=12345 --joal-conf=/data --spring.main.web-environment=true --joal.ui.path.prefix=app --joal.ui.secret-token=$$SECRET_TOKEN"]
                   resources:
