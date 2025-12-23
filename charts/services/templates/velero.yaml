@@ -36,6 +36,10 @@ spec:
   failurePolicy: abort 
   valuesContent: |-
     cleanUpCRDs: false # Do not delete CRDs on chart uninstall to preserve any backups
+    # Workaround for https://github.com/vmware-tanzu/helm-charts/issues/698
+    kubectl:
+      image:
+        repository: public.ecr.aws/bitnami/kubectl
     credentials:
       existingSecret: velero-backup-credentials
     annotations:
