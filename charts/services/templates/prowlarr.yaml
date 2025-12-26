@@ -32,6 +32,13 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         podSpec:
+          initContainers:
+            download-ygege:
+              enabled: {{ .Values.applications.ygege.enabled }}
+              type: init
+              imageSelector: alpineImage
+              command: [/bin/sh]
+              args: [-c, "wget -O /custom/ygege.yml https://raw.githubusercontent.com/UwUDev/ygege/refs/heads/develop/ygege.yml"]
           containers:
             {{- include "tunnel.truecharts.container" . | nindent 12 }}
             main:
@@ -89,12 +96,14 @@ spec:
       config:
         type: emptyDir
       custom-definitions:
-        enabled: true
-        type: configmap
-        mountPath: /config/Definitions/Custom/
-        objectName: prowlarr-custom-definitions
-        expandObjectName: false
-        defaultMode: "0444"
+        enabled: {{ .Values.applications.ygege.enabled }}
+        type: emptyDir
+        targetSelector:
+          main:
+            download-ygege:
+              mountPath: /custom
+            main:
+              mountPath: /config/Definitions/Custom/
     metrics:
       main:
         enabled: {{ include "metrics.enabled" . }}

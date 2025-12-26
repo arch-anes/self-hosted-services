@@ -1,0 +1,87 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.ygege.enabled }}
+{{- if not .Values.applications.gluetun.enabled }}
+{{- fail "Ygégé requires gluetun to be enabled. Please enable gluetun in your values.yaml" }}
+{{- end }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: ygege
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   username: "someuser"
+#   password: "somepass"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: ygege
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: generic
+  repo: https://arch-anes.github.io/charts
+  version: 0.2.1
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    objects:
+      - kind: Service
+        apiVersion: v1
+        metadata:
+          name: ygege
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          ports:
+            - protocol: TCP
+              name: ygege
+              port: 8715
+          selector:
+            app: ygege
+      - kind: Deployment
+        apiVersion: apps/v1
+        metadata:
+          name: ygege
+          namespace: "{{ .Values.applicationsNamespace }}"
+          labels:
+            app: ygege
+          annotations:
+            reloader.stakater.com/auto: "true"
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: ygege
+          template:
+            metadata:
+              labels:
+                app: ygege
+            spec:
+              containers:
+                {{- include "tunnel.deployment.container" . | nindent 16 }}
+                - name: ygege
+                  image: ghcr.io/arch-anes/ygege:0.7.2
+                  imagePullPolicy: Always
+                  resources:
+                    requests:
+                      memory: 128Mi
+                      cpu: 250m
+                    limits:
+                      memory: 1Gi
+                  ports:
+                    - name: ygege
+                      containerPort: 8715
+                  env:
+                    - name: USE_SYSTEM_DNS
+                      value: "true"
+                    - name: YGG_USERNAME
+                      valueFrom:
+                        secretKeyRef:
+                          name: ygege
+                          key: username
+                    - name: YGG_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          name: ygege
+                          key: password
+{{- end }}
