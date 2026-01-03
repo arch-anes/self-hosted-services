@@ -23,6 +23,16 @@ spec:
           containers:
             main:
               imageSelector: fatImage
+              probes:
+                liveness:
+                  type: http
+                  path: /api/v1/info/status
+                readiness:
+                  type: http
+                  path: /api/v1/info/status
+                startup:
+                  type: http
+                  path: /api/v1/info/status
               env:
                 DISABLE_ADDITIONAL_FEATURES: "false"
                 DOCKER_ENABLE_SECURITY: "true"
