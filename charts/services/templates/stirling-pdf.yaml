@@ -123,6 +123,8 @@ spec:
                   authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
                   invalidation_flow: !Find [authentik_flows.flow, [slug, default-invalidation-flow]]
                   client_type: confidential
+                  client_id: !File /blueprints/mounted/secret-stirling-pdf/client_id
+                  client_secret: !File /blueprints/mounted/secret-stirling-pdf/client_secret
                   redirect_uris:
                     - matching_mode: strict
                       url: "https://pdf.{{ .Values.fqdn }}/login/oauth2/code/oidc"

@@ -150,6 +150,9 @@ spec:
 {{- if .Values.applications.nextcloud.enabled }}
         - nextcloud-oidc
 {{- end }}
+{{- if .Values.applications.stirling_pdf.enabled }}
+        - stirling-pdf
+{{- end }}
 {{- if and .Values.applications.wakapi.enabled (not .Values.applications.wakapi.trusted_header_auth) }}
         - wakapi
 {{- end }}
