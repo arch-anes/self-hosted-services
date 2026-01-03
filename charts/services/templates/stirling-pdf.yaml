@@ -127,7 +127,7 @@ spec:
                   client_secret: !File /blueprints/mounted/secret-stirling-pdf/client_secret
                   redirect_uris:
                     - matching_mode: strict
-                      url: "https://pdf.{{ .Values.fqdn }}/login/oauth2/code/oidc"
+                      url: "https://pdf.{{ .Values.fqdn }}/login/oauth2/code/authentik"
                   signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
                   property_mappings:
                     - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
