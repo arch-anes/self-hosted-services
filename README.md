@@ -284,6 +284,8 @@ backend imap-servers
 
 With this configuration, all incoming HTTP(S) traffic must now flow through the gateway ports 9080/9443 where HAProxy is installed. This is because the router forwards traffic to the HAProxy instance, which then distributes it to the backend servers. This setup ensures that even if one server goes down, the service remains available, as HAProxy will route traffic to the remaining operational servers.
 
+To opt-out of this feature, set `behindTcpProxy` to `false`.
+
 #### Traefik TCP router
 
 When using a TCP router, make sure to set the proxy protocol version to 2:

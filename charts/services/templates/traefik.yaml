@@ -159,7 +159,7 @@ spec:
         allowCrossNamespace: true
     service:
       spec:
-        externalTrafficPolicy: Local
+        externalTrafficPolicy: {{ if .Values.behindTcpProxy }}Local{{ else }}Cluster{{ end }}
     ports:
       traefik:
         expose:
@@ -170,19 +170,23 @@ spec:
             to: websecure
             scheme: https
             permanent: true
+{{- if .Values.behindTcpProxy }}
         proxyProtocol:
           trustedIPs:
             {{- include "ip.proxy_ranges" . | nindent 12 }}
         forwardedHeaders:
           trustedIPs:
             {{- include "ip.proxy_ranges" . | nindent 12 }}
+{{- end }}
       websecure:
+{{- if .Values.behindTcpProxy }}
         proxyProtocol:
           trustedIPs:
             {{- include "ip.proxy_ranges" . | nindent 12 }}
         forwardedHeaders:
           trustedIPs:
             {{- include "ip.proxy_ranges" . | nindent 12 }}
+{{- end }}
         transport:
           respondingTimeouts:
             readTimeout: 0
@@ -195,27 +199,33 @@ spec:
         tls:
           enabled: true
       imap:
+{{- if .Values.behindTcpProxy }}
         proxyProtocol:
           trustedIPs:
             {{- include "ip.proxy_ranges" . | nindent 12 }}
+{{- end }}
         port: 993
         expose:
           default: true
         exposedPort: 993
         protocol: TCP
       smtp:
+{{- if .Values.behindTcpProxy }}
         proxyProtocol:
           trustedIPs:
             {{- include "ip.proxy_ranges" . | nindent 12 }}
+{{- end }}
         port: 465
         expose:
           default: true
         exposedPort: 465
         protocol: TCP
       mx:
+{{- if .Values.behindTcpProxy }}
         proxyProtocol:
           trustedIPs:
             {{- include "ip.proxy_ranges" . | nindent 12 }}
+{{- end }}
         port: 2465
         expose:
           default: true

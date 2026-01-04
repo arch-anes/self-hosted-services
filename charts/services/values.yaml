@@ -15,6 +15,9 @@ storageLocation: /storage
 # Base domain name to be used for all services
 fqdn: example.org
 
+# Enable proxy protocol and trusted headers when behind a TCP proxy (e.g., HAProxy)
+behindTcpProxy: true
+
 # The git repository out of which to continuously deploy
 gitRepo: https://github.com/arch-anes/self-hosted-services.git
 
