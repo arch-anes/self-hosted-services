@@ -9,11 +9,12 @@
 Cloudflare DNS allows you to easily access your self-hosted services via a public IP as well as protect your domain from external attacks. To setup Cloudflare:
 
 1. Buy a domain name
-2. Onboard your domain to Cloudflare: https://developers.cloudflare.com/fundamentals/manage-domains/add-site/
-3. Add @ `A` record that points to your public IP
-4. Add * `CNAME` record that points to @.
-5. (optional) Enable the proxy status for your records to protect your domain.
-6. Create an API token:
+1. Onboard your domain to Cloudflare: https://developers.cloudflare.com/fundamentals/manage-domains/add-site/
+1. Set SSL/TLS mode to `Full (strict)` mode
+1. Add @ `A` record that points to your public IP
+1. Add * `CNAME` record that points to @.
+1. (optional) Enable the proxy status for your records to protect your domain.
+1. Create an API token:
   - Go to `User Profile > API Tokens > API Tokens`
   - For Permissions, select:
     - `Zone - DNS - Edit`
