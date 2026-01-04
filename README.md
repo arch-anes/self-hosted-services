@@ -51,6 +51,10 @@ ZFS allows you to increase the reliability and performance of existing drives. T
    ```
     sudo apt install zfsutils-linux
    ```
+1. List the drives using stable identifiers
+   ```
+    ls -lld /dev/disk/by-id/*
+   ```
 1. Create a pool
    ```
     sudo zpool create -m /zfs-pool-dummy-mountpoint-do-not-use storage mirror SOME_DEVICE_1 SOME_DEVICE_2
