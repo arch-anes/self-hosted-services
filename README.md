@@ -47,6 +47,10 @@ AWS SES SMTP enables reliable email delivery for your self-hosted services. To s
 ZFS allows you to increase the reliability and performance of existing drives. To setup ZFS:
 
 1. SSH into each host that supports ZFS.
+1. Install ZFS
+   ```
+    sudo apt install zfsutils-linux
+   ```
 1. Create a pool
    ```
     sudo zpool create -m /zfs-pool-dummy-mountpoint-do-not-use storage mirror SOME_DEVICE_1 SOME_DEVICE_2
