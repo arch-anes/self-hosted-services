@@ -55,15 +55,19 @@ ZFS allows you to increase the reliability and performance of existing drives. T
    ```
     ls -lld /dev/disk/by-id/*
    ```
-1. Create a pool
+1. Create and configure a ZFS pool
    ```
     sudo zpool create -m /zfs-pool-dummy-mountpoint-do-not-use storage mirror SOME_DEVICE_1 SOME_DEVICE_2
     sudo zfs set compression=lz4 storage
     sudo zfs set atime=off storage
    ```
-1. Create an encrypted dataset:
+1. Generate an encryption key:
    ```
     sudo openssl rand -out /root/keyfile-zfs 32
+   ```
+1. (important) Backup the generated key
+1. Create an encrypted dataset:
+   ```
     sudo zfs create -o encryption=on -o keylocation=file:///root/keyfile-zfs -o keyformat=raw -o mountpoint=/storage storage/encrypted
    ```
 
