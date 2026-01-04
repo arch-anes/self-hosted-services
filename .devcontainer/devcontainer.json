@@ -1,8 +1,12 @@
 {
 	"name": "Self-hosted services devcontainer",
-	"dockerComposeFile": "./docker-compose.yml",
-	"service": "devcontainer",
-	"workspaceFolder": "/workspace",
+	"image": "ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+	},
+	"mounts": [
+		"source=${localWorkspaceFolder}/.devcontainer/ansible,target=/etc/ansible,type=bind"
+	],
 	"postAttachCommand": "ansible-galaxy install -r requirements.yml --force",
 	"customizations": {
 		"vscode": {
