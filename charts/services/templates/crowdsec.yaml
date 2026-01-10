@@ -47,9 +47,6 @@ spec:
           enabled: {{ include "metrics.enabled" . }}
       nodeSelector:
         public: "true"
-    secrets:
-      externalSecret:
-        name: crowdsec
     lapi:
       replicas: 2
       storeCAPICredentialsInSecret: true
