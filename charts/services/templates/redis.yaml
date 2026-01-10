@@ -19,7 +19,7 @@ spec:
     rbac:
       create: true
     replica:
-      replicaCount: 3
+      replicaCount: {{ include "ha.replicas" . }}
       persistence:
         enabled: true
       automountServiceAccountToken: true

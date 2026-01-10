@@ -51,7 +51,7 @@ spec:
       externalSecret:
         name: crowdsec
     lapi:
-      replicas: 2
+      replicas: {{ include "ha.replicas" . }}
       storeCAPICredentialsInSecret: true
       strategy:
         type: RollingUpdate

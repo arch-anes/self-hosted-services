@@ -14,7 +14,7 @@ spec:
     relatedImages:
       postgres_17:
         image: ghcr.io/arch-anes/crunchy-postgres:ubi9-17.6-2534
-    replicas: 2
+    replicas: 1
     resources:
       controller:
         requests:
@@ -185,7 +185,7 @@ spec:
           postgresVersion: 17
           instances:
             - name: instance1
-              replicas: 3
+              replicas: {{ include "ha.replicas" . }}
               # Schedule pods on separate nodes
               affinity:
                 podAntiAffinity:

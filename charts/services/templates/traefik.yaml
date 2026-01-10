@@ -238,7 +238,7 @@ spec:
       limits:
         memory: 512Mi
     autoscaling:
-      enabled: true
+      enabled: {{ .Values.highAvailability }}
       minReplicas: 3
       maxReplicas: 10
       metrics:

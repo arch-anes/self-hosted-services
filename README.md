@@ -108,6 +108,8 @@ all:
     chartValuesOverrides:
       fqdn: "example.com"
       storageLocation: /storage
+      # Optional: disable high availability (reduces service replicas from 3 to 1)
+      highAvailability: false
       # Optional: disable unwanted applications
       applications:
         crowdsec:
@@ -306,6 +308,17 @@ When using a TCP router, make sure to set the proxy protocol version to 2:
 ## Applications
 
 By default, all applications are enabled. To selectively disable applications, edit the [values](charts/services/values.yaml) file accordingly. Some applications are mandatory for the cluster to function and cannot be disabled.
+
+### High Availability Configuration
+
+By default, critical services (Redis, PostgreSQL, Authentik, CrowdSec, and Homer Operator) are configured to run with 3 replicas for high availability. If you have limited compute resources, you can disable high availability by setting `highAvailability: false` in your values configuration. This will reduce the replica count from 3 to 1 for these services, significantly reducing resource usage.
+
+```yaml
+# In your inventory chartValuesOverrides or values.yaml
+highAvailability: false  # Set to false to use 1 replica instead of 3
+```
+
+**Note**: Disabling high availability will reduce fault tolerance but is suitable for smaller deployments or resource-constrained environments.
 
 ### Core Infrastructure
 

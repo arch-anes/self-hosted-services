@@ -83,7 +83,7 @@ spec:
     server:
       deploymentAnnotations:
         reloader.stakater.com/auto: "true"
-      replicas: 3
+      replicas: {{ include "ha.replicas" . }}
       resources:
         requests:
           memory: 512Mi

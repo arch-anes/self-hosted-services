@@ -29,3 +29,11 @@
 {{- define "ip.private_ranges" -}}
 {{- .Values.localIpRanges | toYaml }}
 {{- end -}}
+
+{{- define "ha.replicas" -}}
+{{- if .Values.highAvailability -}}
+3
+{{- else -}}
+1
+{{- end -}}
+{{- end -}}
