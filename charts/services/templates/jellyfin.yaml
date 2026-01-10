@@ -115,6 +115,11 @@ spec:
                   {{- fail "Intel GPU is selected for Jellyfin but intel_gpu is not enabled" }}
                 {{- end }}
               gpu.intel.com/i915: 1
+              {{- else if eq $gpuVendor "intel_xe" }}
+                {{- if not .Values.applications.intel_gpu.enabled }}
+                  {{- fail "Intel GPU is selected for Jellyfin but intel_gpu is not enabled" }}
+                {{- end }}
+              gpu.intel.com/xe: 1
               {{- else if eq $gpuVendor "nvidia" }}
                 {{- if not .Values.applications.nvidia_gpu.enabled }}
                   {{- fail "NVIDIA GPU is selected for Jellyfin but nvidia_gpu is not enabled" }}
