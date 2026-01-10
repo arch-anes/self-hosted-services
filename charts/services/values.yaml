@@ -73,6 +73,10 @@ sesRanges:
 
 disableAllApplications: false
 
+# Global high availability configuration
+# Set to false to use 1 replica instead of 3 for services that support HA
+highAvailability: true
+
 applications:
   akri:
     enabled: true

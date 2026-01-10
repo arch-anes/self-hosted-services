@@ -48,7 +48,7 @@ spec:
       nodeSelector:
         public: "true"
     lapi:
-      replicas: 2
+      replicas: {{ include "ha.replicas" . }}
       storeCAPICredentialsInSecret: true
       strategy:
         type: RollingUpdate

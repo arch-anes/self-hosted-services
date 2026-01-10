@@ -16,7 +16,7 @@ spec:
 {{- if .Values.primaryTenant }}
       - kube-system
 {{- end }}
-    replicaCount: 3
+    replicaCount: {{ include "ha.replicas" . }}
     podAnnotations:
       reloader.stakater.com/auto: "true"
     resources:

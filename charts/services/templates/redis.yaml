@@ -19,7 +19,7 @@ spec:
     rbac:
       create: true
     replica:
-      replicaCount: 3
+      replicaCount: {{ include "ha.replicas" . }}
       persistence:
         enabled: true
       automountServiceAccountToken: true
@@ -33,7 +33,7 @@ spec:
         # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
         kubernetes.io/arch: amd64
     sentinel:
-      enabled: true
+      enabled: {{ include "ha.enabled" . }}
       masterService:
         enabled: true
       annotations:

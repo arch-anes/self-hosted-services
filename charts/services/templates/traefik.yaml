@@ -238,7 +238,7 @@ spec:
       limits:
         memory: 512Mi
     autoscaling:
-      enabled: true
+      enabled: {{ include "ha.enabled" . }}
       minReplicas: 3
       maxReplicas: 10
       metrics:
