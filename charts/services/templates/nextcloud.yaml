@@ -28,7 +28,7 @@ metadata:
 spec:
   chart: nextcloud
   repo: https://nextcloud.github.io/helm/
-  version: 8.7.0
+  version: 8.8.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     podAnnotations:
