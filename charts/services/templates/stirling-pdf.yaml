@@ -11,7 +11,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/stirling-pdf
-  version: 8.4.18
+  version: 8.10.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     workload:
