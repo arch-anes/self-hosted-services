@@ -114,10 +114,9 @@ spec:
               memory: 512Mi
               cpu: 2000m
             limits:
-            {{- if and (not .Values.disableAllApplications) .Values.applications.akri.enabled }}
-              akri.sh/akri-udev-4ad410: "1"
-              akri.sh/akri-udev-dbf9ff: "1"
-            {{- end }}
+              {{- range .Values.applications.octoprint.devices }}
+              {{ . }}: "1"
+              {{- end }}
               memory: 2Gi
           ports:
             - name: web

@@ -21,8 +21,9 @@ spec:
         capacity: 5
         discoveryDetails:
           udevRules:
-            - 'KERNEL=="video[0-9]*", ENV{ID_VENDOR}=="Sonix_Technology_Co.__Ltd."'
-            - 'KERNEL=="ttyUSB[0-9]*", ENV{ID_VENDOR}=="FTDI"'
+            {{- range .Values.applications.akri.udevRules }}
+            - {{ . | quote }}
+            {{- end }}
     prometheus:
       enabled: {{ include "metrics.enabled" . }}
 {{- end }}

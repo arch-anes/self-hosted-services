@@ -80,6 +80,8 @@ highAvailability: true
 applications:
   akri:
     enabled: true
+    udevRules: []
+      # - 'KERNEL=="ttyUSB[0-9]*", ENV{ID_VENDOR}=="ABCDEFGH"'
   amd_gpu:
     enabled: true
   argo:
@@ -152,6 +154,8 @@ applications:
     enabled: true
   octoprint:
     enabled: true
+    devices: []
+      # - "akri.sh/akri-udev-abcdefgh"
   odoo:
     enabled: true
   pgadmin4:
