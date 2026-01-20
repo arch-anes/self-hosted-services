@@ -72,8 +72,6 @@ spec:
                     - name: ygege
                       containerPort: 8715
                   env:
-                    - name: USE_SYSTEM_DNS
-                      value: "true"
                     - name: YGG_USERNAME
                       valueFrom:
                         secretKeyRef:
