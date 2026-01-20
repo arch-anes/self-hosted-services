@@ -1,0 +1,17 @@
+# code: language=ansible
+---
+
+- name: Setup ZFS
+  become: true
+  block:
+    - name: Generate zfs-load-key service file
+      ansible.builtin.template:
+        src: zfs-load-key.service.j2
+        dest: /etc/systemd/system/zfs-load-key.service
+        mode: '644'
+
+    - name: Enable zfs-load-key service
+      ansible.builtin.systemd:
+        name: zfs-load-key.service
+        enabled: true
+        state: started

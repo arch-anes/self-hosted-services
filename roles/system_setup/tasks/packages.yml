@@ -13,4 +13,5 @@
           - rsync
           - smartmontools
           - ufw
+          - zfsutils-linux
         update_cache: true

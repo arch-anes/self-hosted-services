@@ -7,6 +7,9 @@
 - name: Setup kernel
   ansible.builtin.include_tasks: kernel.yml
 
+- name: Setup ZFS
+  ansible.builtin.include_tasks: zfs.yaml
+
 - name: Setup timezone
   ansible.builtin.include_tasks: tz.yml
 
