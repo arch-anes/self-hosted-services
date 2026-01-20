@@ -60,7 +60,7 @@ spec:
               containers:
                 {{- include "tunnel.deployment.container" . | nindent 16 }}
                 - name: ygege
-                  image: ghcr.io/arch-anes/ygege:0.7.2
+                  image: uwucode/ygege:0.8.0
                   imagePullPolicy: Always
                   resources:
                     requests:
