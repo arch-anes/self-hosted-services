@@ -1,6 +1,10 @@
 # code: language=ansible
 ---
 
+- name: Gather facts if not already collected
+  ansible.builtin.setup:
+  when: ansible_kernel is not defined
+
 - name: Get facts on current container
   community.docker.current_container_facts:
 
