@@ -2,7 +2,7 @@
 ---
 
 - name: Allocate huge pages
-  when: not is_raspberry_pi
+  when: ansible_distribution == 'Ubuntu' and not is_raspberry_pi
   become: true
   ansible.posix.sysctl:
     name: vm.nr_hugepages

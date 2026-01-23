@@ -3,6 +3,7 @@
 
 - name: Setup ZFS
   become: true
+  when: ansible_distribution == 'Ubuntu'
   block:
     - name: Generate zfs-load-key service file
       ansible.builtin.template:
