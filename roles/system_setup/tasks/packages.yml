@@ -15,3 +15,12 @@
           - ufw
           - zfsutils-linux
         update_cache: true
+
+- name: Install OpenWrt packages
+  become: true
+  when: ansible_distribution == 'OpenWrt'
+  block:
+    - name: Install common packages
+      community.general.opkg:
+        name:
+          - haproxy

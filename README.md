@@ -138,7 +138,23 @@ k3s_cluster:
 headscale:
   hosts:
     headscale_control_server: {}
+# Optional
+routers:
+  hosts:
+    gateway:
+      haproxy:
+        servers:
+          s1: 192.168.1.11
+          s2: 192.168.1.12
+          s3: 192.168.1.13
 ```
+
+### Setup load balancing (optional)
+In a typical home network setup, when HTTP(S) ports are forwarded to a specific machine, the entire service becomes unavailable if that machine goes offline. However, if your router supports OpenWRT (such as the GL-MT6000), you can install HAProxy to address this issue. To do so, add routers to your inventory under the `routers` group and run the router setup playbook: `ansible-playbook setup_router.yml -i inventory.yml`.
+
+With this configuration, all incoming HTTP(S) traffic must now flow through the gateway ports 9080/9443 where HAProxy is installed. This is because the router forwards traffic to the HAProxy instance, which then distributes it to the backend servers. This setup ensures that even if one server goes down, the service remains available, as HAProxy will route traffic to the remaining operational servers.
+
+To opt-out of this feature, set `chartValuesOverrides.behindTcpProxy` to `false`.
 
 #### Note on labels
 
@@ -188,114 +204,6 @@ One can use the Kopia or Kopia UI to access the backed up files manually. Simply
 
 Read https://velero.io/docs/v1.16/restore-reference/.
 
-### Load balancing
-In a typical home network setup, when HTTP(S) ports are forwarded to a specific machine, the entire service becomes unavailable if that machine goes offline. However, if your router supports OpenWRT (such as the GL-MT6000), you can install HAProxy to address this issue. For optimal security and high availability, configure the proxy as follows:
-
-`/etc/haproxy.cfg`:
-```
-global
-    log /dev/log local0
-    log-tag HAProxy
-    maxconn 32000
-    ulimit-n 65535
-    uid 0
-    gid 0
-    nosplice
-    daemon
-
-defaults
-    log global
-    mode tcp
-    timeout connect 5s
-    timeout client  24h
-    timeout server  24h
-    option redispatch
-    retries 3
-    option log-health-checks
-    option dontlognull
-    option dontlog-normal
-
-frontend http-in
-    bind :9080
-    mode tcp
-    default_backend http-servers
-
-frontend https-in
-    bind :9443
-    mode tcp
-    default_backend https-servers
-
-frontend mx-in
-    bind :2465
-    mode tcp
-    default_backend mx-servers
-
-frontend smtp-in
-    bind :9465
-    mode tcp
-    default_backend smtp-servers
-
-frontend imap-in
-    bind :9993
-    mode tcp
-    default_backend imap-servers
-
-backend http-servers
-    mode tcp
-    balance roundrobin
-    option httpchk
-    http-check connect port 8080
-    http-check send meth GET uri /ping
-    default-server inter 3s fall 3 rise 2
-    server s1 192.168.1.11:80 send-proxy-v2 check
-    server s2 192.168.1.12:80 send-proxy-v2 check
-    server s3 192.168.1.13:80 send-proxy-v2 check
-
-backend https-servers
-    mode tcp
-    balance roundrobin
-    option httpchk
-    http-check connect port 8080
-    http-check send meth GET uri /ping
-    default-server inter 3s fall 3 rise 2
-    server s1 192.168.1.11:443 send-proxy-v2 check
-    server s2 192.168.1.12:443 send-proxy-v2 check
-    server s3 192.168.1.13:443 send-proxy-v2 check
-
-backend mx-servers
-    mode tcp
-    balance roundrobin
-    option tcp-check
-    tcp-check connect port 2465
-    default-server inter 3s fall 3 rise 2
-    server s1 192.168.1.11:2465 send-proxy-v2 check
-    server s2 192.168.1.12:2465 send-proxy-v2 check
-    server s3 192.168.1.13:2465 send-proxy-v2 check
-
-backend smtp-servers
-    mode tcp
-    balance roundrobin
-    option tcp-check
-    tcp-check connect port 465
-    default-server inter 3s fall 3 rise 2
-    server s1 192.168.1.11:465 send-proxy-v2 check
-    server s2 192.168.1.12:465 send-proxy-v2 check
-    server s3 192.168.1.13:465 send-proxy-v2 check
-
-backend imap-servers
-    mode tcp
-    balance roundrobin
-    option tcp-check
-    tcp-check connect port 993
-    default-server inter 3s fall 3 rise 2
-    server s1 192.168.1.11:993 send-proxy-v2 check
-    server s2 192.168.1.12:993 send-proxy-v2 check
-    server s3 192.168.1.13:993 send-proxy-v2 check
-```
-
-With this configuration, all incoming HTTP(S) traffic must now flow through the gateway ports 9080/9443 where HAProxy is installed. This is because the router forwards traffic to the HAProxy instance, which then distributes it to the backend servers. This setup ensures that even if one server goes down, the service remains available, as HAProxy will route traffic to the remaining operational servers.
-
-To opt-out of this feature, set `behindTcpProxy` to `false`.
 
 #### Traefik TCP router
 

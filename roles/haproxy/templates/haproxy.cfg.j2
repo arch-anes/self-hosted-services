@@ -1,0 +1,98 @@
+global
+    log /dev/log local0
+    log-tag HAProxy
+    maxconn 32000
+    ulimit-n 65535
+    uid 0
+    gid 0
+    nosplice
+    daemon
+
+defaults
+    log global
+    mode tcp
+    timeout connect 5s
+    timeout client  24h
+    timeout server  24h
+    option redispatch
+    retries 3
+    option log-health-checks
+    option dontlognull
+    option dontlog-normal
+
+frontend http-in
+    bind :9080
+    mode tcp
+    default_backend http-servers
+
+frontend https-in
+    bind :9443
+    mode tcp
+    default_backend https-servers
+
+frontend mx-in
+    bind :2465
+    mode tcp
+    default_backend mx-servers
+
+frontend smtp-in
+    bind :9465
+    mode tcp
+    default_backend smtp-servers
+
+frontend imap-in
+    bind :9993
+    mode tcp
+    default_backend imap-servers
+
+backend http-servers
+    mode tcp
+    balance roundrobin
+    option httpchk
+    http-check connect port 8080
+    http-check send meth GET uri /ping
+    default-server inter 3s fall 3 rise 2
+{% for name, ip in haproxy.servers.items() %}
+    server {{ name }} {{ ip }}:80 send-proxy-v2 check
+{% endfor %}
+
+backend https-servers
+    mode tcp
+    balance roundrobin
+    option httpchk
+    http-check connect port 8080
+    http-check send meth GET uri /ping
+    default-server inter 3s fall 3 rise 2
+{% for name, ip in haproxy.servers.items() %}
+    server {{ name }} {{ ip }}:443 send-proxy-v2 check
+{% endfor %}
+
+backend smtp-servers
+    mode tcp
+    balance roundrobin
+    option tcp-check
+    tcp-check connect port 465
+    default-server inter 3s fall 3 rise 2
+{% for name, ip in haproxy.servers.items() %}
+    server {{ name }} {{ ip }}:465 send-proxy-v2 check
+{% endfor %}
+
+backend imap-servers
+    mode tcp
+    balance roundrobin
+    option tcp-check
+    tcp-check connect port 993
+    default-server inter 3s fall 3 rise 2
+{% for name, ip in haproxy.servers.items() %}
+    server {{ name }} {{ ip }}:993 send-proxy-v2 check
+{% endfor %}
+
+backend mx-servers
+    mode tcp
+    balance roundrobin
+    option tcp-check
+    tcp-check connect port 2465
+    default-server inter 3s fall 3 rise 2
+{% for name, ip in haproxy.servers.items() %}
+    server {{ name }} {{ ip }}:2465 send-proxy-v2 check
+{% endfor %}

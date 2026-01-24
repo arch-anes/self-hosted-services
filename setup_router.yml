@@ -1,0 +1,21 @@
+# code: language=ansible
+
+---
+- name: Setup router
+  any_errors_fatal: true
+  hosts: routers
+  gather_facts: false
+  pre_tasks:
+    - name: Install Python on OpenWrt
+      ansible.builtin.raw: opkg update && opkg install python3
+      register: install_python
+      changed_when: "'Installing' in install_python.stdout"
+  roles:
+    - name: Detect system facts
+      role: detect
+
+    - name: Setup system
+      role: system_setup
+
+    - name: Setup haproxy
+      role: haproxy
