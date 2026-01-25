@@ -18,7 +18,7 @@ metadata:
 spec:
   chart: traefik
   repo: https://traefik.github.io/charts
-  version: 38.0.1
+  version: 39.0.0
   targetNamespace: kube-system
   valuesContent: |-
     extraObjects:
@@ -165,11 +165,12 @@ spec:
         expose:
           default: true
       web:
-        redirections:
-          entryPoint:
-            to: websecure
-            scheme: https
-            permanent: true
+        http:
+          redirections:
+            entryPoint:
+              to: websecure
+              scheme: https
+              permanent: true
 {{- if .Values.behindTcpProxy }}
         proxyProtocol:
           trustedIPs:
@@ -190,14 +191,15 @@ spec:
         transport:
           respondingTimeouts:
             readTimeout: 0
-        middlewares:
-          - kube-system-traefik-redirect-www@kubernetescrd
-          - kube-system-traefik-websecure@kubernetescrd
+        http:
+          middlewares:
+            - kube-system-traefik-redirect-www@kubernetescrd
+            - kube-system-traefik-websecure@kubernetescrd
 {{- if and (not .Values.disableAllApplications) .Values.applications.crowdsec.enabled }}
-          - kube-system-crowdsec@kubernetescrd
+            - kube-system-crowdsec@kubernetescrd
 {{- end }}
-        tls:
-          enabled: true
+          tls:
+            enabled: true
       imap:
 {{- if .Values.behindTcpProxy }}
         proxyProtocol:
