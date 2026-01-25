@@ -95,7 +95,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: jellyfin/jellyfin:10.11.5
+          image: jellyfin/jellyfin:10.11.6
           startupProbe:
             httpGet:
               path: /health
