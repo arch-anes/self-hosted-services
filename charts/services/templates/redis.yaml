@@ -7,7 +7,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://registry-1.docker.io/bitnamicharts/redis
-  version: 24.0.0
+  version: 24.1.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     global:
