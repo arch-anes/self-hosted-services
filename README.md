@@ -147,12 +147,18 @@ routers:
           s1: 192.168.1.11
           s2: 192.168.1.12
           s3: 192.168.1.13
+        # Optional, limits the bandwidth per external IP.
+        bandwidth_limits:
+          incoming:  60m
+          outgoing:  2m
 ```
 
 ### Setup load balancing (optional)
 In a typical home network setup, when HTTP(S) ports are forwarded to a specific machine, the entire service becomes unavailable if that machine goes offline. However, if your router supports OpenWRT (such as the GL-MT6000), you can install HAProxy to address this issue. To do so, add routers to your inventory under the `routers` group and run the router setup playbook: `ansible-playbook setup_router.yml -i inventory.yml`.
 
 With this configuration, all incoming HTTP(S) traffic must now flow through the gateway ports 9080/9443 where HAProxy is installed. This is because the router forwards traffic to the HAProxy instance, which then distributes it to the backend servers. This setup ensures that even if one server goes down, the service remains available, as HAProxy will route traffic to the remaining operational servers.
+
+Additionally, there exists the optional `bandwidth_limits` option to limit either the incoming or outgoing bandwidth or both for external IPs.
 
 To opt-out of this feature, set `chartValuesOverrides.behindTcpProxy` to `false`.
 
