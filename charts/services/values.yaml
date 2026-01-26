@@ -17,6 +17,7 @@ fqdn: example.org
 
 # Enable proxy protocol and trusted headers when behind a TCP proxy (e.g., HAProxy)
 behindTcpProxy: true
+tcpProxyIp: 192.168.1.1
 
 # The git repository out of which to continuously deploy
 gitRepo: https://github.com/arch-anes/self-hosted-services.git

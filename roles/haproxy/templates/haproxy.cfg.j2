@@ -108,3 +108,9 @@ backend mx-servers
 {% for name, ip in haproxy.servers.items() %}
     server {{ name }} {{ ip }}:2465 send-proxy-v2 check
 {% endfor %}
+
+frontend prometheus
+  bind :8405
+  mode http
+  http-request use-service prometheus-exporter if { path /metrics }
+  no log

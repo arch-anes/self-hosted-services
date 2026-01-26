@@ -307,6 +307,12 @@ spec:
             revision: 1
             datasource: Prometheus
 {{- end }}
+{{- if .Values.behindTcpProxy }}
+          haproxy:
+            gnetId: 12693
+            revision: 12
+            datasource: Prometheus
+{{- end }}
       prune: true
       sidecar:
         # Workaround for https://github.com/grafana/helm-charts/issues/4023

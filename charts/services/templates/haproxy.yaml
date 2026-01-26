@@ -1,0 +1,27 @@
+{{- if and .Values.primaryTenant (include "metrics.enabled" .) .Values.behindTcpProxy }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: haproxy-metrics
+  namespace: kube-system
+spec:
+  chart: generic
+  repo: https://arch-anes.github.io/charts
+  version: 0.2.1
+  targetNamespace: kube-system
+  valuesContent: |-
+    objects:
+      - apiVersion: monitoring.coreos.com/v1alpha1
+        kind: ScrapeConfig
+        metadata:
+          name: haproxy
+          namespace: kube-system
+        spec:
+          jobName: haproxy
+          staticConfigs:
+            - targets:
+                - {{ .Values.tcpProxyIp }}:8405
+          metricsPath: /metrics
+          scheme: http
+{{- end }}
