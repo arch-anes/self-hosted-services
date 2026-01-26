@@ -130,6 +130,9 @@ spec:
 {{- if .Values.applications.immich.enabled }}
         - immich-authentik-blueprint
 {{- end }}
+{{- if .Values.applications.minio.enabled }}
+        - authentik-minio-blueprint
+{{- end }}
 {{- if .Values.applications.nextcloud.enabled }}
         - authentik-nextcloud-blueprint
 {{- end }}
@@ -146,6 +149,9 @@ spec:
         - ldap
 {{- if .Values.applications.immich.enabled }}
         - immich
+{{- end }}
+{{- if .Values.applications.minio.enabled }}
+        - minio-oidc
 {{- end }}
 {{- if .Values.applications.nextcloud.enabled }}
         - nextcloud-oidc
