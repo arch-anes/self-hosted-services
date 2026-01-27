@@ -1,0 +1,75 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.archivebox.enabled }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: archivebox
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   username: "admin"
+#   password: "somepass"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: archivebox
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://oci.trueforge.org/truecharts/archivebox
+  version: 5.13.14
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+          backup.velero.io/backup-volumes: data
+        podSpec:
+          containers:
+            main:
+              env:
+                PUBLIC_INDEX: "false"
+                PUBLIC_SNAPSHOTS: "false"
+                PUBLIC_ADD_VIEW: "false"
+                ADMIN_USERNAME:
+                  secretKeyRef:
+                    name: archivebox
+                    key: username
+                    expandObjectName: false
+                ADMIN_PASSWORD:
+                  secretKeyRef:
+                    name: archivebox
+                    key: password
+                    expandObjectName: false
+    resources:
+      requests:
+        memory: 500Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:    
+          homer.service.name: Feed
+          homer.item.logo: "https://archivebox.io/icon.png"
+        hosts:
+          - host: archive.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - archive.{{ .Values.fqdn }}
+    persistence:
+      data:
+        enabled: true
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+{{- end }}
