@@ -71,7 +71,7 @@ spec:
         enabled: true
         annotations:
           homer.service.name: Administration
-          homer.item.logo: "https://djeqr6to3dedg.cloudfront.net/repo-logos/library/odoo/live/logo-1720462245016.png"
+          homer.item.logo: "https://odoocdn.com/openerp_website/static/src/img/assets/svg/odoo_logo.svg"
         hosts:
           - host: odoo.{{ .Values.fqdn }}
             paths:
