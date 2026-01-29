@@ -94,8 +94,10 @@ spec:
         - name: stalwart
 {{- end }}
 {{- end }}
-{{- if .Values.applications.authentik.enabled }}
       env:
+        - name: MINIO_BROWSER_REDIRECT_URL
+          value: "https://minio.{{ .Values.fqdn }}"
+{{- if .Values.applications.authentik.enabled }}
         - name: MINIO_IDENTITY_OPENID_CONFIG_URL
           value: "https://auth.{{ .Values.fqdn }}/application/o/minio/.well-known/openid-configuration"
         - name: MINIO_IDENTITY_OPENID_CLIENT_ID
