@@ -8,9 +8,9 @@
 # type: Opaque
 # stringData:
 #   cloud: |-
-#     [global]
-#     aws_access_key_id="some-id"
-#     aws_secret_access_key="some-key"
+#     [default]
+#     aws_access_key_id=some-id
+#     aws_secret_access_key=some-key
 
 # ---
 # apiVersion: v1
