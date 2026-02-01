@@ -55,6 +55,7 @@ spec:
             name: plugins
     configuration:
       defaultVolumesToFsBackup: false # Opt-in mode via annotations
+      defaultItemOperationTimeout: 12h
       volumeSnapshotLocation: []
       backupStorageLocation:
         {{- .Values.applications.velero.remoteBackupLocations | toYaml | nindent 8 }}
