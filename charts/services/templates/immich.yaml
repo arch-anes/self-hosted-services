@@ -41,7 +41,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/immich
-  version: 25.22.5
+  version: 25.23.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     workload:
