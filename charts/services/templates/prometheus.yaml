@@ -307,6 +307,14 @@ spec:
             revision: 1
             datasource: Prometheus
 {{- end }}
+{{- if .Values.applications.speedtest_tracker.enabled }}
+          velero:
+            gnetId: 24608
+            revision: 2
+            datasource:
+              - name: DS_PROMETHEUS
+                value: Prometheus
+{{- end }}
 {{- if .Values.behindTcpProxy }}
           haproxy:
             gnetId: 12693
