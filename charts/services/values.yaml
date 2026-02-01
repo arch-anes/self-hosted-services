@@ -190,6 +190,8 @@ applications:
     enabled: true
   speedtest_tracker:
     enabled: true
+    dashboard:
+      enabled: true
   stalwart:
     enabled: true
   stirling_pdf:
