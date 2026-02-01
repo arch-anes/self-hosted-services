@@ -44,6 +44,33 @@ spec:
   version: 25.23.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
+    {{- $mlGpuVendor := dig "machine_learning" "gpu_vendor" "" .Values.applications.immich }}
+    {{- if $mlGpuVendor }}
+    immich:
+    {{- end }}
+    {{- if eq $mlGpuVendor "intel" }}
+      {{- if not .Values.applications.intel_gpu.enabled }}
+        {{- fail "Intel GPU is selected for Immich but intel_gpu is not enabled" }}
+      {{- end }}
+      mlImageType: mlOpenvinoImage
+    {{- else if eq $mlGpuVendor "intel_xe" }}
+      {{- if not .Values.applications.intel_gpu.enabled }}
+        {{- fail "Intel GPU is selected for Immich's machine learning but intel_gpu is not enabled" }}
+      {{- end }}
+      mlImageType: mlOpenvinoImage
+    {{- else if eq $mlGpuVendor "nvidia" }}
+      {{- if not .Values.applications.nvidia_gpu.enabled }}
+        {{- fail "NVIDIA GPU is selected for Immich's machine learning but nvidia_gpu is not enabled" }}
+      {{- end }}
+      mlImageType: mlCudaImage
+    {{- else if eq $mlGpuVendor "amd" }}
+      {{- if not .Values.applications.amd_gpu.enabled }}
+        {{- fail "AMD GPU is selected for Immich's machine learning but amd_gpu is not enabled" }}
+      {{- end }}
+      mlImageType: mlRocmImage
+    {{- else if $mlGpuVendor }}
+      {{- fail (printf "Unknown GPU vendor '%s' selected for Immich's machine learning" $mlGpuVendor) }}
+    {{- end }}
     workload:
       main:
         annotations:
@@ -103,7 +130,7 @@ spec:
                   gpu.intel.com/i915: 1
                   {{- else if eq $gpuVendor "intel_xe" }}
                     {{- if not .Values.applications.intel_gpu.enabled }}
-                      {{- fail "Intel GPU is selected for Jellyfin but intel_gpu is not enabled" }}
+                      {{- fail "Intel GPU is selected for Immich but intel_gpu is not enabled" }}
                     {{- end }}
                   gpu.intel.com/xe: 1
                   {{- else if eq $gpuVendor "nvidia" }}
@@ -126,12 +153,22 @@ spec:
           containers:
             machinelearning:
               resources:
+                excludeExtra: false
                 requests:
                   memory: 1Gi
                   cpu: 250m
                 limits:
                   cpu: null
-                  memory: 4Gi
+                  memory: 10Gi
+                  {{- if eq $mlGpuVendor "intel" }}
+                  gpu.intel.com/i915: 1
+                  {{- else if eq $mlGpuVendor "intel_xe" }}
+                  gpu.intel.com/xe: 1
+                  {{- else if eq $mlGpuVendor "nvidia" }}
+                  nvidia.com/gpu: 1
+                  {{- else if eq $mlGpuVendor "amd" }}
+                  amd.com/gpu: 1
+                  {{- end }}
     resources:
       requests:
         memory: 128Mi

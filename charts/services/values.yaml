@@ -118,6 +118,8 @@ applications:
   immich:
     enabled: true
     # gpu_vendor: nvidia
+    # machine_learning:
+    #   gpu_vendor: nvidia
   intel_gpu:
     enabled: true
   inventree:
