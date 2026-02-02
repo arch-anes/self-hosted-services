@@ -18,7 +18,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/archivebox
-  version: 5.13.14
+  version: 5.13.15
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     workload:
