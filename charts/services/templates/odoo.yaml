@@ -17,8 +17,9 @@ spec:
       main:
         annotations:
           reloader.stakater.com/auto: "true"
-          backup.velero.io/backup-volumes: odoo
         podSpec:
+          annotations:
+            backup.velero.io/backup-volumes: odoo
           initContainers:
             init-db:
               enabled: false

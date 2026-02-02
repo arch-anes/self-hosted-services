@@ -18,8 +18,9 @@ spec:
       main:
         annotations:
           reloader.stakater.com/auto: "true"
-          backup.velero.io/backup-volumes: custom-files
         podSpec:
+          annotations:
+            backup.velero.io/backup-volumes: custom-files
           containers:
             main:
               imageSelector: fatImage
