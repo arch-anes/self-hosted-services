@@ -79,9 +79,10 @@ spec:
     workload:
       main:
         annotations:
-          backup.velero.io/backup-volumes: config
           reloader.stakater.com/auto: "true"
         podSpec:
+          annotations:
+            backup.velero.io/backup-volumes: config
           containers:
             main:
               env:

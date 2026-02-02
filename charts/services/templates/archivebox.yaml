@@ -25,8 +25,9 @@ spec:
       main:
         annotations:
           reloader.stakater.com/auto: "true"
-          backup.velero.io/backup-volumes: data
         podSpec:
+          annotations:
+            backup.velero.io/backup-volumes: data
           containers:
             main:
               env:
