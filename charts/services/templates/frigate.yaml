@@ -1,0 +1,280 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.frigate.enabled }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: frigate-credentials
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   # Camera RTSP credentials (for Dahua/EmpireTech cameras)
+#   rtsp-user: "admin"
+#   rtsp-password: "your_camera_password"
+#   # MQTT credentials (if using authenticated MQTT)
+#   mqtt-password: "your_mqtt_password"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: frigate
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://oci.trueforge.org/truecharts/frigate
+  version: 18.15.20
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    image: 
+      tag: 0.17.0-rc1
+    {{- $frigateConfig := .Values.applications.frigate }}
+    frigateConfig:
+      tls:
+        enabled: false
+      mqtt:
+        enabled: false
+      # go2rtc configuration for better live view streaming
+      go2rtc:
+        streams:
+          {{- range $name, $cam := $frigateConfig.cameras }}
+          {{- if $cam.enabled | default true }}
+          {{ $name }}:
+            {{- if $cam.rtsp_url }}
+            - {{ $cam.rtsp_url | quote }}
+            {{- else }}
+            # Main stream for high quality live view
+            - "rtsp://{FRIGATE_RTSP_USER}:{FRIGATE_RTSP_PASSWORD}@{{ $cam.ip }}/cam/realmonitor?channel={{ $cam.channel | default 1 }}&subtype=0"
+            {{- end }}
+          {{ $name }}_sub:
+            {{- if $cam.rtsp_url_sub }}
+            - {{ $cam.rtsp_url_sub | quote }}
+            {{- else }}
+            # Sub stream for detection
+            - "rtsp://{FRIGATE_RTSP_USER}:{FRIGATE_RTSP_PASSWORD}@{{ $cam.ip }}/cam/realmonitor?channel={{ $cam.channel | default 1 }}&subtype=1"
+            {{- end }}
+          {{- end }}
+          {{- end }}
+      
+      {{- if $frigateConfig.detectors }}
+      detectors:
+        {{- toYaml $frigateConfig.detectors | nindent 8 }}
+      {{- else }}
+      detectors:
+        cpu1:
+          type: cpu
+      {{- end }}
+      model:
+        width: 300
+        height: 300
+        input_tensor: nhwc
+        input_pixel_format: bgr
+        path: /openvino-model/ssdlite_mobilenet_v2.xml
+        labelmap_path: /openvino-model/coco_91cl_bkgr.txt
+      {{- if eq $frigateConfig.gpu_vendor "intel" }}
+      ffmpeg:
+        hwaccel_args: preset-vaapi
+      {{- else if eq $frigateConfig.gpu_vendor "intel_xe" }}
+      ffmpeg:
+        hwaccel_args: preset-vaapi
+      {{- else if eq $frigateConfig.gpu_vendor "nvidia" }}
+      ffmpeg:
+        hwaccel_args: preset-nvidia-h264
+      {{- end }}
+      {{- if $frigateConfig.motion }}
+      motion:
+        {{- toYaml $frigateConfig.motion | nindent 8 }}
+      {{- end }}
+      {{- if $frigateConfig.objects }}
+      objects:
+        {{- toYaml $frigateConfig.objects | nindent 8 }}
+      {{- end }}
+      face_recognition:
+        enabled: true
+      record:
+        enabled: {{ $frigateConfig.record.enabled | default true }}
+        continuous: # TODO REMOVE, should only be in inventory
+          days: {{ $frigateConfig.record.retain_days | default 7 }}
+        alerts:
+          retain:
+            days: {{ $frigateConfig.record.alerts_retain_days | default 30 }}
+        detections:
+          retain:
+            days: {{ $frigateConfig.record.detections_retain_days | default 30 }}
+      
+      snapshots:
+        enabled: {{ $frigateConfig.snapshots.enabled | default true }}
+        retain:
+          default: {{ $frigateConfig.snapshots.retain_days | default 30 }}
+      
+      cameras:
+        {{- range $name, $cam := $frigateConfig.cameras }}
+        {{ $name }}:
+          enabled: {{ $cam.enabled | default true }}
+          {{- if $cam.detect }}
+          detect:
+            enabled: true
+            {{- if $cam.detect.width }}
+            width: {{ $cam.detect.width }}
+            {{- end }}
+            {{- if $cam.detect.height }}
+            height: {{ $cam.detect.height }}
+            {{- end }}
+            fps: {{ $cam.detect.fps | default 10 }}
+          {{- else }}
+          detect:
+            enabled: true
+            fps: 10
+          {{- end }}
+          ffmpeg:
+            inputs:
+              {{- if $cam.rtsp_url }}
+              - path: {{ $cam.rtsp_url | quote }}
+                roles:
+                  - detect
+                  - record
+              {{- else }}
+              # Dahua/EmpireTech camera RTSP format
+              # Main stream (high quality for recording) - via go2rtc restream
+              - path: "rtsp://127.0.0.1:8554/{{ $name }}"
+                input_args: preset-rtsp-restream
+                roles:
+                  - record
+              # Sub stream (lower quality for detection - uses less CPU) - via go2rtc restream
+              - path: "rtsp://127.0.0.1:8554/{{ $name }}_sub"
+                input_args: preset-rtsp-restream
+                roles:
+                  - detect
+              {{- end }}
+          {{- if $cam.live }}
+          live:
+            {{- toYaml $cam.live | nindent 12 }}
+          {{- end }}
+          {{- if $cam.motion }}
+          motion:
+            {{- toYaml $cam.motion | nindent 12 }}
+          {{- end }}
+          {{- if $cam.zones }}
+          zones:
+            {{- toYaml $cam.zones | nindent 12 }}
+          {{- end }}
+          {{- if $cam.objects }}
+          objects:
+            {{- toYaml $cam.objects | nindent 12 }}
+          {{- end }}
+          {{- if $cam.onvif }}
+          onvif:
+            host: {{ $cam.ip }}
+            port: {{ $cam.onvif.port | default 80 }}
+            user: "{FRIGATE_RTSP_USER}"
+            password: "{FRIGATE_RTSP_PASSWORD}"
+          {{- end }}
+        {{- end }}
+    
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          annotations:
+            backup.velero.io/backup-volumes: config
+          containers:
+            main:
+              probes:
+                liveness:
+                  type: http
+                  path: /api/
+                  port: 5000
+                readiness:
+                  type: http
+                  path: /api/
+                  port: 5000
+                startup:
+                  type: http
+                  path: /api/
+                  port: 5000
+              env:
+                {{- if $frigateConfig.mqtt }}
+                {{- if $frigateConfig.mqtt.user }}
+                FRIGATE_MQTT_USER: {{ $frigateConfig.mqtt.user | quote }}
+                FRIGATE_MQTT_PASSWORD:
+                  secretKeyRef:
+                    name: frigate-credentials
+                    key: mqtt-password
+                    expandObjectName: false
+                {{- end }}
+                {{- end }}
+                FRIGATE_RTSP_USER:
+                  secretKeyRef:
+                    name: frigate-credentials
+                    key: rtsp-user
+                    expandObjectName: false
+                FRIGATE_RTSP_PASSWORD:
+                  secretKeyRef:
+                    name: frigate-credentials
+                    key: rtsp-password
+                    expandObjectName: false
+              resources:
+                requests:
+                  memory: 1Gi
+                  cpu: 500m
+                limits:
+                  memory: 4Gi
+                  {{- $gpuVendor := $frigateConfig.gpu_vendor }}
+                  {{- if eq $gpuVendor "intel" }}
+                    {{- if not $.Values.applications.intel_gpu.enabled }}
+                      {{- fail "Intel GPU is selected for Frigate but intel_gpu is not enabled" }}
+                    {{- end }}
+                  gpu.intel.com/i915: 1
+                  {{- else if eq $gpuVendor "intel_xe" }}
+                    {{- if not $.Values.applications.intel_gpu.enabled }}
+                      {{- fail "Intel GPU is selected for Frigate but intel_gpu is not enabled" }}
+                    {{- end }}
+                  gpu.intel.com/xe: 1
+                  {{- else if eq $gpuVendor "nvidia" }}
+                    {{- if not $.Values.applications.nvidia_gpu.enabled }}
+                      {{- fail "NVIDIA GPU is selected for Frigate but nvidia_gpu is not enabled" }}
+                    {{- end }}
+                  nvidia.com/gpu: 1
+                  {{- else if eq $gpuVendor "amd" }}
+                    {{- if not $.Values.applications.amd_gpu.enabled }}
+                      {{- fail "AMD GPU is selected for Frigate but amd_gpu is not enabled" }}
+                    {{- end }}
+                  amd.com/gpu: 1
+                  {{- else if $gpuVendor }}
+                    {{- fail (printf "Unknown GPU vendor '%s' selected for Frigate" $gpuVendor) }}
+                  {{- end }}
+    persistence:
+      config:
+        enabled: true
+        storageClass: local-path-persistent-namespaced
+        size: 1Gi
+      media:
+        enabled: true
+        {{- if $frigateConfig.nfs_media }}
+        existingClaim: nfs-{{ $frigateConfig.nfs_media }}
+        {{- else }}
+        storageClass: local-path-persistent-namespaced
+        size: {{ $frigateConfig.media_storage_size | default "100Gi" }}
+        {{- end }}
+    global:
+      traefik:
+        fixedMiddlewares: []
+    service:
+      main:
+        ports:
+          main:
+            targetPort: 8971
+    ingress:
+      main:
+        enabled: true
+        annotations:    
+          homer.service.name: Monitoring
+          homer.item.logo: ""
+        hosts:
+          - host: frigate.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - frigate.{{ .Values.fqdn }}
+{{- end }}
