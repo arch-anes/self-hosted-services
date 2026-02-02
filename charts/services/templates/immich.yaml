@@ -75,8 +75,9 @@ spec:
       main:
         annotations:
           reloader.stakater.com/auto: "true"
-          backup.velero.io/backup-volumes: uploads
         podSpec:
+          annotations:
+            backup.velero.io/backup-volumes: uploads
           nodeSelector:
             # Schedule only on NAS nodes
             nas: "true"
