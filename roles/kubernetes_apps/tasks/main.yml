@@ -6,8 +6,8 @@
     name: firewall
   vars:
     firewall_rules:
-      - { to_port: 80, proto: tcp, rule: allow, comment: "Allow HTTP" }
-      - { to_port: 443, proto: tcp, rule: allow, comment: "Allow HTTPS" }
+      - { to_port: 80, proto: any, rule: allow, comment: "Allow HTTP" }
+      - { to_port: 443, proto: any, rule: allow, comment: "Allow HTTPS" }
       - { to_port: 2465, proto: tcp, rule: allow, comment: "Allow MX" }
       - { to_port: 465, proto: tcp, rule: allow, comment: "Allow SMTP" }
       - { to_port: 993, proto: tcp, rule: allow, comment: "Allow IMAP" }
