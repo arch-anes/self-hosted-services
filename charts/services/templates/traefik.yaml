@@ -202,6 +202,8 @@ spec:
 {{- end }}
           tls:
             enabled: true
+        http3:
+          enabled: true
       imap:
 {{- if .Values.behindTcpProxy }}
         proxyProtocol:
