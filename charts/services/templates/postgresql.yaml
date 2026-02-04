@@ -110,9 +110,9 @@ spec:
 # stringData:
 #   s3.conf: |-
 #     [global]
-#     repo1-s3-key="some-id"
-#     repo1-s3-key-secret="some-key"
-#     repo1-cipher-pass="some-encryption-key"
+#     repo1-s3-key=some-id
+#     repo1-s3-key-secret=some-key
+#     repo1-cipher-pass=some-encryption-key
 
 ---
 apiVersion: helm.cattle.io/v1
