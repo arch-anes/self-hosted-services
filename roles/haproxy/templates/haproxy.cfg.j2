@@ -102,4 +102,6 @@ frontend prometheus
   bind :8405
   mode http
   http-request use-service prometheus-exporter if { path /metrics }
+  acl network_allowed src 10.0.0.0/8 192.168.0.0/16
+  http-request deny unless network_allowed
   no log
