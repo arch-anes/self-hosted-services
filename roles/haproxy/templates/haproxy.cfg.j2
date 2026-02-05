@@ -11,8 +11,8 @@ defaults
     log global
     mode tcp
     timeout connect 5s
-    timeout client  24h
-    timeout server  24h
+    timeout client  1m
+    timeout server  1m
     option redispatch
     retries 3
     option log-health-checks
@@ -28,6 +28,8 @@ frontend https-in
     bind :9443
     mode tcp
     default_backend https-servers
+    timeout client  24h
+    timeout server  24h
 
 frontend mx-in
     bind :2465
