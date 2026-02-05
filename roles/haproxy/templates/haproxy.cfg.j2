@@ -29,15 +29,6 @@ frontend https-in
     bind :9443
     mode tcp
     default_backend https-servers
-    acl is_local src 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 127.0.0.0/8
-{% if haproxy.bandwidth_limits.incoming is defined %}
-    filter bwlim-in incoming-src-limit key src table limit-by-src limit {{ haproxy.bandwidth_limits.incoming }}
-    tcp-request content set-bandwidth-limit incoming-src-limit unless is_local
-{% endif %}
-{% if haproxy.bandwidth_limits.outgoing is defined %}
-    filter bwlim-out outgoing-src-limit key src table limit-by-src limit {{ haproxy.bandwidth_limits.outgoing }}
-    tcp-request content set-bandwidth-limit outgoing-src-limit unless is_local
-{% endif %}
 
 frontend mx-in
     bind :2465
@@ -53,9 +44,6 @@ frontend imap-in
     bind :9993
     mode tcp
     default_backend imap-servers
-
-backend limit-by-src
-    stick-table type ip size 1m expire 300s store bytes_out_rate(1s),bytes_in_rate(1s)
 
 backend http-servers
     mode tcp
