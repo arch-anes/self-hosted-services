@@ -11,6 +11,11 @@
     name: network
     state: reloaded
 
+- name: reload firewall
+  ansible.builtin.service:
+    name: firewall
+    state: reloaded
+
 - name: restart nginx
   ansible.builtin.service:
     name: nginx

@@ -37,6 +37,21 @@
         autocommit: true
       notify: reload network
 
+    - name: Allow guests to reach HAProxy VIP
+      community.openwrt.uci:
+        command: section
+        config: firewall
+        name: guest_haproxy
+        type: rule
+        value:
+          name: Guest-to-HAProxy
+          src: guest
+          dest_ip: "{{ haproxy_virtual_ip }}"
+          proto: all
+          target: ACCEPT
+        autocommit: true
+      notify: reload firewall
+
     - name: Generate HAProxy configuration from template
       ansible.builtin.template:
         src: haproxy.cfg.j2
