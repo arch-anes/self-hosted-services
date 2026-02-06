@@ -21,12 +21,12 @@ defaults
     option dontlog-normal
 
 frontend http-in
-    bind :9080
+    bind {{ haproxy.virtual_ip | default('192.168.1.2') }}:80
     mode tcp
     default_backend http-servers
 
 frontend https-in
-    bind :9443
+    bind {{ haproxy.virtual_ip | default('192.168.1.2') }}:443
     mode tcp
     default_backend https-servers
     acl is_local src 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 127.0.0.0/8
@@ -40,17 +40,17 @@ frontend https-in
 {% endif %}
 
 frontend mx-in
-    bind :2465
+    bind {{ haproxy.virtual_ip | default('192.168.1.2') }}:2465
     mode tcp
     default_backend mx-servers
 
 frontend smtp-in
-    bind :9465
+    bind {{ haproxy.virtual_ip | default('192.168.1.2') }}:465
     mode tcp
     default_backend smtp-servers
 
 frontend imap-in
-    bind :9993
+    bind {{ haproxy.virtual_ip | default('192.168.1.2') }}:993
     mode tcp
     default_backend imap-servers
 
