@@ -43,3 +43,9 @@
         dest: /etc/haproxy.cfg
         mode: '644'
       notify: restart haproxy
+
+    - name: Enable HAProxy service
+      ansible.builtin.service:
+        name: haproxy
+        enabled: true
+        state: started
