@@ -5,3 +5,13 @@
   ansible.builtin.service:
     name: haproxy
     state: restarted
+
+- name: reload network
+  ansible.builtin.service:
+    name: network
+    state: reloaded
+
+- name: restart nginx
+  ansible.builtin.service:
+    name: nginx
+    state: restarted
