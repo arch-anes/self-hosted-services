@@ -3,7 +3,40 @@
 
 - name: Setup HAProxy
   become: true
+  vars:
+    haproxy_primary_ip: "{{ haproxy.primary_ip | default('192.168.1.1') }}"
+    haproxy_virtual_ip: "{{ haproxy.virtual_ip | default('192.168.1.2') }}"
   block:
+    - name: Update Nginx listen addresses
+      ansible.builtin.replace:
+        path: /etc/nginx/conf.d/gl.conf
+        regexp: "{{ item.regexp }}"
+        replace: "{{ item.replace }}"
+      loop:
+        - regexp: '(\s*)listen\s+(?:[\d.]+:)?80;'
+          replace: '\1listen {{ haproxy_primary_ip }}:80;'
+        - regexp: '(\s*)listen\s+\[::\]:80;'
+          replace: '\1listen [::1]:80;'
+        - regexp: '(\s*)listen\s+(?:[\d.]+:)?443\s+ssl;'
+          replace: '\1listen {{ haproxy_primary_ip }}:443 ssl;'
+        - regexp: '(\s*)listen\s+\[::\]:443\s+ssl;'
+          replace: '\1listen [::1]:443 ssl;'
+      notify: restart nginx
+
+    - name: Configure virtual IP interface for HAProxy
+      community.openwrt.uci:
+        command: section
+        config: network
+        name: haproxy_vip
+        type: interface
+        value:
+          proto: static
+          device: br-lan
+          ipaddr: "{{ haproxy_virtual_ip }}"
+          netmask: 255.255.255.0
+        autocommit: true
+      notify: reload network
+
     - name: Generate HAProxy configuration from template
       ansible.builtin.template:
         src: haproxy.cfg.j2

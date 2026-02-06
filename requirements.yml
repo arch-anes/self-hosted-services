@@ -7,5 +7,6 @@ collections:
   - name: community.docker
   - name: ansible.posix
   - name: kubernetes.core
+  - name: community.openwrt
 roles:
   - name: xanmanning.k3s
