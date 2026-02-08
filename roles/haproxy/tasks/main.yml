@@ -8,20 +8,61 @@
     haproxy_virtual_ip: "{{ haproxy.virtual_ip | default('192.168.1.2') }}"
   block:
     - name: Update Nginx listen addresses
-      ansible.builtin.replace:
-        path: /etc/nginx/conf.d/gl.conf
-        regexp: "{{ item.regexp }}"
-        replace: "{{ item.replace }}"
-      loop:
-        - regexp: '(\s*)listen\s+(?:[\d.]+:)?80;'
-          replace: '\1listen {{ haproxy_primary_ip }}:80;'
-        - regexp: '(\s*)listen\s+\[::\]:80;'
-          replace: '\1listen [::1]:80;'
-        - regexp: '(\s*)listen\s+(?:[\d.]+:)?443\s+ssl;'
-          replace: '\1listen {{ haproxy_primary_ip }}:443 ssl;'
-        - regexp: '(\s*)listen\s+\[::\]:443\s+ssl;'
-          replace: '\1listen [::1]:443 ssl;'
+      vars:
+        nginx_managed_block_mark: "ANSIBLE MANAGED LISTENERS BLOCK"
+        nginx_managed_block_spacing: "    "
       notify: restart nginx
+      block:
+        - name: Check if Nginx config is already managed
+          ansible.builtin.lineinfile:
+            path: /etc/nginx/conf.d/gl.conf
+            line: "# BEGIN {{ nginx_managed_block_mark }}"
+            state: present
+          check_mode: true
+          register: haproxy_nginx_managed_check
+
+        - name: Initialize Nginx managed block
+          ansible.builtin.replace:
+            path: /etc/nginx/conf.d/gl.conf
+            # ---------------------------------------------------------
+            # Regex Breakdown:
+            # (?s)          : Enable "dot-all" mode so '.' matches newlines.
+            # ^             : Anchor to the start of a line.
+            # [ \t]*        : Match optional indentation (spaces or tabs).
+            # (?:#\s*)?     : Non-capturing group for an optional comment hash '#'
+            #                 and trailing space. This matches both active config
+            #                 ("listen...") and commented config ("# listen...").
+            # listen\s+     : The literal word "listen" followed by whitespace.
+            # [^;]*80;      : Match the bind address/port. [^;]* consumes
+            #                 IPs/interfaces until it hits "80;".
+            # .*?           : Non-greedy match for everything in between
+            #                 (other listen directives, newlines).
+            # listen\s+     : Start of the final listen directive.
+            # [^;]+         : Match the IPv6 address content.
+            # \]            : Literal closing bracket ']'. This enforces that
+            #                 the block MUST end with an IPv6 address.
+            # :443\s+ssl;   : Matches the specific port and SSL flag.
+            # ------------------------------------------------------------------
+            regexp: '(?s)^[ \t]*(?:#\s*)?listen\s+[^;]*80;.*?listen\s+[^;]+\]:443\s+ssl;'
+            replace: |
+              # BEGIN {{ nginx_managed_block_mark }}
+              # END {{ nginx_managed_block_mark }}
+          when: haproxy_nginx_managed_check.changed
+
+        - name: Inject custom listeners
+          ansible.builtin.blockinfile:
+            path: /etc/nginx/conf.d/gl.conf
+            marker: "# {mark} {{ nginx_managed_block_mark }}"
+            block: |
+              {{ nginx_managed_block_spacing }}# listen 80;
+              {{ nginx_managed_block_spacing }}listen 127.0.0.1:80;
+              {{ nginx_managed_block_spacing }}listen {{ haproxy_primary_ip }}:80;
+              {{ nginx_managed_block_spacing }}listen [::1]:80;
+
+              {{ nginx_managed_block_spacing }}# listen 443 ssl;
+              {{ nginx_managed_block_spacing }}listen 127.0.0.1:443 ssl;
+              {{ nginx_managed_block_spacing }}listen {{ haproxy_primary_ip }}:443 ssl;
+              {{ nginx_managed_block_spacing }}listen [::1]:443 ssl;
 
     - name: Configure virtual IP interface for HAProxy
       community.openwrt.uci:
