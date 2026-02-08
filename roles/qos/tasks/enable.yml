@@ -26,8 +26,8 @@
       interface: "{{ qos_wan_active_interface }}"
       download: "{{ qos.download_kbps }}"
       upload: "{{ qos.upload_kbps }}"
-      qdisc: 'cake'
-      script: 'layer_cake.qos'
+      qdisc: 'fq_codel'
+      script: 'simple.qos'
       linklayer: 'ethernet'
       squash_dscp: '1'
       squash_ingress: '1'
