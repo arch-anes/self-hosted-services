@@ -1,0 +1,40 @@
+# code: language=ansible
+---
+
+- name: Update Nginx listen addresses
+  vars:
+    nginx_managed_block_mark: "ANSIBLE MANAGED LISTENERS BLOCK"
+    nginx_managed_block_spacing: "    "
+  notify: restart nginx
+  block:
+    - name: Check if Nginx config is already managed
+      ansible.builtin.lineinfile:
+        path: /etc/nginx/conf.d/gl.conf
+        line: "# BEGIN {{ nginx_managed_block_mark }}"
+        state: present
+      check_mode: true
+      register: haproxy_nginx_managed_check
+
+    - name: Initialize Nginx managed block
+      ansible.builtin.replace:
+        path: /etc/nginx/conf.d/gl.conf
+        regexp: '(?s)^[ \t]*(?:#\s*)?listen\s+[^;]*80;.*?listen\s+[^;]+\]:443\s+ssl;'
+        replace: |
+          # BEGIN {{ nginx_managed_block_mark }}
+          # END {{ nginx_managed_block_mark }}
+      when: haproxy_nginx_managed_check.changed
+
+    - name: Inject custom listeners
+      ansible.builtin.blockinfile:
+        path: /etc/nginx/conf.d/gl.conf
+        marker: "# {mark} {{ nginx_managed_block_mark }}"
+        block: |
+          {{ nginx_managed_block_spacing }}# listen 80;
+          {{ nginx_managed_block_spacing }}listen 127.0.0.1:80;
+          {{ nginx_managed_block_spacing }}listen {{ haproxy_primary_ip }}:80;
+          {{ nginx_managed_block_spacing }}listen [::1]:80;
+
+          {{ nginx_managed_block_spacing }}# listen 443 ssl;
+          {{ nginx_managed_block_spacing }}listen 127.0.0.1:443 ssl;
+          {{ nginx_managed_block_spacing }}listen {{ haproxy_primary_ip }}:443 ssl;
+          {{ nginx_managed_block_spacing }}listen [::1]:443 ssl;

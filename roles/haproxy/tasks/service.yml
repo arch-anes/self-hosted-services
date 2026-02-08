@@ -1,0 +1,15 @@
+# code: language=ansible
+---
+
+- name: Generate HAProxy configuration from template
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy.cfg
+    mode: '644'
+  notify: restart haproxy
+
+- name: Enable HAProxy service
+  ansible.builtin.service:
+    name: haproxy
+    enabled: true
+    state: started

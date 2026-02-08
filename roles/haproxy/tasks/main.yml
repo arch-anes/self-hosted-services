@@ -7,101 +7,14 @@
     haproxy_primary_ip: "{{ haproxy.primary_ip | default('192.168.1.1') }}"
     haproxy_virtual_ip: "{{ haproxy.virtual_ip | default('192.168.1.2') }}"
   block:
-    - name: Update Nginx listen addresses
-      vars:
-        nginx_managed_block_mark: "ANSIBLE MANAGED LISTENERS BLOCK"
-        nginx_managed_block_spacing: "    "
-      notify: restart nginx
-      block:
-        - name: Check if Nginx config is already managed
-          ansible.builtin.lineinfile:
-            path: /etc/nginx/conf.d/gl.conf
-            line: "# BEGIN {{ nginx_managed_block_mark }}"
-            state: present
-          check_mode: true
-          register: haproxy_nginx_managed_check
+    - name: Configure Nginx
+      ansible.builtin.include_tasks: nginx.yml
 
-        - name: Initialize Nginx managed block
-          ansible.builtin.replace:
-            path: /etc/nginx/conf.d/gl.conf
-            # ---------------------------------------------------------
-            # Regex Breakdown:
-            # (?s)          : Enable "dot-all" mode so '.' matches newlines.
-            # ^             : Anchor to the start of a line.
-            # [ \t]*        : Match optional indentation (spaces or tabs).
-            # (?:#\s*)?     : Non-capturing group for an optional comment hash '#'
-            #                 and trailing space. This matches both active config
-            #                 ("listen...") and commented config ("# listen...").
-            # listen\s+     : The literal word "listen" followed by whitespace.
-            # [^;]*80;      : Match the bind address/port. [^;]* consumes
-            #                 IPs/interfaces until it hits "80;".
-            # .*?           : Non-greedy match for everything in between
-            #                 (other listen directives, newlines).
-            # listen\s+     : Start of the final listen directive.
-            # [^;]+         : Match the IPv6 address content.
-            # \]            : Literal closing bracket ']'. This enforces that
-            #                 the block MUST end with an IPv6 address.
-            # :443\s+ssl;   : Matches the specific port and SSL flag.
-            # ------------------------------------------------------------------
-            regexp: '(?s)^[ \t]*(?:#\s*)?listen\s+[^;]*80;.*?listen\s+[^;]+\]:443\s+ssl;'
-            replace: |
-              # BEGIN {{ nginx_managed_block_mark }}
-              # END {{ nginx_managed_block_mark }}
-          when: haproxy_nginx_managed_check.changed
+    - name: Configure network
+      ansible.builtin.include_tasks: network.yml
 
-        - name: Inject custom listeners
-          ansible.builtin.blockinfile:
-            path: /etc/nginx/conf.d/gl.conf
-            marker: "# {mark} {{ nginx_managed_block_mark }}"
-            block: |
-              {{ nginx_managed_block_spacing }}# listen 80;
-              {{ nginx_managed_block_spacing }}listen 127.0.0.1:80;
-              {{ nginx_managed_block_spacing }}listen {{ haproxy_primary_ip }}:80;
-              {{ nginx_managed_block_spacing }}listen [::1]:80;
+    - name: Configure firewall
+      ansible.builtin.include_tasks: firewall.yml
 
-              {{ nginx_managed_block_spacing }}# listen 443 ssl;
-              {{ nginx_managed_block_spacing }}listen 127.0.0.1:443 ssl;
-              {{ nginx_managed_block_spacing }}listen {{ haproxy_primary_ip }}:443 ssl;
-              {{ nginx_managed_block_spacing }}listen [::1]:443 ssl;
-
-    - name: Configure virtual IP interface for HAProxy
-      community.openwrt.uci:
-        command: section
-        config: network
-        name: haproxy_vip
-        type: interface
-        value:
-          proto: static
-          device: br-lan
-          ipaddr: "{{ haproxy_virtual_ip }}"
-          netmask: 255.255.255.0
-        autocommit: true
-      notify: reload network
-
-    - name: Allow guests to reach HAProxy VIP
-      community.openwrt.uci:
-        command: section
-        config: firewall
-        name: guest_haproxy
-        type: rule
-        value:
-          name: Guest-to-HAProxy
-          src: guest
-          dest_ip: "{{ haproxy_virtual_ip }}"
-          proto: all
-          target: ACCEPT
-        autocommit: true
-      notify: reload firewall
-
-    - name: Generate HAProxy configuration from template
-      ansible.builtin.template:
-        src: haproxy.cfg.j2
-        dest: /etc/haproxy.cfg
-        mode: '644'
-      notify: restart haproxy
-
-    - name: Enable HAProxy service
-      ansible.builtin.service:
-        name: haproxy
-        enabled: true
-        state: started
+    - name: Configure HAProxy service
+      ansible.builtin.include_tasks: service.yml
