@@ -1,0 +1,16 @@
+# code: language=ansible
+---
+
+- name: Configure virtual IP interface for HAProxy
+  community.openwrt.uci:
+    command: section
+    config: network
+    name: haproxy_vip
+    type: interface
+    value:
+      proto: static
+      device: br-lan
+      ipaddr: "{{ haproxy_virtual_ip }}"
+      netmask: 255.255.255.0
+    autocommit: true
+  notify: reload network
