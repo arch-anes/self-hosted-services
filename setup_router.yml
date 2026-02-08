@@ -19,3 +19,6 @@
 
     - name: Setup haproxy
       role: haproxy
+
+    - name: Setup QoS
+      role: qos

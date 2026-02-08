@@ -1,0 +1,34 @@
+---
+- name: Configure SQM
+  notify: reload sqm
+  block:
+    - name: Disable SQM
+      when: qos is not defined
+      community.openwrt.uci:
+        command: delete
+        key: "sqm.ansible_wan"
+        autocommit: true
+      ignore_errors: true
+
+    - name: Enable SQM
+      when: qos is defined
+      community.openwrt.uci:
+        command: section
+        config: sqm
+        type: queue
+        name: "ansible_wan"
+        value:
+          enabled: '1'
+          interface: "@wan"
+          download: "{{ qos.download_kbps }}"
+          upload: "{{ qos.upload_kbps }}"
+          qdisc: 'cake'
+          script: 'layer_cake.qos'
+          linklayer: 'ethernet'
+          squash_dscp: '1'
+          squash_ingress: '1'
+          ingress_ecn: 'ECN'
+          egress_ecn: 'ECN'
+          qdisc_advanced_run: '1'
+          qdisc_really_really_advanced_opts: 'nat dual-dsthost dual-srchost'
+        autocommit: true
