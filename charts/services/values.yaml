@@ -145,6 +145,8 @@ applications:
     enabled: true
   minio:
     enabled: true
+  mosquitto:
+    enabled: true
   n8n:
     enabled: true
   netbox:

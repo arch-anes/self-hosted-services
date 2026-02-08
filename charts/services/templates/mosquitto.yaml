@@ -1,0 +1,65 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.mosquitto.enabled }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: mosquitto
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://oci.trueforge.org/truecharts/mosquitto
+  version: 17.13.18
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          annotations:
+            backup.velero.io/backup-volumes: data
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 1000m
+      limits:
+        memory: 1Gi
+        cpu: null
+    persistence:
+      data:
+        enabled: true
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+      configinc:
+        enabled: false
+    extraTpl:
+      - |
+        apiVersion: traefik.io/v1alpha1
+        kind: IngressRouteTCP
+        metadata:
+          name: mosquitto-plain
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          entryPoints:
+            - mqtt
+          routes:
+            - match: HostSNI(`*`)
+              services:
+                - name: mosquitto
+                  port: 1883
+      - |
+        apiVersion: traefik.io/v1alpha1
+        kind: IngressRouteTCP
+        metadata:
+          name: mosquitto-secure
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          entryPoints:
+            - mqtts
+          routes:
+            - match: HostSNI(`mqtt.{{ .Values.fqdn }}`)
+              services:
+                - name: mosquitto
+                  port: 1883
+          tls:
+            secretName: "{{ .Values.fqdn }}-tls"
+{{- end }}

@@ -237,6 +237,28 @@ spec:
           default: true
         exposedPort: 2465
         protocol: TCP
+      mqtt:
+{{- if .Values.behindTcpProxy }}
+        proxyProtocol:
+          trustedIPs:
+            {{- include "ip.proxy_ranges" . | nindent 12 }}
+{{- end }}
+        port: 1883
+        expose:
+          default: true
+        exposedPort: 1883
+        protocol: TCP
+      mqtts:
+{{- if .Values.behindTcpProxy }}
+        proxyProtocol:
+          trustedIPs:
+            {{- include "ip.proxy_ranges" . | nindent 12 }}
+{{- end }}
+        port: 8883
+        expose:
+          default: true
+        exposedPort: 8883
+        protocol: TCP
     resources:
       requests:
         memory: 512Mi

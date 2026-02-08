@@ -46,6 +46,16 @@ frontend imap-in
     mode tcp
     default_backend imap-servers
 
+frontend mqtt-in
+    bind {{ haproxy.virtual_ip | default('192.168.1.2') }}:1883
+    mode tcp
+    default_backend mqtt-servers
+
+frontend mqtts-in
+    bind {{ haproxy.virtual_ip | default('192.168.1.2') }}:8883
+    mode tcp
+    default_backend mqtts-servers
+
 backend http-servers
     mode tcp
     balance roundrobin
@@ -96,6 +106,26 @@ backend mx-servers
     default-server inter 3s fall 3 rise 2
 {% for name, ip in haproxy.servers.items() %}
     server {{ name }} {{ ip }}:2465 send-proxy-v2 check
+{% endfor %}
+
+backend mqtt-servers
+    mode tcp
+    balance roundrobin
+    option tcp-check
+    tcp-check connect port 1883
+    default-server inter 3s fall 3 rise 2
+{% for name, ip in haproxy.servers.items() %}
+    server {{ name }} {{ ip }}:1883 send-proxy-v2 check
+{% endfor %}
+
+backend mqtts-servers
+    mode tcp
+    balance roundrobin
+    option tcp-check
+    tcp-check connect port 8883
+    default-server inter 3s fall 3 rise 2
+{% for name, ip in haproxy.servers.items() %}
+    server {{ name }} {{ ip }}:8883 send-proxy-v2 check
 {% endfor %}
 
 frontend prometheus
