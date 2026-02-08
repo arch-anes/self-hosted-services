@@ -16,5 +16,8 @@
     - name: Configure firewall
       ansible.builtin.include_tasks: firewall.yml
 
+    - name: Configure port forwarding
+      ansible.builtin.include_tasks: port_forwarding.yml
+
     - name: Configure HAProxy service
       ansible.builtin.include_tasks: service.yml

@@ -1,0 +1,38 @@
+# code: language=ansible
+---
+
+- name: Forward WAN port 80 (HTTP) to HAProxy VIP
+  community.openwrt.uci:
+    command: section
+    config: firewall
+    name: haproxy_http
+    type: redirect
+    value:
+      name: HAProxy-HTTP
+      src: wan
+      dest: lan
+      proto: tcp
+      src_dport: '80'
+      dest_ip: "{{ haproxy_virtual_ip }}"
+      dest_port: '80'
+      target: DNAT
+    autocommit: true
+  notify: reload firewall
+
+- name: Forward WAN port 443 (HTTPS) to HAProxy VIP
+  community.openwrt.uci:
+    command: section
+    config: firewall
+    name: haproxy_https
+    type: redirect
+    value:
+      name: HAProxy-HTTPS
+      src: wan
+      dest: lan
+      proto: tcp
+      src_dport: '443'
+      dest_ip: "{{ haproxy_virtual_ip }}"
+      dest_port: '443'
+      target: DNAT
+    autocommit: true
+  notify: reload firewall
