@@ -1,0 +1,19 @@
+---
+- name: Disable SQM
+  notify: reload sqm
+  community.openwrt.uci:
+    command: delete
+    key: "sqm.ansible_wan"
+    autocommit: true
+  ignore_errors: true
+
+- name: Enable hardware flow offloading
+  notify: reload firewall
+  community.openwrt.uci:
+    command: set
+    key: "firewall.@defaults[0].{{ item }}"
+    value: '1'
+    autocommit: true
+  loop:
+    - flow_offloading
+    - flow_offloading_hw

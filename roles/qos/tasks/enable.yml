@@ -1,0 +1,34 @@
+---
+- name: Disable Flow Offloading (Required for SQM)
+  notify: reload firewall
+  community.openwrt.uci:
+    command: set
+    key: "firewall.@defaults[0].{{ item }}"
+    value: '0'
+    autocommit: true
+  loop:
+    - flow_offloading_hw
+    - flow_offloading
+
+- name: Enable SQM
+  notify: reload sqm
+  community.openwrt.uci:
+    command: section
+    config: sqm
+    type: queue
+    name: "ansible_wan"
+    value:
+      enabled: '1'
+      interface: "@wan"
+      download: "{{ qos.download_kbps }}"
+      upload: "{{ qos.upload_kbps }}"
+      qdisc: 'cake'
+      script: 'layer_cake.qos'
+      linklayer: 'ethernet'
+      squash_dscp: '1'
+      squash_ingress: '1'
+      ingress_ecn: 'ECN'
+      egress_ecn: 'ECN'
+      qdisc_advanced_run: '1'
+      qdisc_really_really_advanced_opts: 'nat dual-dsthost dual-srchost'
+    autocommit: true
