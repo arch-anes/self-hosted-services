@@ -19,8 +19,8 @@
     - name: Configure port forwarding
       ansible.builtin.include_tasks: port_forwarding.yml
 
-    - name: Apply pending firewall and network changes
-      ansible.builtin.meta: flush_handlers
-
     - name: Configure HAProxy service
       ansible.builtin.include_tasks: service.yml
+
+    - name: Apply pending firewall and network changes
+      ansible.builtin.meta: flush_handlers
