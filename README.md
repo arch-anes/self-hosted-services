@@ -149,6 +149,7 @@ routers:
           s3: 192.168.1.13
       # (optional, recommended) QoS config
       qos:
+        # interface: "eth1" # Optional, will be auto-detected if not set
         download_kbps: 95000    # 95% of your download speed
         upload_kbps: 19000      # 95% of your upload speed
 ```
