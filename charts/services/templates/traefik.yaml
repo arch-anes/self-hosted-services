@@ -204,61 +204,19 @@ spec:
             enabled: true
         http3:
           enabled: true
-      imap:
-{{- if .Values.behindTcpProxy }}
+{{- range $name, $port := dict "imap" 993 "smtp" 465 "mx" 2465 "mqtt" 1883 "mqtts" 8883 }}
+      {{ $name }}:
+{{- if $.Values.behindTcpProxy }}
         proxyProtocol:
           trustedIPs:
-            {{- include "ip.proxy_ranges" . | nindent 12 }}
+            {{- include "ip.proxy_ranges" $ | nindent 12 }}
 {{- end }}
-        port: 993
+        port: {{ $port }}
         expose:
           default: true
-        exposedPort: 993
+        exposedPort: {{ $port }}
         protocol: TCP
-      smtp:
-{{- if .Values.behindTcpProxy }}
-        proxyProtocol:
-          trustedIPs:
-            {{- include "ip.proxy_ranges" . | nindent 12 }}
 {{- end }}
-        port: 465
-        expose:
-          default: true
-        exposedPort: 465
-        protocol: TCP
-      mx:
-{{- if .Values.behindTcpProxy }}
-        proxyProtocol:
-          trustedIPs:
-            {{- include "ip.proxy_ranges" . | nindent 12 }}
-{{- end }}
-        port: 2465
-        expose:
-          default: true
-        exposedPort: 2465
-        protocol: TCP
-      mqtt:
-{{- if .Values.behindTcpProxy }}
-        proxyProtocol:
-          trustedIPs:
-            {{- include "ip.proxy_ranges" . | nindent 12 }}
-{{- end }}
-        port: 1883
-        expose:
-          default: true
-        exposedPort: 1883
-        protocol: TCP
-      mqtts:
-{{- if .Values.behindTcpProxy }}
-        proxyProtocol:
-          trustedIPs:
-            {{- include "ip.proxy_ranges" . | nindent 12 }}
-{{- end }}
-        port: 8883
-        expose:
-          default: true
-        exposedPort: 8883
-        protocol: TCP
     resources:
       requests:
         memory: 512Mi
