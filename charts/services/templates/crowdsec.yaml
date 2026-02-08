@@ -23,7 +23,19 @@ spec:
   targetNamespace: kube-system
   valuesContent: |-
     container_runtime: containerd
-    agent:
+    config:
+      parsers:
+        s02-enrich:
+          minio-allowlist.yaml: |
+            name: arch-anes/minio-allowlist
+            description: "Allowlist Minio 401/403 false positives"
+            whitelist:
+              reason: "Minio legitimate auth failures"
+              expression:
+                - "evt.Meta.service == 'http' && evt.Parsed.status in ['401', '403'] && \
+                  evt.Parsed.http_user_agent matches '(?i)(minio|aws-cli|rclone|boto3|s3cmd|restic|velero|aws-sdk-go)' && \
+                  evt.Parsed.target_fqdn matches '^s3\\.'"
+    agent:      
       podAnnotations:
         descheduler.alpha.kubernetes.io/evict: "true"
       acquisition:
