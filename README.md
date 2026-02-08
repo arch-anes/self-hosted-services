@@ -147,6 +147,10 @@ routers:
           s1: 192.168.1.11
           s2: 192.168.1.12
           s3: 192.168.1.13
+      # (optional, recommended) QoS config
+      qos:
+        download_kbps: 95000    # 95% of your download speed
+        upload_kbps: 19000      # 95% of your upload speed
 ```
 
 ### Setup load balancing (optional)
@@ -155,6 +159,23 @@ In a typical home network setup, when HTTP(S) ports are forwarded to a specific 
 With this configuration, all incoming HTTP(S) traffic must now flow through the gateway ports 9080/9443 where HAProxy is installed. This is because the router forwards traffic to the HAProxy instance, which then distributes it to the backend servers. This setup ensures that even if one server goes down, the service remains available, as HAProxy will route traffic to the remaining operational servers.
 
 To opt-out of this feature, set `chartValuesOverrides.behindTcpProxy` to `false`.
+
+### Setup QoS (optional)
+
+Quality of Service (QoS) via Smart Queue Management (SQM) prevents bufferbloat and ensures responsive network performance under load. SQM uses the cake qdisc (queue discipline) to intelligently manage traffic and reduce latency spikes during heavy upload/download activity. To make use of this feature:
+1. Measure your actual internet speeds using a speed test
+2. Add the `qos` variable to your router configuration with 95% of your measured speeds:
+   ```yml
+   routers:
+     hosts:
+       gateway:
+         qos:
+           download_kbps: 95000    # 95% of your download speed in kbps
+           upload_kbps: 19000      # 95% of your upload speed in kbps
+   ```
+3. Run the router setup playbook to apply the configuration
+
+**Note:** Setting speeds to 95% of your maximum allows SQM to manage the queue before your ISP's equipment does, preventing bufferbloat. For more details on SQM configuration and tuning, see the [OpenWrt SQM documentation](https://openwrt.org/docs/guide-user/network/traffic-shaping/sqm).
 
 #### Note on labels
 

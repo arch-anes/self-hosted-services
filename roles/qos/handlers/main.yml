@@ -1,0 +1,5 @@
+---
+- name: reload sqm
+  ansible.builtin.service:
+    name: sqm
+    state: reloaded
