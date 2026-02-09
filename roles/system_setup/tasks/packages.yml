@@ -25,3 +25,4 @@
         name:
           - haproxy
           - luci-app-sqm
+          - tailscale

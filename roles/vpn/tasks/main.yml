@@ -7,4 +7,4 @@
 
 - name: Setup tailscale
   ansible.builtin.include_tasks: tailscale.yml
-  when: "'k3s_cluster' in group_names"
+  when: "'headscale' not in group_names"
