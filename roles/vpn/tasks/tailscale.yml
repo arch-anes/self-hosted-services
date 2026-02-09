@@ -58,7 +58,7 @@
   register: tailscale_up_result
   ignore_errors: true
   changed_when: tailscale_up_result.rc == 0
-  when: "'k3s_cluster' in group_names"
+  when: "'k3s_cluster' in group_names and not is_openwrt"
   become: true
 
 - name: Provision tailscale on routers
@@ -66,7 +66,7 @@
   register: tailscale_up_result
   ignore_errors: true
   changed_when: tailscale_up_result.rc == 0
-  when: "'routers' in group_names"
+  when: is_openwrt
   become: true
 
 - name: Fail on tailscale error

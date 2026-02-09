@@ -8,9 +8,10 @@
 - name: Get facts on current container
   community.docker.current_container_facts:
 
-- name: Detect if Raspberry Pi machine
+- name: Detect machine type
   ansible.builtin.set_fact:
     is_raspberry_pi: "{{ 'raspi' in ansible_kernel }}"
+    is_openwrt: "{{ ansible_distribution == 'OpenWrt' }}"
 
 - name: Determine CPU architecture
   ansible.builtin.set_fact:
