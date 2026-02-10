@@ -18,9 +18,6 @@
       when:
         - not (skip_system_setup or manifest_only_setup)
 
-    - name: Preprocess cloud nodes
-      role: cloud_nodes
-
     - name: Create a VPN mesh network
       role: vpn
       when:

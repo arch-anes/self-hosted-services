@@ -90,8 +90,6 @@ Tailscale allows you to access your hosts from anywhere without exposing static 
 
 ## Create an inventory
 
-### Static
-
 ```yml
 all:
   vars:
@@ -183,19 +181,6 @@ Quality of Service (QoS) via Smart Queue Management (SQM) prevents bufferbloat a
 - `public`: Add to nodes that will receive external traffic directly.
 - `nas`: Add to nodes that should store heavy files.
 - `local`: Add to nodes that are local to the site; useful when having a hybrid cloud.
-
-### Dynamic (AWS)
-
-```yml
-plugin: aws_ec2
-regions:
-  - us-east-1
-  - us-east-2
-filters:
-  instance-state-name: running
-  tag:Category:
-    - home-cloud
-```
 
 ### Application specific setup
 
