@@ -12,6 +12,7 @@
         mode: 0755
 
     - name: Write DNS resolution config
+      notify: Restart systemd-resolved
       ansible.builtin.blockinfile:
         dest: /etc/systemd/resolved.conf.d/00_cloudflare.conf
         create: true
@@ -20,11 +21,6 @@
           [Resolve]
           DNS=1.1.1.1 1.0.0.1
           DNSStubListener=no
-
-    - name: Restart DNS server to apply configuration
-      ansible.builtin.service:
-        name: systemd-resolved
-        state: restarted
 
     # TODO: make stub server work
     # ansible_module_container_type is a workaround for docker due to https://stackoverflow.com/q/60549775
