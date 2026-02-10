@@ -10,10 +10,6 @@
     - flow_offloading_hw
     - flow_offloading
 
-- name: Detect SQM Interface
-  ansible.builtin.set_fact:
-    qos_wan_active_interface: "{{ qos.interface | default(ansible_default_ipv4.interface) }}"
-
 - name: Enable SQM
   notify: reload sqm
   community.openwrt.uci:
@@ -23,7 +19,7 @@
     name: "ansible_wan"
     value:
       enabled: '1'
-      interface: "{{ qos_wan_active_interface }}"
+      interface: "{{ ansible_wan_interface }}"
       download: "{{ qos.download_kbps }}"
       upload: "{{ qos.upload_kbps }}"
       qdisc: 'fq_codel'

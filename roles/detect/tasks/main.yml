@@ -13,6 +13,11 @@
     is_raspberry_pi: "{{ 'raspi' in ansible_kernel }}"
     is_openwrt: "{{ ansible_distribution == 'OpenWrt' }}"
 
+- name: Detect WAN Interface
+  ansible.builtin.set_fact:
+    ansible_wan_interface: "{{ wan_interface | default(ansible_default_ipv4.interface) }}"
+  when: is_openwrt
+
 - name: Determine CPU architecture
   ansible.builtin.set_fact:
     cpu_arch: >-
