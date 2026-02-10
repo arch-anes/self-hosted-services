@@ -19,9 +19,13 @@
 
     - name: Setup system
       role: system_setup
+      when:
+        - not skip_system_setup
 
     - name: Create a VPN mesh network
       role: vpn
+      when:
+        - not skip_vpn_setup
 
     - name: Setup haproxy
       role: haproxy
