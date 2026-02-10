@@ -8,5 +8,6 @@ collections:
   - name: ansible.posix
   - name: kubernetes.core
   - name: community.openwrt
+  - name: artis3n.tailscale
 roles:
   - name: xanmanning.k3s

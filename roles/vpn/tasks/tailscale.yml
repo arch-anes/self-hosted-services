@@ -1,29 +1,6 @@
 # code: language=ansible
 ---
 
-- name: Setup Tailscale
-  when: "'k3s_cluster' in group_names"
-  block:
-  - name: Check if tailscale is installed
-    ansible.builtin.command: "which tailscale"
-    register: tailscale_existence_result
-    changed_when: false
-    ignore_errors: true
-
-  - name: Install tailscale
-    ansible.builtin.shell: "set -o pipefail && curl -fsSL https://tailscale.com/install.sh | sh"
-    args:
-      executable: /usr/bin/bash
-    become: true
-    changed_when: true
-    when: tailscale_existence_result.rc != 0
-
-  - name: Start tailscaled
-    ansible.builtin.service:
-      name: tailscaled
-      enabled: true
-      state: started
-
 - name: Get headscale auth key if headscale is running
   block:
     - name: Get headscale host
@@ -44,41 +21,26 @@
           ansible.builtin.set_fact:
             tailscale_oauth_secret: "{{ headscale_auth_key_result.stdout }}"
             login_server_arg: "--login-server {{ hostvars[headscale_host]['headscale_server_url'] }}"
-            ephemeral_key_arg: ""
 
     - name: Fallback to usual tailscale arguments
       ansible.builtin.set_fact:
         login_server_arg: ""
-        ephemeral_key_arg: "?ephemeral=false"
       when: headscale_host == 'localhost'
 
-# https://github.com/tailscale/tailscale/issues/11717
-- name: Provision tailscale on cluster nodes
-  ansible.builtin.command: "tailscale up {{ login_server_arg }} --netfilter-mode=off --accept-dns=false --timeout=120s --advertise-tags=tag:ansible --auth-key={{ tailscale_oauth_secret }}{{ ephemeral_key_arg }}"
-  register: tailscale_up_result
-  ignore_errors: true
-  changed_when: tailscale_up_result.rc == 0
-  when: "'k3s_cluster' in group_names and not is_openwrt"
-  become: true
+- name: Tailscale configuration arguments
+  ansible.builtin.set_fact:
+    # https://github.com/tailscale/tailscale/issues/11717
+    netfilter_mode_arg: "{{ '' if is_openwrt else '--netfilter-mode=off' }}"
+    advertise_route_arg: "{{ '--advertise-routes=' ~ haproxy_virtual_ip ~ '/32' if is_openwrt else '' }}"
 
-- name: Provision tailscale on routers
-  ansible.builtin.command: "tailscale up {{ login_server_arg }} --advertise-routes={{ haproxy_virtual_ip }}/32 --accept-dns=false --timeout=120s --advertise-tags=tag:ansible --auth-key={{ tailscale_oauth_secret }}{{ ephemeral_key_arg }}"
-  register: tailscale_up_result
-  ignore_errors: true
-  changed_when: tailscale_up_result.rc == 0
-  when: is_openwrt
-  become: true
-
-- name: Fail on tailscale error
-  ansible.builtin.fail:
-    msg: "Ensure an oauth key with Decide.Core and Keys.AuthKeys permissions is declared and added
-      to tag:ansible via https://login.tailscale.com/admin/settings/oauth, and secret added to tailscale_oauth_secret variable"
-  when: tailscale_up_result.rc != 0
-
-- name: Update ansible facts with the latest information
-  ansible.builtin.setup:
-
-- name: Ensure all hosts are reachable
-  ansible.builtin.command: "ping -c 1 -w 600 {{ item }}"
-  loop: "{{ hostvars | json_query('*.ansible_tailscale0.ipv4.address') }}"
-  changed_when: false
+- name: Setup Tailscale
+  ansible.builtin.import_role:
+    name: artis3n.tailscale.machine
+  vars:
+    tailscale_manage_binaries_skip: "{{ is_openwrt }}"
+    tailscale_oauth_ephemeral: "{{ headscale_host != 'localhost' }}"
+    tailscale_authkey: "{{ tailscale_oauth_secret }}"
+    tailscale_service: "{{ 'tailscale' if is_openwrt else 'tailscaled' }}"
+    tailscale_tags:
+      - "ansible"
+    tailscale_args: "--accept-dns=false {{ netfilter_mode_arg }} {{ advertise_route_arg }}"
