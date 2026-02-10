@@ -8,3 +8,6 @@
 - name: Setup tailscale
   ansible.builtin.include_tasks: tailscale.yml
   when: "'headscale' not in group_names"
+
+- name: Enable VPN performance improvements
+  ansible.builtin.include_tasks: performance.yml
