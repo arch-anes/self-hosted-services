@@ -82,11 +82,39 @@ Tailscale allows you to access your hosts from anywhere without exposing static 
     "tagOwners": {
       "tag:ansible": ["autogroup:admin", "autogroup:owner"],
     },
+    "autoApprovers": {
+		  "routes": {
+        "192.168.0.0/16": ["tag:ansible"]
+      },
+	  },
    ```
 1. Create an OAuth client at https://login.tailscale.com/admin/settings/oauth:
   1. Enable the Write permission for Device/Core, and add the "tag:ansible" tag.
   1. Enable the Write permission for Keys/Auth Keys, and add the "tag:ansible" tag.
   1. Save and write down the OAuth client secret.
+
+### Intranet access via Tailscale
+
+This setup allows remote access to self-hosted services' internal network. It relies on **NextDNS** to rewrite your domain's A record to point to a local IP and  **Tailscale** to advertise the local IP to the connected clients.
+
+#### 1. NextDNS Configuration
+We use NextDNS to "fake" the DNS resolution for our domain when on public networks, pointing it to the internal HAProxy VIP.
+
+1.  Go to [NextDNS.io](https://nextdns.io) and create an account (or use your existing one).
+2.  Navigate to **Settings** > **Rewrites**.
+3.  Add a new Rewrite:
+    * **Domain:** `*.example.org` (and optionally `example.org`)
+    * **Answer:** `192.168.1.2` (Your HAProxy Virtual IP)
+
+#### 2. Tailscale DNS Configuration
+Configure Tailscale to force remote devices to use NextDNS, ensuring they see the "fake" internal IP for your domain.
+
+1.  Open the **Tailscale Admin Console** > **DNS**.
+2.  Under **Global Nameservers**:
+    * Click **Add Nameserver** > **Custom...**
+    * Enter the IPv6 DNS address from your NextDNS dashboard (e.g., `2a07:a8c0::ic:abcd`).
+3.  Enable **Override local DNS**.
+    * *This ensures Android/iOS devices use NextDNS instead of the cellular provider's DNS.*
 
 ## Create an inventory
 
