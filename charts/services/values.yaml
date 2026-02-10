@@ -28,6 +28,10 @@ localIpRanges:
   - 172.16.0.0/12
   - 192.168.0.0/16
 
+tailscaleIpRanges:
+  - 100.64.0.0/10
+  - fd7a:115c:a1e0::/48
+
 # Cloudflare IP ranges
 cloudFlareIpRanges:
   # https://www.cloudflare.com/ips-v4

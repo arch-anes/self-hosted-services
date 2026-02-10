@@ -27,7 +27,7 @@
 {{- end -}}
 
 {{- define "ip.private_ranges" -}}
-{{- .Values.localIpRanges | toYaml }}
+{{- concat .Values.localIpRanges .Values.tailscaleIpRanges | toYaml }}
 {{- end -}}
 
 {{- define "ha.enabled" -}}
