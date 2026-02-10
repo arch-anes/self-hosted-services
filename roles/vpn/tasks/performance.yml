@@ -1,0 +1,36 @@
+# code: language=ansible
+---
+
+- name: Enable UDP throughput improvements via transport layer offloading
+  when: is_openwrt and ansible_kernel is version('6.2', '>=')
+  block:
+    - name: Ensure ethtool config file exists
+      ansible.builtin.file:
+        path: /etc/config/ethtool
+        state: touch
+        modification_time: preserve
+        access_time: preserve
+        mode: '0644'
+
+    - name: Enable UDP offloading in ethtool
+      community.openwrt.uci:
+        command: section
+        config: ethtool
+        section: eth1
+        type: device
+        value:
+          rx_gro_list: 'off'
+          rx_udp_gro_forwarding: 'on'
+        autocommit: true
+
+    - name: Generate ethtool hot reload script from template
+      ansible.builtin.template:
+        src: openwrt/90-ethtool.j2
+        dest: /etc/hotplug.d/iface/90-ethtool
+        mode: '0755'
+
+    - name: Preserve ethtool across upgrades
+      ansible.builtin.lineinfile:
+        path: /etc/sysupgrade.conf
+        line: "/etc/hotplug.d/iface/90-ethtool"
+        state: present

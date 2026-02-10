@@ -62,7 +62,7 @@
   become: true
 
 - name: Provision tailscale on routers
-  ansible.builtin.command: "tailscale up {{ login_server_arg }} --advertise-exit-node --advertise-routes=192.168.0.0/16 --accept-dns=false --timeout=120s --advertise-tags=tag:ansible --auth-key={{ tailscale_oauth_secret }}{{ ephemeral_key_arg }}"
+  ansible.builtin.command: "tailscale up {{ login_server_arg }} --reset --advertise-exit-node --advertise-routes=192.168.0.0/16 --accept-dns=false --timeout=120s --advertise-tags=tag:ansible --auth-key={{ tailscale_oauth_secret }}{{ ephemeral_key_arg }}"
   register: tailscale_up_result
   ignore_errors: true
   changed_when: tailscale_up_result.rc == 0

@@ -23,6 +23,7 @@
     - name: Install common packages
       community.general.opkg:
         name:
+          - ethtool
           - haproxy
           - luci-app-sqm
           - tailscale
