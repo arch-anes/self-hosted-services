@@ -20,39 +20,39 @@ defaults
     option dontlog-normal
 
 frontend http-in
-    bind {{ haproxy.virtual_ip | default('192.168.1.2') }}:80
+    bind {{ haproxy_virtual_ip }}:80
     mode tcp
     default_backend http-servers
 
 frontend https-in
-    bind {{ haproxy.virtual_ip | default('192.168.1.2') }}:443
+    bind {{ haproxy_virtual_ip }}:443
     mode tcp
     default_backend https-servers
     timeout client  24h
     timeout server  24h
 
 frontend mx-in
-    bind {{ haproxy.virtual_ip | default('192.168.1.2') }}:2465
+    bind {{ haproxy_virtual_ip }}:2465
     mode tcp
     default_backend mx-servers
 
 frontend smtp-in
-    bind {{ haproxy.virtual_ip | default('192.168.1.2') }}:465
+    bind {{ haproxy_virtual_ip }}:465
     mode tcp
     default_backend smtp-servers
 
 frontend imap-in
-    bind {{ haproxy.virtual_ip | default('192.168.1.2') }}:993
+    bind {{ haproxy_virtual_ip }}:993
     mode tcp
     default_backend imap-servers
 
 frontend mqtt-in
-    bind {{ haproxy.virtual_ip | default('192.168.1.2') }}:1883
+    bind {{ haproxy_virtual_ip }}:1883
     mode tcp
     default_backend mqtt-servers
 
 frontend mqtts-in
-    bind {{ haproxy.virtual_ip | default('192.168.1.2') }}:8883
+    bind {{ haproxy_virtual_ip }}:8883
     mode tcp
     default_backend mqtts-servers
 

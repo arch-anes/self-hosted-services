@@ -3,9 +3,6 @@
 
 - name: Setup HAProxy
   become: true
-  vars:
-    haproxy_primary_ip: "{{ haproxy.primary_ip | default('192.168.1.1') }}"
-    haproxy_virtual_ip: "{{ haproxy.virtual_ip | default('192.168.1.2') }}"
   block:
     - name: Configure Nginx
       ansible.builtin.include_tasks: nginx.yml

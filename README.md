@@ -169,7 +169,9 @@ routers:
   hosts:
     gateway:
       # wan_interface: "eth1" # Optional, will be auto-detected if not set
+      # lan_ip: "192.168.1.1" # Optional, will be auto-detected from br_lan interface if not set
       haproxy:
+        # virtual_ip: 192.168.1.2 # Optional, will be deduced from lan_ip if not set
         servers:
           s1: 192.168.1.11
           s2: 192.168.1.12

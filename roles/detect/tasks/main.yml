@@ -13,10 +13,20 @@
     is_raspberry_pi: "{{ 'raspi' in ansible_kernel }}"
     is_openwrt: "{{ ansible_distribution == 'OpenWrt' }}"
 
-- name: Detect WAN Interface
-  ansible.builtin.set_fact:
-    ansible_wan_interface: "{{ wan_interface | default(ansible_default_ipv4.interface) }}"
+- name: Detect router network facts
   when: is_openwrt
+  block:
+    - name: Detect WAN Interface
+      ansible.builtin.set_fact:
+        ansible_wan_interface: "{{ wan_interface | default(ansible_default_ipv4.interface) }}"
+
+    - name: Detect router LAN IP
+      ansible.builtin.set_fact:
+        router_lan_ip: "{{ lan_ip | default(ansible_br_lan.ipv4.address) }}"
+
+    - name: Deduce HAProxy virtual IP
+      ansible.builtin.set_fact:
+        haproxy_virtual_ip: "{{ haproxy.virtual_ip | default(router_lan_ip | ansible.utils.ipmath(1)) }}"
 
 - name: Determine CPU architecture
   ansible.builtin.set_fact:
