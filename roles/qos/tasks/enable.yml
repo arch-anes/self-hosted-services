@@ -1,6 +1,6 @@
 ---
 - name: Disable Flow Offloading (Required for SQM)
-  notify: reload firewall
+  notify: Reload firewall
   community.openwrt.uci:
     command: set
     key: "firewall.@defaults[0].{{ item }}"
@@ -11,7 +11,7 @@
     - flow_offloading
 
 - name: Enable SQM
-  notify: reload sqm
+  notify: Reload sqm
   community.openwrt.uci:
     command: section
     config: sqm

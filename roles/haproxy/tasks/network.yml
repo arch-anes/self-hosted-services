@@ -13,4 +13,4 @@
       ipaddr: "{{ haproxy_virtual_ip }}"
       netmask: 255.255.255.0
     autocommit: true
-  notify: reload network
+  notify: Reload network

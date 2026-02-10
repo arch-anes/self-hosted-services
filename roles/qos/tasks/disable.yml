@@ -1,6 +1,6 @@
 ---
 - name: Disable SQM
-  notify: reload sqm
+  notify: Reload sqm
   community.openwrt.uci:
     command: delete
     key: "sqm.ansible_wan"
@@ -8,7 +8,7 @@
   ignore_errors: true
 
 - name: Enable hardware flow offloading
-  notify: reload firewall
+  notify: Reload firewall
   community.openwrt.uci:
     command: set
     key: "firewall.@defaults[0].{{ item }}"

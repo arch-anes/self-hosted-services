@@ -5,7 +5,7 @@
   vars:
     nginx_managed_block_mark: "ANSIBLE MANAGED LISTENERS BLOCK"
     nginx_managed_block_spacing: "    "
-  notify: restart nginx
+  notify: Restart nginx
   block:
     - name: Check if Nginx config is already managed
       ansible.builtin.lineinfile:

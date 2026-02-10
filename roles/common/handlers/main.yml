@@ -11,27 +11,27 @@
     enabled: true
     state: restarted
 
-- name: reload sqm
+- name: Reload sqm
   ansible.builtin.service:
     name: sqm
     state: reloaded
 
-- name: restart haproxy
+- name: Restart haproxy
   ansible.builtin.service:
     name: haproxy
     state: restarted
 
-- name: reload network
+- name: Reload network
   ansible.builtin.service:
     name: network
     state: reloaded
 
-- name: reload firewall
+- name: Reload firewall
   ansible.builtin.service:
     name: firewall
     state: reloaded
 
-- name: restart nginx
+- name: Restart nginx
   ansible.builtin.service:
     name: nginx
     state: restarted
