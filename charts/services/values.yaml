@@ -83,6 +83,8 @@ applications:
     enabled: true
     udevRules: []
       # - 'KERNEL=="ttyUSB[0-9]*", ENV{ID_VENDOR}=="ABCDEFGH"'
+  alloy:
+    enabled: true
   amd_gpu:
     enabled: true
   archivebox:

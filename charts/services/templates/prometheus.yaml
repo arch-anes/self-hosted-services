@@ -371,6 +371,7 @@ spec:
           cpu: 2000m
     prometheus:
       prometheusSpec:
+        enableRemoteWriteReceiver: true
         podMonitorSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
         probeSelectorNilUsesHelmValues: false
