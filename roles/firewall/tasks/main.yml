@@ -1,6 +1,7 @@
 # code: language=ansible
 ---
 - name: Applying ufw rules
+  when: not is_openwrt
   community.general.ufw:
     to_port: "{{ item.to_port | default(omit) }}"
     proto: "{{ item.proto | default(omit) }}"
