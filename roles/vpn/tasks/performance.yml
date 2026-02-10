@@ -34,3 +34,22 @@
         path: /etc/sysupgrade.conf
         line: "/etc/hotplug.d/iface/90-ethtool"
         state: present
+
+    - name: Install ethtool init script
+      ansible.builtin.copy:
+        dest: /etc/init.d/ethtool
+        mode: '0755'
+        content: |
+          #!/bin/sh /etc/rc.common
+          START=99
+
+          boot() {
+              export ACTION="ifup"
+              /etc/hotplug.d/iface/90-ethtool
+          }
+
+    - name: Enable ethtool service via symlink
+      ansible.builtin.file:
+        src: /etc/init.d/ethtool
+        dest: /etc/rc.d/S99ethtool
+        state: link
