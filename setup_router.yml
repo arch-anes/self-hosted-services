@@ -11,6 +11,9 @@
       register: install_python
       changed_when: "'Installing' in install_python.stdout"
   roles:
+    - name: Global handlers
+      role: common
+
     - name: Detect system facts
       role: detect
 

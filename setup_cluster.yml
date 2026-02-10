@@ -7,6 +7,9 @@
   environment:
     KUBECONFIG: /etc/rancher/k3s/k3s.yaml
   roles:
+    - name: Global handlers
+      role: common
+
     - name: Detect system facts
       role: detect
 

@@ -1,5 +1,20 @@
 # code: language=ansible
 ---
+- name: Restart systemd-resolved
+  ansible.builtin.service:
+    name: systemd-resolved
+    state: restarted
+
+- name: Restart headscale
+  ansible.builtin.service:
+    name: headscale
+    enabled: true
+    state: restarted
+
+- name: reload sqm
+  ansible.builtin.service:
+    name: sqm
+    state: reloaded
 
 - name: restart haproxy
   ansible.builtin.service:
