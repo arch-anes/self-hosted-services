@@ -74,3 +74,6 @@
           - trivy
           - velero
         state: latest
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

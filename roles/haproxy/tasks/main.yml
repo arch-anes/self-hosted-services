@@ -22,5 +22,5 @@
     - name: Configure HAProxy service
       ansible.builtin.include_tasks: service.yml
 
-    - name: Apply pending firewall and network changes
-      ansible.builtin.meta: flush_handlers
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

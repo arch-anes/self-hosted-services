@@ -11,3 +11,6 @@
 
 - name: Enable VPN performance improvements
   ansible.builtin.include_tasks: performance.yml
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

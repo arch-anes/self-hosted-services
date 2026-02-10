@@ -6,3 +6,6 @@
 - name: Enable QoS
   when: qos is defined
   ansible.builtin.include_tasks: enable.yml
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
