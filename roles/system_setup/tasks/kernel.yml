@@ -10,3 +10,23 @@
     sysctl_file: /etc/sysctl.conf
     state: present
     reload: true
+
+- name: Increase inotify max user instances
+  when: ansible_distribution == 'Ubuntu'
+  become: true
+  ansible.posix.sysctl:
+    name: fs.inotify.max_user_instances
+    value: "8192"
+    sysctl_file: /etc/sysctl.conf
+    state: present
+    reload: true
+
+- name: Increase inotify max user watches
+  when: ansible_distribution == 'Ubuntu'
+  become: true
+  ansible.posix.sysctl:
+    name: fs.inotify.max_user_watches
+    value: "524288"
+    sysctl_file: /etc/sysctl.conf
+    state: present
+    reload: true
