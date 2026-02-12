@@ -2,14 +2,16 @@ version: "3"
 
 services:
   dind:
-    image: docker:28.0.2-dind
+    image: docker:dind
     container_name: self-hosted-services-dind
+    hostname: dind
     privileged: true
     restart: unless-stopped
     environment:
-      DOCKER_TLS_CERTDIR: "" # Disable TLS for simplicity
+      DOCKER_TLS_CERTDIR: "/certs"
     volumes:
       - dind-storage:/var/lib/docker
+      - dind-certs-client:/certs/client
     networks:
       - devcontainer-network
 
@@ -20,8 +22,11 @@ services:
     volumes:
       - ../:/workspace
       - ./ansible:/etc/ansible
+      - dind-certs-client:/certs/client:ro
     environment:
-      DOCKER_HOST: tcp://dind:2375
+      DOCKER_HOST: tcp://dind:2376
+      DOCKER_TLS_VERIFY: "1"
+      DOCKER_CERT_PATH: "/certs/client"
     depends_on:
       - dind
     networks:
@@ -33,6 +38,7 @@ services:
 
 volumes:
   dind-storage:
+  dind-certs-client:
 
 networks:
   devcontainer-network:
