@@ -15,6 +15,7 @@ metadata:
   name: local-path-ephemeral
   annotations:
     storageclass.kubernetes.io/is-default-class: "true"
+    allowUnsafePathPattern: "true"
     defaultVolumeType: local
 provisioner: rancher.io/local-path
 volumeBindingMode: WaitForFirstConsumer
@@ -22,7 +23,7 @@ reclaimPolicy: Delete
 allowVolumeExpansion: true
 parameters:
   nodePath: "{{ .Values.storageLocation }}"
-  pathPattern: "{{`cluster-local-storage/{{ .PVName }}_{{ .PVC.Namespace }}_{{ .PVC.Name }}`}}"
+  pathPattern: "{{`cluster-local-storage/{{ .PVName }}_{{ .PVC.Namespace }}_{{ .PVC.Name }}`}}/"
 
 ---
 apiVersion: storage.k8s.io/v1
@@ -30,6 +31,7 @@ kind: StorageClass
 metadata:
   name: local-path-persistent
   annotations:
+    allowUnsafePathPattern: "true"
     defaultVolumeType: local
 provisioner: rancher.io/local-path
 volumeBindingMode: WaitForFirstConsumer
@@ -37,7 +39,7 @@ reclaimPolicy: Retain
 allowVolumeExpansion: true
 parameters:
   nodePath: "{{ .Values.storageLocation }}"
-  pathPattern: "{{`{{ .PVC.Name }}`}}"
+  pathPattern: "{{`{{ .PVC.Name }}`}}/"
 
 ---
 apiVersion: storage.k8s.io/v1
@@ -52,5 +54,5 @@ reclaimPolicy: Retain
 allowVolumeExpansion: true
 parameters:
   nodePath: "{{ .Values.storageLocation }}"
-  pathPattern: "{{`{{ .PVC.Namespace }}/{{ .PVC.Name }}`}}"
+  pathPattern: "{{`{{ .PVC.Namespace }}/{{ .PVC.Name }}`}}/"
 {{- end }}
