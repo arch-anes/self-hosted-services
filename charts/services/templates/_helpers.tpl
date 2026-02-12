@@ -1,5 +1,5 @@
 {{- define "metrics.enabled" -}}
-{{ and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+{{- and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled | ternary "true" "" -}}
 {{- end -}}
 
 {{- define "ldap.base_dn" -}}
@@ -31,7 +31,7 @@
 {{- end -}}
 
 {{- define "ha.enabled" -}}
-{{ .Values.highAvailability }}
+{{- .Values.highAvailability | ternary "true" "" -}}
 {{- end -}}
 
 {{- define "ha.replicas" -}}
