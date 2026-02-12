@@ -3,7 +3,9 @@
 ---
 - name: Setup cluster
   any_errors_fatal: true
-  hosts: k3s_cluster
+  hosts:
+    - k3s_cluster
+    - headscale
   environment:
     KUBECONFIG: /etc/rancher/k3s/k3s.yaml
   roles:

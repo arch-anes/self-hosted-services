@@ -43,4 +43,4 @@
     tailscale_service: "{{ 'tailscale' if is_openwrt else 'tailscaled' }}"
     tailscale_tags:
       - "ansible"
-    tailscale_args: "--accept-dns=false {{ netfilter_mode_arg }} {{ advertise_route_arg }}"
+    tailscale_args: "--accept-dns=false {{ netfilter_mode_arg }} {{ advertise_route_arg }} {{ login_server_arg }}"
