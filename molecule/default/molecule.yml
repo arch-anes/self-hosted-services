@@ -73,6 +73,7 @@ provisioner:
         display_k8s_dashboard_password: false
         chartValuesOverrides:
           disableAllApplications: true
+          highAvailability: false 
     host_vars:
       replica1:
         labels:
