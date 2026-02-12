@@ -34,10 +34,10 @@ spec:
       PGSSLKEY: /etc/postgres/tls/tls.key
     resources:
       requests:
-        memory: 128Mi
+        memory: 64Mi
         cpu: 250m
       limits:
-        memory: 256Mi
+        memory: 128Mi
     podSecurityContext:
       runAsUser: 0
       runAsGroup: 0

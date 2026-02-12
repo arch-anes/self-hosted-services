@@ -85,7 +85,6 @@ spec:
           resources:
             requests:
               memory: 128Mi
-              cpu: 1000m
             limits:
               memory: 1Gi
           env:

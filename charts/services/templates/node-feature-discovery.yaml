@@ -16,14 +16,14 @@ spec:
     master:
       resources:
         requests:
-          cpu: 100m
+          cpu: 10m
           memory: 128Mi
         limits:
           memory: 128Mi
     worker:
       resources:
         requests:
-          cpu: 100m
+          cpu: 10m
           memory: 128Mi
         limits:
           memory: 128Mi
