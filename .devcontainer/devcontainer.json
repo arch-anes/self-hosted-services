@@ -6,6 +6,9 @@
 	"postAttachCommand": "ansible-galaxy install -r requirements.yml --force",
 	"customizations": {
 		"vscode": {
+			"settings": {
+				"dev.containers.dockerCredentialHelper": false
+			},
 			"extensions": [
 				"bierner.markdown-mermaid",
 				"bmarkovic.haproxy",
