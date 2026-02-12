@@ -13,10 +13,10 @@ spec:
   # default-values: https://github.com/emberstack/kubernetes-reflector/blob/main/src/helm/reflector/values.yaml
   values:
     autoscaling:
-      enabled: true
+      enabled: false
     resources:
       requests:
-        cpu: 100m
+        cpu: 10m
         memory: 128Mi
       limits:
         memory: 256Mi

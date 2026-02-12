@@ -24,7 +24,7 @@ IPV4_EXCLUDED_ROUTES: |-
 
 {{- define "tunnel.resources" -}}
 requests:
-  cpu: 250m
+  cpu: 10m
   memory: 64Mi
 limits:
   memory: 128Mi
