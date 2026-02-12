@@ -2,7 +2,6 @@
 
 ## Prerequisites
 - Ubuntu 24.04 LTS
-- Homebrew
 
 ## Setup Cloudflare DNS
 

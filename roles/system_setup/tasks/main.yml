@@ -4,6 +4,9 @@
 - name: Setup packages
   ansible.builtin.include_tasks: packages.yml
 
+- name: Setup Homebrew
+  ansible.builtin.include_tasks: homebrew.yml
+
 - name: Setup kernel
   ansible.builtin.include_tasks: kernel.yml
 

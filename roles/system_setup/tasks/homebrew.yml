@@ -1,0 +1,42 @@
+# code: language=ansible
+---
+
+- name: Install Homebrew
+  when: ansible_distribution == "Ubuntu"
+  block:
+    - name: Install Homebrew dependencies
+      become: true
+      ansible.builtin.apt:
+        name:
+          - build-essential
+          - curl
+          - file
+          - git
+          - procps
+        state: present
+        update_cache: true
+
+    - name: Check if Homebrew is already installed
+      ansible.builtin.stat:
+        path: /home/linuxbrew/.linuxbrew/bin/brew
+      register: brew_check
+
+    - name: Install Homebrew (Non-interactive)
+      ansible.builtin.shell:
+        cmd: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      environment:
+        NONINTERACTIVE: 1
+      when: not brew_check.stat.exists
+      # Homebrew strictly forbids running the installer as root
+
+    - name: Update Homebrew
+      community.general.homebrew:
+        update_homebrew: true
+
+    - name: Configure Homebrew in shell environment (all users)
+      become: true
+      ansible.builtin.copy:
+        dest: /etc/profile.d/homebrew.sh
+        content: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        mode: '0644'
