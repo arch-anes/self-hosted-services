@@ -103,7 +103,7 @@ We use NextDNS to "fake" the DNS resolution for our domain when on public networ
 1.  Go to [NextDNS.io](https://nextdns.io) and create an account (or use your existing one).
 2.  Navigate to **Settings** > **Rewrites**.
 3.  Add a new Rewrite:
-    * **Domain:** `*.example.org` (and optionally `example.org`)
+    * **Domain:** `*.example.org`
     * **Answer:** `192.168.1.2` (Your HAProxy Virtual IP)
 
 #### 2. Tailscale DNS Configuration
