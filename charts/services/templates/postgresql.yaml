@@ -18,7 +18,7 @@ spec:
     resources:
       controller:
         requests:
-          cpu: 500m
+          cpu: 10m
           memory: 256Mi
         limits:
           memory: 512Mi
@@ -197,10 +197,9 @@ spec:
                           postgres-operator.crunchydata.com/instance-set: instance1
               resources:
                 requests:
-                  cpu: "1000m"
-                  memory: "1Gi"
+                  cpu: "10m"
+                  memory: "250Mi"
                 limits:
-                  hugepages-2Mi: "2Gi"
                   memory: "4Gi"
               dataVolumeClaimSpec:
                 accessModes:

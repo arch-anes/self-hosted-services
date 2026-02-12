@@ -95,10 +95,10 @@ spec:
                     expandObjectName: false
     resources:
       requests:
-        memory: 1Gi
-        cpu: 500m
+        memory: 256Mi
+        cpu: 10m
       limits:
-        memory: 2Gi
+        memory: 1Gi
         cpu: null
     global:
       traefik:
