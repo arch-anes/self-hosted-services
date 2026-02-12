@@ -15,7 +15,7 @@ platforms:
   - name: replica1
     groups:
       - k3s_cluster
-    image: ghcr.io/arch-anes/ubuntu-systemd:latest
+    image: ghcr.io/arch-anes/ubuntu-systemd:24.04
     entrypoint: ~
     command: ~
     privileged: true
@@ -26,7 +26,7 @@ platforms:
   - name: replica2
     groups:
       - k3s_cluster
-    image: ghcr.io/arch-anes/ubuntu-systemd:latest
+    image: ghcr.io/arch-anes/ubuntu-systemd:24.04
     entrypoint: ~
     command: ~
     privileged: true
@@ -35,7 +35,7 @@ platforms:
   - name: replica3
     groups:
       - k3s_cluster
-    image: ghcr.io/arch-anes/ubuntu-systemd:latest
+    image: ghcr.io/arch-anes/ubuntu-systemd:24.04
     entrypoint: ~
     command: ~
     privileged: true
@@ -44,7 +44,7 @@ platforms:
   - name: replica4
     groups:
       - k3s_cluster
-    image: ghcr.io/arch-anes/ubuntu-systemd:latest
+    image: ghcr.io/arch-anes/ubuntu-systemd:24.04
     entrypoint: ~
     command: ~
     privileged: true
@@ -53,7 +53,7 @@ platforms:
   - name: headscale1
     groups:
       - headscale
-    image: ghcr.io/arch-anes/ubuntu-systemd:latest
+    image: ghcr.io/arch-anes/ubuntu-systemd:24.04
     entrypoint: ~
     command: ~
     privileged: true
