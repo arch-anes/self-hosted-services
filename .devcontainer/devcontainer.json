@@ -1,9 +1,11 @@
 {
 	"name": "Self-hosted services devcontainer",
-	"dockerComposeFile": "./docker-compose.yml",
-	"service": "devcontainer",
-	"workspaceFolder": "/workspace",
+	"image": "dev-container-kubernetes-ansible:libvirt",
 	"postAttachCommand": "ansible-galaxy install -r requirements.yml --force",
+	"runArgs": [
+		"--privileged",
+		"--cgroupns=host"
+	],
 	"customizations": {
 		"vscode": {
 			"settings": {

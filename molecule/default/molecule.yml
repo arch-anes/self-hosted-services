@@ -4,60 +4,74 @@ dependency:
   options:
     requirements-file: requirements.yml
 driver:
-  name: docker
+  name: vagrant
+  provider:
+    name: libvirt
 lint: |
   set -e
   yamllint . -s -f colored
   ansible-lint --exclude ${HOME}/.ansible/roles/
-# Doc: https://github.com/ansible-community/molecule-plugins/blob/95141070006d996a5d43ce1f9301873342c9bfc1/src/molecule_plugins/docker/driver.py
 platforms:
   - name: replica1
+    box: alvistack/ubuntu-24.04
+    memory: 2048
+    cpus: 2
     groups:
       - k3s_cluster
-    image: ghcr.io/arch-anes/ubuntu-systemd:24.04
-    entrypoint: ~
-    command: ~
-    privileged: true
-    docker_networks:
-      - name: molecule_network
-    networks:
-      - name: molecule_network
+    interfaces:
+      - type: private_network
+        libvirt__network_name: molecule_network
+        network_name: private_network
+        ip: "192.168.123.11"
+        auto_config: true
   - name: replica2
+    box: alvistack/ubuntu-24.04
+    memory: 2048
+    cpus: 2
     groups:
       - k3s_cluster
-    image: ghcr.io/arch-anes/ubuntu-systemd:24.04
-    entrypoint: ~
-    command: ~
-    privileged: true
-    networks:
-      - name: molecule_network
+    interfaces:
+      - type: private_network
+        libvirt__network_name: molecule_network
+        network_name: private_network
+        ip: "192.168.123.12"
+        auto_config: true
   - name: replica3
+    box: alvistack/ubuntu-24.04
+    memory: 2048
+    cpus: 2
     groups:
       - k3s_cluster
-    image: ghcr.io/arch-anes/ubuntu-systemd:24.04
-    entrypoint: ~
-    command: ~
-    privileged: true
-    networks:
-      - name: molecule_network
+    interfaces:
+      - type: private_network
+        libvirt__network_name: molecule_network
+        network_name: private_network
+        ip: "192.168.123.13"
+        auto_config: true
   - name: replica4
+    box: alvistack/ubuntu-24.04
+    memory: 2048
+    cpus: 2
     groups:
       - k3s_cluster
-    image: ghcr.io/arch-anes/ubuntu-systemd:24.04
-    entrypoint: ~
-    command: ~
-    privileged: true
-    networks:
-      - name: molecule_network
+    interfaces:
+      - type: private_network
+        libvirt__network_name: molecule_network
+        network_name: private_network
+        ip: "192.168.123.14"
+        auto_config: true
   - name: headscale1
+    box: alvistack/ubuntu-24.04
+    memory: 1024
+    cpus: 1
     groups:
       - headscale
-    image: ghcr.io/arch-anes/ubuntu-systemd:24.04
-    entrypoint: ~
-    command: ~
-    privileged: true
-    networks:
-      - name: molecule_network
+    interfaces:
+      - type: private_network
+        libvirt__network_name: molecule_network
+        network_name: private_network
+        ip: "192.168.123.21"
+        auto_config: true
 provisioner:
   name: ansible
   inventory:

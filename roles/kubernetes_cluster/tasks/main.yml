@@ -16,7 +16,6 @@
 - name: Set k3s pre-config
   ansible.builtin.set_fact:
     advertised_ip: "{{ ansible_default_ipv4.address }}"
-    snapshotter: "{{ 'overlayfs' if ansible_module_container_type == '' else 'fuse-overlayfs' }}"
 
 - name: Set k3s config
   ansible.builtin.set_fact:
@@ -24,7 +23,6 @@
       prefer-bundled-bin: true
       with-node-id: true
       node-ip: "{{ advertised_ip }}"
-      snapshotter: "{{ snapshotter }}"
       node-label: "{{ labels }}"
     k3s_server:
       prefer-bundled-bin: true
@@ -32,7 +30,6 @@
       disable: traefik
       with-node-id: true
       node-ip: "{{ advertised_ip }}"
-      snapshotter: "{{ snapshotter }}"
       node-label: "{{ labels }}"
       default-local-storage-path: "{{ chartValuesOverrides.storageLocation | default('/storage') }}"
       etcd-expose-metrics: true
