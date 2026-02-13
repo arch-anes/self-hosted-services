@@ -5,9 +5,6 @@
   ansible.builtin.setup:
   when: ansible_kernel is not defined
 
-- name: Get facts on current container
-  community.docker.current_container_facts:
-
 - name: Detect machine type
   ansible.builtin.set_fact:
     is_raspberry_pi: "{{ 'raspi' in ansible_kernel }}"

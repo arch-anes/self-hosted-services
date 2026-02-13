@@ -3,7 +3,7 @@
 
 - name: Setup DNS resolution
   become: true
-  when: ansible_distribution == 'Ubuntu' and ansible_module_container_type == ""
+  when: ansible_distribution == 'Ubuntu'
   block:
     - name: Create systemd-resolved drop-in config folder
       ansible.builtin.file:
@@ -23,7 +23,6 @@
           DNSStubListener=no
 
     # TODO: make stub server work
-    # ansible_module_container_type is a workaround for docker due to https://stackoverflow.com/q/60549775
     - name: Bypass systemd-resolved stub server
       ansible.builtin.file:
         src: /run/systemd/resolve/resolv.conf

@@ -1,9 +1,11 @@
 {
 	"name": "Self-hosted services devcontainer",
-	"dockerComposeFile": "./docker-compose.yml",
-	"service": "devcontainer",
-	"workspaceFolder": "/workspace",
-	"postAttachCommand": "ansible-galaxy install -r requirements.yml --force",
+	"image": "ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest",
+	"postAttachCommand": "sudo virtlogd -d && sudo libvirtd -d && ansible-galaxy install -r requirements.yml --force",
+	"runArgs": [
+		"--privileged",
+		"--cgroupns=host"
+	],
 	"customizations": {
 		"vscode": {
 			"settings": {
