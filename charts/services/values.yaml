@@ -95,6 +95,11 @@ applications:
     enabled: true
   argo:
     enabled: true
+    syncWindows:
+      - kind: deny
+        schedule: "0 12 * * *"
+        duration: "12h"
+        timezone: "America/New_York"
   authentik:
     enabled: true
   bazarr:

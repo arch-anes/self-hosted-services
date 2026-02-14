@@ -102,6 +102,30 @@ spec:
   valuesContent: |-
     objects:
       - apiVersion: argoproj.io/v1alpha1
+        kind: AppProject
+        metadata:
+          name: self-hosted-services
+          namespace: kube-system
+        spec:
+          description: Project for self-hosted services
+          sourceRepos:
+            - '*'
+          destinations:
+            - server: '*'
+              namespace: '*'
+          clusterResourceWhitelist:
+            - group: '*'
+              kind: '*'
+          {{- if .Values.applications.argo.syncWindows }}
+          syncWindows:
+            {{- range .Values.applications.argo.syncWindows }}
+            - kind: {{ .kind | default "deny" }}
+              schedule: {{ .schedule | quote }}
+              duration: {{ .duration | quote }}
+              timezone: {{ .timezone | quote }}
+            {{- end }}
+          {{- end }}
+      - apiVersion: argoproj.io/v1alpha1
         kind: ApplicationSet
         metadata:
           name: self-hosted-services
@@ -123,7 +147,7 @@ spec:
               syncPolicy:
                 automated:
                   selfHeal: true
-              project: default
+              project: self-hosted-services
               source:
                 repoURL: {{ .Values.gitRepo }}
                 targetRevision: HEAD
