@@ -10,7 +10,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/home-assistant
-  version: 29.1.1
+  version: 29.1.4
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     homeassistant:
