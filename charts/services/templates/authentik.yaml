@@ -11,7 +11,7 @@ metadata:
 spec:
   chart: authentik
   repo: https://charts.goauthentik.io/
-  version: 2025.12.3
+  version: 2025.12.4
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     global:
