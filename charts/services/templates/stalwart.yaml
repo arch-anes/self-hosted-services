@@ -148,6 +148,9 @@ spec:
           {{- include "ip.mail_ranges.map" . | trim | nindent 10 }}
         listener:
           smtp:
+            proxy:
+              trusted-networks:
+                {{- include "ip.proxy_ranges" . | nindent 16 }}
             tls:
               implicit: true
           submission: null
@@ -387,7 +390,7 @@ spec:
         smtp: # MX port
           match: HostSNI(`mail.{{ .Values.fqdn }}`)
           entrypoint: mx
-          proxyProtocol: false
+          proxyProtocol: true
           passthroughTLS: true
         imap: null
         pop3: null
