@@ -300,10 +300,6 @@ spec:
       metrics:
         prometheus:
           enable: {{ include "metrics.enabled" . }}
-          auth: null
-    secrets:
-      create: false
-      env: {}
     env:
       - name: POSTGRESQL_PASSWORD
         valueFrom:
