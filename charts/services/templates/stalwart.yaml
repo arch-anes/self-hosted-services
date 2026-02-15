@@ -144,8 +144,6 @@ spec:
           - "sieve.trusted.scripts.*"
       server:
         hostname: mail.{{ .Values.fqdn }}
-        allowed-ip:
-          {{- include "ip.mail_ranges.map" . | trim | nindent 10 }}
         listener:
           smtp:
             proxy:
