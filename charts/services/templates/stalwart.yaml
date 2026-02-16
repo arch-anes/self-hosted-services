@@ -269,7 +269,11 @@ spec:
         auth:
           mechanisms: "[plain, login]"
           directory: "'ldap'"
-          require: "listener != 'smtp'"
+          require: true
+          must-match-sender:
+            - if: "authenticated_as != 'inbound-relay'"
+              then: true
+            - else: false
         rcpt:
           directory:
             - if: "is_local_domain('', rcpt_domain)"
