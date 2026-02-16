@@ -156,6 +156,9 @@ spec:
 {{- if .Values.applications.nextcloud.enabled }}
         - nextcloud-oidc
 {{- end }}
+{{- if .Values.applications.stalwart.enabled }}
+        - stalwart-inbound-relay
+{{- end }}
 {{- if .Values.applications.stirling_pdf.enabled }}
         - stirling-pdf
 {{- end }}
