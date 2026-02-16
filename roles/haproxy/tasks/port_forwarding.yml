@@ -25,4 +25,4 @@
     - { name: IMAP, port: '993', proto: tcp }
   loop_control:
     label: "{{ item.name }}"
-  notify: Reload firewall
+  notify: Restart firewall

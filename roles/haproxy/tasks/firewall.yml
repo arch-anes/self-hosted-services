@@ -14,4 +14,4 @@
       proto: all
       target: ACCEPT
     autocommit: true
-  notify: Reload firewall
+  notify: Restart firewall
