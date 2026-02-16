@@ -26,10 +26,10 @@
     name: network
     state: reloaded
 
-- name: Reload firewall
+- name: Restart firewall
   ansible.builtin.service:
     name: firewall
-    state: reloaded
+    state: restarted
 
 - name: Restart nginx
   ansible.builtin.service:
