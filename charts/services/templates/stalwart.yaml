@@ -154,7 +154,8 @@ spec:
           - "queue.*"
           - "lookup.allow-list-domain.*"
           - "spam-filter.bayes.*"
-          - "sieve.trusted.scripts.*"
+          - "spam-filter.rule.aws_ses_flagged"
+          - "spam-filter.list.scores.AWS_SES_FLAGGED"
       server:
         hostname: mail.{{ .Values.fqdn }}
         listener:
@@ -253,20 +254,18 @@ spec:
           auto-learn:
             card-is-ham: true
             trusted-reply: true
-      sieve:
-        trusted:
-          scripts:
-            ses_verdict:
-              contents: |
-                require ["fileinto"];
-                if header :contains "X-SES-Spam-Verdict" "FAIL" {
-                    fileinto "Junk";
-                    stop;
-                }
-                if header :contains "X-SES-Virus-Verdict" "FAIL" {
-                    fileinto "Junk";
-                    stop;
-                }
+        rule:
+          aws_ses_flagged:
+            enable: true
+            scope: header
+            description: "Trust AWS SES Spam and Virus verdicts"
+            condition:
+              - if: "(name_lower == 'x-ses-spam-verdict' || name_lower == 'x-ses-virus-verdict') && contains(value_lower, 'fail')"
+                then: "'AWS_SES_FLAGGED'"
+              - else: false
+        list:
+          scores:
+            AWS_SES_FLAGGED: 1000
       queue:
         virtual:
           local:
