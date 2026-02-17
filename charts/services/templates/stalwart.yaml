@@ -147,6 +147,7 @@ spec:
           - "certificate.default.*"
           - "metrics.prometheus.*"
           - "auth.dkim.*"
+          - "auth.dmarc.*"
           - "http.*"
           - "webadmin.auto-update"
           - "session.*"
@@ -307,6 +308,11 @@ spec:
           user: "admin"
           secret: "%{env:DEFAULT_ADMIN_SECRET}%"
       auth:
+        dmarc:
+          verify:
+            - if: "listener = 'smtp'"
+              then: "relaxed"
+            - else: "disable"
         dkim:
           sign:
             - if: "listener != 'smtp' && is_local_domain('', sender_domain)"
