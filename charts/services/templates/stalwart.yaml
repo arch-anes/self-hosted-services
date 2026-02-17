@@ -267,12 +267,30 @@ spec:
                     stop;
                 }
       queue:
+        virtual:
+          local:
+            threads-per-node: 4
+          relay:
+            threads-per-node: 4
+        schedule:
+          local:
+            queue-name: local
+            retry: ["2m", "5m", "10m", "15m", "30m", "1h", "2h"]
+          relay:
+            queue-name: relay
+            retry: ["2m", "5m", "10m", "15m", "30m", "1h", "2h"]
         strategy:
           route:
             - if: "is_local_domain('', rcpt_domain)"
               then: "'local'"
             - else: "'relay'"
+          schedule:
+            - if: "is_local_domain('', rcpt_domain)"
+              then: "'local'"
+            - else: "'relay'"
         route:
+          local:
+            type: local
           relay:
             type: relay
             address: "%{env:SMTP_HOST}%"
