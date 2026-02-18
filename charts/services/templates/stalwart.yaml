@@ -313,10 +313,7 @@ spec:
               then: "relaxed"
             - else: "disable"
         dkim:
-          sign:
-            - if: "listener != 'smtp' && is_local_domain('', sender_domain)"
-              then: "['rsa-' + sender_domain, 'ed25519-' + sender_domain]"
-            - else: false
+          sign: false
           verify: "relaxed"
       tracer:
         stdout:
