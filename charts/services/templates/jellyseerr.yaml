@@ -81,7 +81,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: fallenbagel/jellyseerr:2.7.3
+          image: ghcr.io/seerr-team/seerr:v3.0.1
           resources:
             requests:
               memory: 128Mi
