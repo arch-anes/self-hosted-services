@@ -63,7 +63,7 @@ spec:
           real_ip_recursive on;
 
           # set max upload size and increase upload timeout:
-          client_max_body_size 10G;
+          client_max_body_size 100G;
           client_body_timeout 300s;
           fastcgi_buffers 64 4K;
 
@@ -88,6 +88,15 @@ spec:
       trustedDomains:
         - nextcloud.{{ .Values.fqdn }}
       phpConfigs:
+        www.conf: |
+          [www]
+          user = www-data
+          group = www-data
+          pm = dynamic
+          pm.max_children = 350
+          pm.start_servers = 80
+          pm.min_spare_servers = 80
+          pm.max_spare_servers = 268
         custom-php-config.ini: |
           apc.shm_size=1G
           apc.ttl=7200
