@@ -722,10 +722,12 @@ When using Cloudflare proxy, ensure CNAME `mail.example.org` record is not proxi
 
 Open `https://mail.<your-domain>/manage/dns/<your-domain>/view` to download the zone file to import to the DNS provider.
 
-For this setup, replace:
-1. Replace `MX` record with `inbound-smtp.<aws-region>.amazonaws.com`
-2. Replace `TXT` records that contain `v=spf1` with `v=spf1 include:amazonses.com ~all`
-3. Skip `TLSA` records
+For this setup:
+1. Skip `mail` `MX` record
+1. Skip `mail` `TXT` record
+1. Skip `TLSA` records
+1. Add `mail-ses` `MX` record with `inbound-smtp.<aws-region>.amazonaws.com`
+1. Add `mail-ses` `TXT` records that contain `v=spf1` with `v=spf1 include:amazonses.com ~all`
 
 References:
 - https://docs.aws.amazon.com/ses/latest/dg/eb-ingress.html
