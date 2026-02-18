@@ -20,6 +20,20 @@
 #   bucket-access-key: "some_key"
 #   bucket-secret-key: "some_key"
 #   default-admin-password: "some_password"
+#   # Run `openssl genrsa -out rsa_private.key 2048` to generate the key.
+#   # Run `openssl rsa -in private.key -pubout -outform der 2>/dev/null | openssl base64 -A` to put in DNS TXT record.
+#   dkim_rsa_private_key: |
+#     some_key
+#   # Run `openssl rsa -in rsa_private.key -pubout -out rsa_public.key` to generate the key.
+#   dkim_rsa_public_key: |
+#     some_key
+#   # Run `openssl genpkey -algorithm ed25519 -out ed25519_private.key` to generate the key.
+#   # Run `openssl asn1parse -in ed_public.key -offset 12 -noout -out /dev/stdout | base64` to put in DNS TXT record.
+#   dkim_ed25519_private_key: |
+#     some_key
+#   # Run `openssl pkey -in ed25519_private.key -pubout -out ed25519_public.key` to generate
+#   dkim_ed25519_public_key: |
+#     some_key
 
 ---
 apiVersion: helm.cattle.io/v1
@@ -146,6 +160,8 @@ spec:
           - "config.local-keys.*"
           - "certificate.default.*"
           - "metrics.prometheus.*"
+          - "signature.rsa.*"
+          - "signature.ed25519.*"
           - "auth.dkim.*"
           - "auth.dmarc.*"
           - "http.*"
@@ -306,6 +322,21 @@ spec:
         fallback-admin:
           user: "admin"
           secret: "%{env:DEFAULT_ADMIN_SECRET}%"
+      signature:
+        rsa:
+          selector: "rsa-stalwart"
+          domain: "{{ .Values.fqdn }}"
+          headers: ["From", "To", "Cc", "Date", "Subject", "Message-ID", "Organization", "MIME-Version", "Content-Type", "In-Reply-To", "References", "List-Id", "User-Agent", "Thread-Topic", "Thread-Index"]
+          private-key: "%{file:/opt/stalwart/etc/secrets/dkim_rsa_private_key}%"
+          algorithm: rsa-sha256
+          canonicalization: relaxed/relaxed
+        ed25519:
+          selector: "ed25519-stalwart"
+          domain: "{{ .Values.fqdn }}"
+          headers: ["From", "To", "Cc", "Date", "Subject", "Message-ID", "Organization", "MIME-Version", "Content-Type", "In-Reply-To", "References", "List-Id", "User-Agent", "Thread-Topic", "Thread-Index"]
+          private-key: "%{file:/opt/stalwart/etc/secrets/dkim_ed25519_private_key}%"
+          algorithm: ed25519-sha256
+          canonicalization: relaxed/relaxed
       auth:
         dmarc:
           verify:
@@ -315,7 +346,7 @@ spec:
         dkim:
           sign:
             - if: "listener != 'smtp' && is_local_domain('', sender_domain)"
-              then: "['rsa-' + sender_domain, 'ed25519-' + sender_domain]"
+              then: "['rsa', 'ed25519']"
             - else: false
           verify: "relaxed"
       tracer:
@@ -333,6 +364,15 @@ spec:
       metrics:
         prometheus:
           enable: {{ include "metrics.enabled" . }}
+    volumes:
+      - name: stalwart-secret
+        secret:
+          secretName: stalwart
+          optional: false
+    volumeMounts:
+      - name: stalwart-secret
+        readOnly: true
+        mountPath: "/opt/stalwart/etc/secrets"
     env:
       - name: POSTGRESQL_PASSWORD
         valueFrom:
