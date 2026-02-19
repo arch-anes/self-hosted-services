@@ -38,6 +38,13 @@ spec:
               echo "" >> "$config"
               cat "$default/http.default" >> "$config"
             fi
+            {{- if .Values.applications.authentik.enabled }}
+            if ! grep -q "openid:" "$config"; then
+              echo "Section [openid] does NOT exist in [$config]. Appending..."
+              echo "" >> "$config"
+              cat "$default/openid.default" >> "$config"
+            fi
+            {{- end }}
 
             echo "Creating include files..."
             for include_file in groups.yaml automations.yaml scripts.yaml scenes.yaml; do
@@ -76,6 +83,18 @@ spec:
               purge_keep_days: 30
               commit_interval: 3
               db_url: !env_var DATABASE_URL
+          {{- if .Values.applications.authentik.enabled }}
+          openid.default: |-
+            openid:
+              client_id: !env_var OIDC_CLIENT_ID
+              client_secret: !env_var OIDC_CLIENT_SECRET
+              configure_url: !env_var OIDC_DISCOVERY_URL
+              username_field: "preferred_username"
+              scope: "openid profile email"
+              block_login: !env_var OIDC_BLOCK_NORMAL_LOGIN
+              openid_text: "Login with Authentik"
+              create_user: true
+          {{- end }}
     workload:
       main:
         annotations:
@@ -92,6 +111,20 @@ spec:
                     key: password
                     expandObjectName: false
                 DATABASE_URL: postgresql://home-assistant:$(DATABASE_PASSWORD)@postgresql-primary/home-assistant
+                {{- if .Values.applications.authentik.enabled }}
+                OIDC_CLIENT_ID:
+                  secretKeyRef:
+                    name: home-assistant-oidc
+                    key: client_id
+                    expandObjectName: false
+                OIDC_CLIENT_SECRET:
+                  secretKeyRef:
+                    name: home-assistant-oidc
+                    key: client_secret
+                    expandObjectName: false
+                OIDC_DISCOVERY_URL: https://auth.{{ .Values.fqdn }}/application/o/home-assistant/.well-known/openid-configuration
+                OIDC_BLOCK_NORMAL_LOGIN: "true"
+                {{- end }}
     resources:
       requests:
         memory: 256Mi
@@ -129,4 +162,78 @@ spec:
     cnpg:
       main:
         enabled: false
+{{- if .Values.applications.authentik.enabled }}
+    extraTpl:
+      - |
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: authentik-home-assistant-blueprint
+          namespace: "{{ .Values.applicationsNamespace }}"
+        data:
+          blueprint.yaml: |
+            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+            version: 1
+            metadata:
+              name: Home Assistant OAuth2 Provider
+            entries:
+              - id: home-assistant-provider
+                model: authentik_providers_oauth2.oauth2provider
+                identifiers:
+                  name: Provider for Home Assistant
+                attrs:
+                  authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+                  invalidation_flow: !Find [authentik_flows.flow, [slug, default-invalidation-flow]]
+                  client_type: confidential
+                  sub_mode: user_username
+                  redirect_uris: 
+                    - matching_mode: strict
+                      url: "https://ha.{{ .Values.fqdn }}/auth/openid/callback"
+                    - matching_mode: strict
+                      url: "https://ha.{{ .Values.fqdn }}/auth_callback"
+                  signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
+                  client_id: !File /blueprints/mounted/secret-home-assistant-oidc/client_id
+                  client_secret: !File /blueprints/mounted/secret-home-assistant-oidc/client_secret
+                  property_mappings:
+                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
+                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
+                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
+              - id: home-assistant-app
+                model: authentik_core.application
+                identifiers:
+                  slug: home-assistant
+                attrs:
+                  name: Home Assistant
+                  provider: !KeyOf home-assistant-provider
+                  policy_engine_mode: any
+      - |
+        apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        metadata:
+          name: home-assistant-oidc
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          refreshPolicy: CreatedOnce
+          creationPolicy: Owner
+          deletionPolicy: Retain
+          target:
+            name: home-assistant-oidc
+          dataFrom:
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: client_id
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: client_secret
+{{- end }}
 {{- end }}

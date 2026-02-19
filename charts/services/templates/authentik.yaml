@@ -127,6 +127,9 @@ spec:
       configMaps:
         - authentik-ldap-blueprint
         - authentik-traefik-forward-auth
+{{- if .Values.applications.home_assistant.enabled }}
+        - authentik-home-assistant-blueprint
+{{- end }}
 {{- if .Values.applications.immich.enabled }}
         - immich-authentik-blueprint
 {{- end }}
@@ -147,6 +150,9 @@ spec:
 {{- end }}
       secrets:
         - ldap
+{{- if .Values.applications.home_assistant.enabled }}
+        - home-assistant-oidc
+{{- end }}
 {{- if .Values.applications.immich.enabled }}
         - immich
 {{- end }}
