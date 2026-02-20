@@ -25,7 +25,7 @@ spec:
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     image: 
-      tag: 0.17.0-rc1
+      tag: 0.17.0-rc2
     {{- $frigateConfig := .Values.applications.frigate }}
     frigateConfig:
       tls:
