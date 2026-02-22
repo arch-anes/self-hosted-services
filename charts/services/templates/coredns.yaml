@@ -1,0 +1,26 @@
+{{- if .Values.primaryTenant }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: coredns-custom-config
+  namespace: kube-system
+spec:
+  chart: generic
+  repo: https://arch-anes.github.io/charts
+  version: 0.2.1
+  targetNamespace: kube-system
+  valuesContent: |-
+    objects:
+      - apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: coredns-custom
+          namespace: kube-system
+        data:
+          dns-blackhole.override: |-
+            template IN A odoo.com {
+              match "^.*$"
+              answer "{{ .Name }} 60 IN A 127.0.0.1"
+            }
+{{- end }}
