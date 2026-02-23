@@ -191,8 +191,6 @@ applications:
       enabled: true
   stalwart:
     enabled: true
-  stirling_pdf:
-    enabled: true
   tdarr:
     enabled: true
     # gpu_vendor: amd

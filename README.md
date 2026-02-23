@@ -537,12 +537,6 @@ Open-source ERP and CRM.
 
 Access at `https://odoo.<your-domain>`. Default credentials: admin/admin.
 
-#### Stirling PDF
-
-PDF manipulation tools.
-
-Access at `https://pdf.<your-domain>`.
-
 ### Database Management
 
 #### PostgreSQL Cluster
