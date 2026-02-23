@@ -33,6 +33,13 @@ spec:
       - apiVersion: traefik.io/v1alpha1
         kind: Middleware
         metadata:
+          name: traefik-compression
+          namespace: kube-system
+        spec:
+          compress: {}
+      - apiVersion: traefik.io/v1alpha1
+        kind: Middleware
+        metadata:
           name: traefik-websecure
           namespace: kube-system
         spec:
@@ -149,6 +156,7 @@ spec:
           homer.item.logo: "https://raw.githubusercontent.com/traefik/traefik/aa8eb1af6eb5457516169315676ec22f968e727d/webui/public/app-logo-128x128.png"
         matchRule: Host(`traefik.{{ .Values.fqdn }}`)
         middlewares:
+          - name: kube-system-traefik-compression@kubernetescrd
           - name: kube-system-intranet-allowlist@kubernetescrd
           - name: kube-system-cluster-admin-authentication@kubernetescrd
         entryPoints:
@@ -195,6 +203,7 @@ spec:
             readTimeout: 0
         http:
           middlewares:
+            - kube-system-traefik-compression@kubernetescrd
             - kube-system-traefik-redirect-www@kubernetescrd
             - kube-system-traefik-websecure@kubernetescrd
 {{- if and (not .Values.disableAllApplications) .Values.applications.crowdsec.enabled }}
