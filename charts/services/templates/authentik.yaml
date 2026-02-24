@@ -59,7 +59,7 @@ spec:
         - name: AUTHENTIK_EMAIL__PORT
           value: "587"
         - name: AUTHENTIK_EMAIL__FROM
-          value: "auth@{{ .Values.fqdn }}"
+          value: "no-reply@{{ .Values.fqdn }}"
       volumeMounts:
         - name: postgresql-certs
           mountPath: /etc/postgres/tls
@@ -263,7 +263,6 @@ spec:
                 attrs:
                   use_global_settings: true
                   timeout: 10
-                  from_address: no-reply@{{ .Values.fqdn }}
                   token_expiry: minutes=30
                   subject: authentik
                   template: email/password_reset.html

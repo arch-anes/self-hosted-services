@@ -59,7 +59,7 @@ spec:
                     key: password
                     expandObjectName: false
                 WAKAPI_MAIL_ENABLED: "true"
-                WAKAPI_MAIL_SENDER: "wakapi@{{ .Values.fqdn }}"
+                WAKAPI_MAIL_SENDER: "no-reply@{{ .Values.fqdn }}"
                 WAKAPI_MAIL_SMTP_HOST:
                   secretKeyRef:
                     name: smtp
