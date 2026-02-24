@@ -375,6 +375,11 @@ spec:
                     - email
                     - username
                   recovery_flow: !Find [authentik_flows.flow, [slug, default-recovery-flow]]
+              - identifiers:
+                  domain: authentik-default
+                model: authentik_brands.brand
+                attrs:
+                  flow_recovery: !Find [authentik_flows.flow, [slug, default-recovery-flow]]
           two-factor-login-blueprint.yaml: |
             # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
             version: 1
