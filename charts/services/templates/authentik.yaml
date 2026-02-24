@@ -126,7 +126,7 @@ spec:
     blueprints:
       configMaps:
         - authentik-ldap-blueprint
-        - authentik-extra-flows-blueprint
+        - authentik-extra-blueprints
         - authentik-traefik-forward-auth
 {{- if .Values.applications.home_assistant.enabled }}
         - authentik-home-assistant-blueprint
@@ -207,7 +207,7 @@ spec:
       - apiVersion: v1
         kind: ConfigMap
         metadata:
-          name: authentik-extra-flows-blueprint
+          name: authentik-extra-blueprints
           namespace: "{{ .Values.applicationsNamespace }}"
         data:
           email-recovery-blueprint.yaml: |
