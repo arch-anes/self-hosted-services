@@ -152,7 +152,7 @@ spec:
             - name: INVENTREE_EMAIL_PORT
               value: "587"
             - name: INVENTREE_EMAIL_SENDER
-              value: "inventree@{{ .Values.fqdn }}"
+              value: "no-reply@{{ .Values.fqdn }}"
           volumeMounts:
             - name: inventree-data
               mountPath: /home/inventree/data

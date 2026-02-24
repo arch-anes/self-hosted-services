@@ -21,7 +21,7 @@ spec:
             privateKeySecretRef:
               name: {{ .Values.fqdn }}-issuer
             server: https://acme-v02.api.letsencrypt.org/directory
-            email: cert@{{ .Values.fqdn }}
+            email: info@{{ .Values.fqdn }}
             solvers:
               - dns01:
                   cloudflare:
