@@ -210,6 +210,27 @@ spec:
           name: authentik-extra-blueprints
           namespace: "{{ .Values.applicationsNamespace }}"
         data:
+          change-password-policy.yaml: |
+            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+            version: 1
+            metadata:
+              name: Password policy
+            entries:
+              - identifiers:
+                  name: default-password-change-password-policy
+                model: authentik_policies_password.passwordpolicy
+                attrs:
+                  name: default-password-change-password-policy
+                  password_field: password
+                  length_min: 14
+                  amount_uppercase: 1
+                  amount_lowercase: 1
+                  amount_digits: 1
+                  amount_symbols: 1
+                  check_static_rules: true
+                  check_have_i_been_pwned: true
+                  check_zxcvbn: true
+                  zxcvbn_score_min: 3
           email-recovery-blueprint.yaml: |
             # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
             version: 1
@@ -295,7 +316,8 @@ spec:
                   fields:
                     - !KeyOf prompt-field-password
                     - !KeyOf prompt-field-password-repeat
-                  validation_policies: []
+                  validation_policies:
+                    - !Find [authentik_policies_password.passwordpolicy, [name, default-password-change-password-policy]]
               - identifiers:
                   target: !KeyOf flow
                   stage: !KeyOf default-recovery-identification
