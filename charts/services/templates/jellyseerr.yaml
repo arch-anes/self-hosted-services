@@ -81,7 +81,7 @@ spec:
         nas: "true"
       containers:
         - name: app
-          image: ghcr.io/seerr-team/seerr:v3.0.1
+          image: ghcr.io/seerr-team/seerr:v3.1.0
           resources:
             requests:
               memory: 128Mi
