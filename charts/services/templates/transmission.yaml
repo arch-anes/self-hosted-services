@@ -181,7 +181,7 @@ spec:
               containers:
                 {{- include "tunnel.deployment.container" . | nindent 16 }}
                 - name: transmission
-                  image: lscr.io/linuxserver/transmission:4.1.0
+                  image: lscr.io/linuxserver/transmission:4.1.1
                   resources:
                     requests:
                       memory: 128Mi
