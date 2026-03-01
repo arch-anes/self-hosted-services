@@ -60,15 +60,11 @@ spec:
       nodeSelector:
         public: "true"
     lapi:
-      replicas: {{ include "ha.replicas" . }}
-      storeCAPICredentialsInSecret: true
-      strategy:
-        type: RollingUpdate
       persistentVolume:
         data:
-          enabled: false
+          enabled: true
         config:
-          enabled: false
+          enabled: true
       env:
         - name: ENROLL_KEY
           valueFrom:
