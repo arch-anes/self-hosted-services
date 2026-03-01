@@ -77,6 +77,7 @@ spec:
               crowdsecLapiScheme: http
               crowdsecLapiHost: crowdsec-service:8080
               crowdsecLapiKeyFile: /etc/traefik/secrets/crowdsec/bouncer_key
+              updateMaxFailure: 10
               redisCacheEnabled: false
               forwardedHeadersTrustedIPs:
                 {{- include "ip.proxy_ranges" . | nindent 16 }}
