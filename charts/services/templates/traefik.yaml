@@ -94,6 +94,10 @@ spec:
     deployment:
       annotations:
         reloader.stakater.com/auto: "true"
+      initContainers:
+        - name: wait-for-network
+          image: busybox:1
+          command: ['sh', '-c', 'until nslookup github.com; do echo waiting for network; sleep 2; done']
 {{- end }}
     logs:
       access:
