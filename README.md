@@ -70,6 +70,14 @@ ZFS allows you to increase the reliability and performance of existing drives. T
    ```
     sudo zfs create -o encryption=on -o keylocation=file:///root/keyfile-zfs -o keyformat=raw -o mountpoint=/storage storage/encrypted
    ```
+1. Create a cluster-local-storage:
+   ```
+    sudo zfs create storage/encrypted/cluster-local-storage
+   ```
+1. Create a multimedia dataset:
+   ```
+    sudo zfs create storage/encrypted/multimedia
+   ```
 
 ## Setup tailscale (optional)
 
