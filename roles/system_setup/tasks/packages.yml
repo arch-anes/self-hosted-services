@@ -11,6 +11,7 @@
           - curl
           - rasdaemon
           - rsync
+          - sanoid
           - smartmontools
           - ufw
           - zfsutils-linux

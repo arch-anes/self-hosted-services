@@ -1,0 +1,24 @@
+{% if 'storage/encrypted' in zfs_datasets.stdout_lines | default([]) %}
+[storage/encrypted]
+    use_template = production
+    recursive = yes
+{% endif %}
+
+{% if 'storage/encrypted/multimedia' in zfs_datasets.stdout_lines | default([]) %}
+[storage/encrypted/multimedia]
+    autosnap = no
+    autoprune = no
+{% endif %}
+
+#############################
+# templates below this line #
+#############################
+
+[template_production]
+    frequently = 0
+    hourly = 36
+    daily = 30
+    monthly = 3
+    yearly = 0
+    autosnap = yes
+    autoprune = yes

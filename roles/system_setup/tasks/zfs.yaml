@@ -16,3 +16,31 @@
         name: zfs-load-key.service
         enabled: true
         state: started
+
+- name: Setup Sanoid
+  become: true
+  when: ansible_distribution == 'Ubuntu' and ansible_module_container_type == ''
+  block:
+    - name: Create Sanoid configuration directory
+      ansible.builtin.file:
+        path: /etc/sanoid
+        state: directory
+        mode: '0755'
+
+    - name: Get list of ZFS datasets
+      ansible.builtin.command: zfs list -H -o name
+      register: zfs_datasets
+      changed_when: false
+      failed_when: false
+
+    - name: Generate Sanoid configuration
+      ansible.builtin.template:
+        src: sanoid.conf.j2
+        dest: /etc/sanoid/sanoid.conf
+        mode: '0644'
+
+    - name: Enable and start Sanoid timer
+      ansible.builtin.systemd:
+        name: sanoid.timer
+        enabled: true
+        state: started
