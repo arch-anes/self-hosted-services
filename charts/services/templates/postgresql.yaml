@@ -169,23 +169,26 @@ spec:
             FROM dbs;
             \o
             \i /tmp/grant_users_public_permissions.sql
-
+{{- if .Values.applications.immich.enabled }}
             \c immich
             BEGIN;
             CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
             CREATE EXTENSION IF NOT EXISTS vector CASCADE;
             CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
             COMMIT;
-
+{{- end }}
+{{- if .Values.applications.odoo.enabled }}
             \c odoo
             BEGIN;
             CREATE EXTENSION IF NOT EXISTS vector CASCADE;
             COMMIT;
-
+{{- end }}
+{{- if .Values.applications.tracearr.enabled }}
             \c tracearr
             BEGIN;
             CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
             COMMIT;
+{{- end }}
       - apiVersion: postgres-operator.crunchydata.com/v1
         kind: PostgresCluster
         metadata:
