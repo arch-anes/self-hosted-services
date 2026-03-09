@@ -181,6 +181,11 @@ spec:
             BEGIN;
             CREATE EXTENSION IF NOT EXISTS vector CASCADE;
             COMMIT;
+
+            \c tracearr
+            BEGIN;
+            CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
+            COMMIT;
       - apiVersion: postgres-operator.crunchydata.com/v1
         kind: PostgresCluster
         metadata:
@@ -218,7 +223,7 @@ spec:
             parameters:
               password_encryption: scram-sha-256
               max_connections: "1000"
-              shared_preload_libraries: "cube,earthdistance,vector,vchord"
+              shared_preload_libraries: "cube,earthdistance,vector,vchord,timescaledb"
           patroni:
             dynamicConfiguration:
               postgresql:
@@ -328,6 +333,13 @@ spec:
             - name: stalwart
               databases:
                 - stalwart
+{{- end }}
+{{- if .Values.applications.tracearr.enabled }}
+            - name: tracearr
+              password:
+                type: AlphaNumeric
+              databases:
+                - tracearr
 {{- end }}
 {{- if .Values.applications.wakapi.enabled }}
             - name: wakapi

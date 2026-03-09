@@ -196,6 +196,8 @@ applications:
     # gpu_vendor: amd
   tempo:
     enabled: true
+  tracearr:
+    enabled: true
   transmission:
     enabled: true
   velero:

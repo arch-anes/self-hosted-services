@@ -1,0 +1,108 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.tracearr.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "Tracearr requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "Tracearr requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: tracearr
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://oci.trueforge.org/truecharts/tracearr
+  version: 1.8.2
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          containers:
+            main:
+              env:
+                JWT_SECRET:
+                  secretKeyRef:
+                    name: tracearr
+                    key: jwt_secret
+                    expandObjectName: false
+                COOKIE_SECRET:
+                  secretKeyRef:
+                    name: tracearr
+                    key: cookie_secret
+                    expandObjectName: false
+                DATABASE_PASSWORD:
+                  secretKeyRef:
+                    name: postgresql-pguser-tracearr
+                    key: password
+                    expandObjectName: false
+                DATABASE_URL: postgres://tracearr:$(DATABASE_PASSWORD)@postgresql-primary:5432/tracearr
+                REDIS_HOST_PASSWORD:
+                  secretKeyRef:
+                    name: redis
+                    key: redis-password
+                    expandObjectName: false
+                REDIS_URL: redis://:$(REDIS_HOST_PASSWORD)@redis-master:6379
+    resources:
+      requests:
+        memory: 250Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:    
+          homer.service.name: Arr
+          homer.item.logo: "https://raw.githubusercontent.com/connorgallopo/Tracearr/bebc5783dbe4992712b91c53ca5ec00d317eceaf/apps/web/public/web-app-manifest-512x512-transparent.png"
+        hosts:
+          - host: tracearr.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - tracearr.{{ .Values.fqdn }}
+    redis:
+      enabled: false
+    cnpg:
+      main:
+        enabled: false
+    extraTpl:
+      - |
+        apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        metadata:
+          name: tracearr
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          refreshPolicy: CreatedOnce
+          creationPolicy: Owner
+          deletionPolicy: Retain
+          target:
+            name: tracearr
+          dataFrom:
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-ascii-password-generator
+              rewrite:
+                - transform:
+                    template: jwt_secret
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-ascii-password-generator
+              rewrite:
+                - transform:
+                    template: cookie_secret
+{{- end }}
