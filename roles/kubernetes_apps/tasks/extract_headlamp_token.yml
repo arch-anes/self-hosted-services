@@ -1,0 +1,15 @@
+# code: language=ansible
+---
+
+- name: Headlamp token
+  run_once: true
+  block:
+    - name: Get Headlamp token
+      ansible.builtin.command: "kubectl -n kube-system get secret headlamp-token -o go-template='{{ '{{' }} .data.token | base64decode }}'"
+      become: true
+      changed_when: false
+      register: headlamp_token
+
+    - name: Display Headlamp token
+      ansible.builtin.debug:
+        msg: "{{ headlamp_token.stdout }}"

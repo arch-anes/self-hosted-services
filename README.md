@@ -135,7 +135,7 @@ all:
     skip_k8s_setup: false
     skip_binary_update: false
     manifest_only_setup: false
-    display_k8s_dashboard_password: false
+    display_headlamp_token: false
     timezone: America/Vancouver
     tailscale_oauth_secret: "some_secret"
     chartValuesOverrides:
@@ -607,11 +607,11 @@ Access via port 30778 (UDP).
 
 ### Kubernetes Management
 
-#### Kubernetes Dashboard
+#### Headlamp
 
-Web-based Kubernetes management interface.
+Modern web-based Kubernetes management interface.
 
-To get the dashboard password, run the playbook with `display_k8s_dashboard_password: true`.
+To get the Headlamp token, run the playbook with `display_headlamp_token: true`.
 
 Access at `https://kubernetes.<your-domain>`.
 

@@ -1,0 +1,51 @@
+{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.headlamp.enabled }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: headlamp
+  namespace: kube-system
+spec:
+  chart: headlamp
+  repo: https://kubernetes-sigs.github.io/headlamp/
+  version: 0.40.0
+  targetNamespace: kube-system
+  valuesContent: |-
+    config:
+      enableHelm: true
+      watchPlugins: true
+    resources:
+      limits:
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 200Mi
+    ingress:
+      enabled: true
+      annotations:
+        homer.service.name: Administration
+        homer.service.icon: "fas fa-tools"
+        homer.service.rank: "5"
+        homer.item.name: "Headlamp"
+        homer.item.logo: "https://headlamp.dev/img/logo.svg"
+        traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
+      hosts:
+        - host: headlamp.{{ .Values.fqdn }}
+          paths:
+            - path: /
+              type: Prefix
+      tls:
+        - secretName: "{{ .Values.fqdn }}-tls"
+          hosts:
+            - headlamp.{{ .Values.fqdn }}
+    extraManifests:
+      - |
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: headlamp-token
+          namespace: kube-system
+          annotations:
+            kubernetes.io/service-account.name: headlamp
+        type: kubernetes.io/service-account-token
+{{- end }}

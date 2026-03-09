@@ -104,6 +104,8 @@ applications:
     enabled: true
   gotify:
     enabled: true
+  headlamp:
+    enabled: true
   home_assistant:
     enabled: true
   homer_operator:
@@ -127,8 +129,6 @@ applications:
   jellyseerr:
     enabled: true
   joal:
-    enabled: true
-  kubernetes_dashboard:
     enabled: true
   lazylibrarian:
     enabled: true

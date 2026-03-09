@@ -69,7 +69,7 @@ provisioner:
         skip_k8s_setup: false
         skip_binary_update: false
         manifest_only_setup: false
-        display_k8s_dashboard_password: false
+        display_headlamp_token: false
         chartValuesOverrides:
           disableAllApplications: true
           highAvailability: false 
