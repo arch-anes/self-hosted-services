@@ -162,8 +162,83 @@ spec:
     cnpg:
       main:
         enabled: false
-{{- if .Values.applications.authentik.enabled }}
     extraTpl:
+      - |
+        apiVersion: helm.cattle.io/v1
+        kind: HelmChart
+        metadata:
+          name: wyoming-openwakeword
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          chart: oci://oci.trueforge.org/truecharts/wyoming-openwakeword
+          version: 5.7.0
+          targetNamespace: "{{ .Values.applicationsNamespace }}"
+          valuesContent: |-
+            wyoming_openwakeword:
+              model: ok_nabu
+              preload_model: true
+              custom_model:
+                path: ""
+              threshold: "0.5"
+              trigger_level: 1
+              debug: false
+            resources:
+              requests:
+                memory: 256Mi
+                cpu: 1000m
+              limits:
+                memory: 1Gi
+                cpu: null
+      - |
+        apiVersion: helm.cattle.io/v1
+        kind: HelmChart
+        metadata:
+          name: wyoming-piper
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          chart: oci://oci.trueforge.org/truecharts/wyoming-piper
+          version: 8.7.0
+          targetNamespace: "{{ .Values.applicationsNamespace }}"
+          valuesContent: |-
+            wyoming_piper:
+              voice: en_US-lessac-medium
+              # custom_voice: ""
+              speaker: 0
+              length_scale: "1.0"
+              noise_scale: "0.667"
+              noise_w: "0.333"
+            resources:
+              requests:
+                memory: 256Mi
+                cpu: 1000m
+              limits:
+                memory: 1Gi
+                cpu: null
+      - |
+        apiVersion: helm.cattle.io/v1
+        kind: HelmChart
+        metadata:
+          name: wyoming-whisper
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          chart: oci://oci.trueforge.org/truecharts/wyoming-whisper
+          version: 10.5.0
+          targetNamespace: "{{ .Values.applicationsNamespace }}"
+          valuesContent: |-
+            wyoming_whisper:
+              language: en
+              model: tiny-int8
+              #  custom_model: ""
+              beam_size: 1
+              initial_prompt: ""
+            resources:
+              requests:
+                memory: 256Mi
+                cpu: 1000m
+              limits:
+                memory: 1Gi
+                cpu: null
+{{- if .Values.applications.authentik.enabled }}
       - |
         apiVersion: v1
         kind: ConfigMap
