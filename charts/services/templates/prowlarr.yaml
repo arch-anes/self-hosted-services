@@ -23,7 +23,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/prowlarr
-  version: 21.3.19
+  version: 21.7.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     {{- include "tunnel.truecharts.image" . | nindent 4 }}
