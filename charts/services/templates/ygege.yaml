@@ -49,7 +49,7 @@ spec:
               containers:
                 {{- include "tunnel.deployment.container" . | nindent 16 }}
                 - name: ygege
-                  image: uwucode/ygege:0.9.0
+                  image: uwucode/ygege:0.9.1
                   imagePullPolicy: Always
                   resources:
                     requests:
