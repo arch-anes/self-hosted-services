@@ -230,12 +230,14 @@ spec:
           patroni:
             dynamicConfiguration:
               postgresql:
-                # https://github.com/CrunchyData/postgres-operator/issues/2534#issuecomment-891202207
                 pg_hba:
-                  - "hostnossl all all 10.42.0.0/16 scram-sha-256"
-                  - "hostnossl all all 10.43.0.0/16 scram-sha-256"
                   - "hostssl all all 10.42.0.0/16 scram-sha-256"
                   - "hostssl all all 10.43.0.0/16 scram-sha-256"
+# Remove once https://github.com/stalwartlabs/stalwart/issues/2380 is resolved and the application no longer requires non-SSL connections to the database
+{{- if .Values.applications.stalwart.enabled }}
+                  - "hostnossl stalwart stalwart 10.42.0.0/16 scram-sha-256"
+                  - "hostnossl stalwart stalwart 10.43.0.0/16 scram-sha-256"
+{{- end }}
           users:
             - name: postgres
 {{- if .Values.applications.authentik.enabled }}
