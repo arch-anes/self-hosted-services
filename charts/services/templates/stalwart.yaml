@@ -212,6 +212,11 @@ spec:
         # https://github.com/stalwartlabs/stalwart/discussions/521
         ldap:
           type: ldap
+          cache:
+            size: 1048576
+            ttl:
+              positive: 1h
+              negative: 10m
           url: ldap://ak-outpost-ldap-outpost:389
           base-dn: {{ include "ldap.base_dn" . }}
           bind:
