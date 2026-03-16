@@ -221,6 +221,10 @@ spec:
           default: true
         exposedPort: {{ $port }}
         protocol: TCP
+        transport:
+          respondingTimeouts:
+            readTimeout: 0
+            idleTimeout: 1h
 {{- end }}
     resources:
       requests:
