@@ -26,7 +26,6 @@
         name:
           - ethtool
           - haproxy
-          - ip6tables
           - ip6tables-nft
           - luci-app-sqm
           - tailscale
