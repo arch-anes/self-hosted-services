@@ -159,6 +159,14 @@ spec:
       server:
         hostname: mail.{{ .Values.fqdn }}
         listener:
+          submissions:
+            proxy:
+              trusted-networks:
+                {{- include "ip.proxy_ranges" . | nindent 16 }}
+          imaptls:
+            proxy:
+              trusted-networks:
+                {{- include "ip.proxy_ranges" . | nindent 16 }}
           smtp:
             proxy:
               trusted-networks:
@@ -406,12 +414,12 @@ spec:
         submissions:
           match: HostSNI(`mail.{{ .Values.fqdn }}`)
           entrypoint: smtp
-          proxyProtocol: false
+          proxyProtocol: true
           passthroughTLS: true
         imaptls:
           match: HostSNI(`mail.{{ .Values.fqdn }}`)
           entrypoint: imap
-          proxyProtocol: false
+          proxyProtocol: true
           passthroughTLS: true
         smtp: # MX port
           match: HostSNI(`mail.{{ .Values.fqdn }}`)
