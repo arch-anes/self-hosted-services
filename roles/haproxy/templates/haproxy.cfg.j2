@@ -45,6 +45,7 @@ frontend imap-in
     bind {{ haproxy_virtual_ip }}:993
     mode tcp
     default_backend imap-servers
+    timeout client 30m
 
 frontend mqtt-in
     bind {{ haproxy_virtual_ip }}:1883
@@ -97,6 +98,7 @@ backend imap-servers
 {% for name, ip in haproxy.servers.items() %}
     server {{ name }} {{ ip }}:993 send-proxy-v2 check
 {% endfor %}
+    timeout server 30m
 
 backend mx-servers
     mode tcp
