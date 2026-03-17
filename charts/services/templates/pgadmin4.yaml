@@ -21,7 +21,7 @@ metadata:
 spec:
   chart: pgadmin4
   repo: https://helm.runix.net
-  version: 1.59.0
+  version: 1.62.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     annotations:
