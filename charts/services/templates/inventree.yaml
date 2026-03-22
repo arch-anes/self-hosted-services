@@ -81,7 +81,7 @@ spec:
     spec:
       initContainers:
         - name: init-data
-          image: ghcr.io/arch-anes/inventree:1.1.11
+          image: ghcr.io/arch-anes/inventree:1.2.6
           command: ["/bin/sh","-c", "invoke update --skip-backup --frontend"]
           env: &inventreeEnv
             - name: INVENTREE_SECRET_KEY
@@ -168,7 +168,7 @@ spec:
               mountPath: /etc/postgres/tls
       containers:
         - name: app
-          image: ghcr.io/arch-anes/inventree:1.1.11
+          image: ghcr.io/arch-anes/inventree:1.2.6
           imagePullPolicy: Always
           resources:
             requests:
@@ -186,7 +186,7 @@ spec:
             - name: postgresql-certs
               mountPath: /etc/postgres/tls
         - name: worker
-          image: ghcr.io/arch-anes/inventree:1.1.11
+          image: ghcr.io/arch-anes/inventree:1.2.6
           command: ["invoke", "worker"]
           resources:
             requests:
