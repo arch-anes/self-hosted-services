@@ -441,7 +441,7 @@ spec:
         spec:
           chart: rancher-pushprox
           repo: https://arch-anes.github.io/charts
-          version: 0.1.0
+          version: 0.1.9
           targetNamespace: kube-system
           valuesContent: |-
             metricsPort: 10250
@@ -517,7 +517,7 @@ spec:
         spec:
           chart: rancher-pushprox
           repo: https://arch-anes.github.io/charts
-          version: 0.1.0
+          version: 0.1.9
           targetNamespace: kube-system
           valuesContent: |-
             metricsPort: 2381
