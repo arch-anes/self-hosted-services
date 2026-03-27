@@ -60,6 +60,28 @@ spec:
             ; Required to avoid the selector
             admin_passwd = admin
             list_db = False
+      authentik-blueprint:
+        enabled: {{ .Values.applications.authentik.enabled }}
+        data:
+          blueprint.yaml: |
+            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+            version: 1
+            metadata:
+              name: Odoo Blueprint
+            entries:
+              # ---- Service Account ----
+              - id: odoo-service-account
+                model: authentik_core.user
+                identifiers:
+                  username: odoo
+                attrs:
+                  name: "Odoo Service Account"
+                  email: "odoo@{{ .Values.fqdn }}"
+                  password: !File /blueprints/mounted/secret-odoo/odoo_sa_password
+                  is_active: true
+                  type: service_account
+                  attributes:
+                    mailLocalAddress: "odoo@{{ .Values.fqdn }}"
     resources:
       requests:
         memory: 500Mi
@@ -106,4 +128,28 @@ spec:
         creds:
           host: "dummy"
           password: "dummy"
+{{- if .Values.applications.authentik.enabled }}
+    extraTpl:
+      - |
+        apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        metadata:
+          name: odoo
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          refreshPolicy: CreatedOnce
+          creationPolicy: Owner
+          deletionPolicy: Retain
+          target:
+            name: odoo
+          dataFrom:
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-ascii-password-generator
+              rewrite:
+                - transform:
+                    template: odoo_sa_password
+{{- end }}
 {{- end }}
