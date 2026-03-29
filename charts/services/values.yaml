@@ -160,6 +160,7 @@ applications:
       # - "akri.sh/akri-udev-abcdefgh"
   odoo:
     enabled: true
+    updatePluginsOnStartup: false
   pgadmin4:
     enabled: true
   postgresql:

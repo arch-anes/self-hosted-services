@@ -28,6 +28,23 @@ spec:
               args:
                 - --init=base
                 - --without-demo=all
+              {{- if .Values.applications.odoo.updatePluginsOnStartup }}
+                - --update=all
+              {{- end }}
+              probes:
+                liveness:
+                  spec:
+                    periodSeconds: 30
+                    failureThreshold: 10
+                readiness:
+                  spec:
+                    periodSeconds: 30
+                    failureThreshold: 10
+              {{- if .Values.applications.odoo.updatePluginsOnStartup }}
+                startup:
+                  spec:
+                    initialDelaySeconds: 600
+              {{- end }}
               env:
                 HOST: postgresql-primary
                 USER: odoo
