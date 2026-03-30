@@ -14,7 +14,6 @@ spec:
     config:
       enableHelm: true
       watchPlugins: true
-      sessionTTL: null
     resources:
       limits:
         memory: 1Gi
