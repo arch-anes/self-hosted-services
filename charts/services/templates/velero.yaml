@@ -56,6 +56,8 @@ spec:
       backupStorageLocation:
         {{- .Values.applications.velero.remoteBackupLocations | toYaml | nindent 8 }}
     metrics:
+      nodeAgentPodMonitor:
+        enabled: {{ include "metrics.enabled" . }}
       serviceMonitor:
         enabled: {{ include "metrics.enabled" . }}
       prometheusRule:
