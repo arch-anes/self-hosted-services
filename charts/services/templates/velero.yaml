@@ -23,6 +23,15 @@
 #   repository-password: "some-kopia-encryption-key"
 
 ---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: backup-priority
+value: 1000
+globalDefault: false
+description: "Priority class for backup jobs to not impact critical workloads"
+
+---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -36,12 +45,41 @@ spec:
   failurePolicy: abort 
   valuesContent: |-
     cleanUpCRDs: false # Do not delete CRDs on chart uninstall to preserve any backups
+    priorityClassName: backup-priority
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        memory: 1Gi
     credentials:
       existingSecret: velero-backup-credentials
     annotations:
       reloader.stakater.com/auto: "true"
     snapshotsEnabled: false # rancher/local-path-provisionner does not support snapshots
-    deployNodeAgent: true 
+    deployNodeAgent: true
+    nodeAgent:
+      priorityClassName: backup-priority
+      extraArgs:
+        - --node-agent-configmap=velero-node-agent-config
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 256Mi
+    configMaps:
+      node-agent-config:
+        data:
+          config.json: |
+            {
+                "priorityClassName": "backup-priority",
+                "podResources": {
+                    "cpuRequest": "1000m",
+                    "memoryRequest": "512Mi",
+                    "memoryLimit": "2Gi"
+                }
+            }
     initContainers:
       - name: velero-plugin-for-aws
         image: velero/velero-plugin-for-aws:v1.14.0
