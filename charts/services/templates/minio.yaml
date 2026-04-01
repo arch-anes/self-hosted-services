@@ -54,6 +54,9 @@ spec:
   valuesContent: |-
     tenant:
       name: minio
+      image:
+        repository: pgsty/minio
+        tag: RELEASE.2026-03-25T00-00-00Z
       configSecret:
         name: minio
         existingSecret: true
