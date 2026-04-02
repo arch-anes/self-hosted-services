@@ -4,6 +4,12 @@
     recursive = yes
 {% endif %}
 
+{% if 'storage/encrypted/cluster-local-storage' in zfs_datasets.stdout_lines | default([]) %}
+[storage/encrypted/cluster-local-storage]
+    autosnap = no
+    autoprune = no
+{% endif %}
+
 {% if 'storage/encrypted/multimedia' in zfs_datasets.stdout_lines | default([]) %}
 [storage/encrypted/multimedia]
     autosnap = no
