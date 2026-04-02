@@ -33,12 +33,12 @@ spec:
           reloader.stakater.com/auto: "true"
         podSpec:
           initContainers:
-            download-ygege:
-              enabled: {{ .Values.applications.ygege.enabled }}
+            download-u2p:
+              enabled: true
               type: init
               imageSelector: alpineImage
               command: [/bin/sh]
-              args: [-c, "wget -O /custom/ygege.yml https://raw.githubusercontent.com/Gauvino/ygege/refs/heads/master/ygege-en.yml"]
+              args: [-c, "wget -O /custom/u2p.yml https://raw.githubusercontent.com/Jackett/Jackett/refs/heads/master/src/Jackett.Common/Definitions/u2p.yml"]
           containers:
             {{- include "tunnel.truecharts.container" . | nindent 12 }}
             main:
@@ -108,11 +108,11 @@ spec:
       config:
         type: emptyDir
       custom-definitions:
-        enabled: {{ .Values.applications.ygege.enabled }}
+        enabled: true
         type: emptyDir
         targetSelector:
           main:
-            download-ygege:
+            download-u2p:
               mountPath: /custom
             main:
               mountPath: /config/Definitions/Custom/
