@@ -32,6 +32,7 @@ spec:
           pluginConfig:
             - name: DefaultEvictor
               args:
+                nodeFit: true
                 ignorePvcPods: true
                 evictLocalStoragePods: false
                 evictSystemCriticalPods: false
