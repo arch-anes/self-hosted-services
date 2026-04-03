@@ -304,6 +304,11 @@ spec:
               databases:
                 - odoo
 {{- end }}
+{{- if .Values.applications.open_webui.enabled }}
+            - name: open-webui
+              databases:
+                - open-webui
+{{- end }}
 {{- if .Values.applications.pgadmin4.enabled }}
             - name: pgadmin4
               password:

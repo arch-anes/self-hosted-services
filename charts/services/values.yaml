@@ -166,6 +166,8 @@ applications:
     use_vulkan: false
     # gpu_vendor: null
     gpu_count: 1
+  open_webui:
+    enabled: true
   pgadmin4:
     enabled: true
   postgresql:
