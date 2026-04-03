@@ -57,6 +57,8 @@ spec:
             - name: RemovePodsViolatingTopologySpreadConstraint
             - name: LowNodeUtilization
               args:
+                metricsUtilization:
+                  metricsServer: true
                 thresholds:
                   cpu: 20
                   memory: 20
