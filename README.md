@@ -218,6 +218,7 @@ Quality of Service (QoS) via Smart Queue Management (SQM) prevents bufferbloat a
 - `public`: Add to nodes that will receive external traffic directly.
 - `nas`: Add to nodes that should store heavy files.
 - `local`: Add to nodes that are local to the site; useful when having a hybrid cloud.
+- `dedicated=ai`: Add this label and the `dedicated=ai:NoSchedule` taint to nodes intended for AI/ML workloads. This ensures that only AI-related services (like Immich ML and Obico ML-API) and necessary infrastructure (GPU device plugins) are scheduled on these nodes.
 
 ### Application specific setup
 

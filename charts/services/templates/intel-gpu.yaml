@@ -23,6 +23,11 @@ spec:
   version: 0.35.0
   targetNamespace: kube-system
   valuesContent: |-
+    tolerations:
+      - key: "dedicated"
+        operator: Equal
+        value: "ai"
+        effect: "NoSchedule"
     resourceManager: false
     sharedDevNum: 10
 {{- end }}

@@ -11,6 +11,11 @@ spec:
   version: 0.21.0
   targetNamespace: kube-system
   valuesContent: |-
+    tolerations:
+      - key: "dedicated"
+        operator: Equal
+        value: "ai"
+        effect: "NoSchedule"
     node_selector_enabled: true
     dp:
       resources:

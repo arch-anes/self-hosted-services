@@ -11,6 +11,14 @@ spec:
   version: 0.19.0
   targetNamespace: kube-system
   valuesContent: |-
+    tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+      - key: "dedicated"
+        operator: Equal
+        value: "ai"
+        effect: "NoSchedule"
     nfd:
       enabled: false
     resources:
