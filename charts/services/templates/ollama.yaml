@@ -1,0 +1,46 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.ollama.enabled }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: ollama
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: ollama
+  repo: https://helm.otwld.com/
+  version: 1.54.0
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    resources:
+      limits:
+        {{- $gpuVendor := .Values.applications.ollama.gpu_vendor }}
+        {{- if eq $gpuVendor "nvidia" }}
+          {{- if not .Values.applications.nvidia_gpu.enabled }}
+            {{- fail "NVIDIA GPU is selected for Ollama but nvidia_gpu is not enabled" }}
+          {{- end }}
+        nvidia.com/gpu: {{ .Values.applications.ollama.gpu_count }}
+        {{- else if eq $gpuVendor "amd" }}
+          {{- if not .Values.applications.amd_gpu.enabled }}
+            {{- fail "AMD GPU is selected for Ollama but amd_gpu is not enabled" }}
+          {{- end }}
+        amd.com/gpu: {{ .Values.applications.ollama.gpu_count }}
+        {{- else if $gpuVendor }}
+          {{- fail (printf "Unknown GPU vendor '%s' selected for Ollama" $gpuVendor) }}
+        {{- end }}
+    extraEnv:
+      - name: OLLAMA_SCHED_SPREAD
+        value: "1"
+      {{- if .Values.applications.ollama.use_vulkan }}
+      - name: OLLAMA_VULKAN
+        value: "1"
+      {{- end }}
+    tolerations:
+      - key: "dedicated"
+        operator: Equal
+        value: "ai"
+        effect: "NoSchedule"
+    persistentVolume:
+      enabled: true
+      storageClass: local-path-persistent-namespaced
+      size: 100Gi
+{{- end }}
