@@ -21,6 +21,9 @@ spec:
         limits:
           memory: 128Mi
     worker:
+      tolerations:
+        - effect: "NoSchedule"
+          operator: Exists
       resources:
         requests:
           cpu: 100m
