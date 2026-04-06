@@ -41,7 +41,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/immich
-  version: 27.0.11
+  version: 27.0.13
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     {{- $mlGpuVendor := dig "machine_learning" "gpu_vendor" "" .Values.applications.immich }}
