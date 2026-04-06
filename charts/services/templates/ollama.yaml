@@ -11,6 +11,9 @@ spec:
   version: 1.54.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
+    image:
+      repository: ollama/ollama
+      tag: "0.20.3"
     resources:
       limits:
         {{- $gpuVendor := .Values.applications.ollama.gpu_vendor }}
