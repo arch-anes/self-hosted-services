@@ -6,9 +6,8 @@ metadata:
   name: ollama
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  chart: ollama
-  repo: https://helm.otwld.com/
-  version: 1.54.0
+  chart: oci://oci.trueforge.org/truecharts/ollama
+  version: 9.4.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     resources:
@@ -27,20 +26,35 @@ spec:
         {{- else if $gpuVendor }}
           {{- fail (printf "Unknown GPU vendor '%s' selected for Ollama" $gpuVendor) }}
         {{- end }}
-    extraEnv:
-      - name: OLLAMA_SCHED_SPREAD
-        value: "1"
-      {{- if .Values.applications.ollama.use_vulkan }}
-      - name: OLLAMA_VULKAN
-        value: "1"
-      {{- end }}
-    tolerations:
-      - key: "dedicated"
-        operator: Equal
-        value: "ai"
-        effect: "NoSchedule"
-    persistentVolume:
-      enabled: true
-      storageClass: local-path-persistent-namespaced
-      size: 100Gi
+    workload:
+      ui:
+        enabled: false
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                OLLAMA_SCHED_SPREAD: "1"
+                {{- if .Values.applications.ollama.use_vulkan }}
+                OLLAMA_VULKAN: "1"
+                {{- end }}
+          tolerations:
+            - key: "dedicated"
+              operator: Equal
+              value: "ai"
+              effect: "NoSchedule"
+    service:
+      main:
+        targetSelector: main
+        ports:
+          main:
+            port: 11434
+            targetSelector: main
+      api:
+        enabled: false
+    persistence:
+      data:
+        enabled: false
+      config:
+        storageClass: local-path-persistent-namespaced
 {{- end }}
