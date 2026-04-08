@@ -436,6 +436,28 @@ spec:
       - apiVersion: helm.cattle.io/v1
         kind: HelmChart
         metadata:
+          name: grafana-mcp
+          namespace: kube-system
+        spec:
+          chart: grafana-mcp
+          repo: https://grafana-community.github.io/helm-charts
+          version: 0.9.1
+          targetNamespace: kube-system
+          valuesContent: |-
+            grafana:
+              url: "http://prometheus-grafana"
+            extraArgs: ["-t", "streamable-http"]
+            env:
+              GRAFANA_ORG_ID: "1"
+            resources:
+              limits:
+                memory: 512Mi
+              requests:
+                memory: 128Mi
+                cpu: 100m
+      - apiVersion: helm.cattle.io/v1
+        kind: HelmChart
+        metadata:
           name: pushprox-k3s-server
           namespace: kube-system
         spec:
