@@ -33,7 +33,7 @@ metadata:
 spec:
   chart: kube-prometheus-stack
   repo: https://prometheus-community.github.io/helm-charts
-  version: 82.12.0
+  version: 83.4.0
   targetNamespace: kube-system
   valuesContent: |-
     crds:
