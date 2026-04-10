@@ -23,7 +23,7 @@ spec:
   valuesContent: |-
     image:
       repository: ollama/ollama
-      tag: "0.20.3"
+      tag: "0.20.4"
     resources:
       limits:
         {{- $gpuVendor := .Values.applications.ollama.gpu_vendor }}
