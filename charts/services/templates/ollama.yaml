@@ -21,12 +21,16 @@ spec:
   version: 1.54.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
+    {{- $gpuVendor := .Values.applications.ollama.gpu_vendor }}
     image:
       repository: ollama/ollama
+      {{- if eq $gpuVendor "amd" }}
+      tag: "0.20.4-rocm"
+      {{- else }}
       tag: "0.20.4"
+      {{- end }}
     resources:
       limits:
-        {{- $gpuVendor := .Values.applications.ollama.gpu_vendor }}
         {{- if eq $gpuVendor "nvidia" }}
           {{- if not .Values.applications.nvidia_gpu.enabled }}
             {{- fail "NVIDIA GPU is selected for Ollama but nvidia_gpu is not enabled" }}
