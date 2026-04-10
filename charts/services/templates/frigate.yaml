@@ -21,11 +21,9 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/frigate
-  version: 18.15.20
+  version: 19.0.3
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
-    image: 
-      tag: 0.17.1
     {{- $frigateConfig := .Values.applications.frigate }}
     frigateConfig:
       tls:
@@ -87,18 +85,24 @@ spec:
       objects:
         {{- toYaml $frigateConfig.objects | nindent 8 }}
       {{- end }}
+      {{- if $frigateConfig.face_recognition }}
       face_recognition:
-        enabled: true
+        {{- toYaml $frigateConfig.face_recognition | nindent 8 }}
+      {{- end }}
       record:
         enabled: {{ $frigateConfig.record.enabled | default true }}
-        continuous: # TODO REMOVE, should only be in inventory
-          days: {{ $frigateConfig.record.retain_days | default 7 }}
+        continuous:
+          days: {{ $frigateConfig.record.continuous_days | default 0 }}
+        motion:
+          days: {{ $frigateConfig.record.motion_days | default 7 }}
         alerts:
           retain:
             days: {{ $frigateConfig.record.alerts_retain_days | default 30 }}
+            mode: {{ $frigateConfig.record.retain_mode | default "motion" }}
         detections:
           retain:
             days: {{ $frigateConfig.record.detections_retain_days | default 30 }}
+            mode: {{ $frigateConfig.record.retain_mode | default "motion" }}
       
       snapshots:
         enabled: {{ $frigateConfig.snapshots.enabled | default true }}
