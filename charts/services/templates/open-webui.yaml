@@ -5,6 +5,7 @@
 {{- if not .Values.applications.redis.enabled }}
 {{- fail "Open WebUI requires Redis to be enabled. Please enable Redis in your values.yaml" }}
 {{- end }}
+
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -58,6 +59,11 @@ spec:
         value: redis://:$(REDIS_HOST_PASSWORD)@redis-master:6379/2
       - name: WEBSOCKET_REDIS_URL
         value: redis://:$(REDIS_HOST_PASSWORD)@redis-master:6379/2
+      - name: HF_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: hugging-face
+            key: token
     {{- if .Values.applications.authentik.enabled }}
     sso:
       enabled: true

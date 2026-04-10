@@ -1,4 +1,14 @@
 {{- if and (not .Values.disableAllApplications) .Values.applications.ollama.enabled }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: hugging-face
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   token: "some_hugging_face_token"
+
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -31,6 +41,11 @@ spec:
           {{- fail (printf "Unknown GPU vendor '%s' selected for Ollama" $gpuVendor) }}
         {{- end }}
     extraEnv:
+      - name: HF_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: hugging-face
+            key: token
       - name: OLLAMA_SCHED_SPREAD
         value: "1"
       {{- if .Values.applications.ollama.use_vulkan }}
