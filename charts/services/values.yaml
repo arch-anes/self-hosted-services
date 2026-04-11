@@ -100,6 +100,30 @@ applications:
     enabled: true
   flaresolverr:
     enabled: true
+  frigate:
+    enabled: true
+    # gpu_vendor: intel
+    # media_storage_size: 100Gi
+    record:
+      enabled: true
+      retain_mode: motion
+      continuous_days: 0
+      motion_days: 7
+      alerts_retain_days: 30
+      detections_retain_days: 30
+    snapshots:
+      enabled: true
+      retain_days: 30
+    cameras: {}
+    # cameras:
+    #   front_camera:
+    #     enabled: true
+    #     ip: 192.168.1.100
+    #     channel: 1
+    #     detect:
+    #       width: 1280
+    #       height: 720
+    #       fps: 10
   gluetun:
     enabled: true
   gotify:
