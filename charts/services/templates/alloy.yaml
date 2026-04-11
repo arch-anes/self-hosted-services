@@ -11,6 +11,10 @@ spec:
   version: 1.6.0
   targetNamespace: kube-system
   valuesContent: |-
+    controller:
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
     alloy:
       reportingEnabled: false
       resources:
