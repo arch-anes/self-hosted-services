@@ -69,9 +69,13 @@ spec:
             ; Paths
             data_dir = /var/lib/odoo
             addons_path = /var/lib/odoo/extra-addons
+            ; Workers
+            max_cron_threads = 2
+            workers = 8
             ; Network Details
             http_enable = True
             http_port = 8069
+            gevent_port = 8072
             proxy_mode = True
             ; Database Details
             db_name = odoo
@@ -120,6 +124,12 @@ spec:
       limits:
         memory: 1Gi
         cpu: null
+    service:
+      main:
+        ports:
+          websocket:
+            enabled: true
+            port: 8072
     global:
       traefik:
         fixedMiddlewares: []
@@ -137,6 +147,18 @@ spec:
           - secretName: "{{ .Values.fqdn }}-tls"
             hosts:
               - odoo.{{ .Values.fqdn }}
+      websocket:
+        enabled: true
+        hosts:
+          - host: odoo.{{ .Values.fqdn }}
+            paths:
+              - path: /websocket
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - odoo.{{ .Values.fqdn }}
+        targetSelector:
+          main: websocket
     persistence:
       postgresql-certs:
         enabled: true
