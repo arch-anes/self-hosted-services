@@ -71,6 +71,7 @@ spec:
             ; Network Details
             http_enable = True
             http_port = 8069
+            proxy_mode = True
             ; Database Details
             db_name = odoo
             db_sslmode = verify-full
