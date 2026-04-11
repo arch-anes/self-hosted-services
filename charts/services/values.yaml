@@ -132,6 +132,11 @@ applications:
     enabled: true
   lazylibrarian:
     enabled: true
+  llama_cpp:
+    enabled: true
+    use_vulkan: false
+    # gpu_vendor: null
+    gpu_count: 1
   loki:
     enabled: true
   minecraft_bedrock:
@@ -161,11 +166,6 @@ applications:
   odoo:
     enabled: true
     updatePluginsOnStartup: false
-  ollama:
-    enabled: true
-    use_vulkan: false
-    # gpu_vendor: null
-    gpu_count: 1
   open_webui:
     enabled: true
   pgadmin4:

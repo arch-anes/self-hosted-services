@@ -19,10 +19,14 @@ spec:
       enabled: false
     ollama:
       enabled: false
-    ollamaUrls:
-      - http://ollama:11434
     postgresql:
       enabled: false
+{{- if .Values.applications.llama_cpp.enabled }}
+    openaiBaseApiUrl: "http://llama-cpp:8080/v1"
+    openaiBaseApiUrls:
+      - "http://llama-cpp:8080/v1"
+    openaiApiKey: ""
+{{- end }}
     websocket:
       enabled: false
       redis:

@@ -1,0 +1,82 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.llama_cpp.enabled }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: hugging-face
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   token: "some_hugging_face_token"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: llama-cpp
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: llama-cpp
+  repo: https://arch-anes.github.io/charts
+  version: 1.0.3
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    {{- $gpuVendor := .Values.applications.llama_cpp.gpu_vendor }}
+    {{- with $gpuVendor }}
+    gpu:
+      enabled: true
+      type: {{ . }}
+      useVulkan: {{ $.Values.applications.llama_cpp.use_vulkan }}
+    {{- end }}
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                LLAMA_ARG_MODELS_PRESET: /models/preset.ini
+                HF_TOKEN:
+                  secretKeyRef:
+                    name: hugging-face
+                    key: token
+                    expandObjectName: false
+              resources:
+                requests:
+                  memory: 1Gi
+                  cpu: 1000m
+                limits:
+                  cpu: null
+                  memory: null
+                  {{- if eq $gpuVendor "intel" }}
+                    {{- if not .Values.applications.intel_gpu.enabled }}
+                      {{- fail "Intel GPU is selected for llama.cpp but intel_gpu is not enabled" }}
+                    {{- end }}
+                  gpu.intel.com/i915: {{ .Values.applications.llama_cpp.gpu_count }}
+                  {{- else if eq $gpuVendor "intel_xe" }}
+                    {{- if not .Values.applications.intel_gpu.enabled }}
+                      {{- fail "Intel GPU is selected for llama.cpp but intel_gpu is not enabled" }}
+                    {{- end }}
+                  gpu.intel.com/xe: {{ .Values.applications.llama_cpp.gpu_count }}
+                  {{- else if eq $gpuVendor "nvidia" }}
+                    {{- if not .Values.applications.nvidia_gpu.enabled }}
+                      {{- fail "NVIDIA GPU is selected for llama.cpp but nvidia_gpu is not enabled" }}
+                    {{- end }}
+                  nvidia.com/gpu: {{ .Values.applications.llama_cpp.gpu_count }}
+                  {{- else if eq $gpuVendor "amd" }}
+                    {{- if not .Values.applications.amd_gpu.enabled }}
+                      {{- fail "AMD GPU is selected for llama.cpp but amd_gpu is not enabled" }}
+                    {{- end }}
+                  amd.com/gpu: {{ .Values.applications.llama_cpp.gpu_count }}
+                  {{- else if $gpuVendor }}
+                    {{- fail (printf "Unknown GPU vendor '%s' selected for llama.cpp" $gpuVendor) }}
+                  {{- end }}
+          tolerations:
+            - key: "dedicated"
+              operator: Equal
+              value: "ai"
+              effect: "NoSchedule"
+    persistence:
+      models:
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+{{- end }}
