@@ -89,7 +89,7 @@ spec:
                       - jellyfin
               topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: app
+        - name: tdarr
           image: ghcr.io/haveagitgat/tdarr:2.62.01
           resources:
             requests:
@@ -175,7 +175,7 @@ spec:
                       - jellyfin
               topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: app
+        - name: tdarr-worker
           image: ghcr.io/haveagitgat/tdarr_node:2.62.01
           resources:
             requests:

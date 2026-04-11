@@ -107,7 +107,7 @@ spec:
         app: octoprint
     spec:
       containers:
-        - name: app
+        - name: octoprint
           image: octoprint/octoprint:1.11.7
           resources:
             requests:

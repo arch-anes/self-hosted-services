@@ -50,7 +50,7 @@ spec:
         app: minecraft-bedrock
     spec:
       containers:
-        - name: app
+        - name: minecraft-bedrock
           image: itzg/minecraft-bedrock-server:2026.4.1
           stdin: true
           tty: true
