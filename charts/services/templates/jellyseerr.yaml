@@ -80,7 +80,7 @@ spec:
         # Schedule only on NAS nodes
         nas: "true"
       containers:
-        - name: app
+        - name: jellyseerr
           image: ghcr.io/seerr-team/seerr:v3.1.0
           resources:
             requests:

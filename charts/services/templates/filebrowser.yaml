@@ -80,7 +80,7 @@ spec:
         # Schedule only on NAS nodes
         nas: "true"
       containers:
-        - name: app
+        - name: filebrowser
           image: filebrowser/filebrowser:v2.62.2
           resources:
             requests:

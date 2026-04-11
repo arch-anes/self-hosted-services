@@ -94,7 +94,7 @@ spec:
         # Schedule only on NAS nodes
         nas: "true"
       containers:
-        - name: app
+        - name: jellyfin
           image: jellyfin/jellyfin:10.11.8
           startupProbe:
             httpGet:

@@ -65,7 +65,7 @@ spec:
         app: redis-insight
     spec:
       containers:
-        - name: app
+        - name: redis-insight
           image: redis/redisinsight:3.0.2
           livenessProbe:
             httpGet:

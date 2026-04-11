@@ -89,7 +89,7 @@ spec:
         app: epicgames-freegames
     spec:
       containers:
-        - name: app
+        - name: epicgames-freegames
           image: ghcr.io/claabs/epicgames-freegames-node:latest
           imagePullPolicy: Always
           resources:
