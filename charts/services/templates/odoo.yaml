@@ -68,6 +68,9 @@ spec:
             ; Paths
             data_dir = /var/lib/odoo
             addons_path = /var/lib/odoo/extra-addons
+            ; Workers
+            max_cron_threads = 2
+            workers = 8
             ; Network Details
             http_enable = True
             http_port = 8069
