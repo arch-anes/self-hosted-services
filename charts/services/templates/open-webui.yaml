@@ -2,9 +2,6 @@
 {{- if not .Values.applications.postgresql.enabled }}
 {{- fail "Open WebUI requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
-{{- if not .Values.applications.redis.enabled }}
-{{- fail "Open WebUI requires Redis to be enabled. Please enable Redis in your values.yaml" }}
-{{- end }}
 
 ---
 apiVersion: helm.cattle.io/v1
@@ -27,6 +24,7 @@ spec:
     postgresql:
       enabled: false
     websocket:
+      enabled: false
       redis:
         enabled: false
     extraEnvVars:
@@ -55,10 +53,6 @@ spec:
           secretKeyRef:
             name: redis
             key: redis-password
-      - name: REDIS_URL
-        value: redis://:$(REDIS_HOST_PASSWORD)@redis-master:6379/2
-      - name: WEBSOCKET_REDIS_URL
-        value: redis://:$(REDIS_HOST_PASSWORD)@redis-master:6379/2
       - name: HF_TOKEN
         valueFrom:
           secretKeyRef:
