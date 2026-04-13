@@ -128,6 +128,9 @@ spec:
         - authentik-ldap-blueprint
         - authentik-extra-blueprints
         - authentik-traefik-forward-auth
+{{- if .Values.applications.agentgateway.enabled }}
+        - authentik-agentgateway-blueprint
+{{- end }}
 {{- if .Values.applications.home_assistant.enabled }}
         - authentik-home-assistant-blueprint
 {{- end }}
@@ -154,6 +157,9 @@ spec:
 {{- end }}
       secrets:
         - ldap
+{{- if .Values.applications.agentgateway.enabled }}
+        - agentgateway
+{{- end }}
 {{- if .Values.applications.home_assistant.enabled }}
         - home-assistant-oidc
 {{- end }}

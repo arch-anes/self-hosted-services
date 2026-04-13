@@ -79,4 +79,33 @@ spec:
       models:
         type: pvc
         storageClass: local-path-persistent-namespaced
+    extraTpl:
+      - |
+        apiVersion: agentgateway.dev/v1alpha1
+        kind: AgentgatewayBackend
+        metadata:
+          name: llama-cpp-backend
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          ai:
+            provider:
+              openai: {}
+              host: llama-cpp
+              port: 8080
+      - |
+        apiVersion: gateway.networking.k8s.io/v1
+        kind: HTTPRoute
+        metadata:
+          name: llama-cpp-route
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          parentRefs:
+            - name: agentgateway-proxy
+              namespace: "{{ .Values.applicationsNamespace }}"
+          rules:
+            - backendRefs:
+                - group: agentgateway.dev
+                  kind: AgentgatewayBackend
+                  name: llama-cpp-backend
+                  port: 8080
 {{- end }}

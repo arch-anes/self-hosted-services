@@ -66,6 +66,8 @@ disableAllApplications: false
 highAvailability: true
 
 applications:
+  agentgateway:
+    enabled: true
   akri:
     enabled: true
     udevRules: []

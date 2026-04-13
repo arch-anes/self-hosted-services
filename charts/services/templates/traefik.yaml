@@ -55,6 +55,17 @@ spec:
       - apiVersion: traefik.io/v1alpha1
         kind: Middleware
         metadata:
+          name: mcp-stream
+          namespace: kube-system
+        spec:
+          buffering:
+            maxRequestBodyBytes: 0
+            memRequestBodyBytes: 0
+            maxResponseBodyBytes: 0
+            memResponseBodyBytes: 0
+      - apiVersion: traefik.io/v1alpha1
+        kind: Middleware
+        metadata:
           name: intranet-allowlist
           namespace: kube-system
         spec:
