@@ -34,6 +34,7 @@ spec:
           containers:
             main:
               env:
+                LLAMA_ARG_MODELS_MAX: "{{ .Values.applications.llama_cpp.max_loaded_models }}"
                 LLAMA_ARG_MODELS_PRESET: /models/preset.ini
                 HF_TOKEN:
                   secretKeyRef:

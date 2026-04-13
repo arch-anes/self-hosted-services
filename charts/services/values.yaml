@@ -137,6 +137,7 @@ applications:
     use_vulkan: false
     # gpu_vendor: null
     gpu_count: 1
+    max_loaded_models: 1
   loki:
     enabled: true
   minecraft_bedrock:
