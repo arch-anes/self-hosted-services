@@ -74,6 +74,7 @@
       "matchPackageNames": [
         "**/tdarr-*"
       ],
+      "groupName": "tdarr",
       "sourceUrl": "https://github.com/HaveAGitGat/tdarr"
     },
     {
