@@ -56,6 +56,7 @@ spec:
       REDIS_HOST: redis-master
       REDIS_PORT: "6379"
       PROMETHEUS_MULTIPROC_DIR: /tmp/prometheus_multiproc
+      PG_VECTOR_API_BASE: "http://litellm-pgvector:8000"
     {{- if .Values.applications.authentik.enabled }}
       GENERIC_AUTHORIZATION_ENDPOINT: "https://auth.{{ .Values.fqdn }}/application/o/authorize/"
       GENERIC_TOKEN_ENDPOINT: "https://auth.{{ .Values.fqdn }}/application/o/token/"
@@ -69,6 +70,11 @@ spec:
           secretKeyRef:
             name: redis
             key: redis-password
+      - name: PG_VECTOR_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: litellm-pgvector
+            key: api_key
     {{- if .Values.applications.authentik.enabled }}
       - name: GENERIC_CLIENT_ID
         valueFrom:
@@ -208,4 +214,124 @@ spec:
                   provider: !KeyOf litellm-provider
                   policy_engine_mode: any
     {{- end }}
+      - apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        metadata:
+          name: litellm-pgvector
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          refreshPolicy: CreatedOnce
+          creationPolicy: Owner
+          deletionPolicy: Retain
+          target:
+            name: litellm-pgvector
+          dataFrom:
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: api_key
+      - apiVersion: v1
+        kind: Service
+        metadata:
+          name: litellm-pgvector
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          ports:
+            - port: 8000
+              name: http
+              targetPort: 8000
+          selector:
+            app: litellm-pgvector
+      # Build image from https://github.com/BerriAI/litellm-pgvector and push to ghcr.io/arch-anes/litellm-pgvector
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: litellm-pgvector
+          namespace: "{{ .Values.applicationsNamespace }}"
+          annotations:
+            reloader.stakater.com/auto: "true"
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: litellm-pgvector
+          template:
+            metadata:
+              labels:
+                app: litellm-pgvector
+            spec:
+              initContainers:
+                - name: migrate
+                  image: ghcr.io/arch-anes/litellm-pgvector:latest
+                  command: ["prisma", "db", "push", "--skip-generate", "--accept-data-loss"]
+                  env:
+                    - name: PG_USER
+                      valueFrom:
+                        secretKeyRef:
+                          name: postgresql-pguser-litellm-pgvector
+                          key: user
+                    - name: PG_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          name: postgresql-pguser-litellm-pgvector
+                          key: password
+                    - name: DATABASE_URL
+                      value: "postgresql://$(PG_USER):$(PG_PASSWORD)@postgresql-primary:5432/litellm-pgvector?schema=public&sslmode=verify-full&sslrootcert=/etc/postgres/tls/ca.crt&sslcert=/etc/postgres/tls/tls.crt&sslkey=/etc/postgres/tls/tls.key"
+                  volumeMounts:
+                    - name: postgresql-certs
+                      mountPath: /etc/postgres/tls
+                      readOnly: true
+              containers:
+                - name: litellm-pgvector
+                  image: ghcr.io/arch-anes/litellm-pgvector:latest
+                  ports:
+                    - containerPort: 8000
+                  env:
+                    - name: PG_USER
+                      valueFrom:
+                        secretKeyRef:
+                          name: postgresql-pguser-litellm-pgvector
+                          key: user
+                    - name: PG_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          name: postgresql-pguser-litellm-pgvector
+                          key: password
+                    - name: DATABASE_URL
+                      value: "postgresql://$(PG_USER):$(PG_PASSWORD)@postgresql-primary:5432/litellm-pgvector?schema=public&sslmode=verify-full&sslrootcert=/etc/postgres/tls/ca.crt&sslcert=/etc/postgres/tls/tls.crt&sslkey=/etc/postgres/tls/tls.key"
+                    - name: SERVER_API_KEY
+                      valueFrom:
+                        secretKeyRef:
+                          name: litellm-pgvector
+                          key: api_key
+                    - name: EMBEDDING__MODEL
+                      value: "text-embedding-ada-002"
+                    - name: EMBEDDING__BASE_URL
+                      value: "http://litellm:4000"
+                    - name: EMBEDDING__API_KEY
+                      valueFrom:
+                        secretKeyRef:
+                          name: litellm
+                          key: masterkey
+                    - name: EMBEDDING__DIMENSIONS
+                      value: "1536"
+                  resources:
+                    requests:
+                      memory: 128Mi
+                      cpu: 50m
+                    limits:
+                      memory: 256Mi
+                  volumeMounts:
+                    - name: postgresql-certs
+                      mountPath: /etc/postgres/tls
+                      readOnly: true
+              volumes:
+                - name: postgresql-certs
+                  secret:
+                    secretName: postgresql-cluster-cert
+                    defaultMode: 0400
 {{- end }}

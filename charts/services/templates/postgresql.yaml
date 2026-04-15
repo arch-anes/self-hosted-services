@@ -183,6 +183,12 @@ spec:
             CREATE EXTENSION IF NOT EXISTS vector CASCADE;
             COMMIT;
 {{- end }}
+{{- if .Values.applications.litellm.enabled }}
+            \c "litellm-pgvector"
+            BEGIN;
+            CREATE EXTENSION IF NOT EXISTS vector CASCADE;
+            COMMIT;
+{{- end }}
 {{- if .Values.applications.tracearr.enabled }}
             \c tracearr
             BEGIN;
@@ -310,6 +316,11 @@ spec:
                 type: AlphaNumeric
               databases:
                 - litellm
+            - name: litellm-pgvector
+              password:
+                type: AlphaNumeric
+              databases:
+                - litellm-pgvector
 {{- end }}
 {{- if .Values.applications.open_webui.enabled }}
             - name: open-webui
