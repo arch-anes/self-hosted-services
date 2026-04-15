@@ -144,6 +144,9 @@ spec:
 {{- if .Values.applications.odoo.enabled }}
         - odoo-authentik-blueprint
 {{- end }}
+{{- if .Values.applications.litellm.enabled }}
+        - authentik-litellm-blueprint
+{{- end }}
 {{- if .Values.applications.open_webui.enabled }}
         - authentik-open-webui-blueprint
 {{- end }}
@@ -169,6 +172,9 @@ spec:
 {{- end }}
 {{- if .Values.applications.odoo.enabled }}
         - odoo
+{{- end }}
+{{- if .Values.applications.litellm.enabled }}
+        - litellm
 {{- end }}
 {{- if .Values.applications.open_webui.enabled }}
         - open-webui
