@@ -304,6 +304,13 @@ spec:
               databases:
                 - odoo
 {{- end }}
+{{- if .Values.applications.litellm.enabled }}
+            - name: litellm
+              password:
+                type: AlphaNumeric
+              databases:
+                - litellm
+{{- end }}
 {{- if .Values.applications.open_webui.enabled }}
             - name: open-webui
               databases:

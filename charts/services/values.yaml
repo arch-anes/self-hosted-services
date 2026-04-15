@@ -132,6 +132,8 @@ applications:
     enabled: true
   lazylibrarian:
     enabled: true
+  litellm:
+    enabled: true
   llama_cpp:
     enabled: true
     use_vulkan: false

@@ -1,0 +1,211 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.litellm.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "LiteLLM requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "LiteLLM requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: litellm
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://ghcr.io/berriai/litellm-helm
+  version: 1.82.3
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    deploymentAnnotations:
+      reloader.stakater.com/auto: "true"
+    db:
+      useExisting: true
+      deployStandalone: false
+      endpoint: postgresql-primary
+      database: litellm
+      url: "postgresql://$(DATABASE_USERNAME):$(DATABASE_PASSWORD)@postgresql-primary:5432/litellm?sslmode=verify-full&sslrootcert=/etc/postgres/tls/ca.crt&sslcert=/etc/postgres/tls/tls.crt&sslkey=/etc/postgres/tls/tls.key"
+      secret:
+        name: postgresql-pguser-litellm
+        usernameKey: user
+        passwordKey: password
+    masterkeySecretName: litellm
+    masterkeySecretKey: masterkey
+    proxy_config:
+    {{- if .Values.applications.llama_cpp.enabled }}
+      model_list:
+        - model_name: llama-cpp
+          litellm_params:
+            model: openai/local
+            api_base: http://llama-cpp:8080/v1
+            api_key: fake
+    {{- end }}
+      litellm_settings:
+        callbacks:
+          - prometheus
+        cache: true
+        cache_params:
+          type: redis
+          host: redis-master
+          port: 6379
+          password: os.environ/REDIS_PASSWORD
+      general_settings:
+        master_key: os.environ/PROXY_MASTER_KEY
+        database_connection_pool_limit: 100
+    envVars:
+      PROXY_BASE_URL: "https://ai.{{ .Values.fqdn }}"
+      REDIS_HOST: redis-master
+      REDIS_PORT: "6379"
+      PROMETHEUS_MULTIPROC_DIR: /tmp/prometheus_multiproc
+    {{- if .Values.applications.authentik.enabled }}
+      GENERIC_AUTHORIZATION_ENDPOINT: "https://auth.{{ .Values.fqdn }}/application/o/authorize/"
+      GENERIC_TOKEN_ENDPOINT: "https://auth.{{ .Values.fqdn }}/application/o/token/"
+      GENERIC_USERINFO_ENDPOINT: "https://auth.{{ .Values.fqdn }}/application/o/userinfo/"
+      GENERIC_SCOPE: "openid profile email"
+      UI_ACCESS_MODE: all
+    {{- end }}
+    extraEnvVars:
+      - name: REDIS_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: redis
+            key: redis-password
+    {{- if .Values.applications.authentik.enabled }}
+      - name: GENERIC_CLIENT_ID
+        valueFrom:
+          secretKeyRef:
+            name: litellm
+            key: client_id
+      - name: GENERIC_CLIENT_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: litellm
+            key: client_secret
+    {{- end }}
+    volumes:
+      - name: postgresql-certs
+        secret:
+          secretName: postgresql-cluster-cert
+          defaultMode: 0400
+      - name: prometheus-multiproc
+        emptyDir:
+          medium: Memory
+          sizeLimit: 100Mi
+    volumeMounts:
+      - name: postgresql-certs
+        mountPath: /etc/postgres/tls
+        readOnly: true
+      - name: prometheus-multiproc
+        mountPath: /tmp/prometheus_multiproc
+    ingress:
+      enabled: true
+      className: null
+      annotations:
+        # traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
+        homer.service.name: Automation
+        homer.item.name: LiteLLM
+        homer.item.logo: "https://raw.githubusercontent.com/BerriAI/litellm/main/ui/litellm-dashboard/public/logo.png"
+      hosts:
+        - host: ai.{{ .Values.fqdn }}
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: "{{ .Values.fqdn }}-tls"
+          hosts:
+            - ai.{{ .Values.fqdn }}
+    serviceMonitor:
+      enabled: {{ include "metrics.enabled" . }}
+      interval: 30s
+      scrapeTimeout: 10s
+    resources:
+      requests:
+        memory: 1Gi
+        cpu: 500m
+      limits:
+        memory: 2Gi
+    migrationJob:
+      enabled: true
+      hooks:
+        argocd:
+          enabled: true
+        helm:
+          enabled: false
+    extraResources:
+      - apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        metadata:
+          name: litellm
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          refreshPolicy: CreatedOnce
+          creationPolicy: Owner
+          deletionPolicy: Retain
+          target:
+            name: litellm
+          dataFrom:
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: masterkey
+    {{- if .Values.applications.authentik.enabled }}
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: client_secret
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: client_id
+      - apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: authentik-litellm-blueprint
+          namespace: "{{ .Values.applicationsNamespace }}"
+        data:
+          blueprint.yaml: |
+            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+            version: 1
+            metadata:
+              name: LiteLLM OAuth2 Provider
+            entries:
+              - id: litellm-provider
+                model: authentik_providers_oauth2.oauth2provider
+                identifiers:
+                  name: Provider for LiteLLM
+                attrs:
+                  authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+                  invalidation_flow: !Find [authentik_flows.flow, [slug, default-invalidation-flow]]
+                  client_type: confidential
+                  sub_mode: user_username
+                  redirect_uris:
+                    - matching_mode: strict
+                      url: "https://ai.{{ .Values.fqdn }}/sso/callback"
+                  signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
+                  client_id: !File /blueprints/mounted/secret-litellm/client_id
+                  client_secret: !File /blueprints/mounted/secret-litellm/client_secret
+                  property_mappings:
+                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
+                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
+                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
+              - id: litellm-app
+                model: authentik_core.application
+                identifiers:
+                  slug: litellm
+                attrs:
+                  name: LiteLLM
+                  provider: !KeyOf litellm-provider
+                  policy_engine_mode: any
+    {{- end }}
+{{- end }}
