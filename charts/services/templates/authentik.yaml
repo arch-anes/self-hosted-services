@@ -134,6 +134,9 @@ spec:
 {{- if .Values.applications.immich.enabled }}
         - immich-authentik-blueprint
 {{- end }}
+{{- if .Values.applications.mcp_context_forge.enabled }}
+        - mcp-context-forge-authentik-blueprint
+{{- end }}
 {{- if .Values.applications.minio.enabled }}
         - authentik-minio-blueprint
 {{- end }}
@@ -159,6 +162,9 @@ spec:
 {{- end }}
 {{- if .Values.applications.immich.enabled }}
         - immich
+{{- end }}
+{{- if .Values.applications.mcp_context_forge.enabled }}
+        - mcp-context-forge
 {{- end }}
 {{- if .Values.applications.minio.enabled }}
         - minio-oidc

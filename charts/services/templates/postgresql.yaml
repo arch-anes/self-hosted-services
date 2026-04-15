@@ -270,6 +270,13 @@ spec:
               databases:
                 - inventree
 {{- end }}
+{{- if .Values.applications.mcp_context_forge.enabled }}
+            - name: mcp-context-forge
+              password:
+                type: AlphaNumeric
+              databases:
+                - mcp-context-forge
+{{- end }}
 {{- if .Values.applications.miniflux.enabled }}
             - name: miniflux
               password:

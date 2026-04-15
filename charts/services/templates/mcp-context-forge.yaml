@@ -1,0 +1,257 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.mcp_context_forge.enabled }}
+{{- if not .Values.applications.postgresql.enabled }}
+{{- fail "MCP Context Forge requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
+{{- end }}
+{{- if not .Values.applications.redis.enabled }}
+{{- fail "MCP Context Forge requires Redis to be enabled. Please enable Redis in your values.yaml" }}
+{{- end }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: mcp-context-forge
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: mcp-context-forge
+  repo: https://arch-anes.github.io/charts
+  version: 0.1.3
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          containers:
+            main:
+              env:
+                HOST: "0.0.0.0"
+                PORT: "4444"
+                LOG_LEVEL: INFO
+                HTTP_SERVER: gunicorn
+                APP_DOMAIN: "https://ai.{{ .Values.fqdn }}"
+                MCPGATEWAY_UI_ENABLED: "true"
+                MCPGATEWAY_ADMIN_API_ENABLED: "true"
+                SECURE_COOKIES: "true"
+                PLUGINS_ENABLED: "true"
+                JWT_SECRET_KEY:
+                  secretKeyRef:
+                    name: mcp-context-forge
+                    key: jwt_secret_key
+                    expandObjectName: false
+                AUTH_ENCRYPTION_SECRET:
+                  secretKeyRef:
+                    name: mcp-context-forge
+                    key: auth_encryption_secret
+                    expandObjectName: false
+                BASIC_AUTH_USER: admin
+                BASIC_AUTH_PASSWORD:
+                  secretKeyRef:
+                    name: mcp-context-forge
+                    key: basic_auth_password
+                    expandObjectName: false
+                PLATFORM_ADMIN_EMAIL: "admin@{{ .Values.fqdn }}"
+                PLATFORM_ADMIN_PASSWORD:
+                  secretKeyRef:
+                    name: mcp-context-forge
+                    key: platform_admin_password
+                    expandObjectName: false
+                DATABASE_PASSWORD:
+                  secretKeyRef:
+                    name: postgresql-pguser-mcp-context-forge
+                    key: password
+                    expandObjectName: false
+                DATABASE_URL: "postgresql+psycopg://mcp-context-forge:$(DATABASE_PASSWORD)@postgresql-primary/mcp-context-forge"
+                PGSSLMODE: verify-full
+                PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+                PGSSLCERT: /etc/postgres/tls/tls.crt
+                PGSSLKEY: /etc/postgres/tls/tls.key
+                CACHE_TYPE: redis
+                REDIS_PASSWORD:
+                  secretKeyRef:
+                    name: redis
+                    key: redis-password
+                    expandObjectName: false
+                REDIS_URL: "redis://:$(REDIS_PASSWORD)@redis-master:6379/0"
+{{- if .Values.applications.authentik.enabled }}
+                SSO_ENABLED: "true"
+                SSO_AUTO_CREATE_USERS: "true"
+                SSO_GENERIC_ENABLED: "true"
+                SSO_GENERIC_PROVIDER_ID: authentik
+                SSO_GENERIC_DISPLAY_NAME: Authentik
+                SSO_GENERIC_CLIENT_ID:
+                  secretKeyRef:
+                    name: mcp-context-forge
+                    key: client_id
+                    expandObjectName: false
+                SSO_GENERIC_CLIENT_SECRET:
+                  secretKeyRef:
+                    name: mcp-context-forge
+                    key: client_secret
+                    expandObjectName: false
+                SSO_GENERIC_AUTHORIZATION_URL: "https://auth.{{ .Values.fqdn }}/application/o/authorize/"
+                SSO_GENERIC_TOKEN_URL: "https://auth.{{ .Values.fqdn }}/application/o/token/"
+                SSO_GENERIC_USERINFO_URL: "https://auth.{{ .Values.fqdn }}/application/o/userinfo/"
+                SSO_GENERIC_ISSUER: "https://auth.{{ .Values.fqdn }}/application/o/mcp-context-forge/"
+                SSO_GENERIC_JWKS_URI: "https://auth.{{ .Values.fqdn }}/application/o/mcp-context-forge/jwks/"
+                SSO_GENERIC_SCOPE: "openid profile email"
+{{- end }}
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          homer.item.excluded: "true"
+        hosts:
+          - host: ai.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - ai.{{ .Values.fqdn }}
+      admin:
+        enabled: true
+        annotations:
+          homer.service.name: Automation
+          homer.item.name: MCP Context Forge
+          homer.item.logo: "https://raw.githubusercontent.com/IBM/mcp-context-forge/8866dd29b490a206a8fc0530731db549c601804e/mcpgateway/static/contextforge-icon.png"
+          traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
+        hosts:
+          - host: ai.{{ .Values.fqdn }}
+            paths:
+              - path: /admin
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - ai.{{ .Values.fqdn }}
+    persistence:
+      data:
+        enabled: false
+      postgres-tls:
+        enabled: true
+        type: secret
+        objectName: postgresql-cluster-cert
+        expandObjectName: false
+        mountPath: /etc/postgres/tls
+        defaultMode: "0400"
+    configmap:
+      authentik-blueprint:
+        enabled: {{ .Values.applications.authentik.enabled }}
+        data:
+          blueprint.yaml: |
+            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+            version: 1
+            metadata:
+              name: MCP Context Forge OAuth2 Provider
+            entries:
+              - id: mcp-context-forge-scope-email
+                model: authentik_providers_oauth2.scopemapping
+                identifiers:
+                  name: "MCP Context Forge: Force Email Verified"
+                attrs:
+                  scope_name: email
+                  description: "Force email_verified to true for MCP Context Forge"
+                  expression: |
+                    return {
+                        "email": request.user.email,
+                        "email_verified": True
+                    }
+              - id: mcp-context-forge-provider
+                model: authentik_providers_oauth2.oauth2provider
+                identifiers:
+                  name: Provider for MCP Context Forge
+                attrs:
+                  authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+                  invalidation_flow: !Find [authentik_flows.flow, [slug, default-invalidation-flow]]
+                  client_type: confidential
+                  redirect_uris:
+                    - matching_mode: strict
+                      url: "https://ai.{{ .Values.fqdn }}/auth/sso/callback/authentik"
+                  signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
+                  client_id: !File /blueprints/mounted/secret-mcp-context-forge/client_id
+                  client_secret: !File /blueprints/mounted/secret-mcp-context-forge/client_secret
+                  property_mappings:
+                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
+                    - !KeyOf mcp-context-forge-scope-email
+                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
+              - id: mcp-context-forge-app
+                model: authentik_core.application
+                identifiers:
+                  slug: mcp-context-forge
+                attrs:
+                  name: MCP Context Forge
+                  provider: !KeyOf mcp-context-forge-provider
+                  policy_engine_mode: any
+    extraTpl:
+      - |
+        apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        metadata:
+          name: mcp-context-forge
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          refreshPolicy: CreatedOnce
+          creationPolicy: Owner
+          deletionPolicy: Retain
+          target:
+            name: mcp-context-forge
+          dataFrom:
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: jwt_secret_key
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: auth_encryption_secret
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: basic_auth_password
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: platform_admin_password
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: client_id
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: client_secret
+{{- end }}

@@ -140,6 +140,8 @@ applications:
     max_loaded_models: 1
   loki:
     enabled: true
+  mcp_context_forge:
+    enabled: true
   minecraft_bedrock:
     enabled: true
   miniflux:
