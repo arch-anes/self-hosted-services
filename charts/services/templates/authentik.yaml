@@ -145,6 +145,9 @@ spec:
 {{- if (include "app.enabled" (list . "odoo")) }}
         - odoo-authentik-blueprint
 {{- end }}
+{{- if (include "app.enabled" (list . "litellm")) }}
+        - authentik-litellm-blueprint
+{{- end }}
 {{- if (include "app.enabled" (list . "open_webui")) }}
         - authentik-open-webui-blueprint
 {{- end }}
@@ -176,6 +179,9 @@ spec:
 {{- end }}
 {{- if (include "app.enabled" (list . "odoo")) }}
         - odoo
+{{- end }}
+{{- if (include "app.enabled" (list . "litellm")) }}
+        - litellm
 {{- end }}
 {{- if (include "app.enabled" (list . "open_webui")) }}
         - open-webui
