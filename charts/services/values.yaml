@@ -150,6 +150,8 @@ applications:
   #   enabled: true
   joal: {}
   #   enabled: true
+  litellm: {}
+  #   enabled: true
   llama_cpp:
     # enabled: true
     use_vulkan: false
