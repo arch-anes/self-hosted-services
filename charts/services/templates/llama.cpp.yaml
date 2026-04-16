@@ -18,7 +18,7 @@ metadata:
 spec:
   chart: llama-cpp
   repo: https://arch-anes.github.io/charts
-  version: 1.0.15
+  version: 1.1.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # default-values: https://github.com/arch-anes/charts/blob/main/charts/llama-cpp/values.yaml
   values:
@@ -28,6 +28,17 @@ spec:
       enabled: true
       type: {{ . }}
       useVulkan: {{ $.Values.applications.llama_cpp.use_vulkan }}
+    {{- end }}
+    {{- $embeddingsGpuVendor := .Values.applications.llama_cpp.embeddings.gpu_vendor }}
+    {{- with .Values.applications.llama_cpp.embeddings }}
+    embeddings:
+      enabled: {{ .enabled }}
+      {{- with $embeddingsGpuVendor }}
+      gpu:
+        enabled: true
+        type: {{ . }}
+        useVulkan: {{ $.Values.applications.llama_cpp.embeddings.use_vulkan }}
+      {{- end }}
     {{- end }}
     workload:
       main:
@@ -82,13 +93,74 @@ spec:
               operator: Equal
               value: "ai"
               effect: "NoSchedule"
+      embeddings:
+        podSpec:
+          containers:
+            embeddings:
+              env:
+                LLAMA_ARG_WEBUI: disabled
+                LLAMA_ARG_HF_REPO: "nomic-ai/nomic-embed-text-v1.5-GGUF:Q4_K_M"
+                LLAMA_ARG_N_PARALLEL: "1"
+                LLAMA_ARG_UBATCH: "8192"
+                LLAMA_ARG_BATCH: "8192"
+                LLAMA_ARG_CTX_SIZE: "8192"
+                LLAMA_ARG_ROPE_SCALING_TYPE: "yarn"
+                LLAMA_ARG_ROPE_FREQ_SCALE: ".75"
+                HUGGINGFACE_HUB_CACHE: /models/huggingface
+                HF_TOKEN:
+                  secretKeyRef:
+                    name: hugging-face
+                    key: token
+                    expandObjectName: false
+              resources:
+                requests:
+                  memory: 128Mi
+                  cpu: 100m
+                limits:
+                  cpu: null
+                  memory: null
+                  {{- if eq $embeddingsGpuVendor "intel" }}
+                    {{- if not (include "app.enabled" (list . "intel_gpu")) }}
+                      {{- fail "Intel GPU is selected for llama.cpp embeddings but intel_gpu is not enabled" }}
+                    {{- end }}
+                  gpu.intel.com/i915: {{ .Values.applications.llama_cpp.embeddings.gpu_count }}
+                  {{- else if eq $embeddingsGpuVendor "intel_xe" }}
+                    {{- if not (include "app.enabled" (list . "intel_gpu")) }}
+                      {{- fail "Intel GPU is selected for llama.cpp embeddings but intel_gpu is not enabled" }}
+                    {{- end }}
+                  gpu.intel.com/xe: {{ .Values.applications.llama_cpp.embeddings.gpu_count }}
+                  {{- else if eq $embeddingsGpuVendor "nvidia" }}
+                    {{- if not (include "app.enabled" (list . "nvidia_gpu")) }}
+                      {{- fail "NVIDIA GPU is selected for llama.cpp embeddings but nvidia_gpu is not enabled" }}
+                    {{- end }}
+                  nvidia.com/gpu: {{ .Values.applications.llama_cpp.embeddings.gpu_count }}
+                  {{- else if eq $embeddingsGpuVendor "amd" }}
+                    {{- if not (include "app.enabled" (list . "amd_gpu")) }}
+                      {{- fail "AMD GPU is selected for llama.cpp embeddings but amd_gpu is not enabled" }}
+                    {{- end }}
+                  amd.com/gpu: {{ .Values.applications.llama_cpp.embeddings.gpu_count }}
+                  {{- else if $embeddingsGpuVendor }}
+                    {{- fail (printf "Unknown GPU vendor '%s' selected for llama.cpp embeddings" $embeddingsGpuVendor) }}
+                  {{- end }}
+          tolerations:
+            - key: "dedicated"
+              operator: Equal
+              value: "ai"
+              effect: "NoSchedule"
     persistence:
       models:
         type: pvc
         storageClass: local-path-persistent-namespaced
-        mountPath: /models
-      cache:
-        enabled: true
-        type: emptyDir
-        mountPath: /.cache
+        targetSelector:
+          main:
+            main:
+              mountPath: /models
+      embeddings:
+        enabled: {{ .Values.applications.llama_cpp.embeddings.enabled }}
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+        targetSelector:
+          embeddings:
+            embeddings:
+              mountPath: /models
 {{- end }}

@@ -61,6 +61,16 @@ spec:
           secretKeyRef:
             name: hugging-face
             key: token
+    {{- if (include "app.enabled" (list . "llama_cpp")) }}
+      - name: RAG_EMBEDDING_ENGINE
+        value: openai
+      - name: RAG_OPENAI_API_BASE_URL
+        value: http://llama-cpp-embeddings:8080/v1
+      - name: RAG_OPENAI_API_KEY
+        value: none
+      - name: RAG_EMBEDDING_MODEL
+        value: nomic-embed-text-v1.5-GGUF
+    {{- end }}
     {{- if (include "app.enabled" (list . "searxng")) }}
       - name: SEARXNG_QUERY_URL
         value: "http://searxng:8080"
