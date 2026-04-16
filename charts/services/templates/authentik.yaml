@@ -450,10 +450,6 @@ spec:
                     - username
                   template: stages/identification/login.html
               - identifiers:
-                  name: default-authentication-flow-mfa
-                id: default-authentication-flow-mfa
-                model: authentik_stages_authenticator_validate.authenticatorvalidatestage
-              - identifiers:
                   name: default-authentication-password
                 id: default-authentication-password
                 model: authentik_stages_password.passwordstage
@@ -474,30 +470,23 @@ spec:
                 model: authentik_flows.flowstagebinding
               - identifiers:
                   target: !KeyOf flow
-                  stage: !KeyOf default-authentication-flow-mfa
-                  order: 30
-                model: authentik_flows.flowstagebinding
-                id: flow-binding-mfa
-                attrs:
-                  re_evaluate_policies: true
-              - identifiers:
-                  target: !KeyOf flow
                   stage: !KeyOf default-authentication-login
                   order: 100
                 model: authentik_flows.flowstagebinding
               - identifiers:
-                  policy: !KeyOf test-not-app-password
-                  target: !KeyOf flow-binding-mfa
-                  order: 0
-                model: authentik_policies.policybinding
-              - identifiers:
                   target: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
                   stage: !Find [authentik_stages_authenticator_validate.authenticatorvalidatestage, [name, default-authentication-mfa-validation]]
                   order: 30
+                id: default-mfa-binding
                 model: authentik_flows.flowstagebinding
                 attrs:
                   evaluate_on_plan: true
                   re_evaluate_policies: true
+              - identifiers:
+                  policy: !KeyOf test-not-app-password
+                  target: !KeyOf default-mfa-binding
+                  order: 0
+                model: authentik_policies.policybinding
       - apiVersion: v1
         kind: ConfigMap
         metadata:
