@@ -78,6 +78,65 @@ spec:
               operator: Equal
               value: "ai"
               effect: "NoSchedule"
+      embeddings:
+        enabled: true
+        primary: false
+        type: Deployment
+        podSpec:
+          containers:
+            embeddings:
+              enabled: true
+              primary: true
+              env:
+                HOME: /tmp
+                LLAMA_ARG_WEBUI: disabled
+                LLAMA_ARG_HF_REPO: "nomic-ai/nomic-embed-text-v1.5-GGUF:Q4_K_M"
+                LLAMA_ARG_EMBEDDINGS: "1"
+                LLAMA_ARG_MODELS_MAX: "1"
+                LLAMA_ARG_N_PARALLEL: "1"
+                LLAMA_ARG_UBATCH: "8192"
+                LLAMA_ARG_BATCH: "8192"
+                LLAMA_ARG_CTX_SIZE: "8192"
+                LLAMA_ARG_ROPE_SCALING_TYPE: "yarn"
+                LLAMA_ARG_ROPE_FREQ_SCALE: ".75"
+                HF_TOKEN:
+                  secretKeyRef:
+                    name: hugging-face
+                    key: token
+                    expandObjectName: false
+              resources:
+                requests:
+                  memory: 512Mi
+                  cpu: 100m
+                limits:
+                  cpu: ''
+                  memory: ''
+              probes:
+                readiness:
+                  enabled: true
+                  type: http
+                  path: /health
+                  port: 8080
+                liveness:
+                  enabled: true
+                  type: http
+                  path: /health
+                  port: 8080
+                startup:
+                  enabled: true
+                  type: http
+                  path: /health
+                  port: 8080
+    service:
+      embeddings:
+        enabled: true
+        type: ClusterIP
+        targetSelector: embeddings
+        ports:
+          http:
+            enabled: true
+            port: 8080
+            targetPort: 8080
     persistence:
       models:
         type: pvc
