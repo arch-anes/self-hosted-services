@@ -1,0 +1,45 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.renovate.enabled }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: renovate
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   RENOVATE_TOKEN: "your-github-personal-access-token"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: renovate
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: renovate
+  repo: https://renovatebot.github.io/helm-charts
+  version: 46.115.0
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  valuesContent: |-
+    cronjob:
+      schedule: "0 1 * * *"
+      timeZone: "America/Toronto"
+    renovate:
+      existingConfigFile: ""
+      config: |
+        {
+          "platform": "github",
+          "autodiscover": true
+        }
+      persistence:
+        cache:
+          enabled: true
+          storageSize: "1Gi"
+    existingSecret: renovate
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 250m
+      limits:
+        memory: 2Gi
+{{- end }}

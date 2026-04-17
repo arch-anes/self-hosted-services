@@ -192,6 +192,8 @@ applications:
     enabled: true
   redis_insight:
     enabled: true
+  renovate:
+    enabled: true
   sonarr:
     enabled: true
   speedtest_tracker:
