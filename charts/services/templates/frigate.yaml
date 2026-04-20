@@ -30,7 +30,6 @@ spec:
         enabled: false
       mqtt:
         enabled: false
-      # go2rtc configuration for better live view streaming
       go2rtc:
         streams:
           {{- range $name, $cam := $frigateConfig.cameras }}
@@ -39,14 +38,12 @@ spec:
             {{- if $cam.rtsp_url }}
             - {{ $cam.rtsp_url | quote }}
             {{- else }}
-            # Main stream for high quality live view
             - "rtsp://{FRIGATE_RTSP_USER}:{FRIGATE_RTSP_PASSWORD}@{{ $cam.ip }}/cam/realmonitor?channel={{ $cam.channel | default 1 }}&subtype=0"
             {{- end }}
           {{ $name }}_sub:
             {{- if $cam.rtsp_url_sub }}
             - {{ $cam.rtsp_url_sub | quote }}
             {{- else }}
-            # Sub stream for detection
             - "rtsp://{FRIGATE_RTSP_USER}:{FRIGATE_RTSP_PASSWORD}@{{ $cam.ip }}/cam/realmonitor?channel={{ $cam.channel | default 1 }}&subtype=1"
             {{- end }}
           {{- end }}
@@ -136,13 +133,10 @@ spec:
                   - detect
                   - record
               {{- else }}
-              # Dahua/EmpireTech camera RTSP format
-              # Main stream (high quality for recording) - via go2rtc restream
               - path: "rtsp://127.0.0.1:8554/{{ $name }}"
                 input_args: preset-rtsp-restream
                 roles:
                   - record
-              # Sub stream (lower quality for detection - uses less CPU) - via go2rtc restream
               - path: "rtsp://127.0.0.1:8554/{{ $name }}_sub"
                 input_args: preset-rtsp-restream
                 roles:
