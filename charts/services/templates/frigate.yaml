@@ -251,7 +251,7 @@ spec:
         existingClaim: nfs-{{ $frigateConfig.nfs_media }}
         {{- else }}
         storageClass: local-path-persistent-namespaced
-        size: {{ $frigateConfig.media_storage_size | default "100Gi" }}
+        size: 100Gi
         {{- end }}
     global:
       traefik:
