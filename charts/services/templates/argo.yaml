@@ -144,8 +144,8 @@ spec:
                   selfHeal: true
               project: self-hosted-services
               source:
-                repoURL: {{ .Values.gitRepo }}
-                targetRevision: HEAD
+                repoURL: {{ .Values.applications.argo.gitRepo }}
+                targetRevision: {{ .Values.applications.argo.targetRevision }}
                 path: charts/services
                 helm:
                   valuesObject:

@@ -19,8 +19,6 @@ fqdn: example.org
 behindTcpProxy: true
 tcpProxyIp: 192.168.1.1
 
-# The git repository out of which to continuously deploy
-gitRepo: https://github.com/arch-anes/self-hosted-services.git
 
 # Private IP ranges
 localIpRanges:
@@ -78,6 +76,9 @@ applications:
     enabled: true
   argo:
     enabled: true
+    # The git repository out of which to continuously deploy
+    gitRepo: https://github.com/arch-anes/self-hosted-services.git
+    targetRevision: HEAD
     syncWindows:
       - kind: deny
         schedule: "0 12 * * *"
