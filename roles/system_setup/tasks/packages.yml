@@ -9,6 +9,9 @@
       ansible.builtin.apt:
         pkg:
           - curl
+          - diffutils
+          - htop
+          - nnn
           - rasdaemon
           - rsync
           - sanoid
@@ -24,8 +27,15 @@
     - name: Install common packages
       community.general.opkg:
         name:
+          - diffutils
           - ethtool
+          - fish
           - haproxy
+          - htop
           - ip6tables-nft
           - luci-app-sqm
+          - nnn
+          - procps-ng-pkill
           - tailscale
+          - tmux
+          - vim
