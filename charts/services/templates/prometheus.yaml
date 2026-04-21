@@ -91,6 +91,12 @@ spec:
                       httpHeader:
                         - key: Content-Type
                           value: application/json
+        policies.yaml:
+          apiVersion: 1
+          policies:
+            - orgId: 1
+              receiver: gotify
+              group_by: ['grafana_folder', 'alertname']
 {{- end }}
 {{- if and (not .Values.disableAllApplications) (or .Values.applications.loki.enabled .Values.applications.tempo.enabled) }}
       additionalDataSources:
