@@ -18,7 +18,7 @@ metadata:
 spec:
   chart: llama-cpp
   repo: https://arch-anes.github.io/charts
-  version: 1.0.3
+  version: 1.0.5
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     {{- $gpuVendor := .Values.applications.llama_cpp.gpu_vendor }}
