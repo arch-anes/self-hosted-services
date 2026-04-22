@@ -12,7 +12,7 @@ metadata:
 spec:
   chart: open-webui
   repo: https://helm.openwebui.com/
-  version: 13.0.1
+  version: 14.1.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     pipelines:
