@@ -227,6 +227,7 @@ spec:
               password_encryption: scram-sha-256
               max_connections: "1000"
               shared_preload_libraries: "cube,earthdistance,vector,vchord,timescaledb"
+              shared_buffers: "1GB"
           patroni:
             dynamicConfiguration:
               postgresql:
