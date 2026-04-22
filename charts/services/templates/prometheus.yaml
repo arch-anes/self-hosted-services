@@ -65,39 +65,29 @@ spec:
     defaultRules:
       rules:
         windows: false
+{{- if .Values.applications.gotify.enabled }}
+    alertmanager:
+      alertmanagerSpec:
+        retention: 336h # 2 weeks
+      config:
+        global:
+          resolve_timeout: 5m
+        route:
+          group_by: ['alertname']
+          group_wait: 1m
+          group_interval: 5m
+          repeat_interval: 1w
+          receiver: 'gotify'
+        receivers:
+          - name: 'null'
+          - name: 'gotify'
+            webhook_configs:
+              - url: "http://alertmanager-gotify-bridge.kube-system.svc.cluster.local:8080/gotify_webhook"
+                send_resolved: false
+{{- end }}
     grafana:
       annotations:
         reloader.stakater.com/auto: "true"
-{{- if .Values.applications.gotify.enabled }}
-      envValueFrom:
-        GOTIFY_TOKEN:
-          secretKeyRef:
-            name: prometheus
-            key: grafana-gotify-token
-      alerting:
-        contactpoints.yaml:
-          secret:
-            apiVersion: 1
-            contactPoints:
-              - orgId: 1
-                name: gotify
-                receivers:
-                  - uid: gotify-webhook
-                    type: webhook
-                    disableResolveMessage: false
-                    settings:
-                      url: "http://gotify.{{ .Values.applicationsNamespace }}.svc.cluster.local/message?token=${GOTIFY_TOKEN}"
-                      httpMethod: POST
-                      httpHeader:
-                        - key: Content-Type
-                          value: application/json
-        policies.yaml:
-          apiVersion: 1
-          policies:
-            - orgId: 1
-              receiver: gotify
-              group_by: ['grafana_folder', 'alertname']
-{{- end }}
 {{- if and (not .Values.disableAllApplications) (or .Values.applications.loki.enabled .Values.applications.tempo.enabled) }}
       additionalDataSources:
 {{- if .Values.applications.loki.enabled }}
@@ -439,6 +429,55 @@ spec:
       serviceMonitor:
         enabled: false
     extraManifests:
+{{- if .Values.applications.gotify.enabled }}
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: alertmanager-gotify-bridge
+          namespace: kube-system
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: alertmanager-gotify-bridge
+          template:
+            metadata:
+              labels:
+                app: alertmanager-gotify-bridge
+            spec:
+              containers:
+                - name: gotify-bridge
+                  image: ghcr.io/druggeri/alertmanager_gotify_bridge:2.3.2
+                  resources:
+                    requests:
+                      cpu: 100m
+                      memory: 16Mi
+                    limits:
+                      memory: 64Mi
+                  ports:
+                    - containerPort: 8080
+                  env:
+                    - name: GOTIFY_ENDPOINT
+                      value: "http://gotify.{{ .Values.applicationsNamespace }}.svc.cluster.local/message"
+                    - name: GOTIFY_TOKEN
+                      valueFrom:
+                        secretKeyRef:
+                          name: prometheus
+                          key: grafana-gotify-token
+                    - name: EXTENDED_DETAILS
+                      value: "true"
+      - apiVersion: v1
+        kind: Service
+        metadata:
+          name: alertmanager-gotify-bridge
+          namespace: kube-system
+        spec:
+          selector:
+            app: alertmanager-gotify-bridge
+          ports:
+            - port: 8080
+              targetPort: 8080
+{{- end }}
       - apiVersion: helm.cattle.io/v1
         kind: HelmChart
         metadata:
