@@ -25,6 +25,7 @@ spec:
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
     {{- $frigateConfig := .Values.applications.frigate }}
+    {{- $gpuVendor := dig "gpu_vendor" "" $frigateConfig }}
     frigateConfig:
       tls:
         enabled: false
@@ -64,13 +65,16 @@ spec:
         input_pixel_format: bgr
         path: /openvino-model/ssdlite_mobilenet_v2.xml
         labelmap_path: /openvino-model/coco_91cl_bkgr.txt
-      {{- if eq $frigateConfig.gpu_vendor "intel" }}
+      {{- if eq $gpuVendor "intel" }}
       ffmpeg:
         hwaccel_args: preset-vaapi
-      {{- else if eq $frigateConfig.gpu_vendor "intel_xe" }}
+      {{- else if eq $gpuVendor "intel_xe" }}
       ffmpeg:
         hwaccel_args: preset-vaapi
-      {{- else if eq $frigateConfig.gpu_vendor "nvidia" }}
+      {{- else if eq $gpuVendor "nvidia" }}
+      ffmpeg:
+        hwaccel_args: preset-nvidia
+      {{- else if eq $gpuVendor "amd" }}
       ffmpeg:
         hwaccel_args: preset-nvidia-h264
       {{- end }}
@@ -215,7 +219,6 @@ spec:
                   cpu: 250m
                 limits:
                   memory: 4Gi
-                  {{- $gpuVendor := $frigateConfig.gpu_vendor }}
                   {{- if eq $gpuVendor "intel" }}
                     {{- if not $.Values.applications.intel_gpu.enabled }}
                       {{- fail "Intel GPU is selected for Frigate but intel_gpu is not enabled" }}
