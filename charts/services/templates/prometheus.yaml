@@ -398,7 +398,7 @@ spec:
           kubernetes.io/arch: amd64
         resources:
           limits:
-            memory: 3Gi
+            memory: 5Gi
           requests:
             cpu: 500m
             memory: 1Gi
