@@ -36,14 +36,14 @@ spec:
           {{- range $name, $cam := $frigateConfig.cameras }}
           {{- if $cam.enabled | default true }}
           {{ $name }}:
-            {{- if $cam.rtsp_url }}
-            - {{ $cam.rtsp_url | quote }}
+            {{- with $cam.rtsp_url }}
+            - {{ . | quote }}
             {{- else }}
             - "rtsp://{FRIGATE_RTSP_USER}:{FRIGATE_RTSP_PASSWORD}@{{ $cam.ip }}/cam/realmonitor?channel={{ $cam.channel | default 1 }}&subtype=0"
             {{- end }}
           {{ $name }}_sub:
-            {{- if $cam.rtsp_url_sub }}
-            - {{ $cam.rtsp_url_sub | quote }}
+            {{- with $cam.rtsp_url_sub }}
+            - {{ . | quote }}
             {{- else }}
             - "rtsp://{FRIGATE_RTSP_USER}:{FRIGATE_RTSP_PASSWORD}@{{ $cam.ip }}/cam/realmonitor?channel={{ $cam.channel | default 1 }}&subtype=1"
             {{- end }}
@@ -112,18 +112,19 @@ spec:
       
       cameras:
         {{- range $name, $cam := $frigateConfig.cameras }}
+        {{- with $cam }}
         {{ $name }}:
-          enabled: {{ $cam.enabled | default true }}
-          {{- if $cam.detect }}
+          enabled: {{ .enabled | default true }}
+          {{- with .detect }}
           detect:
             enabled: true
-            {{- if $cam.detect.width }}
-            width: {{ $cam.detect.width }}
+            {{- with .width }}
+            width: {{ . }}
             {{- end }}
-            {{- if $cam.detect.height }}
-            height: {{ $cam.detect.height }}
+            {{- with .height }}
+            height: {{ . }}
             {{- end }}
-            fps: {{ $cam.detect.fps | default 10 }}
+            fps: {{ .fps | default 10 }}
           {{- else }}
           detect:
             enabled: true
@@ -131,8 +132,8 @@ spec:
           {{- end }}
           ffmpeg:
             inputs:
-              {{- if $cam.rtsp_url }}
-              - path: {{ $cam.rtsp_url | quote }}
+              {{- with .rtsp_url }}
+              - path: {{ . | quote }}
                 roles:
                   - detect
                   - record
@@ -146,29 +147,30 @@ spec:
                 roles:
                   - detect
               {{- end }}
-          {{- if $cam.live }}
+          {{- with .live }}
           live:
-            {{- toYaml $cam.live | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if $cam.motion }}
+          {{- with .motion }}
           motion:
-            {{- toYaml $cam.motion | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if $cam.zones }}
+          {{- with .zones }}
           zones:
-            {{- toYaml $cam.zones | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if $cam.objects }}
+          {{- with .objects }}
           objects:
-            {{- toYaml $cam.objects | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if $cam.onvif }}
+          {{- with .onvif }}
           onvif:
             host: {{ $cam.ip }}
-            port: {{ $cam.onvif.port | default 80 }}
+            port: {{ .port | default 80 }}
             user: "{FRIGATE_RTSP_USER}"
             password: "{FRIGATE_RTSP_PASSWORD}"
           {{- end }}
+        {{- end }}
         {{- end }}
     workload:
       main:
