@@ -50,9 +50,9 @@ spec:
           {{- end }}
           {{- end }}
       
-      {{- if $frigateConfig.detectors }}
+      {{- with $frigateConfig.detectors }}
       detectors:
-        {{- toYaml $frigateConfig.detectors | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- else }}
       detectors:
         cpu1:
@@ -78,17 +78,17 @@ spec:
       ffmpeg:
         hwaccel_args: preset-nvidia-h264
       {{- end }}
-      {{- if $frigateConfig.motion }}
+      {{- with $frigateConfig.motion }}
       motion:
-        {{- toYaml $frigateConfig.motion | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if $frigateConfig.objects }}
+      {{- with $frigateConfig.objects }}
       objects:
-        {{- toYaml $frigateConfig.objects | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if $frigateConfig.face_recognition }}
+      {{- with $frigateConfig.face_recognition }}
       face_recognition:
-        {{- toYaml $frigateConfig.face_recognition | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       record:
         enabled: {{ $frigateConfig.record.enabled | default true }}
@@ -193,9 +193,9 @@ spec:
                   path: /api/
                   port: 5000
               env:
-                {{- if $frigateConfig.mqtt }}
-                {{- if $frigateConfig.mqtt.user }}
-                FRIGATE_MQTT_USER: {{ $frigateConfig.mqtt.user | quote }}
+                {{- with $frigateConfig.mqtt }}
+                {{- with .user }}
+                FRIGATE_MQTT_USER: {{ . | quote }}
                 FRIGATE_MQTT_PASSWORD:
                   secretKeyRef:
                     name: frigate-credentials
@@ -249,8 +249,8 @@ spec:
         size: 1Gi
       media:
         enabled: true
-        {{- if $frigateConfig.nfs_media }}
-        existingClaim: nfs-{{ $frigateConfig.nfs_media }}
+        {{- with $frigateConfig.nfs_media }}
+        existingClaim: nfs-{{ . }}
         {{- else }}
         storageClass: local-path-persistent-namespaced
         size: 100Gi
