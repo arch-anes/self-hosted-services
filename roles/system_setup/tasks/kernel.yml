@@ -6,7 +6,7 @@
   become: true
   ansible.posix.sysctl:
     name: vm.nr_hugepages
-    value: "5120"  # 10Gi of huges pages
+    value: "1024"  # 2Gi of huge pages, matches what's in charts/services/templates/postgresql.yaml
     sysctl_file: /etc/sysctl.conf
     state: present
     reload: true
