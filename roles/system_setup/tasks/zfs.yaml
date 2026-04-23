@@ -17,6 +17,23 @@
         enabled: true
         state: started
 
+    - name: Calculate ZFS ARC limit (25% of RAM)
+      ansible.builtin.set_fact:
+        zfs_arc_max_bytes: "{{ (ansible_memtotal_mb * 1024 * 1024 * 0.25) | int }}"
+
+    - name: Limit ZFS ARC size in modprobe config
+      ansible.builtin.copy:
+        dest: /etc/modprobe.d/zfs.conf
+        content: "options zfs zfs_arc_max={{ zfs_arc_max_bytes }}"
+        mode: '0644'
+
+    - name: Apply ZFS ARC limit immediately
+      ansible.builtin.copy:
+        dest: /sys/module/zfs/parameters/zfs_arc_max
+        content: "{{ zfs_arc_max_bytes }}"
+        mode: '0644'
+        unsafe_writes: true
+
 - name: Setup Sanoid
   become: true
   when: ansible_distribution == 'Ubuntu' and ansible_module_container_type == ''
