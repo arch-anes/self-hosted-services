@@ -103,7 +103,6 @@ applications:
   frigate:
     enabled: true
     # gpu_vendor: intel
-    # media_storage_size: 100Gi
     record:
       enabled: true
       retain_mode: motion
