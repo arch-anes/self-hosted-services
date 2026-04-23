@@ -76,7 +76,7 @@ spec:
         hwaccel_args: preset-nvidia
       {{- else if eq $gpuVendor "amd" }}
       ffmpeg:
-        hwaccel_args: preset-nvidia-h264
+        hwaccel_args: preset-vaapi
       {{- end }}
       {{- with $frigateConfig.motion }}
       motion:
