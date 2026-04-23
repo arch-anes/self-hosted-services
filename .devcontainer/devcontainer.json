@@ -3,6 +3,13 @@
 	"dockerComposeFile": "./docker-compose.yml",
 	"service": "devcontainer",
 	"workspaceFolder": "/workspace",
+	"features": {
+		"ghcr.io/anthropics/devcontainer-features/claude-code:1": {},
+		"ghcr.io/siri404/devcontainer-ai-features/gemini-cli:1": {},
+		"ghcr.io/stu-bell/devcontainer-features/open-code:0": {
+			"open_code_version": "v1.14.41"
+		}
+	},
 	"postAttachCommand": "ansible-galaxy install -r requirements.yml --force",
 	"customizations": {
 		"vscode": {
