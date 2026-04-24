@@ -320,4 +320,49 @@ spec:
               rewrite:
                 - transform:
                     template: client_secret
+      - |
+        apiVersion: batch/v1
+        kind: CronJob
+        metadata:
+          name: immich-vchordrq-prewarm
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          schedule: "*/5 * * * *"
+          concurrencyPolicy: Forbid
+          successfulJobsHistoryLimit: 1
+          failedJobsHistoryLimit: 3
+          jobTemplate:
+            spec:
+              template:
+                spec:
+                  restartPolicy: OnFailure
+                  containers:
+                    - name: prewarm
+                      image: ghcr.io/arch-anes/crunchy-postgres:ubi9-17.9-2610
+                      command:
+                        - psql
+                        - -c
+                        - "SELECT vchordrq_prewarm('clip_index'), vchordrq_prewarm('face_index');"
+                      env:
+                        - name: PGPASSWORD
+                          valueFrom:
+                            secretKeyRef:
+                              name: postgresql-pguser-immich
+                              key: password
+                        - name: PGHOST
+                          value: postgresql-primary
+                        - name: PGPORT
+                          value: "5432"
+                        - name: PGDATABASE
+                          value: immich
+                        - name: PGUSER
+                          value: immich
+                        - name: PGSSLMODE
+                          value: require
+                      resources:
+                        requests:
+                          cpu: 10m
+                          memory: 32Mi
+                        limits:
+                          memory: 64Mi
 {{- end }}
