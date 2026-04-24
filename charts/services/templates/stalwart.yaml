@@ -230,6 +230,7 @@ spec:
             class: objectClass
             name: cn
             email: mailLocalAddress
+            email-alias: mailAlias
             description: sAMAccountName
             groups: memberOf
             quota: diskQuota
@@ -237,7 +238,7 @@ spec:
           filter:
             # https://github.com/goauthentik/authentik/issues/17956
             name: "(cn={local})"
-            email: "(mailLocalAddress=?)"
+            email: "(|(mailLocalAddress=?)(mailAlias=?))"
             # Group membership is not displayed correctly in the UI
             # https://github.com/stalwartlabs/stalwart/discussions/521#discussioncomment-12108062
             expand:
