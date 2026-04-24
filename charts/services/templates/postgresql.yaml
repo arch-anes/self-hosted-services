@@ -64,6 +64,213 @@ spec:
           annotations:
             kubernetes.io/service-account.name: prometheus-kube-prometheus-prometheus
         type: kubernetes.io/service-account-token
+      - apiVersion: monitoring.coreos.com/v1
+        kind: PrometheusRule
+        metadata:
+          name: crunchy-postgres-rules
+          namespace: kube-system
+        spec:
+          groups:
+            - name: crunchy-postgres
+              rules:
+                - alert: PGExporterScrapeError
+                  expr: pg_exporter_last_scrape_error > 0
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: Postgres Exporter is encountering scrape errors
+                - alert: ExporterDown
+                  expr: avg_over_time(up{job="crunchy-postgres-exporter",exported_job!="patroni"}[5m]) < 0.5
+                  for: 10s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: Postgres exporter has been down at least 50% of the last 5 minutes
+                - alert: PGIsUp
+                  expr: pg_up < 1 or patroni_postgres_running < 1
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: Postgres exporter cannot communicate with PostgreSQL
+                - alert: PGNoPrimary
+                  expr: max by (cluster_name) (ccp_is_in_recovery_status) < 2
+                  for: 30s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: PostgreSQL cluster has no primary instance
+                - alert: PGIdleTxnWarning
+                  expr: ccp_connection_stats_max_idle_in_txn_time > 300
+                  for: 60s
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: A session has been idle in transaction for over 5 minutes
+                - alert: PGIdleTxnCritical
+                  expr: ccp_connection_stats_max_idle_in_txn_time > 900
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: A session has been idle in transaction for over 15 minutes
+                - alert: PGQueryTimeWarning
+                  expr: ccp_connection_stats_max_query_time > 43200
+                  for: 60s
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: A query has been running for over 12 hours
+                - alert: PGQueryTimeCritical
+                  expr: ccp_connection_stats_max_query_time > 86400
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: A query has been running for over 1 day
+                - alert: PGConnPercWarning
+                  expr: 100 * (ccp_connection_stats_total / ccp_connection_stats_max_connections) > 75
+                  for: 60s
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: PostgreSQL is using over 75% of available connections
+                - alert: PGConnPercCritical
+                  expr: 100 * (ccp_connection_stats_total / ccp_connection_stats_max_connections) > 90
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: PostgreSQL is using over 90% of available connections
+                - alert: PGDiskSizeWarning
+                  expr: 100 * ((ccp_nodemx_data_disk_total_bytes - ccp_nodemx_data_disk_available_bytes) / ccp_nodemx_data_disk_total_bytes) > 75
+                  for: 60s
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: PostgreSQL data disk usage is over 75%
+                - alert: PGDiskSizeCritical
+                  expr: 100 * ((ccp_nodemx_data_disk_total_bytes - ccp_nodemx_data_disk_available_bytes) / ccp_nodemx_data_disk_total_bytes) > 90
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: PostgreSQL data disk usage is over 90%
+                - alert: DiskFillPredict
+                  expr: predict_linear(ccp_nodemx_data_disk_available_bytes{mount_point!~"tmpfs"}[1h], 24 * 3600) < 0 and 100 * ((ccp_nodemx_data_disk_total_bytes - ccp_nodemx_data_disk_available_bytes) / ccp_nodemx_data_disk_total_bytes) > 70
+                  for: 5m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: PostgreSQL data disk predicted to fill within 24 hours
+                - alert: PGClusterRoleChange
+                  expr: count by (pg_cluster) (ccp_is_in_recovery_status != ignoring(instance,ip,pod,role) (ccp_is_in_recovery_status offset 5m)) >= 1
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: PostgreSQL cluster had a switchover/failover event
+                - alert: PGReplicationByteLagWarning
+                  expr: ccp_replication_lag_size_bytes > 5.24288e+07
+                  for: 60s
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: A replica is lagging over 50MB behind
+                - alert: PGReplicationByteLagCritical
+                  expr: ccp_replication_lag_size_bytes > 1.048576e+08
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: A replica is lagging over 100MB behind
+                - alert: PGReplicationSlotsInactive
+                  expr: ccp_replication_slots_active == 0
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: One or more replication slots are inactive
+                - alert: PGXIDWraparoundWarning
+                  expr: ccp_transaction_wraparound_percent_towards_wraparound > 50
+                  for: 60s
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: PostgreSQL is over 50% towards transaction ID wraparound
+                - alert: PGXIDWraparoundCritical
+                  expr: ccp_transaction_wraparound_percent_towards_wraparound > 75
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: PostgreSQL is over 75% towards transaction ID wraparound
+                - alert: PGEmergencyVacuumWarning
+                  expr: ccp_transaction_wraparound_percent_towards_emergency_autovac > 110
+                  for: 60s
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: PostgreSQL is over 110% beyond autovacuum_freeze_max_age — autovacuum may need tuning
+                - alert: PGEmergencyVacuumCritical
+                  expr: ccp_transaction_wraparound_percent_towards_emergency_autovac > 125
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: PostgreSQL is over 125% beyond autovacuum_freeze_max_age — autovacuum needs tuning
+                - alert: PGArchiveCommandStatus
+                  expr: ccp_archive_command_status_seconds_since_last_fail > 300
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: PostgreSQL has a recent failing archive command
+                - alert: PGSequenceExhaustion
+                  expr: ccp_sequence_exhaustion_count > 0
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: One or more sequences are over 75% usage
+                - alert: PGSettingsPendingRestart
+                  expr: ccp_settings_pending_restart_count > 0
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: PostgreSQL has settings in pg_settings pending a restart
+                # repo1 (remote): full weekly on Tuesday, incremental daily
+                - alert: PGBackrestRepo1FullBackupStale
+                  expr: ccp_backrest_last_full_backup_time_since_completion_seconds{stanza="postgresql",repo="repo1"} > 648000
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: pgBackRest repo1 full backup has not completed in over 7 days
+                - alert: PGBackrestRepo1IncrBackupStale
+                  expr: ccp_backrest_last_incr_backup_time_since_completion_seconds{stanza="postgresql",repo="repo1"} > 129600
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: pgBackRest repo1 incremental backup has not completed in over 24 hours
+                # repo2 (local volume): full weekly on Monday, incremental hourly
+                - alert: PGBackrestRepo2FullBackupStale
+                  expr: ccp_backrest_last_full_backup_time_since_completion_seconds{stanza="postgresql",repo="repo2"} > 648000
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: pgBackRest repo2 full backup has not completed in over 7 days
+                - alert: PGBackrestRepo2IncrBackupStale
+                  expr: ccp_backrest_last_incr_backup_time_since_completion_seconds{stanza="postgresql",repo="repo2"} > 7200
+                  for: 60s
+                  labels:
+                    severity: critical
+                  annotations:
+                    summary: pgBackRest repo2 incremental backup has not completed in over 2 hours
       # Source: https://github.com/ducnguyen-kasha-io/kasha-lab/blob/a954f765383ed322bdb1b6acda2be7628680ffc4/raw-templates/postgres-pgo/podmonitor.yaml
       - apiVersion: monitoring.coreos.com/v1
         kind: PodMonitor
