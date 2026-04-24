@@ -440,6 +440,8 @@ spec:
                   name: default-authentication-login
                 id: default-authentication-login
                 model: authentik_stages_user_login.userloginstage
+                attrs:
+                  session_duration: "days=30"
               - identifiers:
                   name: default-authentication-identification
                 id: default-authentication-identification
@@ -639,6 +641,8 @@ spec:
                   authorization_flow:  !Find [authentik_flows.flow, [slug, "default-provider-authorization-implicit-consent"]]
                   invalidation_flow: !Find [authentik_flows.flow, [slug, default-invalidation-flow]]
                   skip_path_regex: ""
+                  access_token_validity: "days=30"
+                  refresh_token_validity: "days=180"
 
               - id: traefik-forward-domain-app
                 model: authentik_core.application
