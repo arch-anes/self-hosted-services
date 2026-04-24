@@ -37,6 +37,33 @@ spec:
   targetNamespace: kube-system
   valuesContent: |-
     objects:
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRole
+        metadata:
+          name: prometheus-pgo-metrics
+        rules:
+          - nonResourceURLs: ["/metrics"]
+            verbs: ["get"]
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        metadata:
+          name: prometheus-pgo-metrics
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: prometheus-pgo-metrics
+        subjects:
+          - kind: ServiceAccount
+            name: prometheus-kube-prometheus-prometheus
+            namespace: kube-system
+      - apiVersion: v1
+        kind: Secret
+        metadata:
+          name: prometheus-pgo-metrics-token
+          namespace: kube-system
+          annotations:
+            kubernetes.io/service-account.name: prometheus-kube-prometheus-prometheus
+        type: kubernetes.io/service-account-token
       # Source: https://github.com/ducnguyen-kasha-io/kasha-lab/blob/a954f765383ed322bdb1b6acda2be7628680ffc4/raw-templates/postgres-pgo/podmonitor.yaml
       - apiVersion: monitoring.coreos.com/v1
         kind: PodMonitor
@@ -56,6 +83,11 @@ spec:
               scrapeTimeout: 15s
               tlsConfig:
                 insecureSkipVerify: true
+              authorization:
+                type: Bearer
+                credentials:
+                  name: prometheus-pgo-metrics-token
+                  key: token
       - apiVersion: monitoring.coreos.com/v1
         kind: PodMonitor
         metadata:
