@@ -155,6 +155,9 @@ spec:
         podSpec:
           containers:
             machinelearning:
+              env:
+                MACHINE_LEARNING_MODEL_TTL: "0"
+                MACHINE_LEARNING_MODEL_TTL_POLL_S: "0"
               resources:
                 excludeExtra: false
                 requests:
