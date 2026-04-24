@@ -100,6 +100,18 @@ spec:
                   type: service_account
                   attributes:
                     mailLocalAddress: "odoo@{{ .Values.fqdn }}"
+                    mailAlias:
+                      - bounce@{{ .Values.fqdn }}
+                      - customer-care@{{ .Values.fqdn }}
+                      - expense@{{ .Values.fqdn }}
+                      - inbox@{{ .Values.fqdn }}
+                      - lead@{{ .Values.fqdn }}
+                      - notifications@{{ .Values.fqdn }}
+                      - odoobot@{{ .Values.fqdn }}
+                      - purchases@{{ .Values.fqdn }}
+                      - rfq@{{ .Values.fqdn }}
+                      - sales@{{ .Values.fqdn }}
+                      - to-do@{{ .Values.fqdn }}
     resources:
       requests:
         memory: 500Mi
