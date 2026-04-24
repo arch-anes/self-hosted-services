@@ -44,10 +44,8 @@ spec:
   version: 27.5.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   valuesContent: |-
-    {{- $mlGpuVendor := dig "machine_learning" "gpu_vendor" "" .Values.applications.immich }}
-    {{- if $mlGpuVendor }}
     immich:
-    {{- end }}
+    {{- $mlGpuVendor := dig "machine_learning" "gpu_vendor" "" .Values.applications.immich }}
     {{- if eq $mlGpuVendor "intel" }}
       {{- if not .Values.applications.intel_gpu.enabled }}
         {{- fail "Intel GPU is selected for Immich but intel_gpu is not enabled" }}
@@ -70,6 +68,8 @@ spec:
       mlImageType: mlRocmImage
     {{- else if $mlGpuVendor }}
       {{- fail (printf "Unknown GPU vendor '%s' selected for Immich's machine learning" $mlGpuVendor) }}
+    {{- else }}
+      mlImageType: mlOpenvinoImage
     {{- end }}
     workload:
       main:
