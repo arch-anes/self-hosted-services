@@ -523,15 +523,31 @@ spec:
                   operator: "Exists"
             serviceMonitor:
               endpoints:
+                # kubelet /metrics: k3s-server exposes apiserver, kubelet, scheduler, controller-manager
+                # and etcd metrics all on the same endpoint.
                 - port: metrics
                   honorLabels: true
                   relabelings:
+                    # Required for upstream recording rules that join on metrics_path.
                     - sourceLabels: [__metrics_path__]
                       targetLabel: metrics_path
+                    # Use the node name as instance so dashboards show human-readable hostnames.
                     - sourceLabels:
                         - __meta_kubernetes_pod_node_name
                       targetLabel: instance
                       action: replace
+                  metricRelabelings:
+                    # Drop intermediate histogram buckets for apiserver request latencies that are
+                    # never queried. The kept buckets (0.05, 0.1, 0.2, 0.4, 0.6, 0.8, 1, 1.5, 2,
+                    # 3, 4, 5, 10, 15, 20, 25, 30, 40, 50, 60) still satisfy the SLO recording rules.
+                    - action: drop
+                      sourceLabels: [__name__, le]
+                      regex: (etcd_request|apiserver_request_slo|apiserver_request_sli|apiserver_request)_duration_seconds_bucket;(0\.15|0\.2|0\.3|0\.35|0\.4|0\.45|0\.6|0\.7|0\.8|0\.9|1\.25|1\.5|1\.75|2|3|3\.5|4|4\.5|6|7|8|9|15|20|40|45|50)(\.0)?
+                    # Drop intermediate histogram buckets for kubelet storage operation latencies.
+                    - action: drop
+                      sourceLabels: [__name__, le]
+                      regex: (csi_operations|storage_operation_duration)_seconds_bucket;(0\.25|2\.5|15|25|120|600)(\.0)?
+                # kubelet /metrics/cadvisor: per-container resource usage metrics.
                 - port: metrics
                   path: /metrics/cadvisor
                   honorLabels: true
@@ -542,6 +558,42 @@ spec:
                         - __meta_kubernetes_pod_node_name
                       targetLabel: instance
                       action: replace
+                  metricRelabelings:
+                    # Drop low-value CPU metrics not used by any dashboard or alert.
+                    - sourceLabels: [__name__]
+                      action: drop
+                      regex: 'container_cpu_(load_average_10s|system_seconds_total|user_seconds_total)'
+                    # Drop filesystem metrics that are always zero or redundant with node-exporter.
+                    - sourceLabels: [__name__]
+                      action: drop
+                      regex: 'container_fs_(io_current|io_time_seconds_total|io_time_weighted_seconds_total|reads_merged_total|sector_reads_total|sector_writes_total|writes_merged_total)'
+                    # Drop memory metrics that are always zero in practice.
+                    - sourceLabels: [__name__]
+                      action: drop
+                      regex: 'container_memory_mapped_file'
+                    # Drop low-value process metrics not used by any dashboard or alert.
+                    - sourceLabels: [__name__]
+                      action: drop
+                      regex: 'container_(file_descriptors|tasks_state|threads_max)'
+                    # Drop the hierarchy scope for memory failures — only the container scope is useful.
+                    - sourceLabels: [__name__, scope]
+                      action: drop
+                      regex: 'container_memory_failures_total;hierarchy'
+                    # Drop network metrics for CNI virtual interfaces (not real node traffic).
+                    - sourceLabels: [__name__, interface]
+                      action: drop
+                      regex: 'container_network_.*;(cali|cilium|cni|lxc|nodelocaldns|tunl).*'
+                    # Drop container spec metrics — already covered by kube-state-metrics.
+                    - sourceLabels: [__name__]
+                      action: drop
+                      regex: 'container_spec.*'
+                    # Drop cgroup-level entries that have no associated pod (system slices, etc).
+                    # Uses '/.+;' instead of '.+;' to preserve the root cgroup (id="/") which
+                    # is used by dashboards for cluster-wide CPU/memory totals.
+                    - sourceLabels: [id, pod]
+                      action: drop
+                      regex: '/.+;'
+                # kubelet /metrics/probes: liveness/readiness/startup probe results per container.
                 - port: metrics
                   path: /metrics/probes
                   honorLabels: true
