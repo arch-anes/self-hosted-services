@@ -404,7 +404,12 @@ spec:
         enabled: false
       serviceMonitor:
         enabled: false
-    # Disable community scrapers and let pushprox scrape metrics instead for k3s
+    kubeApiServer:
+      jobNameOverride: k3s-server
+      service:
+        enabled: false
+      serviceMonitor:
+        enabled: false
     kubeControllerManager:
       jobNameOverride: k3s-server
       service:
