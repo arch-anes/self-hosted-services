@@ -13,7 +13,7 @@ spec:
   version: 22.12.4
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/odoo/values.yaml
-  valuesContent: |-
+  values:
     workload:
       main:
         annotations:

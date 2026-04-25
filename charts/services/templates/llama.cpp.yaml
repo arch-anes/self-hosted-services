@@ -21,7 +21,7 @@ spec:
   version: 1.0.5
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/arch-anes/charts/blob/main/charts/llama-cpp/values.yaml
-  valuesContent: |-
+  values:
     {{- $gpuVendor := .Values.applications.llama_cpp.gpu_vendor }}
     {{- with $gpuVendor }}
     gpu:

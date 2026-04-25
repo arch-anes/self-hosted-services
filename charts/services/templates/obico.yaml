@@ -30,7 +30,7 @@ spec:
   version: 0.6.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/gabe565/charts/blob/main/charts/obico/values.yaml
-  valuesContent: |-
+  values:
     server:
       controller:
         annotations:

@@ -25,7 +25,7 @@ spec:
   version: v1.20.2
   targetNamespace: kube-system
   # reference: https://github.com/cert-manager/cert-manager/blob/master/deploy/charts/cert-manager/values.yaml
-  valuesContent: |-
+  values:
     crds:
       enabled: true
     # https://github.com/cert-manager/cert-manager/issues/5515

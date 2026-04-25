@@ -24,7 +24,7 @@ spec:
   version: 0.35.0
   targetNamespace: kube-system
   # reference: https://github.com/intel/helm-charts/blob/main/charts/gpu-device-plugin/values.yaml
-  valuesContent: |-
+  values:
     tolerations:
       - key: "dedicated"
         operator: Equal

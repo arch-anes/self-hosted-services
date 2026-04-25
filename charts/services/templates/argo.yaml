@@ -15,7 +15,7 @@ spec:
   targetNamespace: kube-system
   takeOwnership: true
   # reference: https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml
-  valuesContent: |-
+  values:
     global:
       domain: argo.{{ .Values.fqdn }}
     configs:
@@ -100,7 +100,7 @@ spec:
   repo: https://arch-anes.github.io/charts
   version: 0.2.1
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     objects:
       - apiVersion: argoproj.io/v1alpha1
         kind: AppProject

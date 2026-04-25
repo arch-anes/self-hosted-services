@@ -10,7 +10,7 @@ spec:
   version: 0.18.2
   targetNamespace: kube-system
   # reference: https://github.com/kubernetes-sigs/node-feature-discovery/blob/master/deployment/helm/node-feature-discovery/values.yaml
-  valuesContent: |-
+  values:
     featureGates:
       NodeFeatureAPI: true
       NodeFeatureGroupAPI: true

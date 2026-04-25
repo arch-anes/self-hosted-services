@@ -13,7 +13,7 @@ spec:
   version: 25.6.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/sonarr/values.yaml
-  valuesContent: |-
+  values:
     workload:
       main:
         annotations:

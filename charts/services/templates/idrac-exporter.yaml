@@ -37,7 +37,7 @@ spec:
   version: 2.4.2
   targetNamespace: kube-system
   # reference: https://github.com/mrlhansen/idrac_exporter/blob/master/charts/idrac-exporter/values.yaml
-  valuesContent: |-
+  values:
     deploymentAnnotations:
       reloader.stakater.com/auto: "true"
     existingSecret: idrac-exporter-config

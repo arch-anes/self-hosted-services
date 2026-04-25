@@ -21,7 +21,7 @@ spec:
   version: 39.0.7
   targetNamespace: kube-system
   # reference: https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
-  valuesContent: |-
+  values:
     extraObjects:
       - apiVersion: traefik.io/v1alpha1
         kind: Middleware

@@ -10,7 +10,7 @@ spec:
   version: 25.2.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: oci://registry-1.docker.io/bitnamicharts/redis
-  valuesContent: |-
+  values:
     global:
       defaultFips: relaxed
     auth:

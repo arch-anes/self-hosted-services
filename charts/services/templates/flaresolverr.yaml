@@ -13,7 +13,7 @@ spec:
   version: 16.18.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/flaresolverr/values.yaml
-  valuesContent: |-
+  values:
     {{- include "tunnel.truecharts.image" . | nindent 4 }}
     workload:
       main:

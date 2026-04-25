@@ -31,7 +31,7 @@ spec:
   version: 9.0.5
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/nextcloud/helm/blob/main/charts/nextcloud/values.yaml
-  valuesContent: |-
+  values:
     podAnnotations:
       backup.velero.io/backup-volumes: nextcloud-main
     image:

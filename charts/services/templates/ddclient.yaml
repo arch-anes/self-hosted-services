@@ -10,7 +10,7 @@ spec:
   version: 13.13.15
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/ddclient/values.yaml
-  valuesContent: |-
+  values:
     configmap:
       config:
         enabled: true

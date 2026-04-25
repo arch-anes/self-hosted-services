@@ -20,7 +20,7 @@ spec:
   version: 7.2.11
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/netbox-community/netbox-chart/blob/main/charts/netbox/values.yaml
-  valuesContent: |-
+  values:
     loginRequired: true
     housekeeping:
       resourcesPreset: medium

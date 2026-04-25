@@ -11,7 +11,7 @@ spec:
   version: 0.2.24
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/arch-anes/homer-operator/blob/main/charts/homer-operator/values.yaml
-  valuesContent: |-
+  values:
     watchedNamespaces:
       - {{ .Values.applicationsNamespace }}
 {{- if .Values.primaryTenant }}

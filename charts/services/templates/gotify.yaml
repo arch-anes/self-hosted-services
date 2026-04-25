@@ -14,7 +14,7 @@ spec:
   version: 0.4.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/gabe565/charts/blob/main/charts/gotify/values.yaml
-  valuesContent: |-
+  values:
     image:
       repository: ghcr.io/gotify/server
       tag: 2.9.1

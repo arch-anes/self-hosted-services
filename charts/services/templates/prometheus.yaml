@@ -37,7 +37,7 @@ spec:
   version: 84.1.0
   targetNamespace: kube-system
   # reference: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
-  valuesContent: |-
+  values:
     crds:
       enabled: false
     prometheus-node-exporter:
@@ -497,7 +497,7 @@ spec:
           version: 0.1.9
           targetNamespace: kube-system
           # reference: https://github.com/arch-anes/charts/blob/main/charts/rancher-pushprox/values.yaml
-          valuesContent: |-
+          values:
             metricsPort: 10250
             component: k3s-server
             clients:
@@ -643,7 +643,7 @@ spec:
           version: 0.1.9
           targetNamespace: kube-system
           # reference: https://github.com/arch-anes/charts/blob/main/charts/rancher-pushprox/values.yaml
-          valuesContent: |-
+          values:
             metricsPort: 2381
             component: kube-etcd
             clients:

@@ -28,7 +28,7 @@ spec:
   version: 6.55.0
   targetNamespace: kube-system
   # reference: https://github.com/grafana-community/helm-charts/blob/main/charts/loki/values.yaml
-  valuesContent: |-
+  values:
     deploymentMode: SingleBinary
     global:
       extraEnv:

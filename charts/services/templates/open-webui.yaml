@@ -15,7 +15,7 @@ spec:
   version: 14.1.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/open-webui/helm-charts/blob/main/charts/open-webui/values.yaml
-  valuesContent: |-
+  values:
     pipelines:
       enabled: false
     ollama:
