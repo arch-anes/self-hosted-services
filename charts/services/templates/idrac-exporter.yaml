@@ -36,7 +36,7 @@ spec:
   repo: https://mrlhansen.github.io/idrac_exporter
   version: 2.4.2
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     deploymentAnnotations:
       reloader.stakater.com/auto: "true"
     existingSecret: idrac-exporter-config

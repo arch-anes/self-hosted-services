@@ -23,7 +23,7 @@ spec:
   repo: https://helm.runix.net
   version: 1.62.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     annotations:
       reloader.stakater.com/auto: "true"
     existingSecret: pgadmin4

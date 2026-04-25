@@ -10,7 +10,7 @@ spec:
   repo: https://project-akri.github.io/akri/
   version: 0.13.8
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     useLatestContainers: true
     useDevelopmentContainers: false
     udev:

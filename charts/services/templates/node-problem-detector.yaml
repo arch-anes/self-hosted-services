@@ -10,7 +10,7 @@ spec:
   repo: https://charts.deliveryhero.io/
   version: 2.3.14
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     metrics:
       enabled: {{ include "metrics.enabled" . }}
       serviceMonitor:

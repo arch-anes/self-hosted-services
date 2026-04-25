@@ -20,7 +20,7 @@ spec:
   repo: https://traefik.github.io/charts
   version: 39.0.7
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     extraObjects:
       - apiVersion: traefik.io/v1alpha1
         kind: Middleware

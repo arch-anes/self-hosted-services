@@ -10,7 +10,7 @@ spec:
   repo: https://arch-anes.github.io/charts
   version: 0.2.1
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     objects:
       - apiVersion: monitoring.coreos.com/v1alpha1
         kind: ScrapeConfig

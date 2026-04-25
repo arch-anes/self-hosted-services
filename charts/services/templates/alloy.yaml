@@ -10,7 +10,7 @@ spec:
   chart: alloy
   version: 1.6.0
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     controller:
       tolerations:
         - operator: Exists

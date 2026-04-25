@@ -10,7 +10,7 @@ spec:
   repo: https://operator.min.io
   version: 7.1.1
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     operator:
       env:
         - name: PROMETHEUS_NAMESPACE
@@ -51,7 +51,7 @@ spec:
   repo: https://operator.min.io
   version: 7.1.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     tenant:
       name: minio
       image:

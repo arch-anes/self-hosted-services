@@ -30,7 +30,7 @@ spec:
   repo: https://nextcloud.github.io/helm/
   version: 9.0.5
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     podAnnotations:
       backup.velero.io/backup-volumes: nextcloud-main
     image:

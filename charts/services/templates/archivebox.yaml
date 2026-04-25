@@ -20,7 +20,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/archivebox
   version: 5.13.15
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     workload:
       main:
         annotations:

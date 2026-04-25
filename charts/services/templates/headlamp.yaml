@@ -10,7 +10,7 @@ spec:
   repo: https://kubernetes-sigs.github.io/headlamp/
   version: 0.41.0
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     config:
       enableHelm: true
       watchPlugins: true

@@ -12,7 +12,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/radarr
   version: 26.7.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     workload:
       main:
         annotations:

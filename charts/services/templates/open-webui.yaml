@@ -14,7 +14,7 @@ spec:
   repo: https://helm.openwebui.com/
   version: 14.1.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     pipelines:
       enabled: false
     ollama:

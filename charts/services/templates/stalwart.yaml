@@ -32,7 +32,7 @@ spec:
   repo: https://arch-anes.github.io/charts
   version: 0.2.1
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     objects:
       - apiVersion: v1
         kind: ConfigMap
@@ -122,7 +122,7 @@ spec:
   chart: oci://codeberg.org/wrenix/helm-charts/stalwart-mail
   version: 0.4.9
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     replicaCount: 1
     certificate:
       secretName: "{{ .Values.fqdn }}-tls"

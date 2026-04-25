@@ -9,7 +9,7 @@ spec:
   repo: https://arch-anes.github.io/charts
   version: 0.2.1
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     objects:
       - apiVersion: cert-manager.io/v1
         kind: ClusterIssuer
