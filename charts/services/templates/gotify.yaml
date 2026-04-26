@@ -13,7 +13,7 @@ spec:
   repo: https://charts.gabe565.com
   version: 0.4.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     image:
       repository: ghcr.io/gotify/server
       tag: 2.9.1

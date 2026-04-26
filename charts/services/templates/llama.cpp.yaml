@@ -20,7 +20,7 @@ spec:
   repo: https://arch-anes.github.io/charts
   version: 1.0.5
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     {{- $gpuVendor := .Values.applications.llama_cpp.gpu_vendor }}
     {{- with $gpuVendor }}
     gpu:

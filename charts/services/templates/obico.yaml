@@ -29,7 +29,7 @@ spec:
   repo: https://charts.gabe565.com
   version: 0.6.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     server:
       controller:
         annotations:

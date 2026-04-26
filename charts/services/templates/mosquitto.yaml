@@ -9,7 +9,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/mosquitto
   version: 17.13.18
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     workload:
       main:
         annotations:

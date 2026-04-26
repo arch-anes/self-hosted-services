@@ -25,7 +25,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/speedtest-tracker
   version: 8.41.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     workload:
       main:
         annotations:

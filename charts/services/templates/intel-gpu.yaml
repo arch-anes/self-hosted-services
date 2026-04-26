@@ -22,7 +22,7 @@ spec:
   repo: https://intel.github.io/helm-charts/
   version: 0.35.0
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     tolerations:
       - key: "dedicated"
         operator: Equal

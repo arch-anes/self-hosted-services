@@ -12,7 +12,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/sonarr
   version: 25.6.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     workload:
       main:
         annotations:

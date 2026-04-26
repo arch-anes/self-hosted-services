@@ -27,7 +27,7 @@ spec:
   repo: https://grafana.github.io/helm-charts
   version: 6.55.0
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     deploymentMode: SingleBinary
     global:
       extraEnv:

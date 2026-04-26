@@ -19,7 +19,7 @@ spec:
   repo: https://charts.netbox.oss.netboxlabs.com
   version: 7.2.11
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     loginRequired: true
     housekeeping:
       resourcesPreset: medium

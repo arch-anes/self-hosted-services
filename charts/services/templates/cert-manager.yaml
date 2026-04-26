@@ -24,7 +24,7 @@ spec:
   repo: https://charts.jetstack.io
   version: v1.20.2
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     crds:
       enabled: true
     # https://github.com/cert-manager/cert-manager/issues/5515

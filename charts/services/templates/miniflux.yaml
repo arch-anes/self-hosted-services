@@ -23,7 +23,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/miniflux
   version: 17.13.6
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     workload:
       main:
         annotations:

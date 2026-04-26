@@ -35,7 +35,7 @@ spec:
   repo: https://prometheus-community.github.io/helm-charts
   version: 84.1.0
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     crds:
       enabled: false
     prometheus-node-exporter:
@@ -493,7 +493,7 @@ spec:
           repo: https://arch-anes.github.io/charts
           version: 0.1.9
           targetNamespace: kube-system
-          valuesContent: |-
+          values:
             metricsPort: 10250
             component: k3s-server
             clients:
@@ -621,7 +621,7 @@ spec:
           repo: https://arch-anes.github.io/charts
           version: 0.1.9
           targetNamespace: kube-system
-          valuesContent: |-
+          values:
             metricsPort: 2381
             component: kube-etcd
             clients:

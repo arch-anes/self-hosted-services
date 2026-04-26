@@ -21,7 +21,7 @@ spec:
   repo: https://crowdsecurity.github.io/helm-charts
   version: 0.23.0
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     container_runtime: containerd
     config:
       parsers:

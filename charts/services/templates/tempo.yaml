@@ -27,7 +27,7 @@ spec:
   chart: tempo
   version: 1.23.3
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     tempo:
       reportingEnabled: false
       extraEnv:

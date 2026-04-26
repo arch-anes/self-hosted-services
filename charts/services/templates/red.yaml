@@ -19,7 +19,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/red-discordbot
   version: 9.0.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     workload:
       main:
         podSpec:

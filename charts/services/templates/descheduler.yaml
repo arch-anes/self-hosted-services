@@ -10,7 +10,7 @@ spec:
   repo: https://kubernetes-sigs.github.io/descheduler
   version: 0.35.1
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     resources:
       requests:
         memory: 128Mi

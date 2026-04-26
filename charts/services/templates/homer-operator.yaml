@@ -10,7 +10,7 @@ spec:
   repo: https://arch-anes.github.io/homer-operator/
   version: 0.2.22
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  values:
     watchedNamespaces:
       - {{ .Values.applicationsNamespace }}
 {{- if .Values.primaryTenant }}
