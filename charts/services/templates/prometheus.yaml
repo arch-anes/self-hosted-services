@@ -554,6 +554,16 @@ spec:
                     - action: drop
                       sourceLabels: [__name__, le]
                       regex: (csi_operations|storage_operation_duration)_seconds_bucket;(0\.25|2\.5|15|25|120|600)(\.0)?
+                    # Drop apiserver capacity/diagnostic histograms that have no recording rule,
+                    # dashboard, or alert consumer. These are useful for investigating request-size
+                    # anomalies or watch-stream storms, but only in environments where those
+                    # problems actually occur (high-node-count clusters, etcd size limits, etc.).
+                    # Constraint: dropping them makes historical size/latency data unavailable for
+                    # ad-hoc queries. Re-enable by removing this rule if you need to investigate
+                    # e.g. who is sending large writes or which resource floods the watch stream.
+                    - action: drop
+                      sourceLabels: [__name__]
+                      regex: 'apiserver_(request_body_size_bytes|response_sizes|watch_cache_read_wait_seconds|watch_events_sizes|watch_list_duration_seconds)_bucket'
                 # kubelet /metrics/cadvisor: per-container resource usage metrics.
                 - port: metrics
                   path: /metrics/cadvisor
