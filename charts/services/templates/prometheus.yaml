@@ -367,6 +367,7 @@ spec:
           cpu: 2000m
     prometheus:
       prometheusSpec:
+        enableAdminAPI: true
         enableRemoteWriteReceiver: true
         podMonitorSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
