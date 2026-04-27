@@ -23,7 +23,7 @@ spec:
         limits:
           memory: 512Mi
 
-{{- if and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+{{- if (include "metrics.enabled" .) }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -602,7 +602,7 @@ spec:
           databaseInitSQL:
             name: postgresql
             key: bootstrap.sql
-{{- if .Values.applications.prometheus.enabled }}
+{{- if (include "metrics.enabled" .) }}
           monitoring:
             pgmonitor:
               exporter: {}
