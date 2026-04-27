@@ -96,6 +96,9 @@ spec:
                     name: redis
                     key: redis-password
                     expandObjectName: false
+                {{- if (include "metrics.enabled" .) }}
+                IMMICH_TELEMETRY_INCLUDE: all
+                {{- end }}
       microservices:
         annotations:
           reloader.stakater.com/auto: "true"
@@ -118,6 +121,9 @@ spec:
                     name: redis
                     key: redis-password
                     expandObjectName: false
+                {{- if (include "metrics.enabled" .) }}
+                IMMICH_TELEMETRY_INCLUDE: all
+                {{- end }}
               resources:
                 requests:
                   memory: 1Gi
@@ -176,6 +182,21 @@ spec:
                   {{- else if eq $mlGpuVendor "amd" }}
                   amd.com/gpu: 1
                   {{- end }}
+    service:
+      main:
+        ports:
+          metrics:
+            enabled: {{ include "metrics.enabled" . }}
+            port: 8081
+            protocol: http
+            targetSelector: main
+      microservices:
+        ports:
+          metrics:
+            enabled: {{ include "metrics.enabled" . }}
+            port: 8082
+            protocol: http
+            targetSelector: microservices
     resources:
       requests:
         memory: 128Mi
@@ -254,6 +275,21 @@ spec:
         enabled: false
       thumbs:
         enabled: false
+    metrics:
+      main:
+        enabled: {{ include "metrics.enabled" . }}
+        type: servicemonitor
+        targetSelector: main
+        endpoints:
+          - port: metrics
+            path: /metrics
+      microservices:
+        enabled: {{ include "metrics.enabled" . }}
+        type: servicemonitor
+        targetSelector: microservices
+        endpoints:
+          - port: metrics
+            path: /metrics
     configmap:
       authentik-blueprint:
         enabled: {{ and .Values.applications.immich.enabled (not .Values.applications.immich.trusted_header_auth) }}
