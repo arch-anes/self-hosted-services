@@ -27,6 +27,7 @@ spec:
   repo: https://grafana.github.io/helm-charts
   version: 6.55.0
   targetNamespace: kube-system
+  # reference: https://github.com/grafana-community/helm-charts/blob/main/charts/loki/values.yaml
   valuesContent: |-
     deploymentMode: SingleBinary
     global:

@@ -9,6 +9,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/ddclient
   version: 13.13.15
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/ddclient/values.yaml
   valuesContent: |-
     configmap:
       config:

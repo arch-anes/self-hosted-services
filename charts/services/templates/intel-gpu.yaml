@@ -10,6 +10,7 @@ spec:
   repo: https://intel.github.io/helm-charts/
   version: 0.35.0
   targetNamespace: kube-system
+  # reference: https://github.com/intel/helm-charts/blob/main/charts/device-plugin-operator/values.yaml
 
 ---
 apiVersion: helm.cattle.io/v1
@@ -22,6 +23,7 @@ spec:
   repo: https://intel.github.io/helm-charts/
   version: 0.35.0
   targetNamespace: kube-system
+  # reference: https://github.com/intel/helm-charts/blob/main/charts/gpu-device-plugin/values.yaml
   valuesContent: |-
     tolerations:
       - key: "dedicated"

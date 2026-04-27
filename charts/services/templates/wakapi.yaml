@@ -13,6 +13,7 @@ spec:
   repo: https://arch-anes.github.io/charts
   version: 0.1.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  # reference: https://github.com/arch-anes/charts/blob/main/charts/wakapi/values.yaml
   valuesContent: |-
     workload:
       main:

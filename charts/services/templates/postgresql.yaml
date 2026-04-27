@@ -10,6 +10,7 @@ spec:
   chart: oci://registry.developers.crunchydata.com/crunchydata/pgo
   version: 6.0.1
   targetNamespace: kube-system
+  # reference: oci://registry.developers.crunchydata.com/crunchydata/pgo
   valuesContent: |-
     relatedImages:
       postgres_17:

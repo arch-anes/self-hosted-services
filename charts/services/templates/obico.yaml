@@ -29,6 +29,7 @@ spec:
   repo: https://charts.gabe565.com
   version: 0.6.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  # reference: https://github.com/gabe565/charts/blob/main/charts/obico/values.yaml
   valuesContent: |-
     server:
       controller:

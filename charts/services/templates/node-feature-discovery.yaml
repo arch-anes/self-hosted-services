@@ -9,6 +9,7 @@ spec:
   chart: oci://registry.k8s.io/nfd/charts/node-feature-discovery
   version: 0.18.2
   targetNamespace: kube-system
+  # reference: https://github.com/kubernetes-sigs/node-feature-discovery/blob/master/deployment/helm/node-feature-discovery/values.yaml
   valuesContent: |-
     featureGates:
       NodeFeatureAPI: true

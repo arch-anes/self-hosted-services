@@ -121,6 +121,7 @@ spec:
   repo: https://prometheus-community.github.io/helm-charts
   version: 0.8.0
   targetNamespace: kube-system
+  # reference: https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus-ipmi-exporter/values.yaml
   valuesContent: |-
     image:
       repository: ghcr.io/arch-anes/ipmi-exporter-linux-amd64
