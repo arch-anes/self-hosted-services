@@ -103,6 +103,8 @@ applications:
   frigate:
     enabled: true
     # gpu_vendor: intel
+    # detectors: {} # optional manual override for detector backends like AMD/ROCm, Coral, Hailo, etc.
+    # model: {} # optional model configuration paired with custom detectors
     record:
       enabled: true
       retain_mode: motion
