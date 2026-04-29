@@ -24,7 +24,7 @@ spec:
   version: 1.62.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/rowanruseler/helm-charts/blob/main/charts/pgadmin4/values.yaml
-  valuesContent: |-
+  values:
     annotations:
       reloader.stakater.com/auto: "true"
     existingSecret: pgadmin4

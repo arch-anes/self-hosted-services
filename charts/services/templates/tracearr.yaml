@@ -16,7 +16,7 @@ spec:
   version: 1.8.8
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/tracearr/values.yaml
-  valuesContent: |-
+  values:
     workload:
       main:
         annotations:

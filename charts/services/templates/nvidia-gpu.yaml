@@ -11,7 +11,7 @@ spec:
   version: 0.19.0
   targetNamespace: kube-system
   # reference: https://github.com/NVIDIA/k8s-device-plugin/blob/main/deployments/helm/nvidia-device-plugin/values.yaml
-  valuesContent: |-
+  values:
     tolerations:
       - key: nvidia.com/gpu
         operator: Exists

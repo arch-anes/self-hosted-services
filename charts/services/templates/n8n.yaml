@@ -26,7 +26,7 @@ spec:
   version: 18.4.9
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/n8n/values.yaml
-  valuesContent: |-
+  values:
     deployment:
       N8N_DIAGNOSTICS_ENABLED: false
       N8N_VERSION_NOTIFICATIONS_ENABLED: false

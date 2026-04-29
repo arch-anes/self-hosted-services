@@ -28,7 +28,7 @@ spec:
   version: 1.23.3
   targetNamespace: kube-system
   # reference: https://github.com/grafana-community/helm-charts/blob/main/charts/tempo/values.yaml
-  valuesContent: |-
+  values:
     tempo:
       reportingEnabled: false
       extraEnv:

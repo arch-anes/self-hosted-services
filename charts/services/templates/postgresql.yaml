@@ -11,7 +11,7 @@ spec:
   version: 6.0.1
   targetNamespace: kube-system
   # reference: oci://registry.developers.crunchydata.com/crunchydata/pgo
-  valuesContent: |-
+  values:
     relatedImages:
       postgres_17:
         image: ghcr.io/arch-anes/crunchy-postgres:ubi9-17.9-2610
@@ -36,7 +36,7 @@ spec:
   repo: https://arch-anes.github.io/charts
   version: 0.2.1
   targetNamespace: kube-system
-  valuesContent: |-
+  values:
     objects:
       - apiVersion: rbac.authorization.k8s.io/v1
         kind: ClusterRole
@@ -367,7 +367,7 @@ spec:
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   failurePolicy: abort # Do not uninstall this chart on failure, otherwise the cluster will be deleted
   takeOwnership: true
-  valuesContent: |-
+  values:
     objects:
       - apiVersion: v1
         kind: ConfigMap

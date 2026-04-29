@@ -26,7 +26,7 @@ spec:
   version: 22.0.3
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/prowlarr/values.yaml
-  valuesContent: |-
+  values:
     {{- include "tunnel.truecharts.image" . | nindent 4 }}
     workload:
       main:

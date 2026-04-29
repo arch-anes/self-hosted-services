@@ -44,7 +44,7 @@ spec:
   version: 27.5.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/immich/values.yaml
-  valuesContent: |-
+  values:
     immich:
     {{- $mlGpuVendor := dig "machine_learning" "gpu_vendor" "" .Values.applications.immich }}
     {{- if eq $mlGpuVendor "intel" }}

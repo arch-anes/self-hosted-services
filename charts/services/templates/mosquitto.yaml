@@ -10,7 +10,7 @@ spec:
   version: 17.13.18
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/mosquitto/values.yaml
-  valuesContent: |-
+  values:
     workload:
       main:
         annotations:

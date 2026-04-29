@@ -22,7 +22,7 @@ spec:
   version: 0.23.0
   targetNamespace: kube-system
   # reference: https://github.com/crowdsecurity/helm-charts/blob/main/charts/crowdsec/values.yaml
-  valuesContent: |-
+  values:
     container_runtime: containerd
     config:
       parsers:

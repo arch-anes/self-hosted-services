@@ -26,7 +26,7 @@ spec:
   version: 8.41.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/speedtest-tracker/values.yaml
-  valuesContent: |-
+  values:
     workload:
       main:
         annotations:

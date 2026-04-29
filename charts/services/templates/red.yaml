@@ -20,7 +20,7 @@ spec:
   version: 9.0.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/red-discordbot/values.yaml
-  valuesContent: |-
+  values:
     workload:
       main:
         podSpec:

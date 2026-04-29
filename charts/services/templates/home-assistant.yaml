@@ -13,7 +13,7 @@ spec:
   version: 29.3.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/home-assistant/values.yaml
-  valuesContent: |-
+  values:
     homeassistant:
       trusted_proxies:
         - 10.42.0.0/16
@@ -187,7 +187,7 @@ spec:
           version: 5.7.0
           targetNamespace: "{{ .Values.applicationsNamespace }}"
           # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/wyoming-openwakeword/values.yaml
-          valuesContent: |-
+          values:
             wyoming_openwakeword:
               model: ok_nabu
               preload_model: true
@@ -214,7 +214,7 @@ spec:
           version: 8.7.0
           targetNamespace: "{{ .Values.applicationsNamespace }}"
           # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/wyoming-piper/values.yaml
-          valuesContent: |-
+          values:
             wyoming_piper:
               voice: en_US-lessac-medium
               # custom_voice: ""
@@ -240,7 +240,7 @@ spec:
           version: 10.5.0
           targetNamespace: "{{ .Values.applicationsNamespace }}"
           # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/wyoming-whisper/values.yaml
-          valuesContent: |-
+          values:
             wyoming_whisper:
               language: en
               model: tiny-int8

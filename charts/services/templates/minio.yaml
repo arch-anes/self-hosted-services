@@ -11,7 +11,7 @@ spec:
   version: 7.1.1
   targetNamespace: kube-system
   # reference: https://github.com/minio/operator/blob/master/helm/operator/values.yaml
-  valuesContent: |-
+  values:
     operator:
       env:
         - name: PROMETHEUS_NAMESPACE
@@ -53,7 +53,7 @@ spec:
   version: 7.1.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/minio/operator/blob/master/helm/tenant/values.yaml
-  valuesContent: |-
+  values:
     tenant:
       name: minio
       image:

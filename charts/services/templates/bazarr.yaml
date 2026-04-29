@@ -13,7 +13,7 @@ spec:
   version: 23.6.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/bazarr/values.yaml
-  valuesContent: |-
+  values:
     workload:
       main:
         annotations:

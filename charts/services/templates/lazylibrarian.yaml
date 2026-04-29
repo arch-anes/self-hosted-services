@@ -10,7 +10,7 @@ spec:
   version: 21.14.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/lazylibrarian/values.yaml
-  valuesContent: |-
+  values:
     workload:
       main:
         podSpec:

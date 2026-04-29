@@ -14,7 +14,7 @@ spec:
   version: 2026.2.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # reference: https://github.com/goauthentik/helm/blob/main/charts/authentik/values.yaml
-  valuesContent: |-
+  values:
     global:
       env:
         - name: AUTHENTIK_COOKIE_DOMAIN

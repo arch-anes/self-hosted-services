@@ -11,7 +11,7 @@ spec:
   version: 0.21.0
   targetNamespace: kube-system
   # reference: https://github.com/ROCm/k8s-device-plugin/blob/master/helm/amd-gpu/values.yaml
-  valuesContent: |-
+  values:
     tolerations:
       - key: "dedicated"
         operator: Equal
