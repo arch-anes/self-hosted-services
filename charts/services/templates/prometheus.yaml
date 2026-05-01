@@ -80,6 +80,10 @@ spec:
           group_interval: 5m
           repeat_interval: 1w
           receiver: 'gotify'
+          routes:
+            - receiver: 'null'
+              matchers:
+                - severity="none"
         receivers:
           - name: 'null'
           - name: 'gotify'
