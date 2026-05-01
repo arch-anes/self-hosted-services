@@ -43,7 +43,7 @@ spec:
   version: 12.0.0
   targetNamespace: kube-system
   failurePolicy: abort
-  # reference: https://github.com/vmware-tanzu/helm-charts/blob/main/charts/velero/values.yaml
+  # default-values: https://github.com/vmware-tanzu/helm-charts/blob/main/charts/velero/values.yaml
   values:
     cleanUpCRDs: false # Do not delete CRDs on chart uninstall to preserve any backups
     priorityClassName: backup-priority

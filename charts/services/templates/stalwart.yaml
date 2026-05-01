@@ -122,7 +122,7 @@ spec:
   chart: oci://codeberg.org/wrenix/helm-charts/stalwart-mail
   version: 0.4.9
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://codeberg.org/wrenix/helm-charts/src/branch/main/stalwart-mail/values.yaml
+  # default-values: https://codeberg.org/wrenix/helm-charts/src/branch/main/stalwart-mail/values.yaml
   values:
     replicaCount: 1
     certificate:

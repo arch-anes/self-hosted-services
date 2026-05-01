@@ -10,7 +10,7 @@ spec:
   repo: https://emberstack.github.io/helm-charts
   version: 10.0.30
   targetNamespace: kube-system
-  # reference: https://github.com/emberstack/kubernetes-reflector/blob/main/src/helm/reflector/values.yaml
+  # default-values: https://github.com/emberstack/kubernetes-reflector/blob/main/src/helm/reflector/values.yaml
   values:
     autoscaling:
       enabled: true

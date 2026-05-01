@@ -30,7 +30,7 @@ spec:
   repo: https://nextcloud.github.io/helm/
   version: 9.0.5
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://github.com/nextcloud/helm/blob/main/charts/nextcloud/values.yaml
+  # default-values: https://github.com/nextcloud/helm/blob/main/charts/nextcloud/values.yaml
   values:
     podAnnotations:
       backup.velero.io/backup-volumes: nextcloud-main

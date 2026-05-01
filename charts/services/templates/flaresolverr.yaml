@@ -12,7 +12,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/flaresolverr
   version: 16.18.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/flaresolverr/values.yaml
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/flaresolverr/values.yaml
   values:
     {{- include "tunnel.truecharts.image" . | nindent 4 }}
     workload:

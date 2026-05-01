@@ -13,7 +13,7 @@ spec:
   repo: https://charts.gabe565.com
   version: 0.4.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://github.com/gabe565/charts/blob/main/charts/gotify/values.yaml
+  # default-values: https://github.com/gabe565/charts/blob/main/charts/gotify/values.yaml
   values:
     image:
       repository: ghcr.io/gotify/server

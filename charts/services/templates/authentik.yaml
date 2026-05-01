@@ -13,7 +13,7 @@ spec:
   repo: https://charts.goauthentik.io/
   version: 2026.2.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://github.com/goauthentik/helm/blob/main/charts/authentik/values.yaml
+  # default-values: https://github.com/goauthentik/helm/blob/main/charts/authentik/values.yaml
   values:
     global:
       env:

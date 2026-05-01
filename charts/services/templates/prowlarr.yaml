@@ -25,7 +25,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/prowlarr
   version: 22.0.3
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/prowlarr/values.yaml
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/prowlarr/values.yaml
   values:
     {{- include "tunnel.truecharts.image" . | nindent 4 }}
     workload:

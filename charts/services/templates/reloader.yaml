@@ -10,5 +10,5 @@ spec:
   repo: https://stakater.github.io/stakater-charts
   version: 2.2.5
   targetNamespace: kube-system
-  # reference: https://github.com/stakater/helm-charts/blob/master/stable/reloader/values.yaml
+  # default-values: https://github.com/stakater/helm-charts/blob/master/stable/reloader/values.yaml
 {{- end }}

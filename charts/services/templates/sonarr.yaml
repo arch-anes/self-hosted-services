@@ -12,7 +12,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/sonarr
   version: 25.6.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/sonarr/values.yaml
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/sonarr/values.yaml
   values:
     workload:
       main:
