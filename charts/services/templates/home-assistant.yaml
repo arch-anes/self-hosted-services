@@ -176,8 +176,7 @@ spec:
       main:
         enabled: false
     extraTpl:
-      - |
-        apiVersion: helm.cattle.io/v1
+      - apiVersion: helm.cattle.io/v1
         kind: HelmChart
         metadata:
           name: wyoming-openwakeword
@@ -203,8 +202,7 @@ spec:
               limits:
                 memory: 1Gi
                 cpu: null
-      - |
-        apiVersion: helm.cattle.io/v1
+      - apiVersion: helm.cattle.io/v1
         kind: HelmChart
         metadata:
           name: wyoming-piper
@@ -229,8 +227,7 @@ spec:
               limits:
                 memory: 1Gi
                 cpu: null
-      - |
-        apiVersion: helm.cattle.io/v1
+      - apiVersion: helm.cattle.io/v1
         kind: HelmChart
         metadata:
           name: wyoming-whisper
@@ -255,8 +252,7 @@ spec:
                 memory: 1Gi
                 cpu: null
 {{- if .Values.applications.authentik.enabled }}
-      - |
-        apiVersion: v1
+      - apiVersion: v1
         kind: ConfigMap
         metadata:
           name: authentik-home-assistant-blueprint
@@ -297,8 +293,7 @@ spec:
                   name: Home Assistant
                   provider: !KeyOf home-assistant-provider
                   policy_engine_mode: any
-      - |
-        apiVersion: external-secrets.io/v1
+      - apiVersion: external-secrets.io/v1
         kind: ExternalSecret
         metadata:
           name: home-assistant-oidc

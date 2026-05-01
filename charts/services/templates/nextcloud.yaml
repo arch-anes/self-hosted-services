@@ -194,8 +194,7 @@ spec:
             - nextcloud.{{ .Values.fqdn }}
 {{- if .Values.applications.authentik.enabled }}
     extraManifests:
-      - |
-        apiVersion: v1
+      - apiVersion: v1
         kind: ConfigMap
         metadata:
           name: authentik-nextcloud-blueprint
@@ -234,8 +233,7 @@ spec:
                   name: Nextcloud
                   provider: !KeyOf nextcloud-provider
                   policy_engine_mode: any
-      - |
-        apiVersion: external-secrets.io/v1
+      - apiVersion: external-secrets.io/v1
         kind: ExternalSecret
         metadata:
           name: nextcloud

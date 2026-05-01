@@ -149,8 +149,7 @@ spec:
         pathType: Prefix
 {{- if .Values.applications.authentik.enabled }}
     extraResources:
-      - |
-        apiVersion: v1
+      - apiVersion: v1
         kind: ConfigMap
         metadata:
           name: authentik-minio-blueprint
@@ -189,8 +188,7 @@ spec:
                   name: MinIO
                   provider: !KeyOf minio-provider
                   policy_engine_mode: any
-      - |
-        apiVersion: external-secrets.io/v1
+      - apiVersion: external-secrets.io/v1
         kind: ExternalSecret
         metadata:
           name: minio-oidc
