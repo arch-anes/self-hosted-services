@@ -161,8 +161,7 @@ spec:
           password: "dummy"
 {{- if .Values.applications.authentik.enabled }}
     extraTpl:
-      - |
-        apiVersion: external-secrets.io/v1
+      - apiVersion: external-secrets.io/v1
         kind: ExternalSecret
         metadata:
           name: odoo

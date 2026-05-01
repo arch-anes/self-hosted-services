@@ -33,8 +33,7 @@ spec:
       configinc:
         enabled: false
     extraTpl:
-      - |
-        apiVersion: traefik.io/v1alpha1
+      - apiVersion: traefik.io/v1alpha1
         kind: IngressRouteTCP
         metadata:
           name: mosquitto-plain
@@ -47,8 +46,7 @@ spec:
               services:
                 - name: mosquitto
                   port: 1883
-      - |
-        apiVersion: traefik.io/v1alpha1
+      - apiVersion: traefik.io/v1alpha1
         kind: IngressRouteTCP
         metadata:
           name: mosquitto-secure

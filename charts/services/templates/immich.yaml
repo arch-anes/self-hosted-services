@@ -332,8 +332,7 @@ spec:
                   provider: !KeyOf immich-provider
                   policy_engine_mode: any
     extraTpl:
-      - |
-        apiVersion: external-secrets.io/v1
+      - apiVersion: external-secrets.io/v1
         kind: ExternalSecret
         metadata:
           name: immich
@@ -361,8 +360,7 @@ spec:
               rewrite:
                 - transform:
                     template: client_secret
-      - |
-        apiVersion: batch/v1
+      - apiVersion: batch/v1
         kind: CronJob
         metadata:
           name: immich-vchordrq-prewarm
