@@ -20,7 +20,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/archivebox
   version: 5.13.15
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/archivebox/values.yaml
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/archivebox/values.yaml
   values:
     workload:
       main:

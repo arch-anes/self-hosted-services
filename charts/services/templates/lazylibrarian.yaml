@@ -9,7 +9,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/lazylibrarian
   version: 21.14.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/lazylibrarian/values.yaml
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/lazylibrarian/values.yaml
   values:
     workload:
       main:

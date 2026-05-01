@@ -12,7 +12,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/bazarr
   version: 23.6.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/bazarr/values.yaml
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/bazarr/values.yaml
   values:
     workload:
       main:

@@ -25,7 +25,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/n8n
   version: 18.4.9
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/n8n/values.yaml
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/n8n/values.yaml
   values:
     deployment:
       N8N_DIAGNOSTICS_ENABLED: false

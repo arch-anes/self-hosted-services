@@ -10,7 +10,7 @@ spec:
   repo: https://rocm.github.io/k8s-device-plugin/
   version: 0.21.0
   targetNamespace: kube-system
-  # reference: https://github.com/ROCm/k8s-device-plugin/blob/master/helm/amd-gpu/values.yaml
+  # default-values: https://github.com/ROCm/k8s-device-plugin/blob/master/helm/amd-gpu/values.yaml
   values:
     tolerations:
       - key: "dedicated"

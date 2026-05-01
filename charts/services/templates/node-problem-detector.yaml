@@ -10,7 +10,7 @@ spec:
   repo: https://charts.deliveryhero.io/
   version: 2.3.14
   targetNamespace: kube-system
-  # reference: https://github.com/deliveryhero/helm-charts/blob/master/stable/node-problem-detector/values.yaml
+  # default-values: https://github.com/deliveryhero/helm-charts/blob/master/stable/node-problem-detector/values.yaml
   values:
     metrics:
       enabled: {{ include "metrics.enabled" . }}

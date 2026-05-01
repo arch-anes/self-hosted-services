@@ -43,7 +43,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/immich
   version: 27.5.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/immich/values.yaml
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/immich/values.yaml
   values:
     immich:
     {{- $mlGpuVendor := dig "machine_learning" "gpu_vendor" "" .Values.applications.immich }}

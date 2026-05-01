@@ -14,7 +14,7 @@ spec:
   version: 9.5.4
   targetNamespace: kube-system
   takeOwnership: true
-  # reference: https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml
+  # default-values: https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml
   values:
     global:
       domain: argo.{{ .Values.fqdn }}

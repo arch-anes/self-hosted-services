@@ -24,7 +24,7 @@ spec:
   repo: https://charts.jetstack.io
   version: v1.20.2
   targetNamespace: kube-system
-  # reference: https://github.com/cert-manager/cert-manager/blob/master/deploy/charts/cert-manager/values.yaml
+  # default-values: https://github.com/cert-manager/cert-manager/blob/master/deploy/charts/cert-manager/values.yaml
   values:
     crds:
       enabled: true

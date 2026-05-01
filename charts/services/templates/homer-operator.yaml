@@ -10,7 +10,7 @@ spec:
   repo: https://arch-anes.github.io/homer-operator/
   version: 0.2.24
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://github.com/arch-anes/homer-operator/blob/main/charts/homer-operator/values.yaml
+  # default-values: https://github.com/arch-anes/homer-operator/blob/main/charts/homer-operator/values.yaml
   values:
     watchedNamespaces:
       - {{ .Values.applicationsNamespace }}

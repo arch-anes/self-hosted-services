@@ -15,7 +15,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/tracearr
   version: 1.8.8
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/tracearr/values.yaml
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/tracearr/values.yaml
   values:
     workload:
       main:

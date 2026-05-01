@@ -20,7 +20,7 @@ spec:
   repo: https://traefik.github.io/charts
   version: 39.0.7
   targetNamespace: kube-system
-  # reference: https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
+  # default-values: https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
   values:
     extraObjects:
       - apiVersion: traefik.io/v1alpha1

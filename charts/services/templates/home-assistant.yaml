@@ -12,7 +12,7 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/home-assistant
   version: 29.3.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/home-assistant/values.yaml
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/home-assistant/values.yaml
   values:
     homeassistant:
       trusted_proxies:
@@ -185,7 +185,7 @@ spec:
           chart: oci://oci.trueforge.org/truecharts/wyoming-openwakeword
           version: 5.7.0
           targetNamespace: "{{ .Values.applicationsNamespace }}"
-          # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/wyoming-openwakeword/values.yaml
+          # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/wyoming-openwakeword/values.yaml
           values:
             wyoming_openwakeword:
               model: ok_nabu
@@ -211,7 +211,7 @@ spec:
           chart: oci://oci.trueforge.org/truecharts/wyoming-piper
           version: 8.7.0
           targetNamespace: "{{ .Values.applicationsNamespace }}"
-          # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/wyoming-piper/values.yaml
+          # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/wyoming-piper/values.yaml
           values:
             wyoming_piper:
               voice: en_US-lessac-medium
@@ -236,7 +236,7 @@ spec:
           chart: oci://oci.trueforge.org/truecharts/wyoming-whisper
           version: 10.5.0
           targetNamespace: "{{ .Values.applicationsNamespace }}"
-          # reference: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/wyoming-whisper/values.yaml
+          # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/wyoming-whisper/values.yaml
           values:
             wyoming_whisper:
               language: en
