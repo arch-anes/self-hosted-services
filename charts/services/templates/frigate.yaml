@@ -23,7 +23,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/frigate
   version: 19.1.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  valuesContent: |-
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/frigate/values.yaml
+  values:
     {{- $frigateConfig := .Values.applications.frigate }}
     {{- $gpuVendor := dig "gpu_vendor" "" $frigateConfig }}
     frigateConfig:
