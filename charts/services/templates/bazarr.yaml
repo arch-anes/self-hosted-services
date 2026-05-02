@@ -103,7 +103,7 @@ spec:
         cpu: 500m
       limits:
         memory: 2Gi
-        cpu: null
+        cpu: ''
     global:
       traefik:
         fixedMiddlewares: []

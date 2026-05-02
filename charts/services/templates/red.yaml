@@ -41,6 +41,7 @@ spec:
         cpu: 1000m
       limits:
         memory: 1Gi
+        cpu: ''
     persistence:
       data:
         enabled: true
