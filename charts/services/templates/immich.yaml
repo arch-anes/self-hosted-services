@@ -130,7 +130,7 @@ spec:
                   memory: 1Gi
                   cpu: 250m
                 limits:
-                  cpu: null
+                  cpu: ''
                   memory: 4Gi
                   {{- $gpuVendor := .Values.applications.immich.gpu_vendor }}
                   {{- if eq $gpuVendor "intel" }}
@@ -172,7 +172,7 @@ spec:
                   memory: 1Gi
                   cpu: 250m
                 limits:
-                  cpu: null
+                  cpu: ''
                   memory: 10Gi
                   {{- if eq $mlGpuVendor "intel" }}
                   gpu.intel.com/i915: 1
@@ -203,7 +203,7 @@ spec:
         memory: 128Mi
         cpu: 1000m
       limits:
-        cpu: null
+        cpu: ''
         memory: 2Gi
     global:
       traefik:

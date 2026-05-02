@@ -48,8 +48,8 @@ spec:
                   memory: 1Gi
                   cpu: 1000m
                 limits:
-                  cpu: null
-                  memory: null
+                  cpu: ''
+                  memory: ''
                   {{- if eq $gpuVendor "intel" }}
                     {{- if not .Values.applications.intel_gpu.enabled }}
                       {{- fail "Intel GPU is selected for llama.cpp but intel_gpu is not enabled" }}
