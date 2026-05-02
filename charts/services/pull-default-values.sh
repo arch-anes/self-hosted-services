@@ -9,6 +9,7 @@ set -euo pipefail
 TEMPLATES_DIR="$(dirname "$0")/templates"
 OUTPUT_DIR="$(dirname "$0")/default-values"
 
+rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
 next_available_filename() {
