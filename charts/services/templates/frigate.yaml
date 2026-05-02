@@ -10,8 +10,6 @@
 #   # Camera RTSP credentials (for Dahua/EmpireTech cameras)
 #   rtsp-user: "admin"
 #   rtsp-password: "your_camera_password"
-#   # MQTT credentials (if using authenticated MQTT)
-#   mqtt-password: "your_mqtt_password"
 
 ---
 apiVersion: helm.cattle.io/v1
@@ -50,7 +48,6 @@ spec:
             {{- end }}
           {{- end }}
           {{- end }}
-      
       {{- with $frigateConfig.detectors }}
       detectors:
         {{- toYaml . | nindent 8 }}
@@ -128,12 +125,10 @@ spec:
           retain:
             days: {{ $frigateConfig.record.detections_retain_days | default 30 }}
             mode: {{ $frigateConfig.record.retain_mode | default "motion" }}
-      
       snapshots:
         enabled: {{ $frigateConfig.snapshots.enabled | default true }}
         retain:
           default: {{ $frigateConfig.snapshots.retain_days | default 30 }}
-      
       cameras:
         {{- range $name, $cam := $frigateConfig.cameras }}
         {{- with $cam }}
@@ -224,16 +219,6 @@ spec:
               env:
                 {{- if and (empty $frigateConfig.detectors) (eq $gpuVendor "nvidia") }}
                 YOLO_MODELS: yolov7-320
-                {{- end }}
-                {{- with $frigateConfig.mqtt }}
-                {{- with .user }}
-                FRIGATE_MQTT_USER: {{ . | quote }}
-                FRIGATE_MQTT_PASSWORD:
-                  secretKeyRef:
-                    name: frigate-credentials
-                    key: mqtt-password
-                    expandObjectName: false
-                {{- end }}
                 {{- end }}
                 FRIGATE_RTSP_USER:
                   secretKeyRef:
