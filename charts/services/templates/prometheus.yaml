@@ -15,20 +15,6 @@
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
-  name: prometheus-operator-crds
-  namespace: kube-system
-spec:
-  chart: prometheus-operator-crds
-  repo: https://prometheus-community.github.io/helm-charts
-  version: 28.0.1
-  targetNamespace: kube-system
-  # default-values: https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus-operator-crds/values.yaml
-  bootstrap: true
-
----
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
-metadata:
   name: prometheus
   namespace: kube-system
 spec:
@@ -36,10 +22,13 @@ spec:
   repo: https://prometheus-community.github.io/helm-charts
   version: 84.1.0
   targetNamespace: kube-system
+  bootstrap: true
   # default-values: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
   values:
     crds:
-      enabled: false
+      enabled: true
+      upgradeJob:
+        enabled: true
     prometheus-node-exporter:
       hostNetwork: false
       prometheus:
