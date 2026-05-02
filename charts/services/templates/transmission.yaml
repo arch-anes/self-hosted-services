@@ -85,17 +85,33 @@ spec:
 
             # Transmission completion script for automatic extraction
 
-            find "${TR_TORRENT_DIR}" -type f \( -iname "*.rar" -o -iname "*.zip" -o -iname "*.7z" \) | while read -r file; do
+            find "${TR_TORRENT_DIR}" -type f \( -iname "*.rar" -o -iname "*.zip" -o -iname "*.7z" -o -iname "*.r[0-9]+" -o -iname "*.z[0-9]+" -o -iname "*.7z.[0-9]+" \) | while read -r file; do
                 file_dir=$(dirname "${file}")
                 case "${file,,}" in
-                    *.rar)
-                        unrar x -o- "${file}" "${file_dir}" &>/dev/null
-                        ;;
-                    *.zip)
-                        unzip -o "${file}" -d "${file_dir}" &>/dev/null
-                        ;;
-                    *.7z)
+                    *.zip|*.7z)
                         7z x -aoa "${file}" -o"${file_dir}" &>/dev/null
+                        ;;
+                    *.rar)
+                        # new-style multi-part RAR: archive.part001.rar, part002.rar, ... — only extract from the first
+                        if [[ "${file,,}" =~ \.part([0-9]+)\.rar$ ]]; then
+                            (( 10#${BASH_REMATCH[1]} == 1 )) && 7z x -aoa "${file}" -o"${file_dir}" &>/dev/null
+                        else
+                            7z x -aoa "${file}" -o"${file_dir}" &>/dev/null
+                        fi
+                        ;;
+                    *.r[0-9]+)
+                        # multi-part RAR: volumes are .r00, .r01, ... — only extract from the first (r00)
+                        ext="${file##*.}"
+                        (( 10#${ext:1} == 0 )) && 7z x -aoa "${file}" -o"${file_dir}" &>/dev/null
+                        ;;
+                    *.z[0-9]+)
+                        # multi-part ZIP: volumes are .z01, .z02, ... — only extract from the first (z01)
+                        ext="${file##*.}"
+                        (( 10#${ext:1} == 1 )) && 7z x -aoa "${file}" -o"${file_dir}" &>/dev/null
+                        ;;
+                    *.7z.[0-9]+)
+                        # multi-part 7z: volumes are .7z.001, .7z.002, ... — only extract from the first (001)
+                        (( 10#${file##*.} == 1 )) && 7z x -aoa "${file}" -o"${file_dir}" &>/dev/null
                         ;;
                 esac
             done
