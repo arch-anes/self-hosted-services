@@ -1,5 +1,5 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.wakapi.enabled }}
-{{- if not .Values.applications.postgresql.enabled }}
+{{- if include "app.enabled" (list . "wakapi") }}
+{{- if not (include "app.enabled" (list . "postgresql")) }}
 {{- fail "Wakapi requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
 ---
@@ -33,7 +33,7 @@ spec:
                     expandObjectName: false
                 WAKAPI_INSECURE_COOKIES: "false"
                 WAKAPI_INVITE_CODES: "false"
-{{- if .Values.applications.authentik.enabled }}
+{{- if include "app.enabled" (list . "authentik") }}
                 WAKAPI_ALLOW_SIGNUP: "false"
                 WAKAPI_OIDC_ALLOW_SIGNUP: "true"
                 WAKAPI_OIDC_PROVIDERS_0_NAME: authentik
@@ -108,7 +108,7 @@ spec:
         enabled: false
     configmap:
       authentik-blueprint:
-        enabled: {{ and .Values.applications.wakapi.enabled (not .Values.applications.wakapi.trusted_header_auth) }}
+        enabled: {{ and (include "app.enabled" (list . "wakapi")) (not .Values.applications.wakapi.trusted_header_auth) }}
         data:
           blueprint.yaml: |
             # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json

@@ -1,5 +1,16 @@
+{{- define "app.enabled" -}}
+{{- $root := index . 0 -}}
+{{- $appKey := index . 1 -}}
+{{- $app := index $root.Values.applications $appKey | default dict -}}
+{{- if hasKey $app "enabled" -}}
+{{- ternary "true" "" $app.enabled -}}
+{{- else -}}
+{{- ternary "true" "" $root.Values.enableAllApplicationsByDefault -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "metrics.enabled" -}}
-{{- and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled | ternary "true" "" -}}
+{{- include "app.enabled" (list . "prometheus") -}}
 {{- end -}}
 
 {{- define "ldap.base_dn" -}}

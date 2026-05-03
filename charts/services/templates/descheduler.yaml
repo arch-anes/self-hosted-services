@@ -1,4 +1,4 @@
-{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.descheduler.enabled }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "descheduler")) }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -21,7 +21,7 @@ spec:
         cpu: null
     cmdOptions:
       v: 5
-{{- if and (not .Values.disableAllApplications) .Values.applications.tempo.enabled }}
+{{- if include "app.enabled" (list . "tempo") }}
       # https://github.com/kubernetes-sigs/descheduler/issues/1428
       otel-collector-endpoint: tempo:4317
 {{- end }}

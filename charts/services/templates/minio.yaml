@@ -1,4 +1,4 @@
-{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.minio.enabled }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "minio")) }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -25,7 +25,7 @@ spec:
           memory: 512Mi
 {{- end }}
 
-{{- if and (not .Values.disableAllApplications) .Values.applications.minio.enabled }}
+{{- if include "app.enabled" (list . "minio") }}
 # ---
 # apiVersion: v1
 # kind: Secret
@@ -85,24 +85,24 @@ spec:
       metrics:
         enabled: {{ include "metrics.enabled" . }}
       prometheusOperator: {{ include "metrics.enabled" . }}
-{{- if or (and .Values.primaryTenant (or .Values.applications.loki.enabled .Values.applications.tempo.enabled)) .Values.applications.stalwart.enabled }}
+{{- if or (and .Values.primaryTenant (or (include "app.enabled" (list . "loki")) (include "app.enabled" (list . "tempo")))) (include "app.enabled" (list . "stalwart")) }}
       buckets:
-{{- if and .Values.primaryTenant .Values.applications.loki.enabled }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "loki")) }}
         - name: loki-admin
         - name: loki-chunks
         - name: loki-ruler
 {{- end }}
-{{- if and .Values.primaryTenant .Values.applications.tempo.enabled }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "tempo")) }}
         - name: tempo
 {{- end }}
-{{- if .Values.applications.stalwart.enabled }}
+{{- if include "app.enabled" (list . "stalwart") }}
         - name: stalwart
 {{- end }}
 {{- end }}
       env:
         - name: MINIO_BROWSER_REDIRECT_URL
           value: "https://minio.{{ .Values.fqdn }}"
-{{- if .Values.applications.authentik.enabled }}
+{{- if include "app.enabled" (list . "authentik") }}
         - name: MINIO_IDENTITY_OPENID_CONFIG_URL
           value: "https://auth.{{ .Values.fqdn }}/application/o/minio/.well-known/openid-configuration"
         - name: MINIO_IDENTITY_OPENID_CLIENT_ID
@@ -147,7 +147,7 @@ spec:
         host: minio.{{ .Values.fqdn }}
         path: /
         pathType: Prefix
-{{- if .Values.applications.authentik.enabled }}
+{{- if include "app.enabled" (list . "authentik") }}
     extraResources:
       - apiVersion: v1
         kind: ConfigMap

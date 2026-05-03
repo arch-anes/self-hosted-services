@@ -1,4 +1,4 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.archivebox.enabled }}
+{{- if include "app.enabled" (list . "archivebox") }}
 # ---
 # apiVersion: v1
 # kind: Secret

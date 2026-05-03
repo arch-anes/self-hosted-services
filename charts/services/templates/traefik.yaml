@@ -62,7 +62,7 @@ spec:
           ipAllowList:
             sourceRange:
               {{- include "ip.private_ranges" . | nindent 14 }}
-{{- if and (not .Values.disableAllApplications) .Values.applications.crowdsec.enabled }}
+{{- if include "app.enabled" (list . "crowdsec") }}
       - apiVersion: traefik.io/v1alpha1
         kind: Middleware
         metadata:
@@ -115,7 +115,7 @@ spec:
           enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:
           enabled: {{ include "metrics.enabled" . }}
-{{- if and (not .Values.disableAllApplications) .Values.applications.tempo.enabled }}
+{{- if include "app.enabled" (list . "tempo") }}
     tracing:
       capturedRequestHeaders:
         - "X-Real-Ip"
@@ -203,7 +203,7 @@ spec:
           middlewares:
             - kube-system-traefik-redirect-www@kubernetescrd
             - kube-system-traefik-websecure@kubernetescrd
-{{- if and (not .Values.disableAllApplications) .Values.applications.crowdsec.enabled }}
+{{- if include "app.enabled" (list . "crowdsec") }}
             - kube-system-crowdsec@kubernetescrd
 {{- end }}
           tls:
