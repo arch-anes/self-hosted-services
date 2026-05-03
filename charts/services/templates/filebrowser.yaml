@@ -1,112 +1,65 @@
 {{- if and (not .Values.disableAllApplications) .Values.applications.filebrowser.enabled }}
 ---
-apiVersion: v1
-kind: Service
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
   name: filebrowser
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  ports:
-    - protocol: TCP
-      name: web
-      port: 80
-  selector:
-    app: filebrowser
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: filebrowser
-  namespace: "{{ .Values.applicationsNamespace }}"
-  annotations:
-    homer.service.name: Media
-    homer.item.name: filebrowser
-    homer.item.logo: "https://raw.githubusercontent.com/filebrowser/filebrowser/129a4fd39d550bd2a449575cf93f061593e39102/frontend/public/img/logo.svg"
-spec:
-  tls:
-    - hosts:
-        - filebrowser.{{ .Values.fqdn }}
-      secretName: "{{ .Values.fqdn }}-tls"
-  rules:
-    - host: filebrowser.{{ .Values.fqdn }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: filebrowser
-                port:
-                  name: web
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: filebrowser
-  namespace: "{{ .Values.applicationsNamespace }}"
-spec:
-  storageClassName: local-path-persistent-namespaced
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Mi
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: filebrowser
-  namespace: "{{ .Values.applicationsNamespace }}"
-  labels:
-    app: filebrowser
-  annotations:
-    reloader.stakater.com/auto: "true"
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: filebrowser
-  template:
-    metadata:
-      annotations:
-        backup.velero.io/backup-volumes: db
-      labels:
-        app: filebrowser
-    spec:
-      nodeSelector:
-        # Schedule only on NAS nodes
-        nas: "true"
-      containers:
-        - name: filebrowser
-          image: filebrowser/filebrowser:v2.62.2
-          resources:
-            requests:
-              memory: 128Mi
-              cpu: 250m
-            limits:
-              memory: 2Gi
-          ports:
-            - name: web
-              containerPort: 80
-          env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
-          volumeMounts:
-            - name: multimedia
-              subPath: Miscellaneous
-              mountPath: /srv
-            - name: db
-              mountPath: /database
-      volumes:
-        - name: multimedia
-          persistentVolumeClaim:
-            claimName: multimedia
-        - name: db
-          persistentVolumeClaim:
-            claimName: filebrowser
+  chart: oci://oci.trueforge.org/truecharts/filebrowser
+  version: 13.3.0
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/filebrowser/values.yaml
+  values:
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          nodeSelector:
+            nas: "true"
+          annotations:
+            backup.velero.io/backup-volumes: config
+          containers:
+            main:
+              env:
+                FB_DATABASE: /config/filebrowser.db
+                FB_CONFIG: /config/filebrowser.json
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 250m
+      limits:
+        memory: 2Gi
+        cpu: ''
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          homer.service.name: Media
+          homer.item.name: filebrowser
+          homer.item.logo: "https://raw.githubusercontent.com/filebrowser/filebrowser/129a4fd39d550bd2a449575cf93f061593e39102/frontend/public/img/logo.svg"
+        hosts:
+          - host: filebrowser.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - filebrowser.{{ .Values.fqdn }}
+    persistence:
+      config:
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+      data:
+        enabled: true
+        type: pvc
+        existingClaim: multimedia
+        subPath: Miscellaneous
+        mountPath: /data
+      database:
+        enabled: false
 {{- end }}
