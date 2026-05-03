@@ -1,49 +1,6 @@
 {{- if and (not .Values.disableAllApplications) .Values.applications.jellyfin.enabled }}
 ---
 apiVersion: v1
-kind: Service
-metadata:
-  name: jellyfin
-  namespace: "{{ .Values.applicationsNamespace }}"
-spec:
-  ports:
-    - protocol: TCP
-      name: web
-      port: 8096
-  selector:
-    app: jellyfin
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: jellyfin
-  namespace: "{{ .Values.applicationsNamespace }}"
-  annotations:
-    homer.service.name: Media
-    homer.service.icon: "fas fa-video"
-    homer.service.rank: "1"
-    homer.item.rank: "1"
-    homer.item.logo: "https://github.com/jellyfin/jellyfin/raw/cd36b8067fcf80c5ebb47bdd9bea0047d1fe3aef/Emby.Dlna/Images/logo240.png"
-spec:
-  tls:
-    - hosts:
-        - jellyfin.{{ .Values.fqdn }}
-      secretName: "{{ .Values.fqdn }}-tls"
-  rules:
-    - host: jellyfin.{{ .Values.fqdn }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: jellyfin
-                port:
-                  name: web
-
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: multimedia
@@ -57,95 +14,99 @@ spec:
       storage: 10Ti
 
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
   name: jellyfin
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  storageClassName: local-path-persistent-namespaced
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: jellyfin
-  namespace: "{{ .Values.applicationsNamespace }}"
-  labels:
-    app: jellyfin
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: jellyfin
-  template:
-    metadata:
-      annotations:
-        backup.velero.io/backup-volumes: config
-      labels:
-        app: jellyfin
-    spec:
-      nodeSelector:
-        # Schedule only on NAS nodes
-        nas: "true"
-      containers:
-        - name: jellyfin
-          image: jellyfin/jellyfin:10.11.8
-          startupProbe:
-            httpGet:
-              path: /health
-              port: 8096
-            initialDelaySeconds: 15
-            periodSeconds: 10
-            failureThreshold: 5
-          resources:
-            requests:
-              memory: 2Gi
-              cpu: 1000m
-            limits:
-              memory: 4Gi
-              {{- $gpuVendor := .Values.applications.jellyfin.gpu_vendor }}
-              {{- if eq $gpuVendor "intel" }}
-                {{- if not .Values.applications.intel_gpu.enabled }}
-                  {{- fail "Intel GPU is selected for Jellyfin but intel_gpu is not enabled" }}
-                {{- end }}
-              gpu.intel.com/i915: 1
-              {{- else if eq $gpuVendor "intel_xe" }}
-                {{- if not .Values.applications.intel_gpu.enabled }}
-                  {{- fail "Intel GPU is selected for Jellyfin but intel_gpu is not enabled" }}
-                {{- end }}
-              gpu.intel.com/xe: 1
-              {{- else if eq $gpuVendor "nvidia" }}
-                {{- if not .Values.applications.nvidia_gpu.enabled }}
-                  {{- fail "NVIDIA GPU is selected for Jellyfin but nvidia_gpu is not enabled" }}
-                {{- end }}
-              nvidia.com/gpu: 1
-              {{- else if eq $gpuVendor "amd" }}
-                {{- if not .Values.applications.amd_gpu.enabled }}
-                  {{- fail "AMD GPU is selected for Jellyfin but amd_gpu is not enabled" }}
-                {{- end }}
-              amd.com/gpu: 1
-              {{- else if $gpuVendor }}
-                {{- fail (printf "Unknown GPU vendor '%s' selected for Jellyfin" $gpuVendor) }}
-              {{- end }}
-          ports:
-            - name: web
-              containerPort: 8096
-          volumeMounts:
-            - name: config
-              mountPath: /config
-            - name: multimedia
-              mountPath: /media
-      volumes:
-        - name: config
-          persistentVolumeClaim:
-            claimName: jellyfin
-        - name: multimedia
-          persistentVolumeClaim:
-            claimName: multimedia
+  chart: oci://oci.trueforge.org/truecharts/jellyfin
+  version: 23.2.1
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/jellyfin/values.yaml
+  values:
+    workload:
+      main:
+        podSpec:
+          nodeSelector:
+            nas: "true"
+          annotations:
+            backup.velero.io/backup-volumes: config
+          containers:
+            main:
+              env:
+                JELLYFIN_DATA_DIR: /config
+                JELLYFIN_CONFIG_DIR: /config/config
+                JELLYFIN_LOG_DIR: /config/log
+                JELLYFIN_PublishedServerUrl: "https://jellyfin.{{ .Values.fqdn }}"
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 1000m
+      limits:
+        memory: 4Gi
+        cpu: ''
+        {{- $gpuVendor := .Values.applications.jellyfin.gpu_vendor }}
+        {{- if eq $gpuVendor "intel" }}
+          {{- if not .Values.applications.intel_gpu.enabled }}
+            {{- fail "Intel GPU is selected for Jellyfin but intel_gpu is not enabled" }}
+          {{- end }}
+        gpu.intel.com/i915: 1
+        {{- else if eq $gpuVendor "intel_xe" }}
+          {{- if not .Values.applications.intel_gpu.enabled }}
+            {{- fail "Intel GPU is selected for Jellyfin but intel_gpu is not enabled" }}
+          {{- end }}
+        gpu.intel.com/xe: 1
+        {{- else if eq $gpuVendor "nvidia" }}
+          {{- if not .Values.applications.nvidia_gpu.enabled }}
+            {{- fail "NVIDIA GPU is selected for Jellyfin but nvidia_gpu is not enabled" }}
+          {{- end }}
+        nvidia.com/gpu: 1
+        {{- else if eq $gpuVendor "amd" }}
+          {{- if not .Values.applications.amd_gpu.enabled }}
+            {{- fail "AMD GPU is selected for Jellyfin but amd_gpu is not enabled" }}
+          {{- end }}
+        amd.com/gpu: 1
+        {{- else if $gpuVendor }}
+          {{- fail (printf "Unknown GPU vendor '%s' selected for Jellyfin" $gpuVendor) }}
+        {{- end }}
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          homer.service.name: Media
+          homer.service.icon: "fas fa-video"
+          homer.service.rank: "1"
+          homer.item.rank: "1"
+          homer.item.logo: "https://github.com/jellyfin/jellyfin/raw/cd36b8067fcf80c5ebb47bdd9bea0047d1fe3aef/Emby.Dlna/Images/logo240.png"
+        hosts:
+          - host: jellyfin.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - jellyfin.{{ .Values.fqdn }}
+    persistence:
+      multimedia:
+        enabled: true
+        type: pvc
+        mountPath: /media
+        existingClaim: multimedia
+      config:
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+      cache:
+        type: pvc
+        existingClaim: multimedia
+        subPath: jellyfin-cache
+      data:
+        enabled: false
+      logs:
+        enabled: false
+      transcode:
+        enabled: false
 {{- end }}
