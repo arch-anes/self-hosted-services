@@ -1,4 +1,4 @@
-{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.crowdsec.enabled }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "crowdsec")) }}
 # ---
 # apiVersion: v1
 # kind: Secret

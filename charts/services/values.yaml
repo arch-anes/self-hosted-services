@@ -57,7 +57,7 @@ cloudFlareIpRanges:
   - 2a06:98c0::/29
   - 2c0f:f248::/32
 
-disableAllApplications: false
+enableAllApplicationsByDefault: true
 
 # Global high availability configuration
 # Set to false to use 1 replica instead of 3 for services that support HA
@@ -65,17 +65,17 @@ highAvailability: true
 
 applications:
   akri:
-    enabled: true
+    # enabled: true
     udevRules: []
       # - 'KERNEL=="ttyUSB[0-9]*", ENV{ID_VENDOR}=="ABCDEFGH"'
   alloy:
-    enabled: true
+    # enabled: true
   amd_gpu:
-    enabled: true
+    # enabled: true
   archivebox:
-    enabled: true
+    # enabled: true
   argo:
-    enabled: true
+    # enabled: true
     # The git repository out of which to continuously deploy
     gitRepo: https://github.com/arch-anes/self-hosted-services.git
     targetRevision: HEAD
@@ -86,94 +86,95 @@ applications:
         timezone: "America/New_York"
         manualSync: true
   authentik:
-    enabled: true
+    # enabled: true
   bazarr:
-    enabled: true
+    # enabled: true
   crowdsec:
-    enabled: true
+    # enabled: true
   ddclient:
-    enabled: true
+    # enabled: true
   descheduler:
-    enabled: true
+    # enabled: true
   epicgames_freegames:
-    enabled: true
+    # enabled: true
   filebrowser:
-    enabled: true
+    # enabled: true
   flaresolverr:
-    enabled: true
+    # enabled: true
   gluetun:
-    enabled: true
+    # enabled: true
   gotify:
-    enabled: true
+    # enabled: true
   headlamp:
-    enabled: true
+    # enabled: true
   home_assistant:
-    enabled: true
+    # enabled: true
   homer_operator:
-    enabled: true
+    # enabled: true
   idrac_exporter:
-    enabled: true
+    # enabled: true
   immich:
-    enabled: true
+    # enabled: true
+    trusted_header_auth: false
     # gpu_vendor: nvidia
     # machine_learning:
     #   gpu_vendor: nvidia
   intel_gpu:
-    enabled: true
+    # enabled: true
   inventree:
-    enabled: true
+    # enabled: true
   ipmi_exporter:
-    enabled: true
+    # enabled: true
   jellyfin:
-    enabled: true
+    # enabled: true
     # gpu_vendor: intel
   jellyseerr:
-    enabled: true
+    # enabled: true
   joal:
-    enabled: true
+    # enabled: true
   lazylibrarian:
-    enabled: true
+    # enabled: true
   llama_cpp:
-    enabled: true
+    # enabled: true
     use_vulkan: false
     # gpu_vendor: null
     gpu_count: 1
     max_loaded_models: 1
   loki:
-    enabled: true
+    # enabled: true
   minecraft_bedrock:
-    enabled: true
+    # enabled: true
   miniflux:
-    enabled: true
+    # enabled: true
   minio:
-    enabled: true
+    # enabled: true
   mosquitto:
-    enabled: true
+    # enabled: true
   n8n:
-    enabled: true
+    # enabled: true
   netbox:
-    enabled: true
+    # enabled: true
   nextcloud:
-    enabled: true
+    # enabled: true
   node_problem_detector:
-    enabled: true
+    # enabled: true
   nvidia_gpu:
-    enabled: true
+    # enabled: true
   obico:
-    enabled: true
+    # enabled: true
   octoprint:
-    enabled: true
+    # enabled: true
     devices: []
       # - "akri.sh/akri-udev-abcdefgh"
   odoo:
-    enabled: true
+    # enabled: true
     updatePluginsOnStartup: false
   open_webui:
-    enabled: true
+    # enabled: true
   pgadmin4:
-    enabled: true
+    # enabled: true
   postgresql:
-    enabled: true
+    # enabled: true
     additionalUsers:
       - name: exampleUser1
     remoteBackupLocation:
@@ -182,36 +183,36 @@ applications:
         endpoint: "some-endpoint"
         region: "some-region"
   prometheus:
-    enabled: true
+    # enabled: true
   prowlarr:
-    enabled: true
+    # enabled: true
   radarr:
-    enabled: true
+    # enabled: true
   red:
-    enabled: true
+    # enabled: true
   redis:
-    enabled: true
+    # enabled: true
   redis_insight:
-    enabled: true
+    # enabled: true
   sonarr:
-    enabled: true
+    # enabled: true
   speedtest_tracker:
-    enabled: true
+    # enabled: true
     dashboard:
       enabled: true
   stalwart:
-    enabled: true
+    # enabled: true
   tdarr:
-    enabled: true
+    # enabled: true
     # gpu_vendor: amd
   tempo:
-    enabled: true
+    # enabled: true
   tracearr:
-    enabled: true
+    # enabled: true
   transmission:
-    enabled: true
+    # enabled: true
   velero:
-    enabled: true
+    # enabled: true
     remoteBackupLocations:
       - name: default
         default: true
@@ -223,4 +224,5 @@ applications:
           region: <some_region>
           s3Url: https://<some_endpoint> # if using an S3-compatible service
   wakapi:
-    enabled: true
+    # enabled: true
+    trusted_header_auth: false

@@ -1,4 +1,4 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.minecraft_bedrock.enabled }}
+{{- if include "app.enabled" (list . "minecraft_bedrock") }}
 ---
 apiVersion: v1
 kind: Service

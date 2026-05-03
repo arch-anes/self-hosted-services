@@ -1,5 +1,5 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.home_assistant.enabled }}
-{{- if not .Values.applications.postgresql.enabled }}
+{{- if include "app.enabled" (list . "home_assistant") }}
+{{- if not (include "app.enabled" (list . "postgresql")) }}
 {{- fail "Home Assistant requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
 ---
@@ -39,7 +39,7 @@ spec:
               echo "" >> "$config"
               cat "$default/http.default" >> "$config"
             fi
-            {{- if .Values.applications.authentik.enabled }}
+            {{- if include "app.enabled" (list . "authentik") }}
             if ! grep -q "openid:" "$config"; then
               echo "Section [openid] does NOT exist in [$config]. Appending..."
               echo "" >> "$config"
@@ -84,7 +84,7 @@ spec:
               purge_keep_days: 30
               commit_interval: 3
               db_url: !env_var DATABASE_URL
-          {{- if .Values.applications.authentik.enabled }}
+          {{- if include "app.enabled" (list . "authentik") }}
           openid.default: |-
             openid:
               client_id: !env_var OIDC_CLIENT_ID
@@ -116,7 +116,7 @@ spec:
                 PGSSLROOTCERT: /etc/postgres/tls/ca.crt
                 PGSSLCERT: /etc/postgres/tls/tls.crt
                 PGSSLKEY: /etc/postgres/tls/tls.key
-                {{- if .Values.applications.authentik.enabled }}
+                {{- if include "app.enabled" (list . "authentik") }}
                 OIDC_CLIENT_ID:
                   secretKeyRef:
                     name: home-assistant-oidc
@@ -251,7 +251,7 @@ spec:
               limits:
                 memory: 1Gi
                 cpu: ''
-{{- if .Values.applications.authentik.enabled }}
+{{- if include "app.enabled" (list . "authentik") }}
       - apiVersion: v1
         kind: ConfigMap
         metadata:

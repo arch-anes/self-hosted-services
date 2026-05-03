@@ -1,8 +1,8 @@
-{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.tempo.enabled }}
-{{- if not .Values.applications.prometheus.enabled }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "tempo")) }}
+{{- if not (include "app.enabled" (list . "prometheus")) }}
 {{- fail "Tempo requires Prometheus to be enabled. Please enable Prometheus in your values.yaml" }}
 {{- end }}
-{{- if not .Values.applications.minio.enabled }}
+{{- if not (include "app.enabled" (list . "minio")) }}
 {{- fail "Tempo requires MinIO to be enabled. Please enable MinIO in your values.yaml" }}
 {{- end }}
 # ---

@@ -1,4 +1,4 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.lazylibrarian.enabled }}
+{{- if include "app.enabled" (list . "lazylibrarian") }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

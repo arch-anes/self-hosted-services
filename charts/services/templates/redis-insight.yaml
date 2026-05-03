@@ -1,5 +1,5 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.redis_insight.enabled }}
-{{- if not .Values.applications.redis.enabled }}
+{{- if include "app.enabled" (list . "redis_insight") }}
+{{- if not (include "app.enabled" (list . "redis")) }}
 {{- fail "Redis Insight requires Redis to be enabled. Please enable Redis in your values.yaml" }}
 {{- end }}
 ---

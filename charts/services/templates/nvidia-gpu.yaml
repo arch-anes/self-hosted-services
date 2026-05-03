@@ -1,4 +1,4 @@
-{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.nvidia_gpu.enabled }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "nvidia_gpu")) }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
