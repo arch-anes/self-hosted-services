@@ -20,65 +20,15 @@ metadata:
   name: transmission
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  chart: generic
-  repo: https://arch-anes.github.io/charts
-  version: 0.2.1
+  chart: oci://oci.trueforge.org/truecharts/transmission
+  version: 25.2.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/transmission/values.yaml
   values:
-    objects:
-      - kind: Service
-        apiVersion: v1
-        metadata:
-          name: transmission
-          namespace: "{{ .Values.applicationsNamespace }}"
-        spec:
-          ports:
-            - protocol: TCP
-              name: transmission
-              port: 9091
-          selector:
-            app: transmission
-      - kind: Ingress
-        apiVersion: networking.k8s.io/v1
-        metadata:
-          name: transmission
-          namespace: "{{ .Values.applicationsNamespace }}"
-          annotations:
-            homer.service.name: Media
-            homer.item.logo: "https://raw.githubusercontent.com/transmission/transmission/0ce4adf07ce4b6cfabf81e2d027f96197bb9a305/web/assets/img/logo.png"
-        spec:
-          tls:
-            - hosts:
-                - transmission.{{ .Values.fqdn }}
-              secretName: "{{ .Values.fqdn }}-tls"
-          rules:
-            - host: transmission.{{ .Values.fqdn }}
-              http:
-                paths:
-                  - path: /
-                    pathType: Prefix
-                    backend:
-                      service:
-                        name: transmission
-                        port:
-                          name: transmission
-      - kind: PersistentVolumeClaim
-        apiVersion: v1
-        metadata:
-          name: transmission
-          namespace: "{{ .Values.applicationsNamespace }}"
-        spec:
-          storageClassName: local-path-persistent-namespaced
-          accessModes:
-            - ReadWriteOnce
-          resources:
-            requests:
-              storage: 100Mi
-      - kind: ConfigMap
-        apiVersion: v1
-        metadata:
-          name: transmission-scripts
-          namespace: "{{ .Values.applicationsNamespace }}"
+    {{- include "tunnel.truecharts.image" . | nindent 4 }}
+    configmap:
+      scripts:
+        enabled: true
         data:
           extract-files.sh: |
             #!/bin/bash
@@ -145,7 +95,7 @@ spec:
               if [ -z "$ACTIVITY_DATE" ]; then
                 continue
               fi
-              
+
               ACTIVITY_SECONDS=$(date -d "$ACTIVITY_DATE" +%s 2>/dev/null)
               CURRENT_SECONDS=$(date +%s)
 
@@ -163,86 +113,81 @@ spec:
                 continue
               fi
             done
-      - kind: Deployment
-        apiVersion: apps/v1
-        metadata:
-          name: transmission
-          namespace: "{{ .Values.applicationsNamespace }}"
-          labels:
-            app: transmission
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
           annotations:
-            reloader.stakater.com/auto: "true"
-        spec:
-          replicas: 1
-          selector:
-            matchLabels:
-              app: transmission
-          template:
-            metadata:
-              annotations:
-                backup.velero.io/backup-volumes: config
-              labels:
-                app: transmission
-            spec:
-              affinity:
-                podAffinity:
-                  requiredDuringSchedulingIgnoredDuringExecution:
-                    - labelSelector:
-                        matchExpressions:
-                          - key: app.kubernetes.io/instance
-                            operator: In
-                            values:
-                              - jellyfin
-                      topologyKey: "kubernetes.io/hostname"
-              containers:
-                {{- include "tunnel.deployment.container" . | nindent 16 }}
-                - name: transmission
-                  image: lscr.io/linuxserver/transmission:4.1.1
-                  resources:
-                    requests:
-                      memory: 128Mi
-                      cpu: 1000m
-                    limits:
-                      memory: 2Gi
-                  ports:
-                    - name: transmission
-                      containerPort: 9091
-                  env:
-                    - name: PUID
-                      value: "1000"
-                    - name: PGID
-                      value: "1000"
-                    - name: FILE__USER
-                      value: /secrets/transmission/username
-                    - name: FILE__PASS
-                      value: /secrets/transmission/password
-                  volumeMounts:
-                    - name: multimedia
-                      subPath: Downloads
-                      mountPath: /downloads
-                    - name: transmission-secrets
-                      mountPath: /secrets/transmission
-                      readOnly: true
-                    - name: config
-                      mountPath: /config
-                    - name: transmission-scripts
-                      mountPath: /scripts/extract-files.sh
-                      subPath: extract-files.sh
-                    - name: transmission-scripts
-                      mountPath: /etc/periodic/15min/idle-or-stuck-cleaner.sh
-                      subPath: idle-or-stuck-cleaner.sh
-              volumes:
-                - name: multimedia
-                  persistentVolumeClaim:
-                    claimName: multimedia
-                - name: config
-                  persistentVolumeClaim:
-                    claimName: transmission
-                - name: transmission-scripts
-                  configMap:
-                    name: transmission-scripts
-                    defaultMode: 0755
-                - name: transmission-secrets
-                  secret:
-                    secretName: transmission
+            backup.velero.io/backup-volumes: config
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app.kubernetes.io/instance
+                        operator: In
+                        values:
+                          - jellyfin
+                  topologyKey: "kubernetes.io/hostname"
+          containers:
+            {{- include "tunnel.truecharts.container" . | nindent 12 }}
+            main:
+              env:
+                FILE__USER: /secrets/transmission/username
+                FILE__PASS: /secrets/transmission/password
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 1000m
+      limits:
+        memory: 2Gi
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          homer.service.name: Media
+          homer.item.logo: "https://raw.githubusercontent.com/transmission/transmission/0ce4adf07ce4b6cfabf81e2d027f96197bb9a305/web/assets/img/logo.png"
+        hosts:
+          - host: transmission.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - transmission.{{ .Values.fqdn }}
+    persistence:
+      config:
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+      downloads:
+        enabled: true
+        type: pvc
+        existingClaim: multimedia
+        subPath: Downloads
+        mountPath: /downloads
+      transmission-secret:
+        enabled: true
+        type: secret
+        objectName: transmission
+        expandObjectName: false
+        mountPath: /secrets/transmission
+        readOnly: true
+      extract-script:
+        enabled: true
+        type: configmap
+        objectName: scripts
+        mountPath: /scripts/extract-files.sh
+        subPath: extract-files.sh
+        defaultMode: "0755"
+      cleaner-script:
+        enabled: true
+        type: configmap
+        objectName: scripts
+        mountPath: /etc/periodic/15min/idle-or-stuck-cleaner.sh
+        subPath: idle-or-stuck-cleaner.sh
+        defaultMode: "0755"
 {{- end }}
