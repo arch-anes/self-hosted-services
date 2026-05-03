@@ -189,7 +189,7 @@ spec:
                   requiredDuringSchedulingIgnoredDuringExecution:
                     - labelSelector:
                         matchExpressions:
-                          - key: app
+                          - key: app.kubernetes.io/instance
                             operator: In
                             values:
                               - jellyfin
