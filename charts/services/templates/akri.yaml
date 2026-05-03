@@ -17,8 +17,6 @@ spec:
     udev:
       discovery:
         enabled: true
-        resources:
-          cpuLimit: null
       configuration:
         enabled: true
         capacity: 5
