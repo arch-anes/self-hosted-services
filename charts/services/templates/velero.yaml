@@ -1,4 +1,4 @@
-{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.velero.enabled }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "velero")) }}
 # ---
 # apiVersion: v1
 # kind: Secret

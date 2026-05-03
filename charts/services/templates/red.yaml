@@ -1,4 +1,4 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.red.enabled }}
+{{- if include "app.enabled" (list . "red") }}
 # ---
 # apiVersion: v1
 # kind: Secret

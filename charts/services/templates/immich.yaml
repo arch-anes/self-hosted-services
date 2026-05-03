@@ -1,8 +1,8 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.immich.enabled }}
-{{- if not .Values.applications.postgresql.enabled }}
+{{- if include "app.enabled" (list . "immich") }}
+{{- if not (include "app.enabled" (list . "postgresql")) }}
 {{- fail "Immich requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
-{{- if not .Values.applications.redis.enabled }}
+{{- if not (include "app.enabled" (list . "redis")) }}
 {{- fail "Immich requires Redis to be enabled. Please enable Redis in your values.yaml" }}
 {{- end }}
 ---
@@ -46,24 +46,24 @@ spec:
   # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/immich/values.yaml
   values:
     immich:
-    {{- $mlGpuVendor := dig "machine_learning" "gpu_vendor" "" .Values.applications.immich }}
+    {{- $mlGpuVendor := dig "machine_learning" "gpu_vendor" "" (.Values.applications.immich | default dict) }}
     {{- if eq $mlGpuVendor "intel" }}
-      {{- if not .Values.applications.intel_gpu.enabled }}
+      {{- if not (include "app.enabled" (list . "intel_gpu")) }}
         {{- fail "Intel GPU is selected for Immich but intel_gpu is not enabled" }}
       {{- end }}
       mlImageType: mlOpenvinoImage
     {{- else if eq $mlGpuVendor "intel_xe" }}
-      {{- if not .Values.applications.intel_gpu.enabled }}
+      {{- if not (include "app.enabled" (list . "intel_gpu")) }}
         {{- fail "Intel GPU is selected for Immich's machine learning but intel_gpu is not enabled" }}
       {{- end }}
       mlImageType: mlOpenvinoImage
     {{- else if eq $mlGpuVendor "nvidia" }}
-      {{- if not .Values.applications.nvidia_gpu.enabled }}
+      {{- if not (include "app.enabled" (list . "nvidia_gpu")) }}
         {{- fail "NVIDIA GPU is selected for Immich's machine learning but nvidia_gpu is not enabled" }}
       {{- end }}
       mlImageType: mlCudaImage
     {{- else if eq $mlGpuVendor "amd" }}
-      {{- if not .Values.applications.amd_gpu.enabled }}
+      {{- if not (include "app.enabled" (list . "amd_gpu")) }}
         {{- fail "AMD GPU is selected for Immich's machine learning but amd_gpu is not enabled" }}
       {{- end }}
       mlImageType: mlRocmImage
@@ -132,24 +132,24 @@ spec:
                 limits:
                   cpu: ''
                   memory: 4Gi
-                  {{- $gpuVendor := .Values.applications.immich.gpu_vendor }}
+                  {{- $gpuVendor := index (.Values.applications.immich | default dict) "gpu_vendor" }}
                   {{- if eq $gpuVendor "intel" }}
-                    {{- if not .Values.applications.intel_gpu.enabled }}
+                    {{- if not (include "app.enabled" (list . "intel_gpu")) }}
                       {{- fail "Intel GPU is selected for Immich but intel_gpu is not enabled" }}
                     {{- end }}
                   gpu.intel.com/i915: 1
                   {{- else if eq $gpuVendor "intel_xe" }}
-                    {{- if not .Values.applications.intel_gpu.enabled }}
+                    {{- if not (include "app.enabled" (list . "intel_gpu")) }}
                       {{- fail "Intel GPU is selected for Immich but intel_gpu is not enabled" }}
                     {{- end }}
                   gpu.intel.com/xe: 1
                   {{- else if eq $gpuVendor "nvidia" }}
-                    {{- if not .Values.applications.nvidia_gpu.enabled }}
+                    {{- if not (include "app.enabled" (list . "nvidia_gpu")) }}
                       {{- fail "NVIDIA GPU is selected for Immich but nvidia_gpu is not enabled" }}
                     {{- end }}
                   nvidia.com/gpu: 1
                   {{- else if eq $gpuVendor "amd" }}
-                    {{- if not .Values.applications.amd_gpu.enabled }}
+                    {{- if not (include "app.enabled" (list . "amd_gpu")) }}
                       {{- fail "AMD GPU is selected for Immich but amd_gpu is not enabled" }}
                     {{- end }}
                   amd.com/gpu: 1
@@ -293,7 +293,7 @@ spec:
             path: /metrics
     configmap:
       authentik-blueprint:
-        enabled: {{ and .Values.applications.immich.enabled (not .Values.applications.immich.trusted_header_auth) }}
+        enabled: {{ and (include "app.enabled" (list . "immich")) (not .Values.applications.immich.trusted_header_auth) }}
         data:
           blueprint.yaml: |
             # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
