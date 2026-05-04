@@ -141,6 +141,8 @@ spec:
               namespace: kube-system
             spec:
               syncPolicy:
+                syncOptions:
+                  - ServerSideApply=true
                 automated:
                   selfHeal: true
               project: self-hosted-services
