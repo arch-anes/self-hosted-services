@@ -1,106 +1,53 @@
 {{- if and (not .Values.disableAllApplications) .Values.applications.jellyseerr.enabled }}
 ---
-apiVersion: v1
-kind: Service
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
-  name: jellyseerr
+  name: seerr
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  ports:
-    - protocol: TCP
-      name: web
-      port: 5055
-  selector:
-    app: jellyseerr
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: jellyseerr
-  namespace: "{{ .Values.applicationsNamespace }}"
-  annotations:
-    homer.service.name: Arr
-    homer.service.logo: "fas fa-ship"
-    homer.service.rank: "3"
-    homer.item.rank: "1"
-    homer.item.logo: "https://raw.githubusercontent.com/Fallenbagel/jellyseerr/54cfeefe74de2c7df97491aa6cb954b94759ac5d/public/logo_stacked.svg"
-spec:
-  tls:
-    - hosts:
-        - jellyseerr.{{ .Values.fqdn }}
-      secretName: "{{ .Values.fqdn }}-tls"
-  rules:
-    - host: jellyseerr.{{ .Values.fqdn }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: jellyseerr
-                port:
-                  name: web
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: jellyseerr
-  namespace: "{{ .Values.applicationsNamespace }}"
-spec:
-  storageClassName: local-path-persistent-namespaced
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: jellyseerr
-  namespace: "{{ .Values.applicationsNamespace }}"
-  labels:
-    app: jellyseerr
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: jellyseerr
-  template:
-    metadata:
-      annotations:
-        backup.velero.io/backup-volumes: config
-      labels:
-        app: jellyseerr
-    spec:
-      nodeSelector:
-        # Schedule only on NAS nodes
-        nas: "true"
-      containers:
-        - name: jellyseerr
-          image: ghcr.io/seerr-team/seerr:v3.2.0
-          resources:
-            requests:
-              memory: 128Mi
-              cpu: 1000m
-            limits:
-              memory: 1Gi
-          env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
-          ports:
-            - name: web
-              containerPort: 5055
-          volumeMounts:
-            - name: config
-              mountPath: /app/config
-      volumes:
-        - name: config
-          persistentVolumeClaim:
-            claimName: jellyseerr
+  chart: oci://oci.trueforge.org/truecharts/seerr
+  version: 15.3.0
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/seerr/values.yaml
+  values:
+    workload:
+      main:
+        podSpec:
+          nodeSelector:
+            # Schedule only on NAS nodes
+            nas: "true"
+          annotations:
+            backup.velero.io/backup-volumes: config
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 1000m
+      limits:
+        memory: 1Gi
+        cpu: ''
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          homer.service.name: Arr
+          homer.service.logo: "fas fa-ship"
+          homer.service.rank: "3"
+          homer.item.rank: "1"
+          homer.item.logo: "https://raw.githubusercontent.com/Fallenbagel/jellyseerr/54cfeefe74de2c7df97491aa6cb954b94759ac5d/public/logo_stacked.svg"
+        hosts:
+          - host: jellyseerr.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - jellyseerr.{{ .Values.fqdn }}
+    persistence:
+      config:
+        type: pvc
+        storageClass: local-path-persistent-namespaced
 {{- end }}
