@@ -1,4 +1,4 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.gluetun.enabled }}
+{{- if include "app.enabled" (list . "gluetun") }}
 # ---
 # apiVersion: v1
 # kind: Secret

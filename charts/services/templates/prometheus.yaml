@@ -1,4 +1,4 @@
-{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.prometheus.enabled }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "prometheus")) }}
 # ---
 # apiVersion: v1
 # kind: Secret
@@ -56,7 +56,7 @@ spec:
     defaultRules:
       rules:
         windows: false
-{{- if .Values.applications.gotify.enabled }}
+{{- if include "app.enabled" (list . "gotify") }}
     alertmanager:
       alertmanagerSpec:
         retention: 336h # 2 weeks
@@ -83,9 +83,9 @@ spec:
     grafana:
       annotations:
         reloader.stakater.com/auto: "true"
-{{- if and (not .Values.disableAllApplications) (or .Values.applications.loki.enabled .Values.applications.tempo.enabled) }}
+{{- if or (include "app.enabled" (list . "loki")) (include "app.enabled" (list . "tempo")) }}
       additionalDataSources:
-{{- if .Values.applications.loki.enabled }}
+{{- if include "app.enabled" (list . "loki") }}
         - name: Loki
           type: loki
           uid: loki
@@ -96,7 +96,7 @@ spec:
             timeout: 60
             maxLines: 1000
 {{- end }}
-{{- if .Values.applications.tempo.enabled }}
+{{- if include "app.enabled" (list . "tempo") }}
         - name: Tempo
           uid: tempo
           type: tempo
@@ -184,24 +184,24 @@ spec:
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
-{{- if .Values.applications.argo.enabled }}
+{{- if include "app.enabled" (list . "argo") }}
           argo-cd:
             gnetId: 14584
             revision: 1
             datasource: Prometheus
 {{- end }}
-{{- if or .Values.applications.prowlarr.enabled .Values.applications.radarr.enabled .Values.applications.sonarr.enabled }}
+{{- if or (include "app.enabled" (list . "prowlarr")) (include "app.enabled" (list . "radarr")) (include "app.enabled" (list . "sonarr")) }}
           arr:
             url: https://raw.githubusercontent.com/onedr0p/exportarr/3cd394508cf9456f8df4ce4a5d1adc33bb51da2b/examples/grafana/dashboard2.json
             datasource: Prometheus
 {{- end }}
-{{- if .Values.applications.authentik.enabled }}
+{{- if include "app.enabled" (list . "authentik") }}
           authentik:
             gnetId: 14837
             revision: 2
             datasource: Prometheus
 {{- end }}
-{{- if .Values.applications.crowdsec.enabled }}
+{{- if include "app.enabled" (list . "crowdsec") }}
           crowdsec:
             gnetId: 24049
             revision: 1
@@ -211,7 +211,7 @@ spec:
               - name: DS_LOKI
                 value: Loki
 {{- end }}
-{{- if .Values.applications.loki.enabled }}
+{{- if include "app.enabled" (list . "loki") }}
           loki:
             gnetId: 14055
             revision: 5
@@ -221,7 +221,7 @@ spec:
               - name: DS_LOKI
                 value: Loki
 {{- end }}
-{{- if .Values.applications.postgresql.enabled }}
+{{- if include "app.enabled" (list . "postgresql") }}
           pgbackrest:
             url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/6b9bb005f171690d228bf49ca19f8f4caff95451/kustomize/monitoring/grafana/dashboards/pgbackrest.json
             datasource: Prometheus
@@ -238,7 +238,7 @@ spec:
             url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/6b9bb005f171690d228bf49ca19f8f4caff95451/kustomize/monitoring/grafana/dashboards/query_statistics.json
             datasource: Prometheus
 {{- end }}
-{{- if .Values.applications.idrac_exporter.enabled }}
+{{- if include "app.enabled" (list . "idrac_exporter") }}
           bmc:
             url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/8d5d7e3da3d98f773dbfcc2709f21b1d3045f845/grafana/idrac.json
             datasource:
@@ -255,7 +255,7 @@ spec:
               - name: DS_PROMETHEUS
                 value: Prometheus
 {{- end }}
-{{- if .Values.applications.ipmi_exporter.enabled }}
+{{- if include "app.enabled" (list . "ipmi_exporter") }}
           ipmi:
             gnetId: 15765
             revision: 2
@@ -263,7 +263,7 @@ spec:
               - name: DS_PROMETHEUS
                 value: Prometheus
 {{- end }}
-{{- if .Values.applications.minio.enabled }}
+{{- if include "app.enabled" (list . "minio") }}
           minio:
             gnetId: 13502
             revision: 26
@@ -271,7 +271,7 @@ spec:
               - name: DS_PROMETHEUS
                 value: Prometheus
 {{- end }}
-{{- if .Values.applications.node_problem_detector.enabled }}
+{{- if include "app.enabled" (list . "node_problem_detector") }}
           node-problem-detector:
             gnetId: 15549
             revision: 1
@@ -279,7 +279,7 @@ spec:
               - name: DS_PROMETHEUS
                 value: Prometheus
 {{- end }}
-{{- if .Values.applications.redis.enabled }}
+{{- if include "app.enabled" (list . "redis") }}
           redis:
             gnetId: 763
             revision: 6
@@ -291,14 +291,14 @@ spec:
             revision: 1
             datasource: Prometheus
 {{- end }}
-{{- if .Values.applications.velero.enabled }}
+{{- if include "app.enabled" (list . "velero") }}
           velero:
             # gnetId: 23838
             gnetId: 15469
             revision: 1
             datasource: Prometheus
 {{- end }}
-{{- if .Values.applications.speedtest_tracker.enabled }}
+{{- if include "app.enabled" (list . "speedtest_tracker") }}
           speedtest_tracker:
             gnetId: 24608
             revision: 2
@@ -388,7 +388,7 @@ spec:
           requests:
             cpu: 500m
             memory: 1Gi
-{{- if .Values.applications.ipmi_exporter.enabled }}
+{{- if include "app.enabled" (list . "ipmi_exporter") }}
         secrets:
           - ipmi-exporter
 {{- end }}
@@ -430,7 +430,7 @@ spec:
       serviceMonitor:
         enabled: false
     extraManifests:
-{{- if .Values.applications.gotify.enabled }}
+{{- if include "app.enabled" (list . "gotify") }}
       - apiVersion: apps/v1
         kind: Deployment
         metadata:

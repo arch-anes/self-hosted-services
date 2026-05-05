@@ -1,5 +1,5 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.open_webui.enabled }}
-{{- if not .Values.applications.postgresql.enabled }}
+{{- if include "app.enabled" (list . "open_webui") }}
+{{- if not (include "app.enabled" (list . "postgresql")) }}
 {{- fail "Open WebUI requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
 
@@ -22,7 +22,7 @@ spec:
       enabled: false
     postgresql:
       enabled: false
-{{- if .Values.applications.llama_cpp.enabled }}
+{{- if include "app.enabled" (list . "llama_cpp") }}
     openaiBaseApiUrl: "http://llama-cpp:8080/v1"
     openaiBaseApiUrls:
       - "http://llama-cpp:8080/v1"
@@ -63,7 +63,7 @@ spec:
           secretKeyRef:
             name: hugging-face
             key: token
-    {{- if .Values.applications.authentik.enabled }}
+    {{- if include "app.enabled" (list . "authentik") }}
     sso:
       enabled: true
       enableSignup: true
@@ -92,7 +92,7 @@ spec:
       host: chat.{{ .Values.fqdn }}
       tls: true
       existingSecret: "{{ .Values.fqdn }}-tls"
-    {{- if .Values.applications.authentik.enabled }}
+    {{- if include "app.enabled" (list . "authentik") }}
     extraResources:
       - apiVersion: v1
         kind: ConfigMap

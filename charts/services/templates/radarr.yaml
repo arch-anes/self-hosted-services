@@ -1,5 +1,5 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.radarr.enabled }}
-{{- if not .Values.applications.postgresql.enabled }}
+{{- if include "app.enabled" (list . "radarr") }}
+{{- if not (include "app.enabled" (list . "postgresql")) }}
 {{- fail "Radarr requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
 ---

@@ -1,4 +1,4 @@
-{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.alloy.enabled }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "alloy")) }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -39,18 +39,18 @@ spec:
             http { endpoint = "0.0.0.0:4318" }
 
             output {
-{{- if .Values.applications.tempo.enabled }}
+{{- if include "app.enabled" (list . "tempo") }}
               traces = [otelcol.exporter.otlp.default.input]
 {{- end }}
-{{- if .Values.applications.prometheus.enabled }}
+{{- if include "app.enabled" (list . "prometheus") }}
               metrics = [otelcol.exporter.prometheus.default.input]
 {{- end }}
-{{- if .Values.applications.loki.enabled }}
+{{- if include "app.enabled" (list . "loki") }}
               logs    = [otelcol.exporter.loki.default.input]
 {{- end }}
             }
           }
-{{- if .Values.applications.prometheus.enabled }}
+{{- if include "app.enabled" (list . "prometheus") }}
           prometheus.remote_write "default" {
             endpoint {
               url = "http://prometheus-operated:9090/api/v1/write"
@@ -61,14 +61,14 @@ spec:
             forward_to = [prometheus.remote_write.default.receiver]
           }
 {{- end }}
-{{- if .Values.applications.tempo.enabled }}
+{{- if include "app.enabled" (list . "tempo") }}
           otelcol.exporter.otlp "default" {
             client {
               endpoint = "tempo:4317"
             }
           }
 {{- end }}
-{{- if .Values.applications.loki.enabled }}
+{{- if include "app.enabled" (list . "loki") }}
           loki.write "default" {
             endpoint {
               url = "http://loki:3100/loki/api/v1/push"

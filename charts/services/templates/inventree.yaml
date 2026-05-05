@@ -1,8 +1,8 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.inventree.enabled }}
-{{- if not .Values.applications.postgresql.enabled }}
+{{- if include "app.enabled" (list . "inventree") }}
+{{- if not (include "app.enabled" (list . "postgresql")) }}
 {{- fail "InvenTree requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
-{{- if not .Values.applications.redis.enabled }}
+{{- if not (include "app.enabled" (list . "redis")) }}
 {{- fail "InvenTree requires Redis to be enabled. Please enable Redis in your values.yaml" }}
 {{- end }}
 ---

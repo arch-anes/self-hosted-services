@@ -1,5 +1,5 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.joal.enabled }}
-{{- if not .Values.applications.gluetun.enabled }}
+{{- if include "app.enabled" (list . "joal") }}
+{{- if not (include "app.enabled" (list . "gluetun")) }}
 {{- fail "Joal requires gluetun to be enabled. Please enable gluetun in your values.yaml" }}
 {{- end }}
 # ---

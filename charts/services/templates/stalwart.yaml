@@ -1,11 +1,11 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.stalwart.enabled }}
-{{- if not .Values.applications.postgresql.enabled }}
+{{- if include "app.enabled" (list . "stalwart") }}
+{{- if not (include "app.enabled" (list . "postgresql")) }}
 {{- fail "Stalwart requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
-{{- if not .Values.applications.authentik.enabled }}
+{{- if not (include "app.enabled" (list . "authentik")) }}
 {{- fail "Stalwart requires Authentik to be enabled. Please enable Authentik in your values.yaml" }}
 {{- end }}
-{{- if not .Values.applications.minio.enabled }}
+{{- if not (include "app.enabled" (list . "minio")) }}
 {{- fail "Stalwart requires MinIO to be enabled. Please enable MinIO in your values.yaml" }}
 {{- end }}
 
@@ -339,7 +339,7 @@ spec:
           level: trace
           enable:
             log-exporter: false
-            span-exporter: {{ .Values.applications.tempo.enabled }}
+            span-exporter: {{ include "app.enabled" (list . "tempo") }}
           transport: http
           endpoint: http://tempo.kube-system.svc.cluster.local:4318/v1/traces
       metrics:

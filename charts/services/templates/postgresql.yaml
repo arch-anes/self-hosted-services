@@ -1,4 +1,4 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.postgresql.enabled }}
+{{- if include "app.enabled" (list . "postgresql") }}
 {{- if .Values.primaryTenant }}
 ---
 apiVersion: helm.cattle.io/v1
@@ -409,7 +409,7 @@ spec:
             FROM dbs;
             \o
             \i /tmp/grant_users_public_permissions.sql
-{{- if .Values.applications.immich.enabled }}
+{{- if include "app.enabled" (list . "immich") }}
             \c immich
             BEGIN;
             CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
@@ -417,13 +417,13 @@ spec:
             CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
             COMMIT;
 {{- end }}
-{{- if .Values.applications.odoo.enabled }}
+{{- if include "app.enabled" (list . "odoo") }}
             \c odoo
             BEGIN;
             CREATE EXTENSION IF NOT EXISTS vector CASCADE;
             COMMIT;
 {{- end }}
-{{- if .Values.applications.tracearr.enabled }}
+{{- if include "app.enabled" (list . "tracearr") }}
             \c tracearr
             BEGIN;
             CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
@@ -475,124 +475,124 @@ spec:
                   - "hostssl all all 10.42.0.0/16 scram-sha-256"
                   - "hostssl all all 10.43.0.0/16 scram-sha-256"
                   # Remove once https://github.com/stalwartlabs/stalwart/issues/2380 is resolved and the application no longer requires non-SSL connections to the database
-{{- if .Values.applications.stalwart.enabled }}
+{{- if include "app.enabled" (list . "stalwart") }}
                   - "hostnossl stalwart stalwart 10.42.0.0/16 scram-sha-256"
                   - "hostnossl stalwart stalwart 10.43.0.0/16 scram-sha-256"
 {{- end }}
           users:
             - name: postgres
-{{- if .Values.applications.authentik.enabled }}
+{{- if include "app.enabled" (list . "authentik") }}
             - name: authentik
               databases:
                 - authentik
 {{- end }}
-{{- if .Values.applications.bazarr.enabled }}
+{{- if include "app.enabled" (list . "bazarr") }}
             - name: bazarr
               databases:
                 - bazarr
 {{- end }}
-{{- if .Values.applications.gotify.enabled }}
+{{- if include "app.enabled" (list . "gotify") }}
             - name: gotify
               databases:
                 - gotify
 {{- end }}
-{{- if .Values.applications.home_assistant.enabled }}
+{{- if include "app.enabled" (list . "home_assistant") }}
             - name: home-assistant
               databases:
                 - home-assistant
 {{- end }}
-{{- if .Values.applications.immich.enabled }}
+{{- if include "app.enabled" (list . "immich") }}
             - name: immich
               databases:
                 - immich
 {{- end }}
-{{- if .Values.applications.inventree.enabled }}
+{{- if include "app.enabled" (list . "inventree") }}
             - name: inventree
               databases:
                 - inventree
 {{- end }}
-{{- if .Values.applications.miniflux.enabled }}
+{{- if include "app.enabled" (list . "miniflux") }}
             - name: miniflux
               password:
                 type: AlphaNumeric
               databases:
                 - miniflux
 {{- end }}
-{{- if .Values.applications.n8n.enabled }}
+{{- if include "app.enabled" (list . "n8n") }}
             - name: n8n
               databases:
                 - n8n
 {{- end }}
-{{- if .Values.applications.netbox.enabled }}
+{{- if include "app.enabled" (list . "netbox") }}
             - name: netbox
               databases:
                 - netbox
 {{- end }}
-{{- if .Values.applications.nextcloud.enabled }}
+{{- if include "app.enabled" (list . "nextcloud") }}
             - name: nextcloud
               databases:
                 - nextcloud
 {{- end }}
-{{- if .Values.applications.obico.enabled }}
+{{- if include "app.enabled" (list . "obico") }}
             - name: obico
               password:
                 type: AlphaNumeric
               databases:
                 - obico
 {{- end }}
-{{- if .Values.applications.odoo.enabled }}
+{{- if include "app.enabled" (list . "odoo") }}
             - name: odoo
               databases:
                 - odoo
 {{- end }}
-{{- if .Values.applications.open_webui.enabled }}
+{{- if include "app.enabled" (list . "open_webui") }}
             - name: open-webui
               databases:
                 - open-webui
 {{- end }}
-{{- if .Values.applications.pgadmin4.enabled }}
+{{- if include "app.enabled" (list . "pgadmin4") }}
             - name: pgadmin4
               password:
                 type: AlphaNumeric
               databases:
                 - pgadmin4
 {{- end }}
-{{- if .Values.applications.prowlarr.enabled }}
+{{- if include "app.enabled" (list . "prowlarr") }}
             - name: prowlarr
               databases:
                 - prowlarr_log
                 - prowlarr_main
 {{- end }}
-{{- if .Values.applications.radarr.enabled }}
+{{- if include "app.enabled" (list . "radarr") }}
             - name: radarr
               databases:
                 - radarr_log
                 - radarr_main
 {{- end }}
-{{- if .Values.applications.sonarr.enabled }}
+{{- if include "app.enabled" (list . "sonarr") }}
             - name: sonarr
               databases:
                 - sonarr_log
                 - sonarr_main
 {{- end }}
-{{- if .Values.applications.speedtest_tracker.enabled }}
+{{- if include "app.enabled" (list . "speedtest_tracker") }}
             - name: speedtest-tracker
               databases:
                 - speedtest-tracker
 {{- end }}
-{{- if .Values.applications.stalwart.enabled }}
+{{- if include "app.enabled" (list . "stalwart") }}
             - name: stalwart
               databases:
                 - stalwart
 {{- end }}
-{{- if .Values.applications.tracearr.enabled }}
+{{- if include "app.enabled" (list . "tracearr") }}
             - name: tracearr
               password:
                 type: AlphaNumeric
               databases:
                 - tracearr
 {{- end }}
-{{- if .Values.applications.wakapi.enabled }}
+{{- if include "app.enabled" (list . "wakapi") }}
             - name: wakapi
               databases:
                 - wakapi

@@ -1,0 +1,34 @@
+suite: app.enabled helper
+templates:
+  - templates/redis.yaml
+
+tests:
+  - it: renders when enableAllApplicationsByDefault is true and no per-app override
+    set:
+      enableAllApplicationsByDefault: true
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: does not render when enableAllApplicationsByDefault is false and no per-app override
+    set:
+      enableAllApplicationsByDefault: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders when per-app enabled is true despite global false
+    set:
+      enableAllApplicationsByDefault: false
+      applications.redis.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: does not render when per-app enabled is false despite global true
+    set:
+      enableAllApplicationsByDefault: true
+      applications.redis.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
