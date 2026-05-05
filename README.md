@@ -237,6 +237,70 @@ After deployment, services are accessible at: `https://dash.<your-domain>`.
 
 ## Advanced use-cases
 
+### Postgres backup restore
+
+Provided backups are enabled for the PostgreSQL cluster, you can restore data from the backup repository.
+
+#### Restore from scratch
+
+Use this when the cluster is lost and needs to be recreated from the remote backup. Add a `dataSource` block to the `PostgresCluster` manifest before applying it:
+
+```yaml
+        spec:
+          dataSource:
+            pgbackrest:
+              stanza: db
+              configuration:
+                - secret:
+                    name: postgresql-backup-credentials
+              options:
+                - --type=time
+                - --target="2021-06-09 14:15:11-04"
+              global:
+                compress-level: '1'
+                compress-level-network: '1'
+                compress-type: zst
+                repo1-s3-uri-style: path
+                repo1-cipher-type: aes-256-cbc
+              repo:
+                name: repo1
+                {{- .Values.applications.postgresql.remoteBackupLocation | toYaml | nindent 16 }}
+```
+
+Remove the `dataSource` block once the cluster is running to prevent it from re-triggering on the next reconcile.
+
+#### Point-in-time recovery (PITR)
+
+Use this to roll back a running cluster to a previous point in time.
+
+1. Edit the `PostgresCluster` manifest to enable restore with a target timestamp:
+   ```yaml
+        spec:
+          backups:
+            pgbackrest:
+              restore:
+                enabled: true
+                repoName: repo1
+                options:
+                  - --type=time
+                  - --target="2021-06-09 14:15:11-04"
+   ```
+1. Trigger the restore by annotating the cluster:
+   ```
+   kubectl annotate -n default postgrescluster postgresql --overwrite \
+     postgres-operator.crunchydata.com/pgbackrest-restore="$(date)"
+   ```
+1. Once recovery is complete, disable the restore to prevent it from re-triggering:
+   ```yaml
+   spec:
+     backups:
+       pgbackrest:
+         restore:
+           enabled: false
+   ```
+
+Reference: https://access.crunchydata.com/documentation/postgres-operator/latest/tutorials/backups-disaster-recovery/disaster-recovery#perform-an-in-place-point-in-time-recovery-pitr
+
 ### Restore backup from Velero
 
 Provided an S3-compatible bucket, the cluster and select volumes will be backed up by Velero and Kopia.
