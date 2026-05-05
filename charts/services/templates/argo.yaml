@@ -98,63 +98,57 @@ metadata:
   name: argo-cd-applicationset
   namespace: kube-system
 spec:
-  chart: generic
-  repo: https://arch-anes.github.io/charts
-  version: 0.2.1
+  chart: argocd-apps
+  repo: https://argoproj.github.io/argo-helm
+  version: 2.0.4
   targetNamespace: kube-system
+  # default-values: https://github.com/argoproj/argo-helm/blob/main/charts/argocd-apps/values.yaml
   values:
-    objects:
-      - apiVersion: argoproj.io/v1alpha1
-        kind: AppProject
-        metadata:
-          name: self-hosted-services
-          namespace: kube-system
-        spec:
-          description: Project for self-hosted services
-          sourceRepos:
-            - '*'
-          destinations:
-            - server: '*'
-              namespace: '*'
-          clusterResourceWhitelist:
-            - group: '*'
-              kind: '*'
-          {{- if .Values.applications.argo.syncWindows }}
-          syncWindows:
-            {{- .Values.applications.argo.syncWindows | toYaml | nindent 12 }}
-          {{- end }}
-      - apiVersion: argoproj.io/v1alpha1
-        kind: ApplicationSet
-        metadata:
-          name: self-hosted-services
-          namespace: kube-system
-        spec:
-          goTemplate: true
-          goTemplateOptions: ["missingkey=error"]
-          generators:
-            - list:
-                elements:
-                  - environment: prod
-          syncPolicy:
-            preserveResourcesOnDeletion: true
-          template:
-            metadata:
-              name: self-hosted-services-cd
-              namespace: kube-system
-            spec:
-              syncPolicy:
-                syncOptions:
-                  - ServerSideApply=true
-                automated:
-                  selfHeal: true
-              project: self-hosted-services
-              source:
-                repoURL: {{ .Values.applications.argo.gitRepo }}
-                targetRevision: {{ .Values.applications.argo.targetRevision }}
-                path: charts/services
-                helm:
-                  valuesObject:
-                    {{- .Values | toYaml | nindent 20}}
-              destination:
-                server: https://kubernetes.{{ .Values.applicationsNamespace }}.svc
+    projects:
+      self-hosted-services:
+        namespace: kube-system
+        description: Project for self-hosted services
+        sourceRepos:
+          - '*'
+        destinations:
+          - server: '*'
+            namespace: '*'
+        clusterResourceWhitelist:
+          - group: '*'
+            kind: '*'
+        {{- if .Values.applications.argo.syncWindows }}
+        syncWindows:
+          {{- .Values.applications.argo.syncWindows | toYaml | nindent 10 }}
+        {{- end }}
+    applicationsets:
+      self-hosted-services:
+        namespace: kube-system
+        goTemplate: true
+        goTemplateOptions: ["missingkey=error"]
+        generators:
+          - list:
+              elements:
+                - environment: prod
+        syncPolicy:
+          preserveResourcesOnDeletion: true
+        template:
+          metadata:
+            name: self-hosted-services-cd
+            namespace: kube-system
+          spec:
+            syncPolicy:
+              syncOptions:
+                - ServerSideApply=true
+              automated:
+                selfHeal: true
+            project: self-hosted-services
+            source:
+              repoURL: {{ .Values.applications.argo.gitRepo }}
+              targetRevision: {{ .Values.applications.argo.targetRevision }}
+              path: charts/services
+              helm:
+                valuesObject:
+                  {{- .Values | toYaml | nindent 18}}
+            destination:
+              server: https://kubernetes.{{ .Values.applicationsNamespace }}.svc
 {{- end }}
