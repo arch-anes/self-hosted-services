@@ -19,6 +19,17 @@
         "/charts/.+\\.tpl$/"
       ],
       "matchStrings": [
+        "repository:\\s*(?<depName>[^\\s]+)\\s*\\n\\s*tag:\\s*(?<currentValue>[^\\s]+)"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/charts/.+\\.ya?ml$/",
+        "/charts/.+\\.tpl$/"
+      ],
+      "matchStrings": [
         "kind:\\s*HelmChart\\s*\\n(?:.*\\n)*?\\s*chart:\\s*(?<depName>.*?)\\s*\\n(?:.*\\n)*?\\s*repo:\\s*(?<registryUrl>.*?)\\s*\\n(?:.*\\n)*?\\s*version:\\s*(?<currentValue>.*?)\\s*\\n"
       ],
       "datasourceTemplate": "helm"
