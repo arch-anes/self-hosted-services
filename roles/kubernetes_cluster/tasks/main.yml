@@ -71,6 +71,7 @@
     - name: Install homebrew packages
       community.general.homebrew:
         name:
+          - cmctl
           - k9s
           - krr
           - trivy
