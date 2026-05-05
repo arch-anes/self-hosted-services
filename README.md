@@ -435,7 +435,8 @@ Access at `https://jellyseerr.<your-domain>` to perform the initial setup.
 **Radarr**: Movie monitoring and management.  
 **Bazarr**: Subtitle management for your media library.  
 **Prowlarr**: Centralized indexer management for Sonarr and Radarr.  
-**Tdarr**: Automated media transcoding and optimization.
+**Tdarr**: Automated media transcoding and optimization.  
+**Tracearr**: Activity and history tracker for the Arr stack.
 
 Setup [Arr secret](charts/services/templates/arr.yaml) with API keys for each service.
 
@@ -468,6 +469,12 @@ Access at `https://sonarr.<your-domain>`.
 Automated media transcoding.
 
 Access at `https://tdarr.<your-domain>`. Setup [Arr secret](charts/services/templates/arr.yaml) with Tdarr API key.
+
+##### Tracearr
+
+Activity and history tracker for the Arr stack.
+
+Access at `https://tracearr.<your-domain>`.
 
 ##### LazyLibrarian
 
@@ -532,6 +539,12 @@ Setup [MinIO secret](charts/services/templates/minio.yaml) with access credentia
 
 Access at `https://minio.<your-domain>`.
 
+#### Archivebox
+
+Self-hosted web archiving tool.
+
+Access at `https://archive.<your-domain>` to perform the initial setup.
+
 ### Automation & Workflows
 
 #### Home Assistant
@@ -545,6 +558,12 @@ Login to `https://ha.<your-domain>` to perform the initial setup.
 Workflow automation tool.
 
 Access at `https://n8n.<your-domain>`. Create an account on first visit.
+
+#### Mosquitto
+
+MQTT message broker for IoT and home automation.
+
+Used by Home Assistant for device communication.
 
 ### Notifications & Monitoring
 
@@ -723,6 +742,12 @@ Setup [Tempo secret](charts/services/templates/tempo.yaml) with MinIO credential
 
 Integrated with Grafana for trace visualization.
 
+#### Alloy
+
+Grafana Alloy telemetry collector for metrics, logs, and traces.
+
+Forwards node logs and metrics to Loki, Prometheus, and Tempo.
+
 #### Node Problem Detector
 
 Kubernetes node problem detector.
@@ -766,6 +791,22 @@ Enables GPU acceleration for applications like Jellyfin, Immich, and Tdarr.
 AMD GPU device plugin for Kubernetes.
 
 Enables GPU acceleration for applications like Jellyfin, Immich, and Tdarr.
+
+### AI Tools
+
+#### llama.cpp
+
+Local LLM inference server.
+
+Setup [Hugging Face secret](charts/services/templates/llama.cpp.yaml) with an access token to download models faster.
+
+#### Open WebUI
+
+Web-based chat interface for LLMs.
+
+Requires PostgreSQL to be enabled. Automatically connects to llama.cpp when enabled.
+
+Access at `https://chat.<your-domain>`. Create an account on first visit.
 
 ### Email
 
