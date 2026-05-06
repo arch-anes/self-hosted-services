@@ -63,6 +63,16 @@ spec:
           secretKeyRef:
             name: hugging-face
             key: token
+{{- if .Values.applications.kokoro.enabled }}
+      - name: AUDIO_TTS_ENGINE
+        value: "openai"
+      - name: AUDIO_TTS_OPENAI_API_BASE_URL
+        value: "http://kokoro:8880/v1"
+      - name: AUDIO_TTS_OPENAI_API_KEY
+        value: "not-needed"
+      - name: AUDIO_TTS_MODEL
+        value: "kokoro"
+{{- end }}
     {{- if .Values.applications.authentik.enabled }}
     sso:
       enabled: true
