@@ -133,6 +133,8 @@ applications:
   #   enabled: true
   joal: {}
   #   enabled: true
+  kokoro: {}
+  #   enabled: true
   lazylibrarian: {}
   #   enabled: true
   litellm: {}
