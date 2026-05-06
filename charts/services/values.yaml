@@ -150,6 +150,8 @@ applications:
   #   enabled: true
   joal: {}
   #   enabled: true
+  kokoro: {}
+  #   enabled: true
   litellm: {}
   #   enabled: true
   llama_cpp:
