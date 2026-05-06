@@ -1,0 +1,50 @@
+{{- if (include "app.enabled" (list . "kokoro")) }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kokoro
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: generic
+  repo: https://arch-anes.github.io/charts
+  version: 0.2.1
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  values:
+    objects:
+      - kind: Service
+        apiVersion: v1
+        metadata:
+          name: kokoro
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          ports:
+            - protocol: TCP
+              name: http
+              port: 8880
+          selector:
+            app: kokoro
+      - kind: Deployment
+        apiVersion: apps/v1
+        metadata:
+          name: kokoro
+          namespace: "{{ .Values.applicationsNamespace }}"
+          labels:
+            app: kokoro
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: kokoro
+          template:
+            metadata:
+              labels:
+                app: kokoro
+            spec:
+              containers:
+                - name: kokoro
+                  image: ghcr.io/remsky/kokoro-fastapi-cpu:v0.5.0
+                  ports:
+                    - name: http
+                      containerPort: 8880
+{{- end }}
