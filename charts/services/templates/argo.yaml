@@ -95,7 +95,7 @@ spec:
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
-  name: argo-cd-applicationset
+  name: argo-cd-applicationset-{{ .Values.applicationsNamespace }}
   namespace: kube-system
 spec:
   chart: argocd-apps
@@ -105,14 +105,18 @@ spec:
   # default-values: https://github.com/argoproj/argo-helm/blob/main/charts/argocd-apps/values.yaml
   values:
     projects:
-      self-hosted-services:
+      self-hosted-services-{{ .Values.applicationsNamespace }}:
         namespace: kube-system
-        description: Project for self-hosted services
+        description: Project for {{ .Values.applicationsNamespace }}
         sourceRepos:
           - '*'
         destinations:
-          - server: '*'
-            namespace: '*'
+          - server: https://kubernetes.default.svc
+            namespace: {{ .Values.applicationsNamespace }}
+          {{- if .Values.primaryTenant }}
+          - server: https://kubernetes.default.svc
+            namespace: kube-system
+          {{- end }}
         clusterResourceWhitelist:
           - group: '*'
             kind: '*'
@@ -121,7 +125,7 @@ spec:
           {{- .Values.applications.argo.syncWindows | toYaml | nindent 10 }}
         {{- end }}
     applicationsets:
-      self-hosted-services:
+      self-hosted-services-{{ .Values.applicationsNamespace }}:
         namespace: kube-system
         goTemplate: true
         goTemplateOptions: ["missingkey=error"]
@@ -133,7 +137,7 @@ spec:
           preserveResourcesOnDeletion: true
         template:
           metadata:
-            name: self-hosted-services-cd
+            name: self-hosted-services-{{ .Values.applicationsNamespace }}-cd
             namespace: kube-system
           spec:
             syncPolicy:
@@ -141,7 +145,7 @@ spec:
                 - ServerSideApply=true
               automated:
                 selfHeal: true
-            project: self-hosted-services
+            project: self-hosted-services-{{ .Values.applicationsNamespace }}
             source:
               repoURL: {{ .Values.applications.argo.gitRepo }}
               targetRevision: {{ .Values.applications.argo.targetRevision }}
@@ -150,5 +154,6 @@ spec:
                 valuesObject:
                   {{- .Values | toYaml | nindent 18}}
             destination:
-              server: https://kubernetes.{{ .Values.applicationsNamespace }}.svc
+              server: https://kubernetes.default.svc
+              namespace: {{ .Values.applicationsNamespace }}
 {{- end }}
