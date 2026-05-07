@@ -25,6 +25,10 @@ spec:
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/jellyfin/values.yaml
   values:
+    securityContext:
+      pod:
+        supplementalGroups:
+          - 109
     workload:
       main:
         podSpec:
