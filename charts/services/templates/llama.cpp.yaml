@@ -38,6 +38,9 @@ spec:
                 LLAMA_ARG_WEBUI: disabled
                 LLAMA_ARG_MODELS_MAX: "{{ .Values.applications.llama_cpp.max_loaded_models }}"
                 LLAMA_ARG_MODELS_PRESET: /models/preset.ini
+                {{- if (include "metrics.enabled" .) }}
+                LLAMA_ARG_ENDPOINT_METRICS: "1"
+                {{- end }}
                 HF_TOKEN:
                   secretKeyRef:
                     name: hugging-face
@@ -82,4 +85,12 @@ spec:
       models:
         type: pvc
         storageClass: local-path-persistent-namespaced
+    metrics:
+      main:
+        enabled: {{ include "metrics.enabled" . }}
+        type: servicemonitor
+        targetSelector: main
+        endpoints:
+          - port: main
+            path: /metrics
 {{- end }}
