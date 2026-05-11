@@ -8,7 +8,7 @@ metadata:
 spec:
   chart: headlamp
   repo: https://kubernetes-sigs.github.io/headlamp/
-  version: 0.41.0
+  version: 0.42.0
   targetNamespace: kube-system
   # default-values: https://github.com/kubernetes-sigs/headlamp/blob/main/charts/headlamp/values.yaml
   values:
