@@ -12,7 +12,7 @@ metadata:
 spec:
   chart: argo-cd
   repo: https://argoproj.github.io/argo-helm
-  version: 9.5.11
+  version: 9.5.13
   targetNamespace: kube-system
   takeOwnership: true
   # default-values: https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml
