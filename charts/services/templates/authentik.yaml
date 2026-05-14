@@ -148,7 +148,7 @@ spec:
         - authentik-open-webui-blueprint
 {{- end }}
 {{- if .Values.applications.stalwart.enabled }}
-        - authentik-stalwart-blueprint
+        - stalwart-authentik-blueprint
 {{- end }}
 {{- if and .Values.applications.wakapi.enabled (not .Values.applications.wakapi.trusted_header_auth) }}
         - wakapi-authentik-blueprint
