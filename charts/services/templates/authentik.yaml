@@ -154,7 +154,7 @@ spec:
         - sparkyfitness-authentik-blueprint
 {{- end }}
 {{- if (include "app.enabled" (list . "stalwart")) }}
-        - authentik-stalwart-blueprint
+        - stalwart-authentik-blueprint
 {{- end }}
 {{- if (include "app.enabled" (list . "vaultwarden")) }}
         - vaultwarden-authentik-blueprint
