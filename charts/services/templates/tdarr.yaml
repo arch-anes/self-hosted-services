@@ -90,7 +90,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: tdarr
-          image: ghcr.io/haveagitgat/tdarr:2.62.01
+          image: ghcr.io/haveagitgat/tdarr:2.73.01
           resources:
             requests:
               memory: 512Mi
@@ -176,7 +176,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: tdarr-worker
-          image: ghcr.io/haveagitgat/tdarr_node:2.62.01
+          image: ghcr.io/haveagitgat/tdarr_node:2.73.01
           resources:
             requests:
               memory: 512Mi
