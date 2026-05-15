@@ -17,7 +17,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/red-discordbot
-  version: 9.2.0
+  version: 9.3.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/red-discordbot/values.yaml
   values:
