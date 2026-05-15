@@ -2,3 +2,4 @@
 inventory*.yml
 roles/xanmanning.k3s/
 .ansible/
+devcontainer-lock.json
