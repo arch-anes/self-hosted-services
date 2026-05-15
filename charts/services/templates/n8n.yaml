@@ -23,7 +23,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/n8n
-  version: 18.4.9
+  version: 21.10.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/n8n/values.yaml
   values:
