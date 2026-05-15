@@ -120,7 +120,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://codeberg.org/wrenix/helm-charts/stalwart-mail
-  version: 0.4.9
+  version: 1.0.7
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # default-values: https://codeberg.org/wrenix/helm-charts/src/branch/main/stalwart-mail/values.yaml
   values:
