@@ -28,7 +28,7 @@ metadata:
 spec:
   chart: nextcloud
   repo: https://nextcloud.github.io/helm/
-  version: 9.0.5
+  version: 9.1.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # default-values: https://github.com/nextcloud/helm/blob/main/charts/nextcloud/values.yaml
   values:
