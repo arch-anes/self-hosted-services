@@ -151,6 +151,8 @@ spec:
               - odoo.{{ .Values.fqdn }}
       websocket:
         enabled: true
+        annotations:
+          homer.item.excluded: "true"
         hosts:
           - host: odoo.{{ .Values.fqdn }}
             paths:
