@@ -150,6 +150,9 @@ spec:
 {{- if .Values.applications.stalwart.enabled }}
         - authentik-stalwart-blueprint
 {{- end }}
+{{- if .Values.applications.vaultwarden.enabled }}
+        - vaultwarden-authentik-blueprint
+{{- end }}
 {{- if and .Values.applications.wakapi.enabled (not .Values.applications.wakapi.trusted_header_auth) }}
         - wakapi-authentik-blueprint
 {{- end }}
@@ -172,6 +175,9 @@ spec:
 {{- end }}
 {{- if .Values.applications.open_webui.enabled }}
         - open-webui
+{{- end }}
+{{- if .Values.applications.vaultwarden.enabled }}
+        - vaultwarden
 {{- end }}
 {{- if and .Values.applications.wakapi.enabled (not .Values.applications.wakapi.trusted_header_auth) }}
         - wakapi

@@ -210,6 +210,8 @@ applications:
     enabled: true
   transmission:
     enabled: true
+  vaultwarden:
+    enabled: true
   velero:
     enabled: true
     remoteBackupLocations:
