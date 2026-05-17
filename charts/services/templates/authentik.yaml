@@ -327,6 +327,21 @@ spec:
                   recovery_max_attempts: 5
                   recovery_cache_timeout: minutes=5
               - identifiers:
+                  name: default-recovery-email-destination
+                id: default-recovery-email-destination
+                model: authentik_policies_expression.expressionpolicy
+                attrs:
+                  expression: |
+                    recovery_email = context.get("pending_user").attributes.get("recovery_email")
+                    if recovery_email:
+                        context["email"] = recovery_email
+                    return True
+              - identifiers:
+                  policy: !KeyOf default-recovery-email-destination
+                  target: !KeyOf default-recovery-email
+                  order: 0
+                model: authentik_policies.policybinding
+              - identifiers:
                   name: default-recovery-user-write
                 id: default-recovery-user-write
                 model: authentik_stages_user_write.userwritestage
@@ -340,6 +355,7 @@ spec:
                   user_fields:
                     - email
                     - username
+                    - attributes.recovery_email
               - identifiers:
                   name: default-recovery-user-login
                 id: default-recovery-user-login
@@ -530,6 +546,33 @@ spec:
                         "email": request.user.email,
                         "email_verified": True
                     }
+          recovery-email-settings.yaml: |
+            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+            version: 1
+            metadata:
+              name: Recovery Email Settings
+            entries:
+              - identifiers:
+                  name: recovery-email-prompt
+                id: prompt-recovery-email
+                model: authentik_stages_prompt.prompt
+                attrs:
+                  field_key: recovery_email
+                  label: Recovery Email
+                  type: email
+                  required: false
+                  placeholder: recovery@example.com
+                  order: 100
+              - identifiers:
+                  name: default-user-settings
+                model: authentik_stages_prompt.promptstage
+                attrs:
+                  fields:
+                    - !Find [authentik_stages_prompt.prompt, [name, default-user-settings-field-username]]
+                    - !Find [authentik_stages_prompt.prompt, [name, default-user-settings-field-name]]
+                    - !Find [authentik_stages_prompt.prompt, [name, default-user-settings-field-email]]
+                    - !Find [authentik_stages_prompt.prompt, [name, default-user-settings-field-locale]]
+                    - !KeyOf prompt-recovery-email
       - apiVersion: v1
         kind: ConfigMap
         metadata:
