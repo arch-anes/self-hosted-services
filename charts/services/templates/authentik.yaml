@@ -490,6 +490,23 @@ spec:
                   target: !KeyOf default-mfa-binding
                   order: 0
                 model: authentik_policies.policybinding
+          forced-email-verification.yaml: |
+            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+            version: 1
+            metadata:
+              name: Forced Email Verification Mapping
+            entries:
+              - identifiers:
+                  name: Forced Email Verification Mapping
+                model: authentik_providers_oauth2.scopemapping
+                attrs:
+                  scope_name: email
+                  description: "Email scope that forces email_verified: True"
+                  expression: |
+                    return {
+                        "email": request.user.email,
+                        "email_verified": True
+                    }
       - apiVersion: v1
         kind: ConfigMap
         metadata:
