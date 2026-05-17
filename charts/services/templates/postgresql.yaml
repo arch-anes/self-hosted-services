@@ -592,6 +592,13 @@ spec:
               databases:
                 - tracearr
 {{- end }}
+{{- if .Values.applications.vaultwarden.enabled }}
+            - name: vaultwarden
+              password:
+                type: AlphaNumeric
+              databases:
+                - vaultwarden
+{{- end }}
 {{- if .Values.applications.wakapi.enabled }}
             - name: wakapi
               databases:
