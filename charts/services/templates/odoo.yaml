@@ -106,7 +106,6 @@ spec:
                   is_active: true
                   type: service_account
                   attributes:
-                    mailLocalAddress: "odoo@{{ .Values.fqdn }}"
                     mailAlias:
                       - bounce@{{ .Values.fqdn }}
                       - customer-care@{{ .Values.fqdn }}
