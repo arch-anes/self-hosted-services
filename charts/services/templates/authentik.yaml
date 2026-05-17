@@ -320,6 +320,21 @@ spec:
                   recovery_max_attempts: 5
                   recovery_cache_timeout: minutes=5
               - identifiers:
+                  name: default-recovery-email-destination
+                id: default-recovery-email-destination
+                model: authentik_policies_expression.expressionpolicy
+                attrs:
+                  expression: |
+                    backup_email = context.get("pending_user").attributes.get("backup_email")
+                    if backup_email:
+                        context["email"] = backup_email
+                    return True
+              - identifiers:
+                  policy: !KeyOf default-recovery-email-destination
+                  target: !KeyOf default-recovery-email
+                  order: 0
+                model: authentik_policies.policybinding
+              - identifiers:
                   name: default-recovery-user-write
                 id: default-recovery-user-write
                 model: authentik_stages_user_write.userwritestage
@@ -333,6 +348,7 @@ spec:
                   user_fields:
                     - email
                     - username
+                    - attributes.backup_email
               - identifiers:
                   name: default-recovery-user-login
                 id: default-recovery-user-login
@@ -523,6 +539,49 @@ spec:
                         "email": request.user.email,
                         "email_verified": True
                     }
+          backup-email-settings.yaml: |
+            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+            version: 1
+            metadata:
+              name: Backup Email Settings
+            entries:
+              - identifiers:
+                  name: backup-email-prompt
+                id: prompt-backup-email
+                model: authentik_stages_prompt.prompt
+                attrs:
+                  field_key: backup_email
+                  label: Backup Email
+                  type: email
+                  required: false
+                  placeholder: backup@example.com
+                  order: 100
+              - identifiers:
+                  name: backup-email-stage
+                id: stage-backup-email
+                model: authentik_stages_prompt.promptstage
+                attrs:
+                  fields:
+                    - !KeyOf prompt-backup-email
+              - identifiers:
+                  slug: backup-email-flow
+                id: flow-backup-email
+                model: authentik_flows.flow
+                attrs:
+                  name: Update Backup Email
+                  title: Update your backup email
+                  designation: stage_configuration
+                  authentication: require_authenticated
+              - identifiers:
+                  target: !KeyOf flow-backup-email
+                  stage: !KeyOf stage-backup-email
+                  order: 10
+                model: authentik_flows.flowstagebinding
+              - identifiers:
+                  target: !KeyOf flow-backup-email
+                  stage: !Find [authentik_stages_user_write.userwritestage, [name, default-user-settings-write]]
+                  order: 20
+                model: authentik_flows.flowstagebinding
       - apiVersion: v1
         kind: ConfigMap
         metadata:
