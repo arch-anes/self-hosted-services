@@ -46,7 +46,8 @@ spec:
                   name: postmaster
                 attrs:
                   attributes:
-                    mailLocalAddress: "postmaster@{{ .Values.fqdn }}"
+                    mailAlias:
+                      - "postmaster@{{ .Values.fqdn }}"
 
               - id: info-mail
                 model: authentik_core.group
@@ -54,57 +55,8 @@ spec:
                   name: info
                 attrs:
                   attributes:
-                    mailLocalAddress: "info@{{ .Values.fqdn }}"
-
-              - id: policy-mailLocalAddress
-                model: authentik_policies_expression.expressionpolicy
-                identifiers:
-                  name: "seed-mailLocalAddress-policy"
-                attrs:
-                  expression: |
-                    u = request.user
-                    if not u or not hasattr(u, "attributes"):
-                      return True
-                    attrs = dict(u.attributes or {})
-                    local = u.username or ""
-                    if (not local) and u.email and "@" in u.email:
-                      local = u.email.split("@", 1)[0]
-                    if not local:
-                      return True
-                    domain = "{{ .Values.fqdn }}"
-                    alias = f"{local}@{domain}"
-                    if not attrs.get("mailLocalAddress"):
-                      attrs["mailLocalAddress"] = alias
-                      u.attributes = attrs
-                      u.save()
-                    return True
-
-              - id: bind-policy-to-stage-to-auth
-                model: authentik_policies.policybinding
-                identifiers:
-                  policy: !Find [authentik_policies_expression.expressionpolicy, [name, seed-mailLocalAddress-policy]]
-                  target: !Find [authentik_flows.flowstagebinding, [stage__name, default-authentication-login]]
-                  order: 0
-                attrs:
-                  enabled: true
-
-              - id: bind-policy-to-stage-to-source-auth
-                model: authentik_policies.policybinding
-                identifiers:
-                  policy: !Find [authentik_policies_expression.expressionpolicy, [name, seed-mailLocalAddress-policy]]
-                  target: !Find [authentik_flows.flowstagebinding, [stage__name, default-source-authentication-login]]
-                  order: 0
-                attrs:
-                  enabled: true
-
-              - id: bind-policy-to-stage-to-enrollment
-                model: authentik_policies.policybinding
-                identifiers:
-                  policy: !Find [authentik_policies_expression.expressionpolicy, [name, seed-mailLocalAddress-policy]]
-                  target: !Find [authentik_flows.flowstagebinding, [stage__name, default-source-enrollment-login]]
-                  order: 0
-                attrs:
-                  enabled: true
+                    mailAlias:
+                      - "info@{{ .Values.fqdn }}"
 
 ---
 apiVersion: helm.cattle.io/v1
@@ -224,7 +176,7 @@ spec:
           attributes:
             class: objectClass
             name: cn
-            email: mailLocalAddress
+            email: mail
             email-alias: mailAlias
             description: sAMAccountName
             groups: memberOf
@@ -233,7 +185,7 @@ spec:
           filter:
             # https://github.com/goauthentik/authentik/issues/17956
             name: "(cn={local})"
-            email: "(|(mailLocalAddress=?)(mailAlias=?))"
+            email: "(|(mail=?)(mailAlias=?)(recoveryEmail=?))"
             # Group membership is not displayed correctly in the UI
             # https://github.com/stalwartlabs/stalwart/discussions/521#discussioncomment-12108062
             expand:
