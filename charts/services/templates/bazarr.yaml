@@ -31,9 +31,6 @@ spec:
                   topologyKey: "kubernetes.io/hostname"
           initContainers:
             init:
-              securityContext:
-                runAsUser: 1000
-                runAsGroup: 1000
               enabled: true
               type: init
               imageSelector: alpineImage
@@ -41,9 +38,6 @@ spec:
               args: [-c, "mkdir -p /config/config && cp /seed/config.yaml /config/config/config.yaml"]
           containers:
             main:
-              securityContext:
-                runAsUser: 1000
-                runAsGroup: 1000
               env:
                 ENVVAR_PREFIX_FOR_DYNACONF: BAZARR_CONFIG
                 BAZARR_CONFIG_sonarr__apikey:
