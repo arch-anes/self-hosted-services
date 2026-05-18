@@ -100,7 +100,7 @@ metadata:
 spec:
   chart: argocd-apps
   repo: https://argoproj.github.io/argo-helm
-  version: 2.0.4
+  version: 2.0.5
   targetNamespace: kube-system
   # default-values: https://github.com/argoproj/argo-helm/blob/main/charts/argocd-apps/values.yaml
   values:
