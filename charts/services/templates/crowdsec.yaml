@@ -19,7 +19,7 @@ metadata:
 spec:
   chart: crowdsec
   repo: https://crowdsecurity.github.io/helm-charts
-  version: 0.23.0
+  version: 0.24.0
   targetNamespace: kube-system
   # default-values: https://github.com/crowdsecurity/helm-charts/blob/main/charts/crowdsec/values.yaml
   values:
