@@ -487,7 +487,7 @@ spec:
         spec:
           chart: rancher-pushprox
           repo: https://arch-anes.github.io/charts
-          version: 0.1.9
+          version: 0.1.10
           targetNamespace: kube-system
           # default-values: https://github.com/arch-anes/charts/blob/main/charts/rancher-pushprox/values.yaml
           values:
@@ -633,7 +633,7 @@ spec:
         spec:
           chart: rancher-pushprox
           repo: https://arch-anes.github.io/charts
-          version: 0.1.9
+          version: 0.1.10
           targetNamespace: kube-system
           # default-values: https://github.com/arch-anes/charts/blob/main/charts/rancher-pushprox/values.yaml
           values:
