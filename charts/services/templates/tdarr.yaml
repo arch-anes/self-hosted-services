@@ -1,249 +1,166 @@
 {{- if and (not .Values.disableAllApplications) .Values.applications.tdarr.enabled }}
 ---
-apiVersion: v1
-kind: Service
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
   name: tdarr
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  ports:
-    - protocol: TCP
-      name: web
-      port: 8265
-    - protocol: TCP
-      name: server
-      port: 8266
-  selector:
-    app: tdarr
+  chart: oci://oci.trueforge.org/truecharts/tdarr
+  version: 13.13.0
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/tdarr/values.yaml
+  values:
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          annotations:
+            backup.velero.io/backup-volumes: configs
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app.kubernetes.io/instance
+                        operator: In
+                        values:
+                          - jellyfin
+                  topologyKey: "kubernetes.io/hostname"
+          containers:
+            main:
+              env:
+                serverIP: "0.0.0.0"
+                serverPort: "8266"
+                webUIPort: "8265"
+                internalNode: "false"
+                inContainer: "true"
+                auth: "true"
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:    
+          homer.service.name: Arr
+          homer.item.logo: "https://home.tdarr.io/static/media/logo3-min.246d6df44c7f16ddebaf.png"
+        hosts:
+          - host: tdarr.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - tdarr.{{ .Values.fqdn }}
+    persistence:
+      configs:
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+      server:
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+      logs:
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+      transcode-cache:
+        type: pvc
+        existingClaim: multimedia
+        subPath: transcoding-cache
+        mountPath: /temp
+      media:
+        type: pvc
+        existingClaim: multimedia
 
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
-  name: tdarr
+  name: tdarr-node
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  storageClassName: local-path-persistent-namespaced
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: tdarr
-  namespace: "{{ .Values.applicationsNamespace }}"
-  annotations:
-    homer.service.name: Arr
-    homer.item.logo: "https://home.tdarr.io/static/media/logo3-min.246d6df44c7f16ddebaf.png"
-spec:
-  tls:
-    - hosts:
-        - tdarr.{{ .Values.fqdn }}
-      secretName: "{{ .Values.fqdn }}-tls"
-  rules:
-    - host: tdarr.{{ .Values.fqdn }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: tdarr
-                port:
-                  name: web
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: tdarr
-  namespace: "{{ .Values.applicationsNamespace }}"
-  labels:
-    app: tdarr
-  annotations:
-    reloader.stakater.com/auto: "true"
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: tdarr
-  template:
-    metadata:
-      annotations:
-        backup.velero.io/backup-volumes: config
-      labels:
-        app: tdarr
-    spec:
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app.kubernetes.io/instance
-                    operator: In
-                    values:
-                      - jellyfin
-              topologyKey: "kubernetes.io/hostname"
-      containers:
-        - name: tdarr
-          image: ghcr.io/haveagitgat/tdarr:2.73.01
-          resources:
-            requests:
-              memory: 512Mi
-              cpu: 250m
-            limits:
-              memory: 1Gi
-          ports:
-            - name: web
-              containerPort: 8265
-            - name: server
-              containerPort: 8266
-          env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
-            - name: serverIP
-              value: "0.0.0.0"
-            - name: serverPort
-              value: "8266"
-            - name: webUIPort
-              value: "8265"
-            - name: internalNode
-              value: "false"
-            - name: inContainer
-              value: "true"
-            - name: auth
-              value: "true"
-            - name: ffmpegVersion
-              value: "6"
-          volumeMounts:
-            - name: config
-              subPath: server
-              mountPath: /app/server
-            - name: config
-              subPath: configs
-              mountPath: /app/configs
-            - name: config
-              subPath: logs
-              mountPath: /app/logs
-            - name: multimedia
-              subPath: transcoding-cache
-              mountPath: /temp
-            - name: multimedia
-              mountPath: /media
-      volumes:
-        - name: config
-          persistentVolumeClaim:
-            claimName: tdarr
-        - name: multimedia
-          persistentVolumeClaim:
-            claimName: multimedia
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: tdarr-worker
-  namespace: "{{ .Values.applicationsNamespace }}"
-  labels:
-    app: tdarr-worker
-  annotations:
-    reloader.stakater.com/auto: "true"
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: tdarr-worker
-  template:
-    metadata:
-      labels:
-        app: tdarr-worker
-    spec:
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app.kubernetes.io/instance
-                    operator: In
-                    values:
-                      - jellyfin
-              topologyKey: "kubernetes.io/hostname"
-      containers:
-        - name: tdarr-worker
-          image: ghcr.io/haveagitgat/tdarr_node:2.73.01
-          resources:
-            requests:
-              memory: 512Mi
-              cpu: 250m
-            limits:
-              memory: 2Gi
-              {{- $gpuVendor := .Values.applications.tdarr.gpu_vendor }}
-              {{- if eq $gpuVendor "intel" }}
-                {{- if not .Values.applications.intel_gpu.enabled }}
-                  {{- fail "Intel GPU is selected for Tdarr but intel_gpu is not enabled" }}
-                {{- end }}
-              gpu.intel.com/i915: 1
-              {{- else if eq $gpuVendor "intel_xe" }}
-                {{- if not .Values.applications.intel_gpu.enabled }}
-                  {{- fail "Intel GPU is selected for Jellyfin but intel_gpu is not enabled" }}
-                {{- end }}
-              gpu.intel.com/xe: 1
-              {{- else if eq $gpuVendor "nvidia" }}
-                {{- if not .Values.applications.nvidia_gpu.enabled }}
-                  {{- fail "NVIDIA GPU is selected for Tdarr but nvidia_gpu is not enabled" }}
-                {{- end }}
-              nvidia.com/gpu: 1
-              {{- else if eq $gpuVendor "amd" }}
-                {{- if not .Values.applications.amd_gpu.enabled }}
-                  {{- fail "AMD GPU is selected for Tdarr but amd_gpu is not enabled" }}
-                {{- end }}
-              amd.com/gpu: 1
-              {{- else if $gpuVendor }}
-                {{- fail (printf "Unknown GPU vendor '%s' selected for Tdarr" $gpuVendor) }}
-              {{- end }}
-          env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
-            - name: serverIP
-              value: "tdarr"
-            - name: serverPort
-              value: "8266"
-            - name: inContainer
-              value: "true"
-            - name: ffmpegVersion
-              value: "6"
-            - name: nodeName
-              value: "PrincipalNode"
-            - name: apiKey
-              valueFrom:
-                secretKeyRef:
-                  name: arr
-                  key: tdarr_api_key
-          volumeMounts:
-            - name: config
-              subPath: configs
-              mountPath: /app/configs
-            - name: config
-              subPath: logs
-              mountPath: /app/logs
-            - name: multimedia
-              subPath: transcoding-cache
-              mountPath: /temp
-            - name: multimedia
-              mountPath: /media
-      volumes:
-        - name: config
-          persistentVolumeClaim:
-            claimName: tdarr
-        - name: multimedia
-          persistentVolumeClaim:
-            claimName: multimedia
+  chart: oci://oci.trueforge.org/truecharts/tdarr-node
+  version: 13.13.0
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/tdarr-node/values.yaml
+  values:
+    workload:
+      main:
+        podSpec:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app.kubernetes.io/instance
+                        operator: In
+                        values:
+                          - jellyfin
+                  topologyKey: "kubernetes.io/hostname"
+          containers:
+            main:
+              env:
+                serverIP: "tdarr-comm"
+                serverPort: "8266"
+                inContainer: "true"
+                nodeID: "PrincipalNode"
+                apiKey:
+                  secretKeyRef:
+                    name: arr
+                    key: tdarr_api_key
+                    expandObjectName: false
+              resources:
+                requests:
+                  memory: 512Mi
+                  cpu: 250m
+                limits:
+                  memory: 2Gi
+                  cpu: null
+                  {{- $gpuVendor := .Values.applications.tdarr.gpu_vendor }}
+                  {{- if eq $gpuVendor "intel" }}
+                    {{- if not .Values.applications.intel_gpu.enabled }}
+                      {{- fail "Intel GPU is selected for Tdarr but intel_gpu is not enabled" }}
+                    {{- end }}
+                  gpu.intel.com/i915: 1
+                  {{- else if eq $gpuVendor "intel_xe" }}
+                    {{- if not .Values.applications.intel_gpu.enabled }}
+                      {{- fail "Intel GPU is selected for Tdarr but intel_gpu is not enabled" }}
+                    {{- end }}
+                  gpu.intel.com/xe: 1
+                  {{- else if eq $gpuVendor "nvidia" }}
+                    {{- if not .Values.applications.nvidia_gpu.enabled }}
+                      {{- fail "NVIDIA GPU is selected for Tdarr but nvidia_gpu is not enabled" }}
+                    {{- end }}
+                  nvidia.com/gpu: 1
+                  {{- else if eq $gpuVendor "amd" }}
+                    {{- if not .Values.applications.amd_gpu.enabled }}
+                      {{- fail "AMD GPU is selected for Tdarr but amd_gpu is not enabled" }}
+                    {{- end }}
+                  amd.com/gpu: 1
+                  {{- else if $gpuVendor }}
+                    {{- fail (printf "Unknown GPU vendor '%s' selected for Tdarr" $gpuVendor) }}
+                  {{- end }}
+    persistence:
+      configs:
+        type: pvc
+        existingClaim: tdarr-configs
+      logs:
+        type: pvc
+        existingClaim: tdarr-logs
+      transcode-cache:
+        type: pvc
+        existingClaim: multimedia
+        subPath: transcoding-cache
+        mountPath: /temp
+      media:
+        type: pvc
+        existingClaim: multimedia
 {{- end }}
