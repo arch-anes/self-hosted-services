@@ -1,0 +1,92 @@
+{{- if and (not .Values.disableAllApplications) .Values.applications.valheim.enabled }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: valheim
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   server_name: "some-server-name"
+#   world_name: "some-world-name"
+#   supervisor_username: "someuser"
+#   supervisor_password: "somepass"
+#   server_password: "somepass"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: valheim
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://oci.trueforge.org/truecharts/valheim
+  version: 14.3.0
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/valheim/values.yaml
+  values:
+    service:
+      valheim:
+        type: NodePort
+        ports:
+          valheim1:
+            nodePort: 32456
+          valheim2:
+            nodePort: 32457
+    workload:
+      main:
+        podSpec:
+          annotations:
+            backup.velero.io/backup-volumes: config,backups
+          containers:
+            main:
+              env:
+                STATUS_HTTP: "true"
+                SUPERVISOR_HTTP: "true"
+                SERVER_NAME:
+                  secretKeyRef:
+                    name: valheim
+                    key: server_name
+                    expandObjectName: false
+                WORLD_NAME:
+                  secretKeyRef:
+                    name: valheim
+                    key: world_name
+                    expandObjectName: false
+                SERVER_PASS:
+                  secretKeyRef:
+                    name: valheim
+                    key: server_password
+                    expandObjectName: false
+                SERVER_PUBLIC: "true"
+                SUPERVISOR_HTTP_USER:
+                  secretKeyRef:
+                    name: valheim
+                    key: supervisor_username
+                    expandObjectName: false
+                SUPERVISOR_HTTP_PASS:
+                  secretKeyRef:
+                    name: valheim
+                    key: supervisor_password
+                    expandObjectName: false
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 512Mi
+      limits:
+        memory: 2Gi
+    persistence:
+      valheim:
+        enabled: true
+        type: pvc
+        mountPath: /opt/valheim
+        storageClass: local-path-persistent-namespaced
+      config:
+        enabled: true
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+      backups:
+        enabled: true
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+{{- end }}
