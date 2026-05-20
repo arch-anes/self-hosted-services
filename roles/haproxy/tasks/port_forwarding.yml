@@ -18,8 +18,8 @@
       target: DNAT
     autocommit: true
   loop:
-    - { name: HTTP, port: '80', proto: all }
-    - { name: HTTPS, port: '443', proto: all }
+    - { name: HTTP, port: '80', proto: tcp udp }
+    - { name: HTTPS, port: '443', proto: tcp udp }
     - { name: MX, port: '2465', proto: tcp }
     - { name: SMTP, port: '465', proto: tcp }
     - { name: IMAP, port: '993', proto: tcp }
