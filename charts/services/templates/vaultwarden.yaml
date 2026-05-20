@@ -29,7 +29,6 @@ spec:
         podSpec:
           annotations:
             backup.velero.io/backup-volumes: data
-        podSpec:
           containers:
             main:
               envFrom: []
