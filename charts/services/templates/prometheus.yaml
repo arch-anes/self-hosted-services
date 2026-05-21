@@ -346,6 +346,20 @@ spec:
             revision: 14
             datasource: Prometheus
           {{- end }}
+          {{- if (include "app.enabled" (list . "zfs_exporter")) }}
+          zfs-pool-overview:
+            url: https://raw.githubusercontent.com/d-uzlov/k8s-homelab/master/metrics/zfs-exporter/dashboards/zfs-pool-overview.json
+            datasource: Prometheus
+          zfs-pool-datasets:
+            url: https://raw.githubusercontent.com/d-uzlov/k8s-homelab/master/metrics/zfs-exporter/dashboards/zfs-pool-datasets.json
+            datasource: Prometheus
+          zfs-dataset-details:
+            url: https://raw.githubusercontent.com/d-uzlov/k8s-homelab/master/metrics/zfs-exporter/dashboards/zfs-dataset-details.json
+            datasource: Prometheus
+          zfs-arc-stats:
+            url: https://raw.githubusercontent.com/d-uzlov/k8s-homelab/master/metrics/zfs-exporter/dashboards/zfs-arc-stats.json
+            datasource: Prometheus
+          {{- end }}
       prune: true
       sidecar:
         # Workaround for https://github.com/grafana/helm-charts/issues/4023
