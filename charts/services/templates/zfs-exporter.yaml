@@ -1,0 +1,30 @@
+{{- if (include "app.enabled" (list . "zfs_exporter")) }}
+{{- include "app.require" (list . "ZFS Exporter" "prometheus" "Prometheus") -}}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: zfs-exporter
+  namespace: kube-system
+spec:
+  chart: zfs-exporter
+  repo: https://arch-anes.github.io/charts
+  version: 1.0.0
+  targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
+  values:
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              args:
+                - --collector.dataset-snapshot
+    resources:
+      limits:
+        memory: 128Mi
+      requests:
+        cpu: {{ include "app.resources.cpu" (list $ "50m") }}
+        memory: {{ include "app.resources.memory" (list $ "64Mi") }}
+{{- end }}

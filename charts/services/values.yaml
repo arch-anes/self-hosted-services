@@ -257,3 +257,5 @@ applications:
   #   enabled: true
   woodpecker: {}
   #   enabled: true
+  zfs_exporter: {}
+  #   enabled: true
