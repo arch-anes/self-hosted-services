@@ -1,13 +1,7 @@
 {{- if (include "app.enabled" (list . "stalwart")) }}
-{{- if not (include "app.enabled" (list . "postgresql")) }}
-{{- fail "Stalwart requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
-{{- end }}
-{{- if not (include "app.enabled" (list . "authentik")) }}
-{{- fail "Stalwart requires Authentik to be enabled. Please enable Authentik in your values.yaml" }}
-{{- end }}
-{{- if not (include "app.enabled" (list . "minio")) }}
-{{- fail "Stalwart requires MinIO to be enabled. Please enable MinIO in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "Stalwart" "postgresql" "PostgreSQL") -}}
+{{- include "app.require" (list . "Stalwart" "authentik" "Authentik") -}}
+{{- include "app.require" (list . "Stalwart" "minio" "MinIO") -}}
 
 # ---
 # apiVersion: v1

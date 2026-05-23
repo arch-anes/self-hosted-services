@@ -1,13 +1,7 @@
 {{- if (include "app.enabled" (list . "obico")) }}
-{{- if not (include "app.enabled" (list . "postgresql")) }}
-{{- fail "Obico requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
-{{- end }}
-{{- if not (include "app.enabled" (list . "redis")) }}
-{{- fail "Obico requires Redis to be enabled. Please enable Redis in your values.yaml" }}
-{{- end }}
-{{- if not (include "app.enabled" (list . "octoprint")) }}
-{{- fail "Obico requires OctoPrint to be enabled. Please enable OctoPrint in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "Obico" "postgresql" "PostgreSQL") -}}
+{{- include "app.require" (list . "Obico" "redis" "Redis") -}}
+{{- include "app.require" (list . "Obico" "octoprint" "OctoPrint") -}}
 # ---
 # apiVersion: v1
 # kind: Secret

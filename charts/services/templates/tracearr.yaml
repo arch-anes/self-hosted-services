@@ -1,10 +1,6 @@
 {{- if (include "app.enabled" (list . "tracearr")) }}
-{{- if not (include "app.enabled" (list . "postgresql")) }}
-{{- fail "Tracearr requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
-{{- end }}
-{{- if not (include "app.enabled" (list . "redis")) }}
-{{- fail "Tracearr requires Redis to be enabled. Please enable Redis in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "Tracearr" "postgresql" "PostgreSQL") -}}
+{{- include "app.require" (list . "Tracearr" "redis" "Redis") -}}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

@@ -1,7 +1,5 @@
 {{- if (include "app.enabled" (list . "authentik")) }}
-{{- if not (include "app.enabled" (list . "postgresql")) }}
-{{- fail "Authentik requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "Authentik" "postgresql" "PostgreSQL") -}}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

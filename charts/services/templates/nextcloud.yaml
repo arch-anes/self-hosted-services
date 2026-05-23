@@ -1,10 +1,6 @@
 {{- if (include "app.enabled" (list . "nextcloud")) }}
-{{- if not (include "app.enabled" (list . "postgresql")) }}
-{{- fail "Nextcloud requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
-{{- end }}
-{{- if not (include "app.enabled" (list . "redis")) }}
-{{- fail "Nextcloud requires Redis to be enabled. Please enable Redis in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "Nextcloud" "postgresql" "PostgreSQL") -}}
+{{- include "app.require" (list . "Nextcloud" "redis" "Redis") -}}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

@@ -1,10 +1,6 @@
 {{- if (include "app.enabled" (list . "n8n")) }}
-{{- if not (include "app.enabled" (list . "postgresql")) }}
-{{- fail "n8n requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
-{{- end }}
-{{- if not (include "app.enabled" (list . "redis")) }}
-{{- fail "n8n requires Redis to be enabled. Please enable Redis in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "n8n" "postgresql" "PostgreSQL") -}}
+{{- include "app.require" (list . "n8n" "redis" "Redis") -}}
 # ---
 # apiVersion: v1
 # kind: Secret

@@ -1,10 +1,6 @@
 {{- if (include "app.enabled" (list . "inventree")) }}
-{{- if not (include "app.enabled" (list . "postgresql")) }}
-{{- fail "InvenTree requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
-{{- end }}
-{{- if not (include "app.enabled" (list . "redis")) }}
-{{- fail "InvenTree requires Redis to be enabled. Please enable Redis in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "InvenTree" "postgresql" "PostgreSQL") -}}
+{{- include "app.require" (list . "InvenTree" "redis" "Redis") -}}
 ---
 apiVersion: v1
 kind: Service

@@ -1,7 +1,5 @@
 {{- if (include "app.enabled" (list . "pgadmin4")) }}
-{{- if not (include "app.enabled" (list . "postgresql")) }}
-{{- fail "pgAdmin4 requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "pgAdmin4" "postgresql" "PostgreSQL") -}}
 # ---
 # apiVersion: v1
 # kind: Secret

@@ -1,10 +1,6 @@
 {{- if and .Values.primaryTenant (include "app.enabled" (list . "loki")) }}
-{{- if not (include "app.enabled" (list . "prometheus")) }}
-{{- fail "Loki requires Prometheus to be enabled. Please enable Prometheus in your values.yaml" }}
-{{- end }}
-{{- if not (include "app.enabled" (list . "minio")) }}
-{{- fail "Loki requires MinIO to be enabled. Please enable MinIO in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "Loki" "prometheus" "Prometheus") -}}
+{{- include "app.require" (list . "Loki" "minio" "MinIO") -}}
 # ---
 # apiVersion: v1
 # kind: Secret

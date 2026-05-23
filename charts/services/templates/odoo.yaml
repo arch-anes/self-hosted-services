@@ -1,7 +1,5 @@
 {{- if (include "app.enabled" (list . "odoo")) }}
-{{- if not (include "app.enabled" (list . "postgresql")) }}
-{{- fail "Odoo requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "Odoo" "postgresql" "PostgreSQL") -}}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

@@ -1,7 +1,5 @@
 {{- if (include "app.enabled" (list . "transmission")) }}
-{{- if not (include "app.enabled" (list . "gluetun")) }}
-{{- fail "Transmission requires gluetun to be enabled. Please enable gluetun in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "Transmission" "gluetun" "Gluetun" ) -}}
 # ---
 # apiVersion: v1
 # kind: Secret

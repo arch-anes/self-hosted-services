@@ -1,7 +1,5 @@
 {{- if (include "app.enabled" (list . "joal")) }}
-{{- if not (include "app.enabled" (list . "gluetun")) }}
-{{- fail "Joal requires gluetun to be enabled. Please enable gluetun in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "Joal" "gluetun" "Gluetun") -}}
 # ---
 # apiVersion: v1
 # kind: Secret

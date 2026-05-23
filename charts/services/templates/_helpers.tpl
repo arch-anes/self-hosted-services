@@ -4,6 +4,16 @@
 {{- dig $app "enabled" $scope.Values.enableAllApplicationsByDefault $scope.Values.applications | ternary "true" "" -}}
 {{- end -}}
 
+{{- define "app.require" -}}
+{{- $scope := index . 0 -}}
+{{- $thisApp := index . 1 -}}
+{{- $requiredApp := index . 2 -}}
+{{- $requiredAppDisplay := default $requiredApp (index . 3) -}}
+{{- if not (include "app.enabled" (list $scope $requiredApp)) -}}
+{{- fail (printf "%s requires %s to be enabled. Please enable %s in your values.yaml" $thisApp $requiredAppDisplay $requiredAppDisplay) -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "metrics.enabled" -}}
 {{- include "app.enabled" (list . "prometheus") -}}
 {{- end -}}

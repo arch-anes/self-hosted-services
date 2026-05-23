@@ -1,7 +1,5 @@
 {{- if and .Values.primaryTenant (include "app.enabled" (list . "ipmi_exporter")) }}
-{{- if not (include "app.enabled" (list . "prometheus")) }}
-{{- fail "IPMI Exporter requires Prometheus to be enabled. Please enable Prometheus in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "IPMI Exporter" "prometheus" "Prometheus") -}}
 
 # ---
 # apiVersion: v1

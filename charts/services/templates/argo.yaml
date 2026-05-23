@@ -1,8 +1,6 @@
 {{- if (include "app.enabled" (list . "argo")) }}
 {{- if and .Values.primaryTenant }}
-{{- if not (include "app.enabled" (list . "redis")) }}
-{{- fail "Argo requires Redis to be enabled. Please enable Redis in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "Argo" "redis" "Redis") -}}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

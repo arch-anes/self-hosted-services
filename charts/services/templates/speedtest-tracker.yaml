@@ -1,10 +1,6 @@
 {{- if (include "app.enabled" (list . "speedtest_tracker")) }}
-{{- if not (include "app.enabled" (list . "postgresql")) }}
-{{- fail "Speedtest Tracker requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
-{{- end }}
-{{- if not (include "app.enabled" (list . "redis")) }}
-{{- fail "Speedtest Tracker requires Redis to be enabled. Please enable Redis in your values.yaml" }}
-{{- end }}
+{{- include "app.require" (list . "Speedtest Tracker" "postgresql" "PostgreSQL") -}}
+{{- include "app.require" (list . "Speedtest Tracker" "redis" "Redis") -}}
 # ---
 # apiVersion: v1
 # kind: Secret
