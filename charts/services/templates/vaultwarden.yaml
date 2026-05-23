@@ -1,8 +1,8 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.vaultwarden.enabled }}
-{{- if not .Values.applications.postgresql.enabled }}
+{{- if (include "app.enabled" (list . "vaultwarden")) }}
+{{- if not (include "app.enabled" (list . "postgresql")) }}
 {{- fail "Vaultwarden requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml" }}
 {{- end }}
-{{- if not .Values.applications.authentik.enabled }}
+{{- if not (include "app.enabled" (list . "authentik")) }}
 {{- fail "Vaultwarden requires Authentik to be enabled. Please enable Authentik in your values.yaml" }}
 {{- end }}
 ---

@@ -1,4 +1,4 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.filebrowser.enabled }}
+{{- if (include "app.enabled" (list . "filebrowser")) }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

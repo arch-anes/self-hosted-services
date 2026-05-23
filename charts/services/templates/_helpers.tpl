@@ -1,5 +1,11 @@
+{{- define "app.enabled" -}}
+{{- $scope := index . 0 -}}
+{{- $app := index . 1 -}}
+{{- dig $app "enabled" $scope.Values.enableAllApplicationsByDefault $scope.Values.applications | ternary "true" "" -}}
+{{- end -}}
+
 {{- define "metrics.enabled" -}}
-{{- and (not .Values.disableAllApplications) .Values.applications.prometheus.enabled | ternary "true" "" -}}
+{{- include "app.enabled" (list . "prometheus") -}}
 {{- end -}}
 
 {{- define "ldap.base_dn" -}}
