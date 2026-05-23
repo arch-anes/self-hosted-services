@@ -32,6 +32,7 @@
 
 - name: Create a headscale user
   ansible.builtin.command: "headscale users create ansible"
+  become: true
   register: headscale_user_result
   ignore_errors: true
   changed_when: headscale_user_result.rc == 0

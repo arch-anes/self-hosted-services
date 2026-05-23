@@ -16,6 +16,7 @@
         name: zfs-load-key.service
         enabled: true
         state: started
+        daemon_reload: true
 
     - name: Calculate ZFS ARC limit (25% of RAM)
       ansible.builtin.set_fact:

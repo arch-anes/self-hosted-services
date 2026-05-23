@@ -1,37 +1,44 @@
 # code: language=ansible
 ---
 - name: Restart systemd-resolved
-  ansible.builtin.service:
+  become: true
+  ansible.builtin.systemd:
     name: systemd-resolved
     state: restarted
 
 - name: Restart headscale
-  ansible.builtin.service:
+  become: true
+  ansible.builtin.systemd:
     name: headscale
     enabled: true
     state: restarted
 
 - name: Reload sqm
+  become: true
   ansible.builtin.service:
     name: sqm
     state: reloaded
 
 - name: Restart haproxy
+  become: true
   ansible.builtin.service:
     name: haproxy
     state: restarted
 
 - name: Reload network
+  become: true
   ansible.builtin.service:
     name: network
     state: reloaded
 
 - name: Restart firewall
+  become: true
   ansible.builtin.service:
     name: firewall
     state: restarted
 
 - name: Restart nginx
+  become: true
   ansible.builtin.service:
     name: nginx
     state: restarted
