@@ -604,6 +604,13 @@ spec:
               databases:
                 - wakapi
 {{- end }}
+{{- if (include "app.enabled" (list . "woodpecker")) }}
+            - name: woodpecker
+              password:
+                type: AlphaNumeric
+              databases:
+                - woodpecker
+{{- end }}
 {{- with .Values.applications.postgresql.additionalUsers }}
 {{- toYaml . | nindent 12 }}
 {{- end }}
