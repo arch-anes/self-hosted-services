@@ -23,7 +23,7 @@
         mode: 0400
 
     - name: Apply aggregate manifest
-      ansible.builtin.command: "kubectl apply -f {{ aggregate_path }} --server-side"
+      ansible.builtin.command: "kubectl apply -f {{ aggregate_path }} --server-side --force-conflicts"
       changed_when: false
 
 - name: Wait for manifests to install
