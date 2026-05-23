@@ -1,4 +1,4 @@
-{{- if and (not .Values.disableAllApplications) .Values.applications.tdarr.enabled }}
+{{- if (include "app.enabled" (list . "tdarr")) }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -126,22 +126,22 @@ spec:
                   cpu: null
                   {{- $gpuVendor := .Values.applications.tdarr.gpu_vendor }}
                   {{- if eq $gpuVendor "intel" }}
-                    {{- if not .Values.applications.intel_gpu.enabled }}
+                    {{- if not (include "app.enabled" (list . "intel_gpu")) }}
                       {{- fail "Intel GPU is selected for Tdarr but intel_gpu is not enabled" }}
                     {{- end }}
                   gpu.intel.com/i915: 1
                   {{- else if eq $gpuVendor "intel_xe" }}
-                    {{- if not .Values.applications.intel_gpu.enabled }}
+                    {{- if not (include "app.enabled" (list . "intel_gpu")) }}
                       {{- fail "Intel GPU is selected for Tdarr but intel_gpu is not enabled" }}
                     {{- end }}
                   gpu.intel.com/xe: 1
                   {{- else if eq $gpuVendor "nvidia" }}
-                    {{- if not .Values.applications.nvidia_gpu.enabled }}
+                    {{- if not (include "app.enabled" (list . "nvidia_gpu")) }}
                       {{- fail "NVIDIA GPU is selected for Tdarr but nvidia_gpu is not enabled" }}
                     {{- end }}
                   nvidia.com/gpu: 1
                   {{- else if eq $gpuVendor "amd" }}
-                    {{- if not .Values.applications.amd_gpu.enabled }}
+                    {{- if not (include "app.enabled" (list . "amd_gpu")) }}
                       {{- fail "AMD GPU is selected for Tdarr but amd_gpu is not enabled" }}
                     {{- end }}
                   amd.com/gpu: 1

@@ -1,4 +1,4 @@
-{{- if and .Values.primaryTenant (not .Values.disableAllApplications) .Values.applications.node_problem_detector.enabled }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "node_problem_detector")) }}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart

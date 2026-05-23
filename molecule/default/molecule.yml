@@ -71,7 +71,7 @@ provisioner:
         manifest_only_setup: false
         display_headlamp_token: false
         chartValuesOverrides:
-          disableAllApplications: true
+          enableAllApplicationsByDefault: false
           highAvailability: false 
     host_vars:
       replica1:
