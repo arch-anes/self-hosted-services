@@ -1,3 +1,4 @@
+---
 # Default values for self-hosted-services.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -18,7 +19,6 @@ fqdn: example.org
 # Enable proxy protocol and trusted headers when behind a TCP proxy (e.g., HAProxy)
 behindTcpProxy: true
 tcpProxyIp: 192.168.1.1
-
 
 # Private IP ranges
 localIpRanges:
@@ -67,13 +67,13 @@ applications:
   akri:
     # enabled: true
     udevRules: []
-      # - 'KERNEL=="ttyUSB[0-9]*", ENV{ID_VENDOR}=="ABCDEFGH"'
+    #   - 'KERNEL=="ttyUSB[0-9]*", ENV{ID_VENDOR}=="ABCDEFGH"'
   alloy: {}
-    # enabled: true
+  #   enabled: true
   amd_gpu: {}
-    # enabled: true
+  #   enabled: true
   archivebox: {}
-    # enabled: true
+  #   enabled: true
   argo:
     # enabled: true
     # The git repository out of which to continuously deploy
@@ -86,53 +86,53 @@ applications:
         timezone: "America/New_York"
         manualSync: true
   authentik: {}
-    # enabled: true
+  #   enabled: true
   bazarr: {}
-    # enabled: true
+  #   enabled: true
   crowdsec: {}
-    # enabled: true
+  #   enabled: true
   ddclient: {}
-    # enabled: true
+  #   enabled: true
   descheduler: {}
-    # enabled: true
+  #   enabled: true
   epicgames_freegames: {}
-    # enabled: true
+  #   enabled: true
   filebrowser: {}
-    # enabled: true
+  #   enabled: true
   flaresolverr: {}
-    # enabled: true
+  #   enabled: true
   gluetun: {}
-    # enabled: true
+  #   enabled: true
   gotify: {}
-    # enabled: true
+  #   enabled: true
   headlamp: {}
-    # enabled: true
+  #   enabled: true
   home_assistant: {}
-    # enabled: true
+  #   enabled: true
   homer_operator: {}
-    # enabled: true
+  #   enabled: true
   idrac_exporter: {}
-    # enabled: true
+  #   enabled: true
   immich: {}
-    # enabled: true
-    # gpu_vendor: nvidia
-    # machine_learning:
-    #   gpu_vendor: nvidia
+  #   enabled: true
+  #   gpu_vendor: nvidia
+  #   machine_learning:
+  #     gpu_vendor: nvidia
   intel_gpu: {}
-    # enabled: true
+  #   enabled: true
   inventree: {}
-    # enabled: true
+  #   enabled: true
   ipmi_exporter: {}
-    # enabled: true
+  #   enabled: true
   jellyfin: {}
-    # enabled: true
-    # gpu_vendor: intel
+  #   enabled: true
+  #   gpu_vendor: intel
   jellyseerr: {}
-    # enabled: true
+  #   enabled: true
   joal: {}
-    # enabled: true
+  #   enabled: true
   lazylibrarian: {}
-    # enabled: true
+  #   enabled: true
   llama_cpp:
     # enabled: true
     use_vulkan: false
@@ -140,38 +140,38 @@ applications:
     gpu_count: 1
     max_loaded_models: 1
   loki: {}
-    # enabled: true
+  #   enabled: true
   minecraft_bedrock: {}
-    # enabled: true
+  #   enabled: true
   miniflux: {}
-    # enabled: true
+  #   enabled: true
   minio: {}
-    # enabled: true
+  #   enabled: true
   mosquitto: {}
-    # enabled: true
+  #   enabled: true
   n8n: {}
-    # enabled: true
+  #   enabled: true
   netbox: {}
-    # enabled: true
+  #   enabled: true
   nextcloud: {}
-    # enabled: true
+  #   enabled: true
   node_problem_detector: {}
-    # enabled: true
+  #   enabled: true
   nvidia_gpu: {}
-    # enabled: true
+  #   enabled: true
   obico: {}
-    # enabled: true
+  #   enabled: true
   octoprint:
     # enabled: true
     devices: []
-      # - "akri.sh/akri-udev-abcdefgh"
+    #   - "akri.sh/akri-udev-abcdefgh"
   odoo:
     # enabled: true
     updatePluginsOnStartup: false
   open_webui: {}
-    # enabled: true
+  #   enabled: true
   pgadmin4: {}
-    # enabled: true
+  #   enabled: true
   postgresql:
     # enabled: true
     additionalUsers:
@@ -182,38 +182,38 @@ applications:
         endpoint: "some-endpoint"
         region: "some-region"
   prometheus: {}
-    # enabled: true
+  #   enabled: true
   prowlarr: {}
-    # enabled: true
+  #   enabled: true
   radarr: {}
-    # enabled: true
+  #   enabled: true
   red: {}
-    # enabled: true
+  #   enabled: true
   redis: {}
-    # enabled: true
+  #   enabled: true
   redis_insight: {}
-    # enabled: true
+  #   enabled: true
   sonarr: {}
-    # enabled: true
+  #   enabled: true
   speedtest_tracker:
     # enabled: true
     dashboard:
       enabled: true
   stalwart: {}
-    # enabled: true
+  #   enabled: true
   tdarr: {}
-    # enabled: true
-    # gpu_vendor: amd
+  #   enabled: true
+  #   gpu_vendor: amd
   tempo: {}
-    # enabled: true
+  #   enabled: true
   tracearr: {}
-    # enabled: true
+  #   enabled: true
   transmission: {}
-    # enabled: true
+  #   enabled: true
   valheim: {}
-    # enabled: true
+  #   enabled: true
   vaultwarden: {}
-    # enabled: true
+  #   enabled: true
   velero:
     # enabled: true
     remoteBackupLocations:
@@ -227,4 +227,4 @@ applications:
           region: <some_region>
           s3Url: https://<some_endpoint> # if using an S3-compatible service
   wakapi: {}
-    # enabled: true
+  #   enabled: true
