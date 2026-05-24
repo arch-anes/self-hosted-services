@@ -1,0 +1,15 @@
+---
+depends_on:
+  - lint
+
+steps:
+  - name: molecule-test
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    privileged: true
+    commands:
+      - sudo chmod 666 /dev/kvm /dev/vhost-net /dev/net/tun
+      - sudo virtlogd -d
+      - sudo libvirtd -d
+      - sudo chmod 666 /var/run/libvirt/libvirt-sock
+      - ansible-galaxy install -r requirements.yml
+      - molecule test
