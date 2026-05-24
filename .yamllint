@@ -2,8 +2,10 @@
 extends: default
 
 ignore: |
-  inventory*.yml
-  policies.yaml
+  inventory*.y*ml
+  policies.y*ml
+  charts/**/*.y*ml
+  .ansible/**/*.y*ml
 
 rules:
   line-length: disable
