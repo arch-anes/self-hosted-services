@@ -13,7 +13,7 @@
       dest: lan
       proto: "{{ item.proto }}"
       src_dport: "{{ item.port }}"
-      dest_ip: "{{ haproxy_virtual_ip }}"
+      dest_ip: "{{ detect_haproxy_virtual_ip }}"
       dest_port: "{{ item.port }}"
       target: DNAT
     autocommit: true

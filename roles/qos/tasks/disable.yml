@@ -5,7 +5,7 @@
     command: delete
     key: "sqm.ansible_wan"
     autocommit: true
-  ignore_errors: true
+  failed_when: false
 
 - name: Enable hardware flow offloading
   notify: Restart firewall

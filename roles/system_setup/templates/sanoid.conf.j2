@@ -1,16 +1,16 @@
-{% if 'storage/encrypted' in zfs_datasets.stdout_lines | default([]) %}
+{% if 'storage/encrypted' in system_setup_zfs_datasets.stdout_lines | default([]) %}
 [storage/encrypted]
     use_template = production
     recursive = yes
 {% endif %}
 
-{% if 'storage/encrypted/cluster-local-storage' in zfs_datasets.stdout_lines | default([]) %}
+{% if 'storage/encrypted/cluster-local-storage' in system_setup_zfs_datasets.stdout_lines | default([]) %}
 [storage/encrypted/cluster-local-storage]
     autosnap = no
     autoprune = no
 {% endif %}
 
-{% if 'storage/encrypted/multimedia' in zfs_datasets.stdout_lines | default([]) %}
+{% if 'storage/encrypted/multimedia' in system_setup_zfs_datasets.stdout_lines | default([]) %}
 [storage/encrypted/multimedia]
     autosnap = no
     autoprune = no

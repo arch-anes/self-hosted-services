@@ -20,18 +20,18 @@
 
     - name: Calculate ZFS ARC limit (25% of RAM)
       ansible.builtin.set_fact:
-        zfs_arc_max_bytes: "{{ (ansible_memtotal_mb * 1024 * 1024 * 0.25) | int }}"
+        system_setup_zfs_arc_max_bytes: "{{ (ansible_memtotal_mb * 1024 * 1024 * 0.25) | int }}"
 
     - name: Limit ZFS ARC size in modprobe config
       ansible.builtin.copy:
         dest: /etc/modprobe.d/zfs.conf
-        content: "options zfs zfs_arc_max={{ zfs_arc_max_bytes }}"
+        content: "options zfs zfs_arc_max={{ system_setup_zfs_arc_max_bytes }}"
         mode: '0644'
 
     - name: Apply ZFS ARC limit immediately
       ansible.builtin.copy:
         dest: /sys/module/zfs/parameters/zfs_arc_max
-        content: "{{ zfs_arc_max_bytes }}"
+        content: "{{ system_setup_zfs_arc_max_bytes }}"
         mode: '0644'
         unsafe_writes: true
 
@@ -47,11 +47,10 @@
 
     - name: Get list of ZFS datasets
       ansible.builtin.command: zfs list -H -o name
-      register: zfs_datasets
+      register: system_setup_zfs_datasets
       changed_when: false
-      failed_when: false
 
-    - name: Generate Sanoid configuration
+    - name: Generate Sanoid configuration file
       ansible.builtin.template:
         src: sanoid.conf.j2
         dest: /etc/sanoid/sanoid.conf

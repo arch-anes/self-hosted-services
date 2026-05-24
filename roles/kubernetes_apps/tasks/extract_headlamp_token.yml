@@ -8,8 +8,8 @@
       ansible.builtin.command: "kubectl -n kube-system get secret headlamp-token -o go-template='{{ '{{' }} .data.token | base64decode }}'"
       become: true
       changed_when: false
-      register: headlamp_token
+      register: kubernetes_apps_headlamp_token
 
     - name: Display Headlamp token
       ansible.builtin.debug:
-        msg: "{{ headlamp_token.stdout }}"
+        msg: "{{ kubernetes_apps_headlamp_token.stdout }}"

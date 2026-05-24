@@ -19,7 +19,7 @@
     name: "ansible_wan"
     value:
       enabled: '1'
-      interface: "{{ ansible_wan_interface }}"
+      interface: "{{ detect_wan_interface }}"
       download: "{{ qos.download_kbps }}"
       upload: "{{ qos.upload_kbps }}"
       qdisc: 'fq_codel'

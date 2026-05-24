@@ -13,7 +13,7 @@
     name: install_deb
   vars:
     install_deb_binary_name: headscale
-    install_deb_url: "https://github.com/juanfont/headscale/releases/download/v0.25.1/headscale_0.25.1_linux_{{ cpu_arch }}.deb"
+    install_deb_url: "https://github.com/juanfont/headscale/releases/download/v0.25.1/headscale_0.25.1_linux_{{ detect_cpu_arch }}.deb"
 
 - name: Generate headscale configuration file
   ansible.builtin.template:
@@ -28,11 +28,11 @@
 
 - name: Set headscale server url
   ansible.builtin.set_fact:
-    headscale_server_url: "http://{{ ansible_default_ipv4.address }}:8080"
+    vpn_headscale_server_url: "http://{{ ansible_default_ipv4.address }}:8080"
 
 - name: Create a headscale user
   ansible.builtin.command: "headscale users create ansible"
   become: true
-  register: headscale_user_result
+  register: vpn_headscale_user_result
   ignore_errors: true
-  changed_when: headscale_user_result.rc == 0
+  changed_when: vpn_headscale_user_result.rc == 0

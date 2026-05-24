@@ -10,7 +10,7 @@
     value:
       name: Guest-to-HAProxy
       src: guest
-      dest_ip: "{{ haproxy_virtual_ip }}"
+      dest_ip: "{{ detect_haproxy_virtual_ip }}"
       proto: all
       target: ACCEPT
     autocommit: true

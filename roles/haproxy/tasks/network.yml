@@ -10,7 +10,7 @@
     value:
       proto: static
       device: br-lan
-      ipaddr: "{{ haproxy_virtual_ip }}"
+      ipaddr: "{{ detect_haproxy_virtual_ip }}"
       netmask: 255.255.255.0
     autocommit: true
   notify: Reload network

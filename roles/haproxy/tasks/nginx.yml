@@ -23,6 +23,7 @@
           # BEGIN {{ nginx_managed_block_mark }}
           # END {{ nginx_managed_block_mark }}
       when: haproxy_nginx_managed_check.changed
+      # noqa: no-handler
 
     - name: Inject custom listeners
       ansible.builtin.blockinfile:
@@ -31,10 +32,10 @@
         block: |
           {{ nginx_managed_block_spacing }}# listen 80;
           {{ nginx_managed_block_spacing }}listen 127.0.0.1:80;
-          {{ nginx_managed_block_spacing }}listen {{ router_lan_ip }}:80;
+          {{ nginx_managed_block_spacing }}listen {{ detect_router_lan_ip }}:80;
           {{ nginx_managed_block_spacing }}listen [::1]:80;
 
           {{ nginx_managed_block_spacing }}# listen 443 ssl;
           {{ nginx_managed_block_spacing }}listen 127.0.0.1:443 ssl;
-          {{ nginx_managed_block_spacing }}listen {{ router_lan_ip }}:443 ssl;
+          {{ nginx_managed_block_spacing }}listen {{ detect_router_lan_ip }}:443 ssl;
           {{ nginx_managed_block_spacing }}listen [::1]:443 ssl;

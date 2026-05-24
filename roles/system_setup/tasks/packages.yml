@@ -22,7 +22,7 @@
 
 - name: Install OpenWrt packages
   become: true
-  when: is_openwrt
+  when: detect_is_openwrt
   block:
     - name: Install common packages
       community.general.opkg:

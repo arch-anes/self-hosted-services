@@ -15,22 +15,22 @@
 
 - name: Set k3s pre-config
   ansible.builtin.set_fact:
-    advertised_ip: "{{ ansible_default_ipv4.address }}"
+    kubernetes_cluster_advertised_ip: "{{ ansible_default_ipv4.address }}"
 
 - name: Set k3s config
   ansible.builtin.set_fact:
-    k3s_agent:
+    kubernetes_cluster_k3s_agent:
       prefer-bundled-bin: true
       with-node-id: true
-      node-ip: "{{ advertised_ip }}"
+      node-ip: "{{ kubernetes_cluster_advertised_ip }}"
       node-label: "{{ labels }}"
       node-taint: "{{ taints }}"
-    k3s_server:
+    kubernetes_cluster_k3s_server:
       prefer-bundled-bin: true
       embedded-registry: true
       disable: traefik
       with-node-id: true
-      node-ip: "{{ advertised_ip }}"
+      node-ip: "{{ kubernetes_cluster_advertised_ip }}"
       node-label: "{{ labels }}"
       node-taint: "{{ taints }}"
       default-local-storage-path: "{{ chartValuesOverrides.storageLocation | default('/storage') }}"
@@ -48,6 +48,8 @@
   ansible.builtin.import_role:
     name: xanmanning.k3s
   vars:
+    k3s_agent: "{{ kubernetes_cluster_k3s_agent }}"
+    k3s_server: "{{ kubernetes_cluster_k3s_server }}"
     k3s_release_version: v1.35
     k3s_become: true
     k3s_etcd_datastore: true

@@ -6,24 +6,24 @@
   block:
     - name: Set facts
       ansible.builtin.set_fact:
-        aggregate_path: "/tmp/services.yml"
-        chart_folder: "{{ playbook_dir }}/charts/services"
+        kubernetes_apps_aggregate_path: "/tmp/services.yml"
+        kubernetes_apps_chart_folder: "{{ playbook_dir }}/charts/services"
 
     - name: Render helm templates
       kubernetes.core.helm_template:
-        chart_ref: "{{ chart_folder }}"
+        chart_ref: "{{ kubernetes_apps_chart_folder }}"
         values: "{{ chartValuesOverrides | default({}) }}"
       delegate_to: localhost
-      register: helm_template
+      register: kubernetes_apps_helm_template
 
     - name: Write manifest to file
       ansible.builtin.copy:
-        dest: "{{ aggregate_path }}"
-        content: "{{ helm_template.stdout }}"
+        dest: "{{ kubernetes_apps_aggregate_path }}"
+        content: "{{ kubernetes_apps_helm_template.stdout }}"
         mode: 0400
 
     - name: Apply aggregate manifest
-      ansible.builtin.command: "kubectl apply -f {{ aggregate_path }} --server-side --force-conflicts"
+      ansible.builtin.command: "kubectl apply -f {{ kubernetes_apps_aggregate_path }} --server-side --force-conflicts"
       changed_when: false
 
 - name: Wait for manifests to install

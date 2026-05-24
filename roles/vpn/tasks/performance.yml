@@ -2,7 +2,7 @@
 ---
 
 - name: Enable UDP throughput improvements via transport layer offloading
-  when: is_openwrt and ansible_kernel is version('6.2', '>=')
+  when: detect_is_openwrt and ansible_kernel is version('6.2', '>=')
   block:
     - name: Ensure ethtool config file exists
       ansible.builtin.file:

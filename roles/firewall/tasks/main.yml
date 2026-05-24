@@ -1,7 +1,7 @@
 # code: language=ansible
 ---
 - name: Applying ufw rules
-  when: not is_openwrt
+  when: not detect_is_openwrt
   community.general.ufw:
     to_port: "{{ item.to_port | default(omit) }}"
     proto: "{{ item.proto | default(omit) }}"
@@ -11,5 +11,5 @@
   become: true
   retries: 3
   delay: 10
-  register: result
-  until: result is not failed
+  register: firewall_result
+  until: firewall_result is not failed

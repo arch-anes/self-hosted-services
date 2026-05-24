@@ -3,7 +3,7 @@
 
 - name: Setup monitoring services
   become: true
-  when: ansible_distribution == 'Ubuntu' and not is_raspberry_pi
+  when: ansible_distribution == 'Ubuntu' and not detect_is_raspberry_pi
   block:
     - name: Ensure rasdaemon service is enabled and started
       ansible.builtin.service:

@@ -86,7 +86,7 @@ provisioner:
         display_headlamp_token: false
         chartValuesOverrides:
           enableAllApplicationsByDefault: false
-          highAvailability: false 
+          highAvailability: false
     host_vars:
       replica1:
         labels:

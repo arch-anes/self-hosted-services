@@ -2,7 +2,7 @@
 
 ---
 - name: Configure Raspberry Pi machine
-  when: is_raspberry_pi
+  when: detect_is_raspberry_pi
   become: true
   block:
     # https://stackoverflow.com/a/61974725

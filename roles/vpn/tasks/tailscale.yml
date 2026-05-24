@@ -6,42 +6,42 @@
     - name: Get headscale host
       ansible.builtin.set_fact:
         # Fallback to localhost such that the delegate_to directive below does not fail
-        headscale_host: "{{ groups['headscale'][0] | default('localhost') }}"
+        vpn_headscale_host: "{{ groups['headscale'][0] | default('localhost') }}"
 
     - name: Get auth keys from headscale
-      when: headscale_host != 'localhost'
+      when: vpn_headscale_host != 'localhost'
       block:
         - name: Generate an auth key
           ansible.builtin.command: "headscale preauthkeys create --user ansible"
           become: true
-          register: headscale_auth_key_result
+          register: vpn_headscale_auth_key_result
           changed_when: true
-          delegate_to: "{{ headscale_host }}"
+          delegate_to: "{{ vpn_headscale_host }}"
 
         - name: Set tailscale arguments for headscale
           ansible.builtin.set_fact:
-            tailscale_oauth_secret: "{{ headscale_auth_key_result.stdout }}"
-            login_server_arg: "--login-server {{ hostvars[headscale_host]['headscale_server_url'] }}"
+            vpn_tailscale_oauth_secret: "{{ vpn_headscale_auth_key_result.stdout }}"
+            vpn_login_server_arg: "--login-server {{ hostvars[vpn_headscale_host]['vpn_headscale_server_url'] }}"
 
     - name: Fallback to usual tailscale arguments
       ansible.builtin.set_fact:
-        login_server_arg: ""
-      when: headscale_host == 'localhost'
+        vpn_login_server_arg: ""
+      when: vpn_headscale_host == 'localhost'
 
 - name: Tailscale configuration arguments
   ansible.builtin.set_fact:
     # https://github.com/tailscale/tailscale/issues/11717
-    netfilter_mode_arg: "{{ '' if is_openwrt else '--netfilter-mode=off' }}"
-    advertise_route_arg: "{{ '--advertise-routes=' ~ haproxy_virtual_ip ~ '/32' if is_openwrt else '' }}"
+    vpn_netfilter_mode_arg: "{{ '' if detect_is_openwrt else '--netfilter-mode=off' }}"
+    vpn_advertise_route_arg: "{{ '--advertise-routes=' ~ detect_haproxy_virtual_ip ~ '/32' if detect_is_openwrt else '' }}"
 
 - name: Setup Tailscale
   ansible.builtin.import_role:
     name: artis3n.tailscale.machine
   vars:
-    tailscale_manage_binaries_skip: "{{ is_openwrt }}"
-    tailscale_oauth_ephemeral: "{{ headscale_host != 'localhost' }}"
-    tailscale_authkey: "{{ tailscale_oauth_secret }}"
-    tailscale_service: "{{ 'tailscale' if is_openwrt else 'tailscaled' }}"
+    tailscale_manage_binaries_skip: "{{ detect_is_openwrt }}"
+    tailscale_oauth_ephemeral: "{{ vpn_headscale_host != 'localhost' }}"
+    tailscale_authkey: "{{ vpn_tailscale_oauth_secret | default(tailscale_oauth_secret) }}"
+    tailscale_service: "{{ 'tailscale' if detect_is_openwrt else 'tailscaled' }}"
     tailscale_tags:
       - "ansible"
-    tailscale_args: "--accept-dns=false {{ netfilter_mode_arg }} {{ advertise_route_arg }} {{ login_server_arg }}"
+    tailscale_args: "--accept-dns=false {{ vpn_netfilter_mode_arg }} {{ vpn_advertise_route_arg }} {{ vpn_login_server_arg }}"

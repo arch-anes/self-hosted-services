@@ -19,14 +19,15 @@
     - name: Check if Homebrew is already installed
       ansible.builtin.stat:
         path: /home/linuxbrew/.linuxbrew/bin/brew
-      register: brew_check
+      register: system_setup_brew_check
 
     - name: Install Homebrew (Non-interactive)
       ansible.builtin.shell:
         cmd: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        creates: /home/linuxbrew/.linuxbrew/bin/brew
       environment:
-        NONINTERACTIVE: 1
-      when: not brew_check.stat.exists
+        NONINTERACTIVE: "1"
+      when: not system_setup_brew_check.stat.exists
       # Homebrew strictly forbids running the installer as root
 
     - name: Update Homebrew
