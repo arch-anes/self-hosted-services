@@ -10,3 +10,9 @@ ignore: |
 rules:
   line-length: disable
   braces: disable
+  trailing-spaces: disable
+  indentation: disable
+  commas:
+    level: warning
+  comments:
+    level: warning
