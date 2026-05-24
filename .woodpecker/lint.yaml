@@ -1,0 +1,37 @@
+---
+steps:
+  - name: ansible-lint
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    commands:
+      - ansible-lint
+
+  - name: helm-lint
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    commands:
+      - helm lint charts/services
+
+  - name: helm template
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    commands:
+      - helm template charts/services
+
+  - name: helm-unittest
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    commands:
+      - helm unittest charts/services
+
+  - name: kubeconform
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    commands:
+      - helm template charts/services | kubeconform -summary -schema-location default -schema-location 'https://raw.githubusercontent.com/abelfodil/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+
+  - name: yamllint
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    commands:
+      - helm template charts/services | yamllint --no-warnings -
+      - yamllint .
+
+  - name: yamlfmt
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    commands:
+      - yamlfmt -lint
