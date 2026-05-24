@@ -102,8 +102,6 @@ spec:
       allocatedMemory: 1024 # MiB
     resultsCache:
       allocatedMemory: 512 # MiB
-    chunksCache:
-      allocatedMemory: 1024 # MiB
     # disable simple-scalable targets
     read:
       replicas: 0
