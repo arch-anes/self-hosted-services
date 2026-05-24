@@ -1,0 +1,6 @@
+---
+# .ansible-lint
+
+exclude_paths:
+  - charts/
+  - molecule/default/sample_secrets.yml
