@@ -15,6 +15,7 @@
         values: "{{ chartValuesOverrides | default({}) }}"
       delegate_to: localhost
       register: kubernetes_apps_helm_template
+      changed_when: false
 
     - name: Write manifest to file
       ansible.builtin.copy:

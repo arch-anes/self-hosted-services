@@ -27,8 +27,10 @@
         dest: /etc/modprobe.d/zfs.conf
         content: "options zfs zfs_arc_max={{ system_setup_zfs_arc_max_bytes }}"
         mode: '0644'
+      register: system_setup_zfs_arc_config
 
     - name: Apply ZFS ARC limit immediately
+      when: system_setup_zfs_arc_config.changed  # noqa: no-handler
       ansible.builtin.copy:
         dest: /sys/module/zfs/parameters/zfs_arc_max
         content: "{{ system_setup_zfs_arc_max_bytes }}"
