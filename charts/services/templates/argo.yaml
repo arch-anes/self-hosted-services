@@ -111,10 +111,8 @@ spec:
         destinations:
           - server: https://kubernetes.default.svc
             namespace: {{ .Values.applicationsNamespace }}
-          {{- if .Values.primaryTenant }}
           - server: https://kubernetes.default.svc
             namespace: kube-system
-          {{- end }}
         clusterResourceWhitelist:
           - group: '*'
             kind: '*'
