@@ -99,8 +99,3 @@ provisioner:
           - nas=true
   playbooks:
     converge: converge.yml
-    # verify: ../default/verify.yml
-# verifier:
-#   name: ansible
-#   lint:
-#     name: ansible-lint
