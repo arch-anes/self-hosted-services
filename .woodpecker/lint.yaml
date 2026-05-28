@@ -25,7 +25,7 @@ steps:
   - name: kubeconform
     image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
     commands:
-      - helm template charts/services | kubeconform -summary -schema-location default -schema-location 'https://raw.githubusercontent.com/abelfodil/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+      - helm template charts/services | kubeconform -summary -schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
 
   - name: yamllint
     image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
