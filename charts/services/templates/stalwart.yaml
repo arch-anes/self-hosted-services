@@ -20,12 +20,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: stalwart-blueprint
-  namespace: kube-system
+  namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: generic
   repo: https://arch-anes.github.io/charts
   version: 0.2.1
-  targetNamespace: kube-system
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
   values:
     objects:
       - apiVersion: v1
