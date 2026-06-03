@@ -8,7 +8,7 @@ metadata:
 spec:
   chart: intel-device-plugins-operator
   repo: https://intel.github.io/helm-charts/
-  version: 0.35.0
+  version: 0.36.0
   targetNamespace: kube-system
   # default-values: https://github.com/intel/helm-charts/blob/main/charts/device-plugin-operator/values.yaml
 
