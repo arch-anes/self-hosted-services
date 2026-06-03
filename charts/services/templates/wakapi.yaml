@@ -9,7 +9,7 @@ metadata:
 spec:
   chart: wakapi
   repo: https://arch-anes.github.io/charts
-  version: 0.1.2
+  version: 0.1.3
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # default-values: https://github.com/arch-anes/charts/blob/main/charts/wakapi/values.yaml
   values:
