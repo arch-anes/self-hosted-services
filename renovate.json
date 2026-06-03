@@ -90,6 +90,13 @@
     },
     {
       "matchPackageNames": [
+        "**/intel-device-plugins-*"
+      ],
+      "groupName": "intel-gpu",
+      "sourceUrl": "https://github.com/intel/intel-device-plugins-for-kubernetes"
+    },
+    {
+      "matchPackageNames": [
         "**/jellyfin"
       ],
       "sourceUrl": "https://github.com/jellyfin/jellyfin"
