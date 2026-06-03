@@ -167,6 +167,7 @@ k3s_cluster:
     big_server:
       labels:
         - local=true
+        - runner=true
 # Optional
 headscale:
   hosts:

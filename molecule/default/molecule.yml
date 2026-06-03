@@ -94,6 +94,7 @@ provisioner:
             labels:
               - local=true
               - public=true
+              - runner=true
           replica2:
             k3s_control_node: true
           replica3:

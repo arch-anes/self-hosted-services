@@ -68,6 +68,7 @@ spec:
         WOODPECKER_BACKEND: kubernetes
         WOODPECKER_BACKEND_K8S_NAMESPACE: "{{ .Values.applicationsNamespace }}"
         WOODPECKER_BACKEND_K8S_STORAGE_RWX: "false"
+        WOODPECKER_BACKEND_K8S_POD_NODE_SELECTOR: "{\"runner\": \"true\"}"
       extraSecretNamesForEnvFrom:
         - woodpecker
 {{- end }}
