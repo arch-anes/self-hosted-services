@@ -62,6 +62,7 @@ spec:
             hosts:
               - ci.{{ .Values.fqdn }}
     agent:
+      replicaCount: 1
       env:
         WOODPECKER_SERVER: woodpecker-server:9000
         WOODPECKER_BACKEND: kubernetes
