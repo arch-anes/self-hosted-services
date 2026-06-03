@@ -8,8 +8,18 @@
         dest: "{{ playbook_dir }}/../../charts/services/templates/00_secrets.yml"
         mode: 0600
 
+- name: Prepare routers
+  hosts: routers
+  gather_facts: false
+  tasks:
+    - name: Install Python on OpenWrt
+      ansible.builtin.raw: opkg update && opkg install python3
+      register: install_python
+      changed_when: "'Installing' in install_python.stdout"
+
 - name: Verify hosts
   hosts: all
+  gather_facts: false
   tasks:
     - name: Ensure all hosts to are up
       ansible.builtin.command: "ping -c 1 -w 600 {{ item }}"

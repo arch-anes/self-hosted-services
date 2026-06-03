@@ -72,6 +72,22 @@ platforms:
         network_name: private_network
         ip: "192.168.123.21"
         auto_config: true
+  - name: router1
+    box: arch-anes/openwrt
+    box_version: "24.10"
+    memory: 1024
+    cpus: 1
+    instance_raw_config_args:
+      - "vm.synced_folder '.', '/vagrant', disabled: true"
+      - "vm.synced_folder '.', '/root', disabled: true"
+    groups:
+      - routers
+    interfaces:
+      - type: private_network
+        libvirt__network_name: molecule_network
+        network_name: private_network
+        ip: "192.168.123.1"
+        auto_config: false
 provisioner:
   name: ansible
   inventory:
@@ -99,6 +115,14 @@ provisioner:
           replica3:
             labels:
               - nas=true
+      routers:
+        hosts:
+          router1:
+            haproxy:
+              servers:
+                server1: "192.168.123.11"
+                server2: "192.168.123.12"
+                server3: "192.168.123.13"
   playbooks:
     converge: converge.yml
 scenario:

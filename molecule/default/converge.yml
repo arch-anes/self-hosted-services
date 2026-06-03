@@ -2,6 +2,9 @@
 - name: Setup cluster
   import_playbook: ../../setup_cluster.yml
 
+- name: Setup router
+  import_playbook: ../../setup_router.yml
+
 - name: Converge
   hosts: all
   tasks:
