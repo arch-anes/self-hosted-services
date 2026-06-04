@@ -46,6 +46,17 @@
       "datasourceTemplate": "docker",
       "registryUrlTemplate": "https://{{registryUrl}}",
       "versioningTemplate": "helm"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/charts/.+\\.ya?ml$/",
+        "/charts/.+\\.tpl$/"
+      ],
+      "matchStrings": [
+        "moduleName: [\"']github\\.com/(?<depName>[^/]+/[^/]+)[\"']\\s*\\n\\s*version: [\"'](?<currentValue>[^\"']+)[\"']"
+      ],
+      "datasourceTemplate": "github-releases"
     }
   ],
   "packageRules": [
@@ -54,7 +65,8 @@
       "commitMessageExtra": "from {{currentVersion}} -> {{newVersion}} {{#if currentAppVersion}}(app version: {{currentAppVersion}} -> {{newAppVersion}}){{/if}} ([changelog]({{sourceUrl}}))",
       "matchDatasources": [
         "helm",
-        "docker"
+        "docker",
+        "github-releases"
       ]
     },
     {
@@ -136,7 +148,8 @@
       ],
       "matchDatasources": [
         "helm",
-        "docker"
+        "docker",
+        "github-releases"
       ]
     }
   ]
