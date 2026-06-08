@@ -29,6 +29,7 @@ spec:
       enabled: true
       upgradeJob:
         enabled: true
+        forceConflicts: true
     prometheus-node-exporter:
       hostNetwork: false
       prometheus:
