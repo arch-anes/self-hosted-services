@@ -116,7 +116,7 @@ spec:
   chart: oci://codeberg.org/wrenix/helm-charts/stalwart-mail
   version: 1.0.7
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # default-values: https://codeberg.org/wrenix/helm-charts/src/branch/main/stalwart-mail/values.yaml
+  # default-values: https://codeberg.org/wrenix/helm-charts/src/commit/9f535ddfdea7a3f31b025f0d23ab9952ea1c5647/stalwart-mail/values.yaml
   values:
     replicaCount: 1
     certificate:
