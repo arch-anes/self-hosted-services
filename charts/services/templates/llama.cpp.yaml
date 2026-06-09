@@ -8,6 +8,46 @@
 # type: Opaque
 # stringData:
 #   token: "some_hugging_face_token"
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: llama-cpp
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# data:
+#   model.json: |
+#     {
+#       "models": {
+#         "unsloth/gemma-4-E4B-it-qat-GGUF": {
+#           "include": [
+#             "*mmproj-BF16*",
+#             "*UD-Q4_K_XL*"
+#           ],
+#           "local_dir": "/models/gemma-4-E4B-it",
+#           "revision": "main"
+#         }
+#       }
+#     }
+#   preset.ini: |
+#     version = 1
+#     [*]
+#     flash-attn = on
+#     top-p = 0.95
+#     temp = 1.0
+#     cache-type-k = q8_0
+#     cache-type-v = q8_0
+#     batch-size = 512
+#     ubatch-size = 512
+#     parallel = 1
+#     fit-target = 256
+#     ; n-gpu-layers = all
+#     [gemma4-4B]
+#     model = /models/gemma-4-E4B-it/gemma-4-E4B-it-qat-UD-Q4_K_XL.gguf
+#     mmproj = /models/gemma-4-E4B-it/mmproj-BF16.gguf
+#     fit-ctx = 128000
+#     top-k = 64
+#     frequency-penalty = 1.5
+#     split-mode = none
 
 ---
 apiVersion: helm.cattle.io/v1
@@ -29,15 +69,33 @@ spec:
       type: {{ . }}
       useVulkan: {{ $.Values.applications.llama_cpp.use_vulkan }}
     {{- end }}
+    initContainerImage:
+      repository: ghcr.io/arch-anes/hf-pkg
+      tag: 0.1.0
+      pullPolicy: IfNotPresent
     workload:
       main:
+        annotations:
+          reloader.stakater.com/auto: "true"
         podSpec:
+          initContainers:
+            download-models:
+              enabled: true
+              type: init
+              imageSelector: initContainerImage
+              command: ["hf", "pkg", "install", "-f", "/config/model.json"]
+              env:
+                HF_TOKEN:
+                  secretKeyRef:
+                    name: hugging-face
+                    key: token
+                    expandObjectName: false
           containers:
             main:
               env:
                 LLAMA_ARG_WEBUI: disabled
                 LLAMA_ARG_MODELS_MAX: "{{ .Values.applications.llama_cpp.max_loaded_models }}"
-                LLAMA_ARG_MODELS_PRESET: /models/preset.ini
+                LLAMA_ARG_MODELS_PRESET: /config/preset.ini
                 HF_TOKEN:
                   secretKeyRef:
                     name: hugging-face
@@ -141,4 +199,21 @@ spec:
       models:
         type: pvc
         storageClass: local-path-persistent-namespaced
+        targetSelector:
+          main:
+            download-models:
+              mountPath: /models
+            main:
+              mountPath: /models
+      config:
+        enabled: true
+        type: configmap
+        objectName: llama-cpp
+        expandObjectName: false
+        targetSelector:
+          main:
+            download-models:
+              mountPath: /config
+            main:
+              mountPath: /config
 {{- end }}
