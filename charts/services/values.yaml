@@ -74,6 +74,8 @@ applications:
   #   enabled: true
   archivebox: {}
   #   enabled: true
+  blackbox_exporter: {}
+  #   enabled: true
   argo:
     # enabled: true
     # The git repository out of which to continuously deploy

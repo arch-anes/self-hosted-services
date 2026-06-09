@@ -23,6 +23,7 @@ metadata:
   name: octoprint-webcam
   namespace: "{{ .Values.applicationsNamespace }}"
   annotations:
+    prometheus.io/probe: "false"
     homer.item.excluded: "true"
     traefik.ingress.kubernetes.io/router.middlewares: kube-system-cluster-admin-authentication@kubernetescrd
 spec:

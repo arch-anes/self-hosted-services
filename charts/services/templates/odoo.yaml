@@ -150,6 +150,7 @@ spec:
       websocket:
         enabled: true
         annotations:
+          prometheus.io/probe: "false"
           homer.item.excluded: "true"
         hosts:
           - host: odoo.{{ .Values.fqdn }}

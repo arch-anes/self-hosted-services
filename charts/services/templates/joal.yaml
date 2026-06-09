@@ -81,6 +81,7 @@ spec:
           name: joal
           namespace: "{{ .Values.applicationsNamespace }}"
           annotations:
+            prometheus.io/probe: "false"
             homer.service.name: Media
             homer.item.logo: "https://raw.githubusercontent.com/anthonyraymond/joal/cad5df11990d4304476d574484003ccbcdd0b700/src/main/resources/public/favicon.ico"
         spec:

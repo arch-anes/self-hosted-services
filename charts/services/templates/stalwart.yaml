@@ -390,6 +390,7 @@ spec:
     ingress:
       enabled: true
       annotations:
+        prometheus.io/probe: "false"
         homer.service.name: Administration
         homer.item.name: Stalwart
         homer.item.logo: https://raw.githubusercontent.com/stalwartlabs/stalwart/de7f0e8e37edce397a196bf47f08f1eaa2743078/img/logo-red.svg

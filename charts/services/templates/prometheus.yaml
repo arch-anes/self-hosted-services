@@ -155,6 +155,12 @@ spec:
             gnetId: 17347
             revision: 9
             datasource: Prometheus
+          blackbox-exporter:
+            gnetId: 21275
+            revision: 1
+            datasource:
+              - name: DS_PROMETHEUS
+                value: Prometheus
           node-exporter-full:
             gnetId: 1860
             revision: 41

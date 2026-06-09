@@ -727,6 +727,12 @@ Setup [Prometheus secret](charts/services/templates/prometheus.yaml) with Grafan
 
 Access Grafana at `https://grafana.<your-domain>`.
 
+#### Blackbox Exporter
+
+Prometheus Blackbox Exporter to monitor service status.
+
+Automatically probes all ingresses in the cluster. Integrated with Grafana for visualization.
+
 #### Loki
 
 Log aggregation system.

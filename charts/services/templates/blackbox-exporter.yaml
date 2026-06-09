@@ -1,0 +1,69 @@
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "blackbox_exporter")) }}
+{{- include "app.require" (list . "Blackbox Exporter" "prometheus" "Prometheus") -}}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: prometheus-blackbox-exporter
+  namespace: kube-system
+spec:
+  chart: prometheus-blackbox-exporter
+  repo: https://prometheus-community.github.io/helm-charts
+  version: 11.11.0
+  targetNamespace: kube-system
+  # default-values: https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus-blackbox-exporter/values.yaml
+  values:
+    resources:
+      limits:
+        memory: 64Mi
+      requests:
+        cpu: 10m
+        memory: 32Mi
+    config:
+      modules:
+        http_2xx:
+          prober: http
+          timeout: 5s
+          http:
+            valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+            valid_status_codes: [200, 201, 202, 204, 401, 403]
+            follow_redirects: true
+            preferred_ip_protocol: "ip4"
+    serviceMonitor:
+      enabled: {{ include "metrics.enabled" . }}
+    prometheusRule:
+      enabled: true
+      rules:
+        - alert: IngressServiceDown
+          annotations:
+            description: "The ingress service {{`{{ $labels.instance }}`}} is not reachable since 5m."
+            summary: Ingress service not reachable.
+          expr: probe_success{job="ingress-probe"} == 0
+          for: 5m
+          labels:
+            context: availability
+            service: ingress
+            severity: critical
+    extraManifests:
+      - apiVersion: monitoring.coreos.com/v1
+        kind: Probe
+        # https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.Probe
+        metadata:
+          name: ingress-probe
+          namespace: kube-system
+        spec:
+          jobName: ingress-probe
+          interval: 30s
+          prober:
+            url: prometheus-blackbox-exporter.kube-system.svc.cluster.local:9115
+          module: http_2xx
+          targets:
+            ingress:
+              namespaceSelector:
+                any: true
+              selector: {}
+              relabelingConfigs:
+                - sourceLabels: [__meta_kubernetes_ingress_annotation_prometheus_io_probe]
+                  action: drop
+                  regex: "false"
+{{- end }}

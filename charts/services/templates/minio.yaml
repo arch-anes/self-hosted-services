@@ -126,6 +126,7 @@ spec:
       api:
         enabled: true
         annotations:
+            prometheus.io/probe: "false"
             homer.item.excluded: "true"
         tls:
           - secretName: "{{ .Values.fqdn }}-tls"
