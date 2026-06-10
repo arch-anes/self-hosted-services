@@ -38,6 +38,7 @@ spec:
                 LLAMA_ARG_WEBUI: disabled
                 LLAMA_ARG_MODELS_MAX: "{{ .Values.applications.llama_cpp.max_loaded_models }}"
                 LLAMA_ARG_MODELS_PRESET: /models/preset.ini
+                HUGGINGFACE_HUB_CACHE: /models/huggingface
                 HF_TOKEN:
                   secretKeyRef:
                     name: hugging-face
@@ -82,4 +83,9 @@ spec:
       models:
         type: pvc
         storageClass: local-path-persistent-namespaced
+        mountPath: /models
+      cache:
+        enabled: true
+        type: emptyDir
+        mountPath: /.cache
 {{- end }}
