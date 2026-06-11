@@ -21,7 +21,7 @@ metadata:
 spec:
   chart: loki
   repo: https://grafana.github.io/helm-charts
-  version: 6.55.0
+  version: 7.0.0
   targetNamespace: kube-system
   # default-values: https://github.com/grafana-community/helm-charts/blob/main/charts/loki/values.yaml
   values:
