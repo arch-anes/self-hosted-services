@@ -34,6 +34,22 @@ spec:
                     name: searxng
                     key: secret-key
                     expandObjectName: false
+              resources:
+                requests:
+                  memory: 256Mi
+                  cpu: 100m
+                limits:
+                  memory: 1Gi
+                  cpu: null
+    configmap:
+      config:
+        enabled: true
+        data:
+          limiter.toml: |-
+            [botdetection]
+            trusted_proxies = {{ include "ip.proxy_ranges" . | fromYamlArray | toPrettyJson | indent 14 | trim }}
+            [botdetection.ip_lists]
+            pass_ip = {{ include "ip.private_ranges" . | fromYamlArray | toPrettyJson | indent 14 | trim }}
     securityContext:
       container:
         runAsUser: 977
@@ -44,6 +60,12 @@ spec:
       config:
         type: pvc
         storageClass: local-path-persistent-namespaced
+      limiter:
+        enabled: true
+        type: configmap
+        objectName: config
+        mountPath: /etc/searxng/limiter.toml
+        subPath: limiter.toml
     ingress:
       main:
         enabled: true
