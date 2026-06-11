@@ -61,6 +61,10 @@ spec:
           secretKeyRef:
             name: hugging-face
             key: token
+    {{- if (include "app.enabled" (list . "searxng")) }}
+      - name: SEARXNG_QUERY_URL
+        value: "https://search.{{ .Values.fqdn }}"
+    {{- end }}
     {{- if (include "app.enabled" (list . "authentik")) }}
     sso:
       enabled: true
