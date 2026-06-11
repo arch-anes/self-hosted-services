@@ -1,0 +1,83 @@
+{{- if (include "app.enabled" (list . "searxng")) }}
+{{- include "app.require" (list . "SearXNG" "redis" "Redis") -}}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: searxng
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://oci.trueforge.org/truecharts/searxng
+  version: 11.4.2
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/searxng/values.yaml
+  values:
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          containers:
+            main:
+              env:
+                SEARXNG_BASE_URL: "https://search.{{ .Values.fqdn }}"
+                SEARXNG_PUBLIC_INSTANCE: "true"
+                SEARXNG_SEARCH_FORMATS: "html,json"
+                REDIS_HOST_PASSWORD:
+                  secretKeyRef:
+                    name: redis
+                    key: redis-password
+                    expandObjectName: false
+                SEARXNG_VALKEY_URL: redis://:$(REDIS_HOST_PASSWORD)@redis-master:6379
+                SEARXNG_SECRET_KEY:
+                  secretKeyRef:
+                    name: searxng
+                    key: secret-key
+                    expandObjectName: false
+    securityContext:
+      container:
+        runAsUser: 977
+        runAsGroup: 977
+      pod:
+        fsGroup: 977
+    persistence:
+      config:
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          homer.service.name: Automation
+          homer.item.name: SearXNG
+          homer.item.logo: "https://github.com/searxng/searxng/blob/4dd0bf48670727f6ae1086ffa72e76f6eb869741/searx/static/themes/simple/img/512.png?raw=true"
+        hosts:
+          - host: search.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - search.{{ .Values.fqdn }}
+    extraTpl:
+      - apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        metadata:
+          name: searxng
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          refreshPolicy: CreatedOnce
+          creationPolicy: Owner
+          deletionPolicy: Retain
+          target:
+            name: searxng
+          dataFrom:
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-ascii-password-generator
+              rewrite:
+                - transform:
+                    template: secret-key
+{{- end }}

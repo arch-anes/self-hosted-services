@@ -195,6 +195,8 @@ applications:
   #   enabled: true
   redis_insight: {}
   #   enabled: true
+  searxng: {}
+  #   enabled: true
   sonarr: {}
   #   enabled: true
   speedtest_tracker:
