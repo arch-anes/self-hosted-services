@@ -18,7 +18,7 @@ metadata:
 spec:
   chart: traefik
   repo: https://traefik.github.io/charts
-  version: 40.2.0
+  version: 40.3.0
   targetNamespace: kube-system
   # default-values: https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
   values:
