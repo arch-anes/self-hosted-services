@@ -10,7 +10,7 @@ metadata:
 spec:
   chart: open-webui
   repo: https://helm.openwebui.com/
-  version: 14.5.0
+  version: 14.8.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # default-values: https://github.com/open-webui/helm-charts/blob/main/charts/open-webui/values.yaml
   values:
