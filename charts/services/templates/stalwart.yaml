@@ -151,6 +151,7 @@ spec:
           - "spam-filter.bayes.*"
           - "spam-filter.rule.aws_ses_flagged"
           - "spam-filter.list.scores.AWS_SES_FLAGGED"
+          - "report.*"
       server:
         hostname: mail.{{ .Values.fqdn }}
         listener:
@@ -324,6 +325,8 @@ spec:
         dkim:
           sign: false
           verify: "relaxed"
+      report:
+        domain: "{{ .Values.fqdn }}"
       tracer:
         stdout:
           enable: true
