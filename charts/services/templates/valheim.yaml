@@ -21,7 +21,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/valheim
-  version: 14.3.0
+  version: 14.4.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/valheim/values.yaml
   values:
