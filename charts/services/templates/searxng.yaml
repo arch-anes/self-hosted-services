@@ -73,6 +73,7 @@ spec:
           homer.service.name: Automation
           homer.item.name: SearXNG
           homer.item.logo: "https://github.com/searxng/searxng/blob/4dd0bf48670727f6ae1086ffa72e76f6eb869741/searx/static/themes/simple/img/512.png?raw=true"
+          traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
         hosts:
           - host: search.{{ .Values.fqdn }}
             paths:
