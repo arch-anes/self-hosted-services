@@ -44,6 +44,9 @@ spec:
                     name: hugging-face
                     key: token
                     expandObjectName: false
+              extraArgs:
+                - --sleep-idle-seconds 
+                - "3600"
               resources:
                 requests:
                   memory: 1Gi
