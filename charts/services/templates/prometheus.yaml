@@ -191,6 +191,12 @@ spec:
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
+          unpackerr:
+            gnetId: 18817
+            revision: 1
+            datasource:
+              - name: DS_PROMETHEUS
+                value: Prometheus
 {{- if (include "app.enabled" (list . "argo")) }}
           argo-cd:
             gnetId: 14584

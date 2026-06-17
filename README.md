@@ -437,7 +437,8 @@ Access at `https://jellyseerr.<your-domain>` to perform the initial setup.
 **Bazarr**: Subtitle management for your media library.  
 **Prowlarr**: Centralized indexer management for Sonarr and Radarr.  
 **Tdarr**: Automated media transcoding and optimization.  
-**Tracearr**: Activity and history tracker for the Arr stack.
+**Tracearr**: Activity and history tracker for the Arr stack.  
+**Unpackerr**: Automated archive extraction for Transmission, Sonarr, and Radarr.
 
 Setup [Arr secret](charts/services/templates/arr.yaml) with API keys for each service.
 
@@ -490,6 +491,12 @@ BitTorrent client.
 Setup [Transmission secret](charts/services/templates/transmission.yaml) with credentials.
 
 Access at `https://transmission.<your-domain>`.
+
+##### Unpackerr
+
+Automated extraction for Transmission, Sonarr, and Radarr.
+
+It monitors downloads and extracts archives (zip, rar, 7z) into the download directory. It is required to have `transmission` enabled.
 
 ##### JOAL
 
@@ -726,6 +733,8 @@ Monitoring and observability stack.
 Setup [Prometheus secret](charts/services/templates/prometheus.yaml) with Grafana admin credentials.
 
 Access Grafana at `https://grafana.<your-domain>`.
+
+Unpackerr metrics are automatically exported to Prometheus when `prometheus` is enabled.
 
 #### Blackbox Exporter
 

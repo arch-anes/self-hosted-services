@@ -8,7 +8,9 @@
 # stringData:
 #   prowlarr_api_key: "some_key"
 #   tdarr_api_key: "some_key"
+#   # Generate 32 characters key: openssl rand -hex 16
 #   radarr_api_key: "some_key"
+#   # Generate 32 characters key: openssl rand -hex 16
 #   sonarr_api_key: "some_key"
 #   bazarr_api_key: "some_key"
 #   bazarr_admin_password_hash: "some_pass_hash"
