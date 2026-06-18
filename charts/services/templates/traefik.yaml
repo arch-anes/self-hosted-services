@@ -101,13 +101,12 @@ spec:
           image: busybox:1
           command: ['sh', '-c', 'until nslookup github.com; do echo waiting for network; sleep 2; done']
 {{- end }}
-    logs:
-      access:
-        enabled: true
-        addInternals: true
-        fields:
-          headers:
-            defaultmode: keep
+    accessLog:
+      enabled: true
+      addInternals: true
+      fields:
+        headers:
+          defaultMode: keep
     metrics:
       addInternals: {{ include "metrics.enabled" . }}
       prometheus:
