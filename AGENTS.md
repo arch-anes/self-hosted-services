@@ -75,7 +75,7 @@ This document is living documentation that provides foundational guidance for LL
 5.  **Helper Usage**:
     - You MUST wrap templates in `{{- if (include "app.enabled" (list . "app_name")) }}`.
     - You MUST use `{{- include "app.require" (list . "AppName" "dependency" "DependencyDisplay") -}}` for hard dependencies.
-6.  **Reference Values**: You SHOULD run `charts/services/pull-default-values.sh` to automatically pull reference `values.yaml` files for each chart, because this keeps a local copy in the `default-values/` directory for development and avoids manual upstream searches.
+6.  **Reference Values**: You SHOULD run `scripts/pull-helm-charts-default-values.sh` to automatically pull reference `values.yaml` files for each chart, because this keeps a local copy in the `default-values/` directory for development and avoids manual upstream searches.
 
 ### Secrets Management
 

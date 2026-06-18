@@ -6,8 +6,9 @@
 # Supports GitHub, Codeberg, and OCI registry URLs.
 set -euo pipefail
 
-TEMPLATES_DIR="$(dirname "$0")/templates"
-OUTPUT_DIR="$(dirname "$0")/default-values"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || dirname "$(dirname "$0")")"
+TEMPLATES_DIR="${REPO_ROOT}/charts/services/templates"
+OUTPUT_DIR="${REPO_ROOT}/charts/services/default-values"
 
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
