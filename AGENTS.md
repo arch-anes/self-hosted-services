@@ -112,3 +112,12 @@ This repository uses **Renovate** for automated dependency updates. To ensure Re
 ## Linting & Quality Control
 
 - You MUST refer to `.woodpecker/lint.yaml` for the canonical linting and validation flow. You MUST NOT duplicate tool lists or configurations here, because doing so creates configuration drift and increases maintenance overhead.
+
+## Gotchas
+
+Recurring traps encountered during operations on this cluster.
+
+### Loki Label Inconsistency for Node Logs
+
+- Node logs ingested by Alloy use the label **`node_name`**, NOT `node`. The selector `{job="node/syslog", node="..."}` returns nothing; use `node_name=...` instead.
+- This differs from kube-state-metrics and cAdvisor, which use `node`. Before claiming a node log stream is missing or recommending host-level commands (`dmesg`, `journalctl`), you MUST first re-query under `node_name`, because the syslog/kern streams DO capture kernel events and are queryable in Loki.
