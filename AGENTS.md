@@ -76,6 +76,10 @@ This document is living documentation that provides foundational guidance for LL
     - You MUST wrap templates in `{{- if (include "app.enabled" (list . "app_name")) }}`.
     - You MUST use `{{- include "app.require" (list . "AppName" "dependency" "DependencyDisplay") -}}` for hard dependencies.
 6.  **Reference Values**: You SHOULD run `scripts/pull-helm-charts-default-values.sh` to automatically pull reference `values.yaml` files for each chart, because this keeps a local copy in the `default-values/` directory for development and avoids manual upstream searches.
+7.  **Helper Unit Tests**: You MUST add `helm-unittest` cases in `charts/services/tests/<topic>_test.yaml` for any new or modified helper in `_helpers.tpl`, because the helper layer is shared by every application template and regressions there are far-reaching.
+    - Helpers emit strings (not YAML manifests), so they cannot be asserted on directly. You MUST use the gated fixture pattern in `charts/services/templates/tests-helpers-fixture.yaml`: each fixture section is wrapped in `{{- if (.Values.testFixtures).<name> }}` and is therefore a safe no-op under `helm template` / `helm lint` (the `testFixtures` value is NEVER declared in `values.yaml`).
+    - For helpers that can call `fail` (e.g. `app.require`), you MUST place their fixture behind a separate `testFixtures` sub-flag and assert with the `failedTemplate` matcher.
+    - You MUST verify locally with `helm unittest charts/services` (also runs in `.woodpecker/lint.yaml`).
 
 ### Secrets Management
 

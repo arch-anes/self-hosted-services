@@ -1,0 +1,32 @@
+{{- /*
+   Test fixtures for the helpers in _helpers.tpl.
+   Rendered ONLY when .Values.testFixtures.enabled (or .require) is true,
+   which is never set in production values.yaml. Consumed by the helm-unittest
+   suite in tests/helpers_test.yaml to assert on helper outputs.
+   Safe no-op under `helm template` / `helm lint` in production.
+*/ -}}
+{{- if (.Values.testFixtures).enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: helpers-test-fixture
+data:
+  app_enabled_foo: {{ include "app.enabled" (list . "foo") | quote }}
+  app_enabled_bar: {{ include "app.enabled" (list . "bar") | quote }}
+  metrics_enabled: {{ include "metrics.enabled" . | quote }}
+  ldap_base_dn: {{ include "ldap.base_dn" . | quote }}
+  ha_enabled: {{ include "ha.enabled" . | quote }}
+  ha_replicas: {{ include "ha.replicas" . | quote }}
+  ip_local_proxy_ranges_string: {{ include "ip.local_proxy_ranges.string" . | quote }}
+  ip_proxy_ranges_count: {{ include "ip.proxy_ranges" . | fromYamlArray | len | quote }}
+  ip_private_ranges_count: {{ include "ip.private_ranges" . | fromYamlArray | len | quote }}
+{{- end }}
+{{- if (.Values.testFixtures).require }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: helpers-require-fixture
+data:
+  ok: {{ include "app.require" (list . "MyApp" "postgresql" "PostgreSQL") | quote }}
+{{- end }}

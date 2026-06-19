@@ -1,0 +1,229 @@
+suite: helpers (_helpers.tpl) - non-failing helpers
+templates:
+  - tests-helpers-fixture.yaml
+set:
+  testFixtures.enabled: true
+  applications: {}
+tests:
+  # ----- app.enabled -----
+  - it: app.enabled returns "true" when global default is true
+    set:
+      enableAllApplicationsByDefault: true
+    asserts:
+      - equal:
+          path: data\.app_enabled_foo
+          value: "true"
+
+  - it: app.enabled returns empty when global default is false and app is unset
+    set:
+      enableAllApplicationsByDefault: false
+    asserts:
+      - equal:
+          path: data\.app_enabled_foo
+          value: ""
+
+  - it: app.enabled returns "true" when app explicitly enabled
+    set:
+      enableAllApplicationsByDefault: false
+      applications:
+        foo:
+          enabled: true
+    asserts:
+      - equal:
+          path: data\.app_enabled_foo
+          value: "true"
+
+  - it: app.enabled returns empty when app explicitly disabled even if global default is true
+    set:
+      enableAllApplicationsByDefault: true
+      applications:
+        foo:
+          enabled: false
+    asserts:
+      - equal:
+          path: data\.app_enabled_foo
+          value: ""
+
+  - it: app.enabled reads each app independently
+    set:
+      enableAllApplicationsByDefault: false
+      applications:
+        foo:
+          enabled: true
+        bar:
+          enabled: false
+    asserts:
+      - equal:
+          path: data\.app_enabled_foo
+          value: "true"
+      - equal:
+          path: data\.app_enabled_bar
+          value: ""
+
+  # ----- metrics.enabled (wraps app.enabled for "prometheus") -----
+  - it: metrics.enabled returns "true" when prometheus explicitly enabled
+    set:
+      enableAllApplicationsByDefault: false
+      applications:
+        prometheus:
+          enabled: true
+    asserts:
+      - equal:
+          path: data\.metrics_enabled
+          value: "true"
+
+  - it: metrics.enabled returns empty when prometheus disabled
+    set:
+      enableAllApplicationsByDefault: false
+      applications:
+        prometheus:
+          enabled: false
+    asserts:
+      - equal:
+          path: data\.metrics_enabled
+          value: ""
+
+  - it: metrics.enabled returns "true" when global default is true (prometheus implicit)
+    set:
+      enableAllApplicationsByDefault: true
+    asserts:
+      - equal:
+          path: data\.metrics_enabled
+          value: "true"
+
+  # ----- ldap.base_dn -----
+  - it: ldap.base_dn converts simple fqdn
+    set:
+      fqdn: example.org
+    asserts:
+      - equal:
+          path: data\.ldap_base_dn
+          value: "dc=example,dc=org"
+
+  - it: ldap.base_dn converts multi-level fqdn
+    set:
+      fqdn: sub.example.org
+    asserts:
+      - equal:
+          path: data\.ldap_base_dn
+          value: "dc=sub,dc=example,dc=org"
+
+  - it: ldap.base_dn lowercases uppercase fqdn
+    set:
+      fqdn: EXAMPLE.ORG
+    asserts:
+      - equal:
+          path: data\.ldap_base_dn
+          value: "dc=example,dc=org"
+
+  - it: ldap.base_dn strips trailing dot
+    set:
+      fqdn: example.org.
+    asserts:
+      - equal:
+          path: data\.ldap_base_dn
+          value: "dc=example,dc=org"
+
+  # ----- ha.enabled / ha.replicas -----
+  - it: ha.enabled returns "true" when highAvailability is true
+    set:
+      highAvailability: true
+    asserts:
+      - equal:
+          path: data\.ha_enabled
+          value: "true"
+
+  - it: ha.enabled returns empty when highAvailability is false
+    set:
+      highAvailability: false
+    asserts:
+      - equal:
+          path: data\.ha_enabled
+          value: ""
+
+  - it: ha.replicas returns 3 when highAvailability is true
+    set:
+      highAvailability: true
+    asserts:
+      - equal:
+          path: data\.ha_replicas
+          value: "3"
+
+  - it: ha.replicas returns 1 when highAvailability is false
+    set:
+      highAvailability: false
+    asserts:
+      - equal:
+          path: data\.ha_replicas
+          value: "1"
+
+  # ----- ip.local_proxy_ranges.string -----
+  - it: ip.local_proxy_ranges.string joins ranges with commas
+    set:
+      localIpRanges:
+        - 10.0.0.0/8
+        - 172.16.0.0/12
+    asserts:
+      - equal:
+          path: data\.ip_local_proxy_ranges_string
+          value: "10.0.0.0/8,172.16.0.0/12"
+
+  - it: ip.local_proxy_ranges.string handles single range
+    set:
+      localIpRanges:
+        - 10.0.0.0/8
+    asserts:
+      - equal:
+          path: data\.ip_local_proxy_ranges_string
+          value: "10.0.0.0/8"
+
+  # ----- ip.proxy_ranges (local + cloudflare) -----
+  - it: ip.proxy_ranges concatenates local + cloudflare ranges
+    set:
+      localIpRanges:
+        - 10.0.0.0/8
+      cloudFlareIpRanges:
+        - 1.1.1.1/32
+        - 2.2.2.2/32
+    asserts:
+      - equal:
+          path: data\.ip_proxy_ranges_count
+          value: "3"
+
+  # ----- ip.private_ranges (local + tailscale) -----
+  - it: ip.private_ranges concatenates local + tailscale ranges
+    set:
+      localIpRanges:
+        - 10.0.0.0/8
+      tailscaleIpRanges:
+        - 100.64.0.0/10
+    asserts:
+      - equal:
+          path: data\.ip_private_ranges_count
+          value: "2"
+
+---
+suite: app.require helper (template failure cases)
+templates:
+  - tests-helpers-fixture.yaml
+set:
+  testFixtures.require: true
+tests:
+  - it: renders empty when required app is enabled
+    set:
+      applications:
+        postgresql:
+          enabled: true
+    asserts:
+      - equal:
+          path: data\.ok
+          value: ""
+
+  - it: fails with custom display name when required app disabled
+    set:
+      applications:
+        postgresql:
+          enabled: false
+    asserts:
+      - failedTemplate:
+          errorMessage: "MyApp requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml"
