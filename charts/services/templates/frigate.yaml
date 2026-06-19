@@ -18,6 +18,7 @@ spec:
         enabled: false
       mqtt:
         enabled: false
+      cameras: {}
       {{- if or (eq $gpuVendor "intel") (eq $gpuVendor "intel_xe") }}
       detectors:
         ov:
