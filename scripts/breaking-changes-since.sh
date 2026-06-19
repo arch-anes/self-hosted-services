@@ -9,6 +9,33 @@
 # Exit on error, undefined variables, and pipe failures
 set -euo pipefail
 
+# ASCII control characters used as field/record separators so that commit
+# messages (which may contain any printable character, including newlines) can
+# be parsed unambiguously from a single `git log` invocation.
+FS=$'\x1f'   # Unit Separator   - between fields within a commit
+RS=$'\x1e'   # Record Separator - between commits
+
+# Split $1 on $FS into the global array FIELDS.
+# The final field keeps everything after the last separator, so multi-line
+# values (such as a commit body) are preserved intact.
+split_fields() {
+    local s="$1"
+    FIELDS=()
+    while [[ "$s" == *"${FS}"* ]]; do
+        FIELDS+=("${s%%"${FS}"*}")
+        s="${s#*"${FS}"}"
+    done
+    FIELDS+=("$s")
+}
+
+# Strip every trailing newline from $1 (mimics what `$(...)` does), so that
+# piping a body through `sed 's/^/  /'` does not emit a trailing blank line.
+strip_trailing_newlines() {
+    local s="$1"
+    while [[ "$s" == *$'\n' ]]; do s="${s%$'\n'}"; done
+    printf '%s' "$s"
+}
+
 usage() {
     echo "Usage: $0 [options] <commit-hash> [until-revision]"
     echo ""
@@ -70,25 +97,36 @@ if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
 fi
 
 # Validate starting commit
-if ! git rev-parse --verify "$START_COMMIT" >/dev/null 2>&1; then
+if ! git rev-parse --verify "$START_COMMIT^{}" >/dev/null 2>&1; then
     echo "Error: Invalid starting commit '$START_COMMIT'." >&2
     exit 1
 fi
 
 # Validate ending revision
-if ! git rev-parse --verify "$END_COMMIT" >/dev/null 2>&1; then
+if ! git rev-parse --verify "$END_COMMIT^{}" >/dev/null 2>&1; then
     echo "Error: Invalid ending revision '$END_COMMIT'." >&2
     exit 1
 fi
 
-# Retrieve matching commit hashes first to avoid delimiter/splitting bugs
-hashes=$(git log "${START_COMMIT}..${END_COMMIT}" \
+# Pull every field we need in a single pass. Using one `git log` call (instead
+# of one `git log -1` per commit) avoids spawning dozens of subprocesses when
+# many commits match.
+if [ "$FORMAT" = "markdown" ]; then
+    date_opt="short"
+    fmt="%H${FS}%an${FS}%ad${FS}%s${RS}"
+else
+    date_opt="default"
+    fmt="%H${FS}%an${FS}%ae${FS}%ad${FS}%s${FS}%b${RS}"
+fi
+
+raw=$(git log "${START_COMMIT}..${END_COMMIT}" \
     --grep="breaking change" \
     -i \
     --reverse \
-    --format="%H")
+    --date="$date_opt" \
+    --format="$fmt")
 
-if [ -z "$hashes" ]; then
+if [ -z "$raw" ]; then
     if [ "$FORMAT" = "markdown" ]; then
         echo "No breaking changes found between \`$START_COMMIT\` and \`$END_COMMIT\`."
     else
@@ -102,42 +140,52 @@ if [ "$FORMAT" = "markdown" ]; then
     echo ""
     echo "| Commit | Author | Date | Description |"
     echo "| :--- | :--- | :--- | :--- |"
-    
-    # Process each hash
-    while read -r hash; do
-        [ -z "$hash" ] && continue
+
+    while IFS= read -r -d "$RS" record; do
+        [ -z "$record" ] && continue
+        # Drop the newline that `git log --format` appends after every entry.
+        record="${record#$'\n'}"
+        split_fields "$record"
+
+        hash="${FIELDS[0]}"
+        author="${FIELDS[1]}"
+        date="${FIELDS[2]}"
+        subject="${FIELDS[3]}"
+
         short_hash="${hash:0:8}"
-        author=$(git log -1 --format="%an" "$hash")
-        date=$(git log -1 --format="%ad" --date=short "$hash")
-        subject=$(git log -1 --format="%s" "$hash")
-        
+
         # Escape pipe characters for markdown table syntax safety
         safe_author="${author//|/\\|}"
         safe_subject="${subject//|/\\|}"
-        
+
         echo "| \`$short_hash\` | $safe_author | $date | $safe_subject |"
-    done <<< "$hashes"
+    done <<< "$raw"
 else
     echo "Breaking changes since $START_COMMIT (up to $END_COMMIT):"
     echo "================================================================================"
-    
+
     first=true
-    while read -r hash; do
-        [ -z "$hash" ] && continue
+    while IFS= read -r -d "$RS" record; do
+        [ -z "$record" ] && continue
+        record="${record#$'\n'}"
+        split_fields "$record"
+
+        hash="${FIELDS[0]}"
+        author="${FIELDS[1]}"
+        email="${FIELDS[2]}"
+        date="${FIELDS[3]}"
+        subject="${FIELDS[4]}"
+        body="$(strip_trailing_newlines "${FIELDS[5]:-}")"
+
         if [ "$first" = true ]; then
             first=false
         else
             echo "--------------------------------------------------------------------------------"
         fi
-        
+
         short_hash="${hash:0:8}"
-        author=$(git log -1 --format="%an <%ae>" "$hash")
-        date=$(git log -1 --format="%ad" --date=default "$hash")
-        subject=$(git log -1 --format="%s" "$hash")
-        body=$(git log -1 --format="%b" "$hash")
-        
         echo "Commit:  $short_hash ($hash)"
-        echo "Author:  $author"
+        echo "Author:  $author <$email>"
         echo "Date:    $date"
         echo "Subject: $subject"
         if [ -n "$body" ]; then
@@ -146,5 +194,5 @@ else
             # shellcheck disable=SC2001
             echo "$body" | sed 's/^/  /'
         fi
-    done <<< "$hashes"
+    done <<< "$raw"
 fi
