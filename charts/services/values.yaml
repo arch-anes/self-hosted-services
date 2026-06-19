@@ -103,6 +103,9 @@ applications:
   #   enabled: true
   flaresolverr: {}
   #   enabled: true
+  frigate: {}
+  #   enabled: true
+  #   gpu_vendor: intel
   gluetun: {}
   #   enabled: true
   gotify: {}
