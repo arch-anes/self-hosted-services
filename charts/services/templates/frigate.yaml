@@ -13,48 +13,6 @@ spec:
   # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/frigate/values.yaml
   values:
     {{- $gpuVendor := .Values.applications.frigate.gpu_vendor }}
-    frigateConfig:
-      tls:
-        enabled: false
-      mqtt:
-        enabled: false
-      cameras: {}
-      {{- if or (eq $gpuVendor "intel") (eq $gpuVendor "intel_xe") }}
-      detectors:
-        ov:
-          type: openvino
-          device: GPU
-      model:
-        width: 300
-        height: 300
-        input_tensor: nhwc
-        input_pixel_format: bgr
-        path: /openvino-model/ssdlite_mobilenet_v2.xml
-        labelmap_path: /openvino-model/coco_91cl_bkgr.txt
-      {{- else if eq $gpuVendor "nvidia" }}
-      detectors:
-        tensorrt:
-          type: tensorrt
-          device: 0
-      model:
-        path: /config/model_cache/tensorrt/yolov7-320.trt
-        labelmap_path: /labelmap/coco-80.txt
-        input_tensor: nchw
-        input_pixel_format: rgb
-        width: 320
-        height: 320
-      {{- else }}
-      detectors:
-        cpu1:
-          type: cpu
-      {{- end }}
-      {{- if eq $gpuVendor "nvidia" }}
-      ffmpeg:
-        hwaccel_args: preset-nvidia
-      {{- else if $gpuVendor }}
-      ffmpeg:
-        hwaccel_args: preset-vaapi
-      {{- end }}
     workload:
       main:
         podSpec:
@@ -63,6 +21,21 @@ spec:
             nas: "true"
           annotations:
             backup.velero.io/backup-volumes: config
+          initContainers:
+            init-config:
+              enabled: true
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  mkdir -p /config
+                  if [ ! -f /config/config.yml ]; then
+                    echo "Config file not found, copying initial config..."
+                    cp /initial-config/config.yml /config/config.yml
+                    echo "Config file copied, you can now edit it at /config/config.yml"
+                  else
+                    echo "Config file found, you can edit it at /config/config.yml"
+                  fi
           containers:
             main:
               {{- if eq $gpuVendor "nvidia" }}
@@ -137,7 +110,63 @@ spec:
           - secretName: "{{ .Values.fqdn }}-tls"
             hosts:
               - frigate.{{ .Values.fqdn }}
+    configmap:
+      initial-config:
+        enabled: true
+        data:
+          config.yml: |-
+            tls:
+              enabled: false
+            mqtt:
+              enabled: false
+            cameras: {}
+            {{- if or (eq $gpuVendor "intel") (eq $gpuVendor "intel_xe") }}
+            detectors:
+              ov:
+                type: openvino
+                device: GPU
+            model:
+              width: 300
+              height: 300
+              input_tensor: nhwc
+              input_pixel_format: bgr
+              path: /openvino-model/ssdlite_mobilenet_v2.xml
+              labelmap_path: /openvino-model/coco_91cl_bkgr.txt
+            {{- else if eq $gpuVendor "nvidia" }}
+            detectors:
+              tensorrt:
+                type: tensorrt
+                device: 0
+            model:
+              path: /config/model_cache/tensorrt/yolov7-320.trt
+              labelmap_path: /labelmap/coco-80.txt
+              input_tensor: nchw
+              input_pixel_format: rgb
+              width: 320
+              height: 320
+            {{- else }}
+            detectors:
+              cpu1:
+                type: cpu
+            {{- end }}
+            {{- if eq $gpuVendor "nvidia" }}
+            ffmpeg:
+              hwaccel_args: preset-nvidia
+            {{- else if $gpuVendor }}
+            ffmpeg:
+              hwaccel_args: preset-vaapi
+            {{- end }}
     persistence:
+      initial-config:
+        enabled: true
+        type: configmap
+        objectName: initial-config
+        targetSelector:
+          main:
+            init-config:
+              subPath: config.yml
+              mountPath: /initial-config/config.yml
+              readOnly: true
       config:
         enabled: true
         storageClass: local-path-persistent-namespaced
