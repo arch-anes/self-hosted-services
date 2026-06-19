@@ -47,10 +47,10 @@ spec:
                     expandObjectName: false
     resources:
       requests:
-        memory: 500Mi
+        memory: 2Gi
         cpu: 250m
       limits:
-        memory: 1Gi
+        memory: 4Gi
         cpu: null
     global:
       traefik:
