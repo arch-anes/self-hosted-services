@@ -1,0 +1,93 @@
+{{- if (include "app.enabled" (list . "opencode")) }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: opencode
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   server_username: "admin"
+#   server_password: "password"
+
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: opencode
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: opencode
+  repo: https://arch-anes.github.io/charts
+  version: 1.0.4
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  # default-values: https://github.com/arch-anes/charts/blob/main/charts/opencode/values.yaml
+  values:
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          annotations:
+            backup.velero.io/backup-volumes: "config,share,workspaces"
+          containers:
+            main:
+              env:
+                OPENCODE_SERVER_USERNAME:
+                  secretKeyRef:
+                    name: opencode
+                    key: server_username
+                    expandObjectName: false
+                OPENCODE_SERVER_PASSWORD:
+                  secretKeyRef:
+                    name: opencode
+                    key: server_password
+                    expandObjectName: false
+              extraArgs:
+                - --cors
+                - https://code.{{ .Values.fqdn }}
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 512Mi
+                limits:
+                  cpu: null
+                  memory: 16Gi
+            dind:
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 512Mi
+                limits:
+                  cpu: null
+                  memory: 16Gi
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          homer.service.name: Automation
+          homer.item.name: OpenCode
+          homer.item.logo: "https://raw.githubusercontent.com/anomalyco/opencode/dev/packages/console/app/src/asset/logo-ornate-dark.svg"
+          traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
+        hosts:
+          - host: code.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - code.{{ .Values.fqdn }}
+    persistence:
+      config:
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+      share:
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+      workspaces:
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+      cache:
+        type: pvc
+        storageClass: local-path-ephemeral
+{{- end }}

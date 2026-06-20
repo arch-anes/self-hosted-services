@@ -182,6 +182,8 @@ applications:
   odoo:
     # enabled: true
     updatePluginsOnStartup: false
+  opencode: {}
+  #   enabled: true
   open_webui: {}
   #   enabled: true
   pgadmin4: {}
