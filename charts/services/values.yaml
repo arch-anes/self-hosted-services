@@ -225,6 +225,9 @@ applications:
   open_webui: {}
   #   enabled: true
   #   private: false
+  opencode: {}
+  #   enabled: true
+  #   private: false
   pgadmin4:
     # enabled: true
     private: true
