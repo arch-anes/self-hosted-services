@@ -196,6 +196,8 @@ applications:
     updatePluginsOnStartup: false
   open_webui: {}
   #   enabled: true
+  opencode: {}
+  #   enabled: true
   pgadmin4: {}
   #   enabled: true
   postgresql:
