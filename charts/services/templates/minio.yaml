@@ -58,7 +58,7 @@ spec:
       name: minio
       image:
         repository: pgsty/minio
-        tag: RELEASE.2026-04-17T00-00-00Z
+        tag: RELEASE.2026-06-18T00-00-00Z
       configSecret:
         name: minio
         existingSecret: true
