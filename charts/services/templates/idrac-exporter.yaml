@@ -32,7 +32,7 @@ metadata:
 spec:
   chart: idrac-exporter
   repo: https://mrlhansen.github.io/idrac_exporter
-  version: 2.5.0
+  version: 2.6.1
   targetNamespace: kube-system
   # default-values: https://github.com/mrlhansen/idrac_exporter/blob/master/charts/idrac-exporter/values.yaml
   values:
