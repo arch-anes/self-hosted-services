@@ -63,7 +63,7 @@ spec:
             key: token
     {{- if (include "app.enabled" (list . "searxng")) }}
       - name: SEARXNG_QUERY_URL
-        value: "https://search.{{ .Values.fqdn }}"
+        value: "http://searxng:8080"
     {{- end }}
     {{- if (include "app.enabled" (list . "authentik")) }}
     sso:
