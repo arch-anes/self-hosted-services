@@ -8,7 +8,7 @@ metadata:
 spec:
   chart: reflector
   repo: https://emberstack.github.io/helm-charts
-  version: 10.0.30
+  version: 10.0.51
   targetNamespace: kube-system
   # default-values: https://github.com/emberstack/kubernetes-reflector/blob/main/src/helm/reflector/values.yaml
   values:
