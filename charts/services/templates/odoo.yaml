@@ -8,7 +8,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/odoo
-  version: 23.3.1
+  version: 23.4.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/odoo/values.yaml
   values:
