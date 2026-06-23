@@ -43,17 +43,7 @@ spec:
   values:
     immich:
     {{- $mlGpuVendor := dig "machine_learning" "gpu_vendor" "" .Values.applications.immich }}
-    {{- if eq $mlGpuVendor "intel" }}
-      {{- if not (include "app.enabled" (list . "intel_gpu")) }}
-        {{- fail "Intel GPU is selected for Immich but intel_gpu is not enabled" }}
-      {{- end }}
-      mlImageType: mlOpenvinoImage
-    {{- else if eq $mlGpuVendor "intel_xe" }}
-      {{- if not (include "app.enabled" (list . "intel_gpu")) }}
-        {{- fail "Intel GPU is selected for Immich's machine learning but intel_gpu is not enabled" }}
-      {{- end }}
-      mlImageType: mlOpenvinoImage
-    {{- else if eq $mlGpuVendor "nvidia" }}
+    {{- if eq $mlGpuVendor "nvidia" }}
       {{- if not (include "app.enabled" (list . "nvidia_gpu")) }}
         {{- fail "NVIDIA GPU is selected for Immich's machine learning but nvidia_gpu is not enabled" }}
       {{- end }}
