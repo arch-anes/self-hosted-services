@@ -67,6 +67,10 @@
         name:
           - robusta-dev/homebrew-krr
 
+    - name: Trust robusta-dev/krr tap
+      ansible.builtin.command: /home/linuxbrew/.linuxbrew/bin/brew trust robusta-dev/krr
+      changed_when: false
+
     - name: Install homebrew packages
       community.general.homebrew:
         name:
