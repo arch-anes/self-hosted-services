@@ -328,6 +328,8 @@ spec:
               template:
                 spec:
                   restartPolicy: OnFailure
+                  nodeSelector:
+                    kubernetes.io/arch: amd64
                   containers:
                     - name: prewarm
                       image: ghcr.io/arch-anes/crunchy-postgres:ubi9-17.9-2610
