@@ -128,30 +128,7 @@ spec:
                 limits:
                   cpu: null
                   memory: 4Gi
-                  {{- $gpuVendor := .Values.applications.immich.gpu_vendor }}
-                  {{- if eq $gpuVendor "intel" }}
-                    {{- if not (include "app.enabled" (list . "intel_gpu")) }}
-                      {{- fail "Intel GPU is selected for Immich but intel_gpu is not enabled" }}
-                    {{- end }}
-                  gpu.intel.com/i915: 1
-                  {{- else if eq $gpuVendor "intel_xe" }}
-                    {{- if not (include "app.enabled" (list . "intel_gpu")) }}
-                      {{- fail "Intel GPU is selected for Immich but intel_gpu is not enabled" }}
-                    {{- end }}
-                  gpu.intel.com/xe: 1
-                  {{- else if eq $gpuVendor "nvidia" }}
-                    {{- if not (include "app.enabled" (list . "nvidia_gpu")) }}
-                      {{- fail "NVIDIA GPU is selected for Immich but nvidia_gpu is not enabled" }}
-                    {{- end }}
-                  nvidia.com/gpu: 1
-                  {{- else if eq $gpuVendor "amd" }}
-                    {{- if not (include "app.enabled" (list . "amd_gpu")) }}
-                      {{- fail "AMD GPU is selected for Immich but amd_gpu is not enabled" }}
-                    {{- end }}
-                  amd.com/gpu: 1
-                  {{- else if $gpuVendor }}
-                    {{- fail (printf "Unknown GPU vendor '%s' selected for Immich" $gpuVendor) }}
-                  {{- end }}
+                  {{- include "gpu.device" (list . "Immich" .Values.applications.immich.gpu_vendor) | nindent 18 }}
       machinelearning:
         annotations:
           reloader.stakater.com/auto: "true"
@@ -168,15 +145,7 @@ spec:
                 limits:
                   cpu: null
                   memory: 10Gi
-                  {{- if eq $mlGpuVendor "intel" }}
-                  gpu.intel.com/i915: 1
-                  {{- else if eq $mlGpuVendor "intel_xe" }}
-                  gpu.intel.com/xe: 1
-                  {{- else if eq $mlGpuVendor "nvidia" }}
-                  nvidia.com/gpu: 1
-                  {{- else if eq $mlGpuVendor "amd" }}
-                  amd.com/gpu: 1
-                  {{- end }}
+                  {{- include "gpu.device" (list . "Immich's machine learning" $mlGpuVendor) | nindent 18 }}
     service:
       main:
         ports:

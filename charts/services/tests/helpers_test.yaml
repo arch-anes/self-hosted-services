@@ -227,3 +227,89 @@ tests:
     asserts:
       - failedTemplate:
           errorMessage: "MyApp requires PostgreSQL to be enabled. Please enable PostgreSQL in your values.yaml"
+
+---
+suite: gpu.device helper (non-failing cases)
+templates:
+  - tests-helpers-fixture.yaml
+set:
+  testFixtures.gpu: true
+  applications:
+    intel_gpu:
+      enabled: true
+    nvidia_gpu:
+      enabled: true
+    amd_gpu:
+      enabled: true
+tests:
+  - it: renders correct limits when GPU vendor applications are enabled
+    asserts:
+      - equal:
+          path: data.intel
+          value: "gpu.intel.com/i915: 1"
+      - equal:
+          path: data.intel_xe
+          value: "gpu.intel.com/xe: 2"
+      - equal:
+          path: data.nvidia
+          value: "nvidia.com/gpu: 3"
+      - equal:
+          path: data.amd
+          value: "amd.com/gpu: 1"
+      - equal:
+          path: data.none
+          value: ""
+
+---
+suite: gpu.device helper (failing cases)
+templates:
+  - tests-helpers-fixture.yaml
+set:
+  testFixtures.gpuFail: true
+tests:
+  - it: fails when intel GPU selected but intel_gpu application is disabled
+    set:
+      testFixtures.gpuVendor: intel
+      applications:
+        intel_gpu:
+          enabled: false
+    asserts:
+      - failedTemplate:
+          errorMessage: "Intel GPU is selected for TestApp but intel_gpu is not enabled"
+
+  - it: fails when intel_xe GPU selected but intel_gpu application is disabled
+    set:
+      testFixtures.gpuVendor: intel_xe
+      applications:
+        intel_gpu:
+          enabled: false
+    asserts:
+      - failedTemplate:
+          errorMessage: "Intel GPU is selected for TestApp but intel_gpu is not enabled"
+
+  - it: fails when nvidia GPU selected but nvidia_gpu application is disabled
+    set:
+      testFixtures.gpuVendor: nvidia
+      applications:
+        nvidia_gpu:
+          enabled: false
+    asserts:
+      - failedTemplate:
+          errorMessage: "NVIDIA GPU is selected for TestApp but nvidia_gpu is not enabled"
+
+  - it: fails when amd GPU selected but amd_gpu application is disabled
+    set:
+      testFixtures.gpuVendor: amd
+      applications:
+        amd_gpu:
+          enabled: false
+    asserts:
+      - failedTemplate:
+          errorMessage: "AMD GPU is selected for TestApp but amd_gpu is not enabled"
+
+  - it: fails when unknown GPU vendor is specified
+    set:
+      testFixtures.gpuVendor: invalid_vendor
+    asserts:
+      - failedTemplate:
+          errorMessage: "Unknown GPU vendor 'invalid_vendor' selected for TestApp"

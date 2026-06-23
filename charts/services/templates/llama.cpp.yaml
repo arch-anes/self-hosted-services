@@ -65,29 +65,7 @@ spec:
                 limits:
                   cpu: null
                   memory: null
-                  {{- if eq $gpuVendor "intel" }}
-                    {{- if not (include "app.enabled" (list . "intel_gpu")) }}
-                      {{- fail "Intel GPU is selected for llama.cpp but intel_gpu is not enabled" }}
-                    {{- end }}
-                  gpu.intel.com/i915: {{ .Values.applications.llama_cpp.gpu_count }}
-                  {{- else if eq $gpuVendor "intel_xe" }}
-                    {{- if not (include "app.enabled" (list . "intel_gpu")) }}
-                      {{- fail "Intel GPU is selected for llama.cpp but intel_gpu is not enabled" }}
-                    {{- end }}
-                  gpu.intel.com/xe: {{ .Values.applications.llama_cpp.gpu_count }}
-                  {{- else if eq $gpuVendor "nvidia" }}
-                    {{- if not (include "app.enabled" (list . "nvidia_gpu")) }}
-                      {{- fail "NVIDIA GPU is selected for llama.cpp but nvidia_gpu is not enabled" }}
-                    {{- end }}
-                  nvidia.com/gpu: {{ .Values.applications.llama_cpp.gpu_count }}
-                  {{- else if eq $gpuVendor "amd" }}
-                    {{- if not (include "app.enabled" (list . "amd_gpu")) }}
-                      {{- fail "AMD GPU is selected for llama.cpp but amd_gpu is not enabled" }}
-                    {{- end }}
-                  amd.com/gpu: {{ .Values.applications.llama_cpp.gpu_count }}
-                  {{- else if $gpuVendor }}
-                    {{- fail (printf "Unknown GPU vendor '%s' selected for llama.cpp" $gpuVendor) }}
-                  {{- end }}
+                  {{- include "gpu.device" (list . "llama.cpp" $gpuVendor .Values.applications.llama_cpp.gpu_count) | nindent 18 }}
           tolerations:
             - key: "dedicated"
               operator: Equal
@@ -119,29 +97,7 @@ spec:
                 limits:
                   cpu: null
                   memory: null
-                  {{- if eq $embeddingsGpuVendor "intel" }}
-                    {{- if not (include "app.enabled" (list . "intel_gpu")) }}
-                      {{- fail "Intel GPU is selected for llama.cpp embeddings but intel_gpu is not enabled" }}
-                    {{- end }}
-                  gpu.intel.com/i915: {{ .Values.applications.llama_cpp.embeddings.gpu_count }}
-                  {{- else if eq $embeddingsGpuVendor "intel_xe" }}
-                    {{- if not (include "app.enabled" (list . "intel_gpu")) }}
-                      {{- fail "Intel GPU is selected for llama.cpp embeddings but intel_gpu is not enabled" }}
-                    {{- end }}
-                  gpu.intel.com/xe: {{ .Values.applications.llama_cpp.embeddings.gpu_count }}
-                  {{- else if eq $embeddingsGpuVendor "nvidia" }}
-                    {{- if not (include "app.enabled" (list . "nvidia_gpu")) }}
-                      {{- fail "NVIDIA GPU is selected for llama.cpp embeddings but nvidia_gpu is not enabled" }}
-                    {{- end }}
-                  nvidia.com/gpu: {{ .Values.applications.llama_cpp.embeddings.gpu_count }}
-                  {{- else if eq $embeddingsGpuVendor "amd" }}
-                    {{- if not (include "app.enabled" (list . "amd_gpu")) }}
-                      {{- fail "AMD GPU is selected for llama.cpp embeddings but amd_gpu is not enabled" }}
-                    {{- end }}
-                  amd.com/gpu: {{ .Values.applications.llama_cpp.embeddings.gpu_count }}
-                  {{- else if $embeddingsGpuVendor }}
-                    {{- fail (printf "Unknown GPU vendor '%s' selected for llama.cpp embeddings" $embeddingsGpuVendor) }}
-                  {{- end }}
+                  {{- include "gpu.device" (list . "llama.cpp embeddings" $embeddingsGpuVendor .Values.applications.llama_cpp.embeddings.gpu_count) | nindent 18 }}
           tolerations:
             - key: "dedicated"
               operator: Equal

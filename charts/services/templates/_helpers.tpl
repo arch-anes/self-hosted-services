@@ -46,3 +46,38 @@
 1
 {{- end -}}
 {{- end -}}
+
+{{- define "gpu.device" -}}
+{{- $scope := index . 0 -}}
+{{- $appName := index . 1 -}}
+{{- $gpuVendor := index . 2 -}}
+{{- $gpuCount := 1 -}}
+{{- if gt (len .) 3 -}}
+  {{- $gpuCount = index . 3 -}}
+{{- end -}}
+{{- if $gpuVendor -}}
+  {{- if eq $gpuVendor "intel" -}}
+    {{- if not (include "app.enabled" (list $scope "intel_gpu")) -}}
+      {{- fail (printf "Intel GPU is selected for %s but intel_gpu is not enabled" $appName) -}}
+    {{- end -}}
+    {{- printf "gpu.intel.com/i915: %v" $gpuCount -}}
+  {{- else if eq $gpuVendor "intel_xe" -}}
+    {{- if not (include "app.enabled" (list $scope "intel_gpu")) -}}
+      {{- fail (printf "Intel GPU is selected for %s but intel_gpu is not enabled" $appName) -}}
+    {{- end -}}
+    {{- printf "gpu.intel.com/xe: %v" $gpuCount -}}
+  {{- else if eq $gpuVendor "nvidia" -}}
+    {{- if not (include "app.enabled" (list $scope "nvidia_gpu")) -}}
+      {{- fail (printf "NVIDIA GPU is selected for %s but nvidia_gpu is not enabled" $appName) -}}
+    {{- end -}}
+    {{- printf "nvidia.com/gpu: %v" $gpuCount -}}
+  {{- else if eq $gpuVendor "amd" -}}
+    {{- if not (include "app.enabled" (list $scope "amd_gpu")) -}}
+      {{- fail (printf "AMD GPU is selected for %s but amd_gpu is not enabled" $appName) -}}
+    {{- end -}}
+    {{- printf "amd.com/gpu: %v" $gpuCount -}}
+  {{- else -}}
+    {{- fail (printf "Unknown GPU vendor '%s' selected for %s" $gpuVendor $appName) -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}

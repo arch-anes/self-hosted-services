@@ -30,3 +30,25 @@ metadata:
 data:
   ok: {{ include "app.require" (list . "MyApp" "postgresql" "PostgreSQL") | quote }}
 {{- end }}
+{{- if (.Values.testFixtures).gpu }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: helpers-gpu-fixture
+data:
+  intel: {{ include "gpu.device" (list . "TestApp" "intel") | quote }}
+  intel_xe: {{ include "gpu.device" (list . "TestApp" "intel_xe" 2) | quote }}
+  nvidia: {{ include "gpu.device" (list . "TestApp" "nvidia" 3) | quote }}
+  amd: {{ include "gpu.device" (list . "TestApp" "amd") | quote }}
+  none: {{ include "gpu.device" (list . "TestApp" "") | quote }}
+{{- end }}
+{{- if (.Values.testFixtures).gpuFail }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: helpers-gpu-fail-fixture
+data:
+  fail: {{ include "gpu.device" (list . "TestApp" .Values.testFixtures.gpuVendor .Values.testFixtures.gpuCount) | quote }}
+{{- end }}
