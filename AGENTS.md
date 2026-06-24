@@ -122,3 +122,9 @@ Recurring traps encountered during operations on this cluster.
 
 - Node logs ingested by Alloy use the label **`node_name`**, NOT `node`. The selector `{job="node/syslog", node="..."}` returns nothing; use `node_name=...` instead.
 - This differs from kube-state-metrics and cAdvisor, which use `node`. Before claiming a node log stream is missing or recommending host-level commands (`dmesg`, `journalctl`), you MUST first re-query under `node_name`, because the syslog/kern streams DO capture kernel events and are queryable in Loki.
+
+### Stable Instance Labels for Metrics Scraped from Workloads
+
+- When configuring Prometheus metrics/ServiceMonitor for workloads, the default `instance` label is based on the pod IP and port, which changes whenever a pod restarts. This causes metric churn and creates a new time-series/instance in Prometheus.
+- You SHOULD configure `relabelings` in the `ServiceMonitor` settings to overwrite the `instance` label with the stable pod name (`__meta_kubernetes_pod_name`) so the metrics remain mapped to the same logical instance.
+

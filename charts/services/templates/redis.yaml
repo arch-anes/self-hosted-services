@@ -66,6 +66,9 @@ spec:
           memory: 256Mi
       serviceMonitor:
         enabled: {{ include "metrics.enabled" . }}
+        relabelings:
+          - sourceLabels: [__meta_kubernetes_pod_name]
+            targetLabel: instance
         # Sentinel metrics
         additionalEndpoints:
           - interval: "30s"
