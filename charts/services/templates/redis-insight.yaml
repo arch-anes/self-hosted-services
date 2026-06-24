@@ -82,6 +82,8 @@ spec:
             - name: web
               containerPort: 5540
           env:
+            - name: RI_ACCEPT_TERMS_AND_CONDITIONS
+              value: "true"
             - name: RI_REDIS_HOST
               value: redis-master
             - name: RI_REDIS_PASSWORD
