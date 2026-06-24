@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
         - name: redis-insight
-          image: redis/redisinsight:3.4.2
+          image: redis/redisinsight:3.6.0
           livenessProbe:
             httpGet:
               path: /api/health
