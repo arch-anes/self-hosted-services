@@ -18,7 +18,7 @@ metadata:
 spec:
   chart: llama-cpp
   repo: https://arch-anes.github.io/charts
-  version: 1.1.0
+  version: 1.1.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # default-values: https://github.com/arch-anes/charts/blob/main/charts/llama-cpp/values.yaml
   values:
