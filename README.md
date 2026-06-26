@@ -623,13 +623,11 @@ Infrastructure resource modeling and IPAM.
 
 Access at `https://netbox.<your-domain>`. Default credentials: admin/admin.
 
-#### InvenTree
+#### Homebox
 
 Inventory management system.
 
-Setup [InvenTree secret](charts/services/templates/inventree.yaml) with admin credentials.
-
-Access at `https://inventree.<your-domain>`.
+Access at `https://homebox.<your-domain>`.
 
 #### Odoo
 

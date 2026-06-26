@@ -1,0 +1,219 @@
+{{- if (include "app.enabled" (list . "homebox")) }}
+{{- include "app.require" (list . "Homebox" "postgresql" "PostgreSQL") -}}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: homebox
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://oci.trueforge.org/truecharts/homebox
+  version: 11.2.1
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/homebox/values.yaml
+  values:
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          containers:
+            main:
+              env:
+                HBOX_AUTH_API_KEY_PEPPER:
+                  secretKeyRef:
+                    name: homebox
+                    key: api_key_pepper
+                    expandObjectName: false
+                HBOX_OPTIONS_TRUST_PROXY: "true"
+{{- if (include "app.enabled" (list . "authentik")) }}
+                HBOX_OIDC_ENABLED: "true"
+                HBOX_OIDC_AUTO_REDIRECT: "true"
+                HBOX_OPTIONS_ALLOW_LOCAL_LOGIN: "false"
+                HBOX_OPTIONS_ALLOW_REGISTRATION: "false"
+                HBOX_OIDC_CLIENT_ID:
+                  secretKeyRef:
+                    name: homebox
+                    key: client_id
+                    expandObjectName: false
+                HBOX_OIDC_CLIENT_SECRET:
+                  secretKeyRef:
+                    name: homebox
+                    key: client_secret
+                    expandObjectName: false
+                HBOX_OIDC_ISSUER_URL: "https://auth.{{ .Values.fqdn }}/application/o/homebox/"
+{{- end }}
+{{- if (include "app.enabled" (list . "minio")) }}
+                AWS_ACCESS_KEY_ID:
+                  secretKeyRef:
+                    name: homebox
+                    key: s3_accesskey
+                    expandObjectName: false
+                AWS_SECRET_ACCESS_KEY:
+                  secretKeyRef:
+                    name: homebox
+                    key: s3_secretkey
+                    expandObjectName: false
+                HBOX_STORAGE_CONN_STRING: "s3://homebox?endpoint=http://minio&disable_https=true&use_path_style=true&region=us-east-1"
+{{- end }}
+                HBOX_DATABASE_DRIVER: postgres
+                HBOX_DATABASE_HOST: postgresql-primary
+                HBOX_DATABASE_PORT: "5432"
+                HBOX_DATABASE_DATABASE: homebox
+                HBOX_DATABASE_USERNAME: homebox
+                HBOX_DATABASE_PASSWORD:
+                  secretKeyRef:
+                    name: postgresql-pguser-homebox
+                    key: password
+                    expandObjectName: false
+                HBOX_DATABASE_SSL_MODE: verify-full
+                HBOX_DATABASE_SSL_CERT: /etc/postgres/tls/tls.crt
+                HBOX_DATABASE_SSL_KEY: /etc/postgres/tls/tls.key
+                HBOX_DATABASE_SSL_ROOT_CERT: /etc/postgres/tls/ca.crt
+                HBOX_MAILER_FROM: "no-reply@{{ .Values.fqdn }}"
+                HBOX_MAILER_HOST:
+                  secretKeyRef:
+                    name: smtp
+                    key: hostname
+                    expandObjectName: false
+                HBOX_MAILER_PORT: "587"
+                HBOX_MAILER_USERNAME:
+                  secretKeyRef:
+                    name: smtp
+                    key: username
+                    expandObjectName: false
+                HBOX_MAILER_PASSWORD:
+                  secretKeyRef:
+                    name: smtp
+                    key: password
+                    expandObjectName: false
+    resources:
+      requests:
+        memory: 500Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          homer.service.name: Feed
+          homer.item.name: HomeBox
+          homer.item.logo: "https://homebox.software/_astro/lilbox.CmeGTiwj_Z1HYzg2.svg"
+        hosts:
+          - host: homebox.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - homebox.{{ .Values.fqdn }}
+    persistence:
+      data:
+        enabled: {{ include "app.enabled" (list . "minio") }}
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+      postgresql-certs:
+        enabled: true
+        type: secret
+        objectName: postgresql-cluster-cert
+        expandObjectName: false
+        mountPath: /etc/postgres/tls
+        readOnly: true
+    cnpg:
+      main:
+        enabled: false
+    configmap:
+      authentik-blueprint:
+        enabled: {{ include "app.enabled" (list . "authentik") }}
+        data:
+          blueprint.yaml: |
+            # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+            version: 1
+            metadata:
+              name: Homebox OAuth2 Provider
+            entries:
+              - id: homebox-provider
+                model: authentik_providers_oauth2.oauth2provider
+                identifiers:
+                  name: Provider for Homebox
+                attrs:
+                  authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+                  invalidation_flow: !Find [authentik_flows.flow, [slug, default-invalidation-flow]]
+                  client_type: confidential
+                  redirect_uris:
+                    - matching_mode: strict
+                      url: "https://homebox.{{ .Values.fqdn }}/api/v1/users/login/oidc/callback"
+                  signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
+                  client_id: !File /blueprints/mounted/secret-homebox/client_id
+                  client_secret: !File /blueprints/mounted/secret-homebox/client_secret
+                  property_mappings:
+                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
+                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
+                    - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
+              - id: homebox-app
+                model: authentik_core.application
+                identifiers:
+                  slug: homebox
+                attrs:
+                  name: Homebox
+                  provider: !KeyOf homebox-provider
+                  policy_engine_mode: any
+    extraTpl:
+      - apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        metadata:
+          name: homebox
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          refreshPolicy: CreatedOnce
+          creationPolicy: Owner
+          deletionPolicy: Retain
+          target:
+            name: homebox
+          dataFrom:
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-ascii-password-generator
+              rewrite:
+                - transform:
+                    template: api_key_pepper
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: client_id
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: client_secret
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: small-alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: s3_accesskey
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: s3_secretkey
+{{- end }}

@@ -114,6 +114,8 @@ applications:
   #   enabled: true
   home_assistant: {}
   #   enabled: true
+  homebox: {}
+  #   enabled: true
   homer_operator: {}
   #   enabled: true
   idrac_exporter: {}
@@ -124,8 +126,6 @@ applications:
   #   machine_learning:
   #     gpu_vendor: nvidia
   intel_gpu: {}
-  #   enabled: true
-  inventree: {}
   #   enabled: true
   ipmi_exporter: {}
   #   enabled: true

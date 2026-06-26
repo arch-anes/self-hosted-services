@@ -501,15 +501,15 @@ spec:
               databases:
                 - home-assistant
 {{- end }}
+{{- if (include "app.enabled" (list . "homebox")) }}
+            - name: homebox
+              databases:
+                - homebox
+{{- end }}
 {{- if (include "app.enabled" (list . "immich")) }}
             - name: immich
               databases:
                 - immich
-{{- end }}
-{{- if (include "app.enabled" (list . "inventree")) }}
-            - name: inventree
-              databases:
-                - inventree
 {{- end }}
 {{- if (include "app.enabled" (list . "miniflux")) }}
             - name: miniflux

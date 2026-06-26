@@ -130,6 +130,9 @@ spec:
 {{- if (include "app.enabled" (list . "home_assistant")) }}
         - authentik-home-assistant-blueprint
 {{- end }}
+{{- if (include "app.enabled" (list . "homebox")) }}
+        - homebox-authentik-blueprint
+{{- end }}
 {{- if (include "app.enabled" (list . "immich")) }}
         - immich-authentik-blueprint
 {{- end }}
@@ -158,6 +161,9 @@ spec:
         - ldap
 {{- if (include "app.enabled" (list . "home_assistant")) }}
         - home-assistant-oidc
+{{- end }}
+{{- if (include "app.enabled" (list . "homebox")) }}
+        - homebox
 {{- end }}
 {{- if (include "app.enabled" (list . "immich")) }}
         - immich

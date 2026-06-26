@@ -87,6 +87,9 @@ spec:
       prometheusOperator: {{ include "metrics.enabled" . }}
 {{- if or (and .Values.primaryTenant (or (include "app.enabled" (list . "loki")) (include "app.enabled" (list . "tempo")))) (include "app.enabled" (list . "stalwart")) }}
       buckets:
+{{- if (include "app.enabled" (list . "homebox")) }}
+        - name: homebox
+{{- end }}
 {{- if and .Values.primaryTenant (include "app.enabled" (list . "loki")) }}
         - name: loki-admin
         - name: loki-chunks
