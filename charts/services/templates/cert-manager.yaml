@@ -22,7 +22,7 @@ metadata:
 spec:
   chart: cert-manager
   repo: https://charts.jetstack.io
-  version: v1.20.2
+  version: v1.20.3
   targetNamespace: kube-system
   # default-values: https://github.com/cert-manager/cert-manager/blob/master/deploy/charts/cert-manager/values.yaml
   values:
