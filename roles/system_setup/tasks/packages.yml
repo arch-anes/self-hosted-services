@@ -17,6 +17,7 @@
           - sanoid
           - smartmontools
           - ufw
+          - wakeonlan
           - zfsutils-linux
         update_cache: true
 
