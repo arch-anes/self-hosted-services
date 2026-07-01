@@ -19,7 +19,7 @@ metadata:
 spec:
   chart: pgadmin4
   repo: https://helm.runix.net
-  version: 1.64.0
+  version: 1.65.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # default-values: https://github.com/rowanruseler/helm-charts/blob/main/charts/pgadmin4/values.yaml
   values:
