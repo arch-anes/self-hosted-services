@@ -498,6 +498,8 @@ spec:
 {{- end }}
 {{- if (include "app.enabled" (list . "home_assistant")) }}
             - name: home-assistant
+              password:
+                type: AlphaNumeric
               databases:
                 - home-assistant
 {{- end }}
