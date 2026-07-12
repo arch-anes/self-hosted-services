@@ -85,6 +85,7 @@ This document is living documentation that provides foundational guidance for LL
 ### Secrets Management
 
 - **Generated Secrets**: You MUST use `ExternalSecret` (wrapped in a `HelmChart`'s wrapping fields if supported) or `ClusterGenerator` to manage secrets dynamically.
+- **Alphanumeric Passwords Policy (PostgreSQL only)**: You MUST always configure generated PostgreSQL passwords to use alphanumeric characters (without symbols or punctuation) because special characters can break database URL/connection string parsing in application workloads. Specifically, for PostgreSQL users under `spec.users` in `PostgresCluster`, you MUST set `password: { type: AlphaNumeric }`.
 - **User-Provided Secrets**: If a secret MUST be provided manually by the user, you MUST include a **commented-out `Secret` template** in the application file to serve as a reference and setup guide.
 
 ## Ansible

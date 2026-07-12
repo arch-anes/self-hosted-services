@@ -186,6 +186,8 @@ applications:
     # enabled: true
     additionalUsers:
       - name: exampleUser1
+        password:
+          type: AlphaNumeric
     remoteBackupLocation:
       s3:
         bucket: "some-bucket"

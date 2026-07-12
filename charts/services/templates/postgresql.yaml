@@ -481,18 +481,26 @@ spec:
 {{- end }}
           users:
             - name: postgres
+              password:
+                type: AlphaNumeric
 {{- if (include "app.enabled" (list . "authentik")) }}
             - name: authentik
+              password:
+                type: AlphaNumeric
               databases:
                 - authentik
 {{- end }}
 {{- if (include "app.enabled" (list . "bazarr")) }}
             - name: bazarr
+              password:
+                type: AlphaNumeric
               databases:
                 - bazarr
 {{- end }}
 {{- if (include "app.enabled" (list . "gotify")) }}
             - name: gotify
+              password:
+                type: AlphaNumeric
               databases:
                 - gotify
 {{- end }}
@@ -505,11 +513,15 @@ spec:
 {{- end }}
 {{- if (include "app.enabled" (list . "homebox")) }}
             - name: homebox
+              password:
+                type: AlphaNumeric
               databases:
                 - homebox
 {{- end }}
 {{- if (include "app.enabled" (list . "immich")) }}
             - name: immich
+              password:
+                type: AlphaNumeric
               databases:
                 - immich
 {{- end }}
@@ -522,16 +534,22 @@ spec:
 {{- end }}
 {{- if (include "app.enabled" (list . "n8n")) }}
             - name: n8n
+              password:
+                type: AlphaNumeric
               databases:
                 - n8n
 {{- end }}
 {{- if (include "app.enabled" (list . "netbox")) }}
             - name: netbox
+              password:
+                type: AlphaNumeric
               databases:
                 - netbox
 {{- end }}
 {{- if (include "app.enabled" (list . "nextcloud")) }}
             - name: nextcloud
+              password:
+                type: AlphaNumeric
               databases:
                 - nextcloud
 {{- end }}
@@ -544,11 +562,15 @@ spec:
 {{- end }}
 {{- if (include "app.enabled" (list . "odoo")) }}
             - name: odoo
+              password:
+                type: AlphaNumeric
               databases:
                 - odoo
 {{- end }}
 {{- if (include "app.enabled" (list . "open_webui")) }}
             - name: open-webui
+              password:
+                type: AlphaNumeric
               databases:
                 - open-webui
 {{- end }}
@@ -561,29 +583,39 @@ spec:
 {{- end }}
 {{- if (include "app.enabled" (list . "prowlarr")) }}
             - name: prowlarr
+              password:
+                type: AlphaNumeric
               databases:
                 - prowlarr_log
                 - prowlarr_main
 {{- end }}
 {{- if (include "app.enabled" (list . "radarr")) }}
             - name: radarr
+              password:
+                type: AlphaNumeric
               databases:
                 - radarr_log
                 - radarr_main
 {{- end }}
 {{- if (include "app.enabled" (list . "sonarr")) }}
             - name: sonarr
+              password:
+                type: AlphaNumeric
               databases:
                 - sonarr_log
                 - sonarr_main
 {{- end }}
 {{- if (include "app.enabled" (list . "speedtest_tracker")) }}
             - name: speedtest-tracker
+              password:
+                type: AlphaNumeric
               databases:
                 - speedtest-tracker
 {{- end }}
 {{- if (include "app.enabled" (list . "stalwart")) }}
             - name: stalwart
+              password:
+                type: AlphaNumeric
               databases:
                 - stalwart
 {{- end }}
@@ -603,6 +635,8 @@ spec:
 {{- end }}
 {{- if (include "app.enabled" (list . "wakapi")) }}
             - name: wakapi
+              password:
+                type: AlphaNumeric
               databases:
                 - wakapi
 {{- end }}
