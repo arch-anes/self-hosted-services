@@ -137,6 +137,7 @@ all:
     manifest_only_setup: false
     display_headlamp_token: false
     timezone: America/Vancouver
+    tenants_count: 1
     tailscale_oauth_secret: "some_secret"
     chartValuesOverrides:
       fqdn: "example.com"
