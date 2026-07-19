@@ -127,6 +127,9 @@ spec:
         - authentik-ldap-blueprint
         - authentik-extra-blueprints
         - authentik-traefik-forward-auth
+{{- if (include "app.enabled" (list . "gotify")) }}
+        - authentik-gotify-blueprint
+{{- end }}
 {{- if (include "app.enabled" (list . "home_assistant")) }}
         - authentik-home-assistant-blueprint
 {{- end }}
@@ -159,6 +162,9 @@ spec:
 {{- end }}
       secrets:
         - ldap
+{{- if (include "app.enabled" (list . "gotify")) }}
+        - gotify
+{{- end }}
 {{- if (include "app.enabled" (list . "home_assistant")) }}
         - home-assistant-oidc
 {{- end }}
