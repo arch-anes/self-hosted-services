@@ -259,6 +259,9 @@ spec:
                 identifiers:
                   name: Provider for immich
                 attrs:
+                  grant_types:
+                    - authorization_code
+                    - refresh_token
                   authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
                   invalidation_flow: !Find [authentik_flows.flow, [slug, default-invalidation-flow]]
                   client_type: confidential
