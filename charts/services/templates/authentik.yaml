@@ -194,9 +194,9 @@ spec:
           namespace: "{{ .Values.applicationsNamespace }}"
         spec:
           refreshPolicy: CreatedOnce
-          creationPolicy: Owner
-          deletionPolicy: Retain
           target:
+            creationPolicy: Owner
+            deletionPolicy: Retain
             name: authentik
           dataFrom:
             - sourceRef:
@@ -214,9 +214,9 @@ spec:
           namespace: "{{ .Values.applicationsNamespace }}"
         spec:
           refreshPolicy: CreatedOnce
-          creationPolicy: Owner
-          deletionPolicy: Retain
           target:
+            creationPolicy: Owner
+            deletionPolicy: Retain
             name: ldap
           dataFrom:
             - sourceRef:

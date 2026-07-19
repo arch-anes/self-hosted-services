@@ -236,9 +236,9 @@ spec:
           namespace: "{{ .Values.applicationsNamespace }}"
         spec:
           refreshPolicy: CreatedOnce
-          creationPolicy: Owner
-          deletionPolicy: Retain
           target:
+            creationPolicy: Owner
+            deletionPolicy: Retain
             name: nextcloud-oidc
           dataFrom:
             - sourceRef:

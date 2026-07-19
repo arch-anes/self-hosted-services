@@ -90,9 +90,9 @@ spec:
           namespace: "{{ .Values.applicationsNamespace }}"
         spec:
           refreshPolicy: CreatedOnce
-          creationPolicy: Owner
-          deletionPolicy: Retain
           target:
+            creationPolicy: Owner
+            deletionPolicy: Retain
             name: searxng
           dataFrom:
             - sourceRef:
