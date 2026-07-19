@@ -8,47 +8,40 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: gotify
-  repo: https://charts.gabe565.com
-  version: 0.4.0
+  repo: https://arch-anes.github.io/charts
+  version: 1.0.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # default-values: https://github.com/gabe565/charts/blob/main/charts/gotify/values.yaml
+  # default-values: https://github.com/arch-anes/charts/blob/main/charts/gotify/values.yaml
   values:
-    image:
-      repository: ghcr.io/gotify/server
-      tag: 3.0.0
-    controller:
-      annotations:
-        reloader.stakater.com/auto: "true"
-    env:
-      GOTIFY_DATABASE_DIALECT: postgres
-      DATABASE_PASSWORD:
-        valueFrom:
-          secretKeyRef:
-            name: postgresql-pguser-gotify
-            key: password
-      GOTIFY_DATABASE_CONNECTION: host=postgresql-primary port=5432 user=gotify dbname=gotify password=$(DATABASE_PASSWORD)
-      PGSSLMODE: verify-full
-      PGSSLROOTCERT: /etc/postgres/tls/ca.crt
-      PGSSLCERT: /etc/postgres/tls/tls.crt
-      PGSSLKEY: /etc/postgres/tls/tls.key
+    workload:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        podSpec:
+          containers:
+            main:
+              env:
+                GOTIFY_DATABASE_DIALECT: postgres
+                DATABASE_PASSWORD:
+                  secretKeyRef:
+                    name: postgresql-pguser-gotify
+                    key: password
+                    expandObjectName: false
+                GOTIFY_DATABASE_CONNECTION: host=postgresql-primary port=5432 user=gotify dbname=gotify password=$(DATABASE_PASSWORD)
+                PGSSLMODE: verify-full
+                PGSSLROOTCERT: /etc/postgres/tls/ca.crt
+                PGSSLCERT: /etc/postgres/tls/tls.crt
+                PGSSLKEY: /etc/postgres/tls/tls.key
     resources:
       requests:
         memory: 128Mi
         cpu: 250m
       limits:
         memory: 256Mi
-    podSecurityContext:
-      runAsUser: 0
-      runAsGroup: 0
-      fsGroup: 0
-    persistence:
-      postgres-tls:
-        enabled: true
-        type: secret
-        name: postgresql-cluster-cert
-        mountPath: /etc/postgres/tls
-        readOnly: true
-        defaultMode: 0400
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
     ingress:
       main:
         enabled: true
@@ -63,19 +56,15 @@ spec:
           - secretName: "{{ .Values.fqdn }}-tls"
             hosts:
               - gotify.{{ .Values.fqdn }}
-    probes:
-      liveness:
-        spec:
-          periodSeconds: 30
-        type: HTTP
-        path: /health
-      readiness:
-        spec:
-          periodSeconds: 30
-          initialDelaySeconds: 15
-        type: HTTP
-        path: /health
-      startup:
-        type: HTTP
-        path: /health
+    persistence:
+      data:
+        type: emptyDir
+      postgres-tls:
+        enabled: true
+        type: secret
+        objectName: postgresql-cluster-cert
+        expandObjectName: false
+        mountPath: /etc/postgres/tls
+        readOnly: true
+        defaultMode: "0400"
 {{- end }}
