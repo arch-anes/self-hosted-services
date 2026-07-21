@@ -429,6 +429,13 @@ spec:
             CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
             COMMIT;
 {{- end }}
+{{- if (include "app.enabled" (list . "sparkyfitness")) }}
+            \c sparkyfitness
+            BEGIN;
+            CREATE EXTENSION IF NOT EXISTS pg_stat_statements CASCADE;
+            GRANT EXECUTE ON FUNCTION pg_stat_statements_reset TO sparkyfitness;
+            COMMIT;
+{{- end }}
       - apiVersion: postgres-operator.crunchydata.com/v1
         kind: PostgresCluster
         metadata:
@@ -466,7 +473,7 @@ spec:
             parameters:
               password_encryption: scram-sha-256
               max_connections: "1000"
-              shared_preload_libraries: "cube,earthdistance,vector,vchord,timescaledb"
+              shared_preload_libraries: "pg_stat_statements,cube,earthdistance,vector,vchord,timescaledb"
               shared_buffers: "1GB"
           patroni:
             dynamicConfiguration:
@@ -618,6 +625,13 @@ spec:
                 type: AlphaNumeric
               databases:
                 - speedtest-tracker
+{{- end }}
+{{- if (include "app.enabled" (list . "sparkyfitness")) }}
+            - name: sparkyfitness
+              password:
+                type: AlphaNumeric
+              databases:
+                - sparkyfitness
 {{- end }}
 {{- if (include "app.enabled" (list . "stalwart")) }}
             - name: stalwart

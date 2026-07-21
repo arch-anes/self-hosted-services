@@ -219,6 +219,8 @@ applications:
     # enabled: true
     dashboard:
       enabled: true
+  sparkyfitness: {}
+  #   enabled: true
   stalwart: {}
   #   enabled: true
   tdarr: {}
