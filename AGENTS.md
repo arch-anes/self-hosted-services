@@ -85,6 +85,7 @@ This document is living documentation that provides foundational guidance for LL
 ### Secrets Management
 
 - **Generated Secrets**: You MUST use `ExternalSecret` (wrapped in a `HelmChart`'s wrapping fields if supported) or `ClusterGenerator` to manage secrets dynamically.
+- **Secret Remapping**: If a secret provisioned by an operator (or upstream chart) has keys that do not match the expected keys of an application, you MUST FIRST attempt to map these natively via environment variables (using the chart's `env`, `extraEnv`, or `envFrom` values). Only as a **last resort**—when a chart rigidly requires a specific key name in an `existingSecret` reference—should you use an `ExternalSecret` targeting the central `local-kubernetes-cluster` `ClusterSecretStore` to remap the keys. You MUST NOT build custom init containers or configure new `SecretStore` providers using operator credentials.
 - **Alphanumeric Passwords Policy (PostgreSQL only)**: You MUST always configure generated PostgreSQL passwords to use alphanumeric characters (without symbols or punctuation) because special characters can break database URL/connection string parsing in application workloads. Specifically, for PostgreSQL users under `spec.users` in `PostgresCluster`, you MUST set `password: { type: AlphaNumeric }`.
 - **User-Provided Secrets**: If a secret MUST be provided manually by the user, you MUST include a **commented-out `Secret` template** in the application file to serve as a reference and setup guide.
 
@@ -119,6 +120,10 @@ This repository uses **Renovate** for automated dependency updates. To ensure Re
 
 Recurring traps encountered during operations on this cluster.
 
+### API Version Deprecations
+
+- **External Secrets**: You MUST use API version `external-secrets.io/v1` (not `v1beta1`) for `ExternalSecret` and `ClusterSecretStore` resources, as older APIs are deprecated and disabled by default in modern chart versions.
+
 ### Loki Label Inconsistency for Node Logs
 
 - Node logs ingested by Alloy use the label **`node_name`**, NOT `node`. The selector `{job="node/syslog", node="..."}` returns nothing; use `node_name=...` instead.
@@ -129,3 +134,8 @@ Recurring traps encountered during operations on this cluster.
 - When configuring Prometheus metrics/ServiceMonitor for workloads, the default `instance` label is based on the pod IP and port, which changes whenever a pod restarts. This causes metric churn and creates a new time-series/instance in Prometheus.
 - You SHOULD configure `relabelings` in the `ServiceMonitor` settings to overwrite the `instance` label with the stable pod name (`__meta_kubernetes_pod_name`) so the metrics remain mapped to the same logical instance.
 
+### PostgreSQL SSL connections (Crunchy Data / PGO)
+
+- The Crunchy Data Postgres Operator (`pgo`) enforces strict TLS/SSL connections (`hostssl`) via `pg_hba.conf` by default. It automatically generates a custom CA stored in a secret named `<cluster_name>-cluster-cert` (e.g., `postgresql-cluster-cert`).
+- If an application natively defaults to unencrypted database connections and does not expose a dedicated SSL toggle in its Helm chart, you MUST NOT disable SSL by adding a `hostnossl` exception in the `PostgresCluster` `pg_hba.conf` configuration. Doing so weakens the cluster's zero-trust posture and is considered a last resort.
+- Instead, you MUST leverage native database driver environment variables (e.g. `PGSSLMODE: "verify-full"`) in the application container to force SSL. To satisfy strict verification, you MUST mount the `ca.crt` key from the `<cluster_name>-cluster-cert` secret using `extraVolumes`/`extraVolumeMounts` (or similar chart-provided volume mounts) and point the driver to it (e.g. `PGSSLROOTCERT: "/etc/ssl/postgresql/ca.crt"`).
