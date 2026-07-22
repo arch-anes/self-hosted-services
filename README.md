@@ -238,3 +238,26 @@ Open `https://dash.<your-domain>` to access the service dashboard.
 ## Backup and recovery
 
 The PostgreSQL and Velero recovery procedures, including point-in-time recovery, are documented in [the application catalog](APPLICATIONS.md#backup-and-disaster-recovery).
+
+## Configure self-hosted Renovate
+
+Woodpecker runs Renovate on its hourly schedule and when a person edits the body of the open Dependency Dashboard issue. The GitHub Actions job skips edits from the Renovate app, so those edits do not start another Woodpecker run.
+
+### Create and install the GitHub App
+
+1. Create a GitHub App for this repository. It does not need a webhook URL or webhook events.
+2. Give it the permissions listed in the [Renovate GitHub App guide](https://docs.renovatebot.com/modules/platform/github/#running-as-a-github-app).
+3. Install the app on this repository only.
+4. Copy the App ID from its settings. Get the installation ID from the installation settings page or `GET /repos/{owner}/{repo}/installation`.
+5. Create a private key for the app. Keep the PEM file private.
+6. Add these repository secrets in Woodpecker and scope them to `ghcr.io/yyewolf/woodpecker-plugins/github-app-token` plugin:
+   - `renovate_github_app_id`: the App ID
+   - `renovate_github_app_installation_id`: the installation ID
+   - `renovate_github_app_private_key`: the PEM private key
+
+### Configure the GitHub issue trigger
+
+1. Add the `WOODPECKER_URL` and `WOODPECKER_REPO_ID` repository variables in GitHub.
+2. Add `WOODPECKER_TOKEN` as a GitHub repository secret. The token must be able to start pipelines in Woodpecker.
+3. Put `.github/workflows/trigger-woodpecker.yml` on the repository's default branch. [GitHub requires this for issue-triggered workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows).
+4. Edit the open Dependency Dashboard issue. The workflow starts a Woodpecker pipeline when the issue body changes.

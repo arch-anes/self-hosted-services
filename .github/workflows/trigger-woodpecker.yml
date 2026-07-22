@@ -1,0 +1,26 @@
+---
+name: Trigger Woodpecker on Dashboard Update
+
+"on":
+  issues:
+    types: [edited]
+
+permissions: {}
+
+jobs:
+  woodpecker-trigger:
+    if: >-
+      contains(github.event.issue.title, 'Dependency Dashboard') && github.event.changes.body.from != null && github.event.issue.state == 'open' && github.event.sender.type != 'Bot'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Renovate
+        env:
+          WOODPECKER_URL: ${{ vars.WOODPECKER_URL }}
+          WOODPECKER_REPO_ID: ${{ vars.WOODPECKER_REPO_ID }}
+          WOODPECKER_TOKEN: ${{ secrets.WOODPECKER_TOKEN }}
+        run: |
+          curl --fail --silent --show-error --connect-timeout 10 --max-time 30 \
+            --request POST "${WOODPECKER_URL%/}/api/repos/$WOODPECKER_REPO_ID/pipelines" \
+            --header "Authorization: Bearer $WOODPECKER_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data '{"branch":"main"}'

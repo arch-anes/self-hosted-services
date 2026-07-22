@@ -1,0 +1,52 @@
+---
+when:
+  - event: cron
+    cron: renovate-hourly
+  - event: manual
+  - event: push
+    branch:
+      - main
+
+depends_on:
+  - name: lint
+    optional: true
+
+steps:
+  - name: Restore Helm chart cache
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    volumes:
+      - woodpecker-cache:/cache
+    commands:
+      - mkdir -p .cache/upstream-charts "/cache/upstream-charts/$CI_COMMIT_BRANCH"
+      - rsync -a --delete --stats --human-readable "/cache/upstream-charts/$CI_COMMIT_BRANCH/" .cache/upstream-charts/
+    failure: ignore
+
+  - name: Create Renovate GitHub App token
+    image: ghcr.io/yyewolf/woodpecker-plugins/github-app-token:1.2.4
+    settings:
+      github_app_id:
+        from_secret: renovate_github_app_id
+      github_installation_id:
+        from_secret: renovate_github_app_installation_id
+      github_private_key_pem:
+        from_secret: renovate_github_app_private_key
+      output_file: .github_token
+
+  - name: run-renovate
+    image: renovate/renovate:latest
+    pull: true
+    environment:
+      RENOVATE_PLATFORM: github
+      RENOVATE_REPORT_TYPE: file
+      RENOVATE_REPORT_PATH: renovate-report.json
+      RENOVATE_AUTODISCOVER: "false"
+      LOG_LEVEL: info
+    commands:
+      - RENOVATE_TOKEN="$(cat .github_token)" renovate "${CI_REPO}"
+
+  - name: patch-dashboard-issue
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    environment:
+      GITHUB_REPOSITORY: ${CI_REPO}
+    commands:
+      - RENOVATE_GITHUB_APP_TOKEN="$(cat .github_token)" python3 scripts/patch-dashboard-appversion.py renovate-report.json

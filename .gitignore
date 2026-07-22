@@ -6,3 +6,4 @@ roles/xanmanning.k3s/
 devcontainer-lock.json
 __pycache__/
 .cache/
+.github_token
