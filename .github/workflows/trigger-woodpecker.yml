@@ -1,0 +1,17 @@
+---
+name: Trigger Woodpecker on Dashboard Update
+
+on:
+  issues:
+    types: [edited]
+
+jobs:
+  woodpecker-trigger:
+    # Only run when the Renovate Dependency Dashboard is updated
+    if: contains(github.event.issue.title, 'Dependency Dashboard')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Woodpecker API
+        run: |
+          curl -X POST "https://woodpecker.yourdomain.com/api/repos/${{ github.repository }}/pipelines" \
+            -H "Authorization: Bearer ${{ secrets.WOODPECKER_TOKEN }}"
