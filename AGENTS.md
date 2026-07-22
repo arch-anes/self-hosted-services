@@ -112,6 +112,11 @@ This repository uses **Renovate** for automated dependency updates. To ensure Re
 - **Docker Images**: You MUST use a standard `repository` and `tag` structure, because Renovate is configured to match these via regex.
 - **Helm Charts**: Renovate tracks `HelmChart` resources by monitoring the `chart`, `repo`, and `version` fields. For OCI charts, you MUST use the `oci://` prefix in the `chart` field.
 
+## Automation & Scripting
+
+- **Idiomatic Code**: Custom Python automation scripts MUST prioritize readability and idiomatic patterns. You MUST use **guard clauses** (early `return` or `continue`) instead of deeply nested `if/try` blocks. You SHOULD use list comprehensions, generator expressions (e.g., `next()`), and targeted string splitting (e.g., `.split(":", 1)`) to keep logic flat and robust.
+- **CI/CD Workspace Paths**: When running custom scripts or automation pipelines inside CI (e.g., Woodpecker), you MUST use **relative paths** (like `./renovate-report.json`) or CI-provided environment variables for file generation. You MUST NOT use absolute host paths like `/workspace/`, because CI runners frequently execute as non-root users and mount the codebase into dynamically generated directories, which will lead to `EACCES: permission denied` errors.
+
 ## Linting & Quality Control
 
 - You MUST refer to `.woodpecker/lint.yaml` for the canonical linting and validation flow. You MUST NOT duplicate tool lists or configurations here, because doing so creates configuration drift and increases maintenance overhead.

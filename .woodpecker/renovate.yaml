@@ -1,0 +1,39 @@
+---
+when:
+  - event:
+      - cron
+      - manual
+  - event: push
+    branch:
+      - dev
+
+steps:
+  - name: run-renovate
+    image: renovate/renovate:latest
+    pull: true
+    environment:
+      RENOVATE_PLATFORM: github
+      RENOVATE_TOKEN:
+        from_secret: github_token
+
+      # Tell Renovate to write a report of the upgrades
+      RENOVATE_REPORT_TYPE: file
+      RENOVATE_REPORT_PATH: renovate-report.json
+
+      # Your configuration
+      RENOVATE_AUTODISCOVER: "false"
+      LOG_LEVEL: info
+    commands:
+      # Run the actual upgrade process and create the dashboard for this repo only
+      - renovate ${CI_REPO}
+
+  - name: patch-dashboard-issue
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    environment:
+      # Inject the Woodpecker predefined repository name (e.g. owner/repo)
+      GITHUB_REPOSITORY: ${CI_REPO}
+      GITHUB_TOKEN:
+        from_secret: github_token
+    commands:
+      # Run the custom script to patch the Github Issue
+      - python3 scripts/patch-dashboard-appversion.py renovate-report.json
