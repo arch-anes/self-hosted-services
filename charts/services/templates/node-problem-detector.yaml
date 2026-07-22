@@ -6,9 +6,8 @@ metadata:
   name: node-problem-detector
   namespace: kube-system
 spec:
-  chart: node-problem-detector
-  repo: https://charts.deliveryhero.io/
-  version: 2.3.14
+  chart: oci://ghcr.io/deliveryhero/helm-charts/node-problem-detector
+  version: 2.4.1
   targetNamespace: kube-system
   # default-values: https://github.com/deliveryhero/helm-charts/blob/master/stable/node-problem-detector/values.yaml
   values:
