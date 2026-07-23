@@ -19,7 +19,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/prowlarr
-  version: 22.3.0
+  version: 22.8.6
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/prowlarr/values.yaml
   values:
