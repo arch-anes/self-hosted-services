@@ -13,7 +13,7 @@ metadata:
 spec:
   chart: netbox
   repo: https://charts.netbox.oss.netboxlabs.com
-  version: 7.2.11
+  version: 7.4.16
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   # default-values: https://github.com/netbox-community/netbox-chart/blob/main/charts/netbox/values.yaml
   values:
