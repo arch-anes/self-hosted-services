@@ -7,7 +7,7 @@ metadata:
   namespace: kube-system
 spec:
   chart: oci://registry.k8s.io/nfd/charts/node-feature-discovery
-  version: 0.18.3
+  version: 0.19.0
   targetNamespace: kube-system
   # default-values: https://github.com/kubernetes-sigs/node-feature-discovery/blob/master/deployment/helm/node-feature-discovery/values.yaml
   values:
