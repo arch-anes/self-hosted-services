@@ -62,7 +62,7 @@
   "packageRules": [
     {
       "description": "Custom commit messages",
-      "commitMessageExtra": "from {{currentVersion}} -> {{newVersion}} {{#if currentAppVersion}}(app version: {{currentAppVersion}} -> {{newAppVersion}}){{/if}} ([changelog]({{sourceUrl}}))",
+      "commitMessageExtra": "from {{currentVersion}} -> {{newVersion}} ([changelog]({{sourceUrl}}))",
       "matchDatasources": [
         "helm",
         "docker",
