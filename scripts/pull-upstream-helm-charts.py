@@ -126,14 +126,7 @@ def fetch_chart(chart: str, repo: Optional[str], version: str, output_dir: Path)
         ]
 
     try:
-        subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=True,
-            stdin=subprocess.DEVNULL,
-            timeout=120
-        )
+        subprocess.run(cmd, capture_output=True, text=True, check=True, stdin=subprocess.DEVNULL, timeout=120)
     except subprocess.TimeoutExpired:
         print(f"Timeout while pulling {chart}")
     except subprocess.CalledProcessError as e:
