@@ -94,21 +94,34 @@ def get_repo_root() -> Path:
 
 
 def fetch_chart(chart: str, repo: Optional[str], version: str, output_dir: Path) -> None:
-    filename = f"{Path(chart).name}-{version}.yaml"
-    output_file = output_dir / filename
+    chart_name = Path(chart).name
+    final_dir = output_dir / chart_name
+
+    if final_dir.exists():
+        shutil.rmtree(final_dir)
 
     if chart.startswith("oci://"):
-        print(f"Fetching OCI chart {chart} (version: {version}) -> {output_file}")
-        cmd = ["helm", "show", "values", chart, "--version", version]
+        print(f"Pulling OCI chart {chart} (version: {version}) -> {final_dir}")
+        cmd = ["helm", "pull", chart, "--version", version, "--untar", "--untardir", str(output_dir)]
     else:
-        print(f"Fetching chart {chart} from {repo} (version: {version}) -> {output_file}")
-        cmd = ["helm", "show", "values", chart, "--repo", repo or "", "--version", version]
+        print(f"Pulling chart {chart} from {repo} (version: {version}) -> {final_dir}")
+        cmd = [
+            "helm",
+            "pull",
+            chart,
+            "--repo",
+            repo or "",
+            "--version",
+            version,
+            "--untar",
+            "--untardir",
+            str(output_dir),
+        ]
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        output_file.write_text(result.stdout)
+        subprocess.run(cmd, capture_output=True, text=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(f"Failed to fetch {chart}: {e.stderr.strip()}")
+        print(f"Failed to pull {chart}: {e.stderr.strip()}")
 
 
 def _prepare_output_directory(output_dir: Path) -> None:
@@ -140,7 +153,7 @@ def main():
     repo_root = get_repo_root()
     services_dir = repo_root / "charts" / "services"
     templates_dir = services_dir / "templates"
-    output_dir = services_dir / "default-values"
+    output_dir = services_dir / "upstream-charts"
 
     _prepare_output_directory(output_dir)
     unique_charts = _gather_unique_charts(templates_dir)
