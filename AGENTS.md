@@ -72,7 +72,6 @@ Ingresses are auto-discovered by `homer-operator`. You MUST add the following an
 ## 5. Kubernetes Secrets Management
 
 - **Dynamic Secrets**: You MUST use `ExternalSecret` or `ClusterGenerator` to manage secrets dynamically.
-- **Secret Remapping**: You MUST FIRST attempt native mapping via chart env vars (`env`, `envFrom`). Only as a last resort should you use `ExternalSecret` to remap keys from `local-kubernetes-cluster`. You MUST NOT build custom init containers or configure new providers.
 - **Postgres Passwords**: You MUST always enforce alphanumeric passwords (`password: { type: AlphaNumeric }` in `spec.users`) to prevent parsing errors in application database URLs/connection strings.
 - **Manual Secrets**: You MUST include a commented-out `Secret` template as a reference if the user must provide one manually.
 
