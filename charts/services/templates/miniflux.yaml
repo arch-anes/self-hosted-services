@@ -21,7 +21,6 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/miniflux
   version: 18.3.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/miniflux/values.yaml
   values:
     workload:
       main:

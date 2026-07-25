@@ -11,7 +11,6 @@ spec:
   repo: https://arch-anes.github.io/charts
   version: 1.0.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # default-values: https://github.com/arch-anes/charts/blob/main/charts/gotify/values.yaml
   values:
     workload:
       main:

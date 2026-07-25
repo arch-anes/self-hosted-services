@@ -13,7 +13,6 @@ spec:
   version: 9.5.20
   targetNamespace: kube-system
   takeOwnership: true
-  # default-values: https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml
   values:
     global:
       domain: argo.{{ .Values.fqdn }}
@@ -100,7 +99,6 @@ spec:
   repo: https://argoproj.github.io/argo-helm
   version: 2.0.5
   targetNamespace: kube-system
-  # default-values: https://github.com/argoproj/argo-helm/blob/main/charts/argocd-apps/values.yaml
   values:
     projects:
       self-hosted-services-{{ .Values.applicationsNamespace }}:

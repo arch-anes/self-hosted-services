@@ -10,7 +10,6 @@ spec:
   repo: https://operator.min.io
   version: 7.1.1
   targetNamespace: kube-system
-  # default-values: https://github.com/minio/operator/blob/master/helm/operator/values.yaml
   values:
     operator:
       env:
@@ -52,7 +51,6 @@ spec:
   repo: https://operator.min.io
   version: 7.1.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # default-values: https://github.com/minio/operator/blob/master/helm/tenant/values.yaml
   values:
     tenant:
       name: minio

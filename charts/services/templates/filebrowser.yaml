@@ -9,7 +9,6 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/filebrowser
   version: 13.6.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/filebrowser/values.yaml
   values:
     workload:
       main:

@@ -12,7 +12,6 @@ spec:
   repo: https://helm.openwebui.com/
   version: 15.2.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # default-values: https://github.com/open-webui/helm-charts/blob/main/charts/open-webui/values.yaml
   values:
     pipelines:
       enabled: false

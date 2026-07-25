@@ -9,7 +9,6 @@ spec:
   chart: oci://ghcr.io/deliveryhero/helm-charts/node-problem-detector
   version: 2.4.1
   targetNamespace: kube-system
-  # default-values: https://github.com/deliveryhero/helm-charts/blob/master/stable/node-problem-detector/values.yaml
   values:
     metrics:
       enabled: {{ include "metrics.enabled" . }}

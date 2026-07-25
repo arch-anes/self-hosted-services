@@ -23,7 +23,6 @@ spec:
   chart: oci://ghcr.io/woodpecker-ci/helm/woodpecker
   version: 3.6.5
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # default-values: https://github.com/woodpecker-ci/helm/blob/main/charts/woodpecker/values.yaml
   values:
     server:
       env:

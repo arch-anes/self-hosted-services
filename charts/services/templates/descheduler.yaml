@@ -10,7 +10,6 @@ spec:
   repo: https://kubernetes-sigs.github.io/descheduler
   version: 0.36.0
   targetNamespace: kube-system
-  # default-values: https://github.com/kubernetes-sigs/descheduler/blob/master/charts/descheduler/values.yaml
   values:
     resources:
       requests:

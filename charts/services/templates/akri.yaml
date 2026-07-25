@@ -10,7 +10,6 @@ spec:
   repo: https://project-akri.github.io/akri/
   version: 0.13.8
   targetNamespace: kube-system
-  # default-values: https://github.com/project-akri/akri/blob/v0.13.8/deployment/helm/values.yaml
   values:
     useLatestContainers: true
     useDevelopmentContainers: false

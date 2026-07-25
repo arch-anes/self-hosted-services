@@ -11,7 +11,6 @@ spec:
   chart: oci://ghcr.io/codewithcj/charts/sparkyfitness
   version: 1.6.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # default-values: https://github.com/CodeWithCJ/SparkyFitness/blob/main/helm/chart/values.yaml
   values:
     config:
       frontendUrl: "https://fit.{{ .Values.fqdn }}"

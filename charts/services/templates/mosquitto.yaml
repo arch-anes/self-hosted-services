@@ -9,7 +9,6 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/mosquitto
   version: 18.3.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/mosquitto/values.yaml
   values:
     workload:
       main:

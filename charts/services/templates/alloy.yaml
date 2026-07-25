@@ -10,7 +10,6 @@ spec:
   chart: alloy
   version: 1.6.0
   targetNamespace: kube-system
-  # default-values: https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/values.yaml
   values:
     controller:
       tolerations:

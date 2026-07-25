@@ -10,7 +10,6 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/frigate
   version: 19.6.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/frigate/values.yaml
   values:
     {{- $gpuVendor := .Values.applications.frigate.gpu_vendor }}
     workload:

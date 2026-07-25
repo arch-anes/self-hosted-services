@@ -15,7 +15,6 @@ spec:
   repo: https://charts.netbox.oss.netboxlabs.com
   version: 7.2.11
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # default-values: https://github.com/netbox-community/netbox-chart/blob/main/charts/netbox/values.yaml
   values:
     loginRequired: true
     housekeeping:

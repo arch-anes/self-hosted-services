@@ -10,7 +10,6 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/homebox
   version: 11.2.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
-  # default-values: https://github.com/trueforge-org/truecharts/blob/master/charts/stable/homebox/values.yaml
   values:
     workload:
       main:
