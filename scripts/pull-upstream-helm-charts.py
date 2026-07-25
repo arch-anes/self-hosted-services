@@ -96,6 +96,13 @@ def get_repo_root() -> Path:
 def fetch_chart(chart: str, repo: Optional[str], version: str, output_dir: Path) -> None:
     chart_name = Path(chart).name
     final_dir = output_dir / chart_name
+    chart_yaml = final_dir / "Chart.yaml"
+
+    if chart_yaml.exists():
+        match = re.search(r"^version:\s*(.+)$", chart_yaml.read_text(), re.MULTILINE)
+        if match and match.group(1).strip().strip("\"'") == version:
+            print(f"Chart {chart_name} (version: {version}) already exists in {final_dir}. Skipping.")
+            return
 
     if final_dir.exists():
         shutil.rmtree(final_dir)
@@ -125,8 +132,6 @@ def fetch_chart(chart: str, repo: Optional[str], version: str, output_dir: Path)
 
 
 def _prepare_output_directory(output_dir: Path) -> None:
-    if output_dir.exists():
-        shutil.rmtree(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
 
