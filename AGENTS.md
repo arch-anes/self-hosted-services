@@ -97,3 +97,8 @@ You MUST refer to `.woodpecker/lint.yaml` for the canonical linting/validation f
 - **Prometheus Metric Churn**: You SHOULD configure `relabelings` in `ServiceMonitor` to map the `instance` label to the stable `__meta_kubernetes_pod_name`. This prevents metrics churn and new time-series generation upon pod restarts.
 - **Postgres SSL**: The Crunchy Data operator enforces `hostssl` by default. You MUST NOT disable this via `hostnossl` as doing so weakens the cluster's zero-trust posture. Instead, you MUST leverage native database driver environment variables (e.g., `PGSSLMODE="verify-full"`) and you MUST mount the `ca.crt` key from the `<cluster>-cluster-cert` secret.
 - **TrueCharts PVC Deadlocks**: The `common` library automatically injects a `podAffinity` for PVCs. For single-node clusters or isolated nodes, you MUST explicitly disable this auto-injection by setting `podOptions.defaultAffinity: false` in `HelmChart` values to prevent pods from getting stuck in `Pending` due to unsatisfied affinity.
+
+## 9. Automation & Scripting
+
+- **Idiomatic Code**: Python scripts MUST prioritize idiomatic patterns and readability. You MUST use **guard clauses** (early `return`/`continue`) over deeply nested `if/try` blocks. You SHOULD use list comprehensions, generator expressions, and targeted string splitting to keep logic flat.
+- **CI/CD Workspace Paths**: Inside CI pipelines, you MUST use **relative paths** or CI-provided environment variables for file generation. You MUST NOT use absolute host paths (e.g., `/workspace/`) to prevent `EACCES: permission denied` errors from dynamic non-root mounting.
