@@ -1,0 +1,70 @@
+{{- if (include "app.enabled" (list . "jellyseerr")) }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: seerr
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://oci.trueforge.org/truecharts/seerr
+  version: 16.2.2
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  values:
+    podOptions:
+      # TrueCharts auto-injects a podAffinity for PVCs that requires a pod with the 
+      # truecharts.org/pvc label to already exist on the node. Since config is unique 
+      # to seerr, this deadlocks the first pod in Pending state. Disable to allow scheduling.
+      defaultAffinity: false
+    workload:
+      main:
+        podSpec:
+          nodeSelector:
+            # Schedule only on NAS nodes
+            nas: "true"
+          annotations:
+            backup.velero.io/backup-volumes: config
+          containers:
+            main:
+              env:
+                DB_TYPE: sqlite
+                DB_HOST: null
+                DB_USER: null
+                DB_PASS: null
+                DB_NAME: null
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 1000m
+      limits:
+        memory: 1Gi
+        cpu: null
+    global:
+      traefik:
+        fixedMiddlewares: []
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          homer.service.name: Arr
+          homer.service.logo: "fas fa-ship"
+          homer.service.rank: "3"
+          homer.item.rank: "1"
+          homer.item.logo: "https://raw.githubusercontent.com/Fallenbagel/jellyseerr/54cfeefe74de2c7df97491aa6cb954b94759ac5d/public/logo_stacked.svg"
+        hosts:
+          - host: jellyseerr.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - jellyseerr.{{ .Values.fqdn }}
+    persistence:
+      config:
+        enabled: true
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+        size: 10Gi
+    cnpg:
+      main:
+        enabled: false
+{{- end }}
