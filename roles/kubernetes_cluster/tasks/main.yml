@@ -62,14 +62,14 @@
     - k3s_control_node is defined
     - k3s_control_node
   block:
+    - name: Trust robusta-dev/krr tap
+      ansible.builtin.command: /home/linuxbrew/.linuxbrew/bin/brew trust robusta-dev/krr
+      changed_when: false
+
     - name: Add homebrew taps
       community.general.homebrew_tap:
         name:
           - robusta-dev/homebrew-krr
-
-    - name: Trust robusta-dev/krr tap
-      ansible.builtin.command: /home/linuxbrew/.linuxbrew/bin/brew trust robusta-dev/krr
-      changed_when: false
 
     - name: Install homebrew packages
       community.general.homebrew:
