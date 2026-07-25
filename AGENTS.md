@@ -1,146 +1,100 @@
 # Project Instructions (AGENTS.md)
 
-This document is living documentation that provides foundational guidance for LLM agents authoring code for the `self-hosted-services` repository.
+This living document provides foundational guidance for LLM agents authoring code for the `self-hosted-services` repository.
 
-## General Principles
+## 1. General Principles
 
-- **Continuous Improvement**: This is a living documentation file. If, after a session, you identify insights or patterns that could improve future performance or clarity, you SHOULD add them to this document (without staging or committing the changes).
-- **Focus**: When tasked with a feature or modification, you MUST NOT make unrelated changes (e.g., opportunistic refactoring or "cleanup" of surrounding code), because doing so violates commit atomicity and complicates code review.
-- **Atomicity**: You MUST keep changes atomic to a single feature or fix.
-- **Refactoring**: If a refactor is necessary to implement a feature, you MUST perform it as a separate, distinct step/commit from the feature implementation itself.
-- **Opinionated Setup**: You SHOULD NOT over-customize `charts/services/values.yaml` and you MUST keep configuration knobs at a minimum, because the project aims to provide a robust, opinionated setup rather than a highly flexible framework.
-- **Inventory Protection**: You MUST NOT read or touch files containing "inventory" in their name (e.g., `inventory_home.yml`), because these files contain sensitive production details and credentials that must not be exposed.
-- **Command Safety**: You MUST NOT run `kubectl`, `helm`, or `ansible-playbook` commands without explicit user permission, because running these commands arbitrarily could impact or disrupt the live production environment.
-- **Secrets Management**: You MUST NOT commit real secrets, because committing actual credentials poses a severe security risk and compromises repository security. You MAY commit template or dummy secrets (e.g., `molecule/default/sample_secrets.yml`) for testing purposes only.
+### 1.1 Commit & Scope Management
+- **Atomicity & Focus**: You MUST keep changes atomic to a single feature or fix. You MUST NOT make unrelated changes (e.g., opportunistic refactoring) as this violates commit atomicity and complicates code review.
+- **Refactoring**: If a refactor is necessary, you MUST perform it as a separate, distinct step/commit prior to the feature implementation.
 
-## Kubernetes
+### 1.2 Safety & Security
+- **Command Safety**: You MUST NOT run `kubectl`, `helm`, or `ansible-playbook` without explicit user permission to prevent arbitrary disruptions to the live production environment.
+- **Inventory Protection**: You MUST NOT read or modify files with "inventory" in their name (e.g., `inventory_home.yml`), as they contain sensitive production details and credentials that must not be exposed.
+- **Secrets**: You MUST NOT commit real secrets, as this poses a severe security risk and compromises the repository. You MAY commit template/dummy secrets (e.g., `molecule/default/sample_secrets.yml`) for testing purposes only.
 
-### Architecture
+### 1.3 Project Philosophy
+- **Continuous Improvement**: You SHOULD update this document with new insights or patterns that improve future performance (without staging or committing the changes).
+- **Opinionated Setup**: You SHOULD NOT over-customize `charts/services/values.yaml` and you MUST keep configuration knobs at a minimum, since the project aims to provide a robust, opinionated setup rather than a highly flexible framework.
 
-- **Multitenancy**: This chart deploys a multitenant cluster.
-    - **Primary Tenant**: Only the primary tenant (where `.Values.primaryTenant` is true) SHALL deploy **system charts, operators, and core infrastructure** (e.g., Traefik, Cert-Manager, Prometheus, Postgres/Redis/MinIO Operators).
-    - **General Tenants**: Application charts and **isolated service instances** (e.g., `PostgresCluster` or MinIO `tenant`) MUST be deployed for each tenant to ensure isolation.
-- **Eventual Consistency**: You SHOULD use the **k3s-native `HelmChart` CRD** instead of plain Kubernetes objects or custom objects not native to k3s (like `ExternalSecret`), because this allows k3s' Helm Controller to handle retries automatically.
-    - **Caveat**: If a chart supports wrapping non-native objects (via `additionalObjects`, `extraTpl`, `extraResources`, or similar notations), you SHOULD use it. Otherwise, you MUST ensure the dependency is clearly documented or handled via `app.require`.
-- **Reloader**: 
-    - If a workload needs to be rebalanced/restarted on config or secret changes, you MUST add **`reloader.stakater.com/auto: "true"`** to the **Deployment, DaemonSet, or StatefulSet** annotations.
-    - **Note**: Reloader is NOT RECOMMENDED if the configuration or secret is mounted as a file volume, because Kubernetes updates these files automatically and unnecessary workload restarts should be avoided. You MUST use it for environment-variable based configuration.
-- **CPU Limits**: You MUST NOT declare CPU limits, because they can cause unnecessary CPU throttling and performance degradation (refer to [Stop using CPU limits](https://home.robusta.dev/blog/stop-using-cpu-limits)). For `truecharts`/`trueforge` charts, you MUST explicitly set the CPU limit to `null`.
-- **Storage Best Practices**: You MUST NOT use `hostPath` volumes, because they bypass tenant isolation and tie workloads to specific nodes, making scheduling less flexible.
-    - You MUST use the **`local-path-persistent-namespaced`** storageClass for persistent, tenant-isolated data.
-    - You MUST use the default **`local-path-ephemeral`** storageClass for transient/generated data that can be safely deleted.
-- **Pod Scheduling & Hardware**: You MUST use node selectors/affinity for specific storage requirements:
-    - **`nas: "true"`**: REQUIRED for storage-heavy applications (MinIO, Immich, etc.).
-    - **`public: "true"`**: REQUIRED for services receiving external traffic directly.
-    - **`dedicated=ai:NoSchedule`**: REQUIRED for AI/ML workloads (Immich ML, llama.cpp).
-    - **GPUs**: You MUST NOT use manual node labels for GPUs, because manual labeling is error-prone and bypasses automated hardware allocation. You MUST rely on the installed **GPU operators** (Intel, NVIDIA, AMD) to handle hardware discovery and allocation.
+## 2. Kubernetes Architecture
 
-### Service Integration
+### 2.1 Multitenancy & Workload Isolation
+- **Primary vs. General**: Only the primary tenant (`.Values.primaryTenant: true`) SHALL deploy system charts and core infrastructure. Application charts and isolated service instances (e.g., `PostgresCluster`, MinIO `tenant`) MUST be deployed for each tenant to ensure proper isolation.
+- **Eventual Consistency**: You SHOULD use the k3s-native `HelmChart` CRD over plain Kubernetes objects to allow k3s' Helm Controller to handle retries automatically. If a chart supports wrapping non-native objects (like `extraResources`), you SHOULD use it; otherwise, you MUST ensure the dependency is clearly documented or handled via `app.require`.
 
-- **Database**: If an application supports **PostgreSQL**, you MUST use it instead of SQLite or other embedded databases, because embedded databases lack clustering, backups, and scalability features required in this multi-tenant cluster.
-- **Cache/Storage**: If an application supports **Redis**, you MUST use it for caching or session storage.
-- **S3 Storage**: You MUST use **MinIO** for S3-compatible object storage.
-- **SSO**: If an application supports SSO, you MUST use **Authentik** (RECOMMENDED to integrate via OAuth/OIDC). 
-    - You MUST add the relevant blueprint to `charts/services/templates/authentik.yaml` OR as a `ConfigMap` in the application's own template using `extraManifests`.
-    - For **TrueCharts/TrueForge** based charts, blueprints MAY also be added via the **`configmap`** values section (see `immich.yaml` for an example).
-    - You MUST use the `ldap.base_dn` helper if LDAP integration is REQUIRED.
-- **VPN Routing (Egress)**:
-    - If an application needs to route its outgoing traffic through a VPN, you MUST use the **`tunnel.deployment.container`** sidecar helper (defined in `_tunnel.tpl`).
-    - This sidecar connects to the central `gluetun` service and routes all pod traffic through it.
-- **Email**: You MUST use the shared **`smtp`** secret for outgoing notifications (AWS SES is the default provider).
-- **Metrics & Dashboards**:
-    - You SHOULD enable metrics via the `metrics.enabled` helper if supported.
-    - You MUST add Grafana dashboards to the `dashboards` section in `charts/services/templates/prometheus.yaml`.
-- **Homer Dashboard Discovery**:
-    - Ingresses are automatically discovered and added to the Homer dashboard by `homer-operator`.
-    - You MUST add the following annotations to the **Ingress** resource (usually in the `values` of the `HelmChart` or the `ingress` section of a library chart):
-        - **`homer.service.name`**: REQUIRED. The group/section name (e.g., "Administration", "Media", "Automation").
-        - **`homer.service.icon`**: OPTIONAL FontAwesome icon for the group (e.g., "fas fa-heartbeat").
-        - **`homer.service.rank`**: OPTIONAL sort order for the group (lower numbers first).
-        - **`homer.item.name`**: REQUIRED. The display name of the application.
-        - **`homer.item.logo`**: REQUIRED (SVG RECOMMENDED). A URL to a square logo.
-        - **`homer.item.excluded: "true"`**: REQUIRED if the ingress MUST NOT be included on the dashboard in order to avoid clutter.
-        - **`homer.item.rank`**: OPTIONAL sort order within the group (lower numbers first).
-        - **`homer.item.type`**: OPTIONAL application type for specific dashboard integrations (e.g., "Nextcloud").
+### 2.2 Pod Configuration & Scheduling
+- **Reloader**: You MUST add the `reloader.stakater.com/auto: "true"` annotation to Deployments/StatefulSets/DaemonSets requiring restart on ConfigMap/Secret changes. *Note*: Reloader is NOT RECOMMENDED for file-mounted volumes, as Kubernetes updates them automatically and unnecessary workload restarts should be avoided. You MUST use it for environment-variable based configuration.
+- **CPU Limits**: You MUST NOT declare CPU limits to prevent unnecessary CPU throttling and performance degradation (refer to [Stop using CPU limits](https://home.robusta.dev/blog/stop-using-cpu-limits)). For TrueCharts/TrueForge charts, you MUST explicitly set the CPU limit to `null`.
+- **Scheduling**: You MUST use node selectors/affinity for specific storage requirements instead of manual labels:
+  - `nas: "true"` is REQUIRED for storage-heavy apps.
+  - `public: "true"` is REQUIRED for external traffic services.
+  - `dedicated=ai:NoSchedule` is REQUIRED for AI/ML workloads.
+  - **GPUs**: You MUST rely on the installed GPU operators to handle hardware allocation. You MUST NOT use manual node labels for GPUs, as manual labeling is error-prone and bypasses automated hardware allocation.
 
-### Standards
+### 2.3 Storage
+- **Storage Classes**: You MUST use `local-path-persistent-namespaced` for persistent, tenant-isolated data, and you MUST use `local-path-ephemeral` for transient data.
+- **HostPath**: You MUST NOT use `hostPath` volumes, as they bypass tenant isolation and tie workloads to specific nodes, making scheduling less flexible.
 
-1.  **Unified Chart**: All applications MUST be part of the `charts/services` chart.
-2.  **One App, One File**: You MUST keep each application's resources in `charts/services/templates/<app_name>.yaml`.
-3.  **Backups**: Applications MUST be designed to be compatible with **Velero/Kopia** backups.
-    - **Important**: You MUST annotate the **Pod** (not the Deployment/StatefulSet) with a comma-separated list of volumes to backup: `backup.velero.io/backup-volumes: "vol1,vol2"`.
-4.  **HelmChart Configuration**:
-    - You MUST use `spec.values` (YAML object) to override values. You MUST NOT use `valuesContent`, because structured YAML objects are easier to validate, merge, and maintain than raw multi-line strings.
-5.  **Helper Usage**:
-    - You MUST wrap templates in `{{- if (include "app.enabled" (list . "app_name")) }}`.
-    - You MUST use `{{- include "app.require" (list . "AppName" "dependency" "DependencyDisplay") -}}` for hard dependencies.
-    - You MUST use the `gpu.device` helper (e.g., `{{- include "gpu.device" (list . "AppName" $gpuVendor) | nindent 18 }}`) to declare GPU resources in container limits, because it standardizes vendor mapping, checks enabled driver dependencies, and avoids redundant conditional blocks.
-6.  **Reference Values**: You SHOULD run `scripts/pull-upstream-helm-charts.py` to automatically pull and unpack the full upstream charts, because this keeps a local copy in the `upstream-charts/` directory for full context and avoids manual upstream searches. The default reference values for a given chart can be found at `upstream-charts/<chartname>/values.yaml`.
-7.  **Helper Unit Tests**: You MUST add `helm-unittest` cases in `charts/services/tests/<topic>_test.yaml` for any new or modified helper in `_helpers.tpl`, because the helper layer is shared by every application template and regressions there are far-reaching.
-    - Helpers emit strings (not YAML manifests), so they cannot be asserted on directly. You MUST use the gated fixture pattern in `charts/services/templates/tests-helpers-fixture.yaml`: each fixture section is wrapped in `{{- if (.Values.testFixtures).<name> }}` and is therefore a safe no-op under `helm template` / `helm lint` (the `testFixtures` value is NEVER declared in `values.yaml`).
-    - For helpers that can call `fail` (e.g. `app.require`), you MUST place their fixture behind a separate `testFixtures` sub-flag and assert with the `failedTemplate` matcher.
-    - You MUST verify locally with `helm unittest charts/services` (also runs in `.woodpecker/lint.yaml`).
+## 3. Service Integration
 
-### Secrets Management
+Standardize on the following core services when supported by an application:
+- **Database**: You MUST use PostgreSQL over embedded databases like SQLite since embedded databases lack clustering, backups, and scalability features required in this multi-tenant cluster.
+- **Cache/Session**: You MUST use Redis for caching or session storage if supported.
+- **Object Storage**: You MUST use MinIO for S3-compatible object storage.
+- **SSO**: You MUST use Authentik if supported (RECOMMENDED to integrate via OAuth/OIDC). You MUST add the relevant blueprint to `charts/services/templates/authentik.yaml` or as `extraManifests`. For TrueCharts/TrueForge, they MAY also be added via `configmap` values. You MUST use the `ldap.base_dn` helper if LDAP integration is REQUIRED.
+- **VPN Routing**: You MUST use the `tunnel.deployment.container` sidecar helper (from `_tunnel.tpl`) to route all pod outbound traffic through the central `gluetun` service.
+- **Email**: You MUST use the shared `smtp` secret (AWS SES default) for outgoing notifications.
+- **Metrics**: You SHOULD enable metrics via the `metrics.enabled` helper if supported, and you MUST add Grafana dashboards to `prometheus.yaml`.
 
-- **Generated Secrets**: You MUST use `ExternalSecret` (wrapped in a `HelmChart`'s wrapping fields if supported) or `ClusterGenerator` to manage secrets dynamically.
-- **Secret Remapping**: If a secret provisioned by an operator (or upstream chart) has keys that do not match the expected keys of an application, you MUST FIRST attempt to map these natively via environment variables (using the chart's `env`, `extraEnv`, or `envFrom` values). Only as a **last resort**—when a chart rigidly requires a specific key name in an `existingSecret` reference—should you use an `ExternalSecret` targeting the central `local-kubernetes-cluster` `ClusterSecretStore` to remap the keys. You MUST NOT build custom init containers or configure new `SecretStore` providers using operator credentials.
-- **Alphanumeric Passwords Policy (PostgreSQL only)**: You MUST always configure generated PostgreSQL passwords to use alphanumeric characters (without symbols or punctuation) because special characters can break database URL/connection string parsing in application workloads. Specifically, for PostgreSQL users under `spec.users` in `PostgresCluster`, you MUST set `password: { type: AlphaNumeric }`.
-- **User-Provided Secrets**: If a secret MUST be provided manually by the user, you MUST include a **commented-out `Secret` template** in the application file to serve as a reference and setup guide.
+### 3.1 Homer Dashboard Discovery
+Ingresses are auto-discovered by `homer-operator`. You MUST add the following annotations to Ingress resources:
+- `homer.service.name`: REQUIRED. Group name (e.g., "Media").
+- `homer.item.name`: REQUIRED. Display name.
+- `homer.item.logo`: REQUIRED (SVG RECOMMENDED). URL to a square logo.
+- `homer.item.excluded: "true"`: REQUIRED if hiding from the dashboard to avoid clutter.
+- `homer.service.icon`, `homer.service.rank`, `homer.item.rank`, `homer.item.type`: OPTIONAL.
 
-## Ansible
+## 4. Helm Chart Standards
 
-### Playbooks
+- **Unified Structure**: All applications MUST be part of the `charts/services` chart.
+- **One App, One File**: You MUST keep each application's resources in `charts/services/templates/<app_name>.yaml`.
+- **Configuration**: You MUST use structured `spec.values` (YAML objects) to override values. You MUST NOT use `valuesContent`, as structured YAML objects are easier to validate, merge, and maintain than raw multi-line strings.
+- **Backups**: Applications MUST be designed to be compatible with Velero/Kopia backups. You MUST annotate the Pod with: `backup.velero.io/backup-volumes: "vol1,vol2"`.
+- **Reference Values**: You SHOULD run `scripts/pull-upstream-helm-charts.py` to keep a local copy of upstream defaults in `upstream-charts/<chartname>/values.yaml`, since this keeps the full context locally and avoids manual upstream searches.
 
-- **`setup_cluster.yml`**: Configures the K3s cluster and deploys applications onto it.
-- **`setup_router.yml`**: Configures an OpenWRT-based router (HAProxy, QoS, etc.).
+### 4.1 Helpers (`_helpers.tpl`)
+- You MUST wrap templates in: `{{- if (include "app.enabled" (list . "app_name")) }}`.
+- You MUST use `{{- include "app.require" (list . "AppName" "dependency" "Display") -}}` for hard dependencies.
+- You MUST use the `gpu.device` helper (e.g., `{{- include "gpu.device" (list . "AppName" $gpuVendor) | nindent 18 }}`) to declare GPU resources, because it standardizes vendor mapping, checks enabled driver dependencies, and avoids redundant conditional blocks.
+- **Testing**: Any helper modifications MUST include `helm-unittest` cases in `charts/services/tests/<topic>_test.yaml`. You MUST use the gated fixture pattern (`{{- if (.Values.testFixtures).<name> }}`) to allow `helm template` and `helm lint` to pass safely, since the helper layer is shared by every template and regressions are far-reaching. You MUST verify locally with `helm unittest charts/services`.
 
-### Standards
+## 5. Kubernetes Secrets Management
 
-- **Encapsulation**: You SHOULD prefer roles in `roles/` over direct tasks in playbooks. You MUST use `when` clauses to respect `skip_*` variables.
-- **Dependencies**: Ansible Galaxy roles and collections are defined in `requirements.yml`. You MUST run `ansible-galaxy install -r requirements.yml` before executing playbooks or molecule tests.
+- **Dynamic Secrets**: You MUST use `ExternalSecret` or `ClusterGenerator` to manage secrets dynamically.
+- **Secret Remapping**: You MUST FIRST attempt native mapping via chart env vars (`env`, `envFrom`). Only as a last resort should you use `ExternalSecret` to remap keys from `local-kubernetes-cluster`. You MUST NOT build custom init containers or configure new providers.
+- **Postgres Passwords**: You MUST always enforce alphanumeric passwords (`password: { type: AlphaNumeric }` in `spec.users`) to prevent parsing errors in application database URLs/connection strings.
+- **Manual Secrets**: You MUST include a commented-out `Secret` template as a reference if the user must provide one manually.
 
-### Testing
+## 6. Ansible Guidelines
+- **Structure**: You SHOULD prefer roles (`roles/`) over direct tasks in playbooks. You MUST use `when` clauses for `skip_*` variables.
+- **Dependencies**: You MUST run `ansible-galaxy install -r requirements.yml` before executing playbooks or molecule tests.
+- **Testing**: You MUST use `molecule test` to verify roles in a sandbox environment. You SHOULD refer to `.woodpecker/test.yaml` for system dependencies and the canonical execution flow.
 
-- **Molecule**: You MUST use `molecule test` to verify roles in a sandbox environment. You SHOULD refer to `.woodpecker/test.yaml` for the canonical test execution flow, including necessary system dependencies (KVM, libvirt, privileged mode) and requirements installation.
+## 7. Ecosystem Tools
 
-## Renovate
+### 7.1 Renovate
+Ensure automated dependency updates function correctly:
+- **Docker**: You MUST use standard `repository` and `tag` structures as Renovate is configured to match these via regex.
+- **Helm**: You MUST use the `oci://` prefix in the `chart` field for OCI charts. Renovate tracks `HelmChart` resources via `chart`, `repo`, and `version` fields.
 
-This repository uses **Renovate** for automated dependency updates. To ensure Renovate can correctly identify and update dependencies in your Helm templates, you MUST follow these patterns:
+### 7.2 Linting
+You MUST refer to `.woodpecker/lint.yaml` for the canonical linting/validation flow. You MUST NOT duplicate tool lists here to avoid configuration drift and increased maintenance overhead.
 
-- **Docker Images**: You MUST use a standard `repository` and `tag` structure, because Renovate is configured to match these via regex.
-- **Helm Charts**: Renovate tracks `HelmChart` resources by monitoring the `chart`, `repo`, and `version` fields. For OCI charts, you MUST use the `oci://` prefix in the `chart` field.
+## 8. Operational Gotchas
 
-## Linting & Quality Control
-
-- You MUST refer to `.woodpecker/lint.yaml` for the canonical linting and validation flow. You MUST NOT duplicate tool lists or configurations here, because doing so creates configuration drift and increases maintenance overhead.
-
-## Gotchas
-
-Recurring traps encountered during operations on this cluster.
-
-### API Version Deprecations
-
-- **External Secrets**: You MUST use API version `external-secrets.io/v1` (not `v1beta1`) for `ExternalSecret` and `ClusterSecretStore` resources, as older APIs are deprecated and disabled by default in modern chart versions.
-
-### Loki Label Inconsistency for Node Logs
-
-- Node logs ingested by Alloy use the label **`node_name`**, NOT `node`. The selector `{job="node/syslog", node="..."}` returns nothing; use `node_name=...` instead.
-- This differs from kube-state-metrics and cAdvisor, which use `node`. Before claiming a node log stream is missing or recommending host-level commands (`dmesg`, `journalctl`), you MUST first re-query under `node_name`, because the syslog/kern streams DO capture kernel events and are queryable in Loki.
-
-### Stable Instance Labels for Metrics Scraped from Workloads
-
-- When configuring Prometheus metrics/ServiceMonitor for workloads, the default `instance` label is based on the pod IP and port, which changes whenever a pod restarts. This causes metric churn and creates a new time-series/instance in Prometheus.
-- You SHOULD configure `relabelings` in the `ServiceMonitor` settings to overwrite the `instance` label with the stable pod name (`__meta_kubernetes_pod_name`) so the metrics remain mapped to the same logical instance.
-
-### PostgreSQL SSL connections (Crunchy Data / PGO)
-
-- The Crunchy Data Postgres Operator (`pgo`) enforces strict TLS/SSL connections (`hostssl`) via `pg_hba.conf` by default. It automatically generates a custom CA stored in a secret named `<cluster_name>-cluster-cert` (e.g., `postgresql-cluster-cert`).
-- If an application natively defaults to unencrypted database connections and does not expose a dedicated SSL toggle in its Helm chart, you MUST NOT disable SSL by adding a `hostnossl` exception in the `PostgresCluster` `pg_hba.conf` configuration. Doing so weakens the cluster's zero-trust posture and is considered a last resort.
-- Instead, you MUST leverage native database driver environment variables (e.g. `PGSSLMODE: "verify-full"`) in the application container to force SSL. To satisfy strict verification, you MUST mount the `ca.crt` key from the `<cluster_name>-cluster-cert` secret using `extraVolumes`/`extraVolumeMounts` (or similar chart-provided volume mounts) and point the driver to it (e.g. `PGSSLROOTCERT: "/etc/ssl/postgresql/ca.crt"`).
-
-### TrueCharts PVC Affinity Deadlocks
-
-- TrueCharts' `common` library automatically injects a `podAffinity` requirement for any defined PersistentVolumeClaim (`type: pvc`). It expects a pod with the label `truecharts.org/pvc: <pvc-name>` to already be running on the node.
-- If you are deploying an isolated or unique PVC on a single-node cluster (or using a strict `nodeSelector` like `nas: "true"`), the very first pod will get stuck in `Pending` state because the required affinity cannot be satisfied (no other pod with that PVC label exists).
-- To fix this and allow the pod to schedule, you MUST explicitly disable this auto-injection by setting `podOptions.defaultAffinity: false` in the HelmChart values.
+- **External Secrets API**: You MUST use `external-secrets.io/v1` (not `v1beta1`) as older APIs are deprecated and disabled by default in modern chart versions.
+- **Loki Node Logs**: Node logs use the label `node_name`, not `node` (unlike kube-state-metrics). You MUST first re-query under `node_name` before assuming missing streams, since syslog/kern streams do capture kernel events.
+- **Prometheus Metric Churn**: You SHOULD configure `relabelings` in `ServiceMonitor` to map the `instance` label to the stable `__meta_kubernetes_pod_name`. This prevents metrics churn and new time-series generation upon pod restarts.
+- **Postgres SSL**: The Crunchy Data operator enforces `hostssl` by default. You MUST NOT disable this via `hostnossl` as doing so weakens the cluster's zero-trust posture. Instead, you MUST leverage native database driver environment variables (e.g., `PGSSLMODE="verify-full"`) and you MUST mount the `ca.crt` key from the `<cluster>-cluster-cert` secret.
+- **TrueCharts PVC Deadlocks**: The `common` library automatically injects a `podAffinity` for PVCs. For single-node clusters or isolated nodes, you MUST explicitly disable this auto-injection by setting `podOptions.defaultAffinity: false` in `HelmChart` values to prevent pods from getting stuck in `Pending` due to unsatisfied affinity.
