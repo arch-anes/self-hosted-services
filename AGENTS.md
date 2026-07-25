@@ -138,3 +138,9 @@ Recurring traps encountered during operations on this cluster.
 - The Crunchy Data Postgres Operator (`pgo`) enforces strict TLS/SSL connections (`hostssl`) via `pg_hba.conf` by default. It automatically generates a custom CA stored in a secret named `<cluster_name>-cluster-cert` (e.g., `postgresql-cluster-cert`).
 - If an application natively defaults to unencrypted database connections and does not expose a dedicated SSL toggle in its Helm chart, you MUST NOT disable SSL by adding a `hostnossl` exception in the `PostgresCluster` `pg_hba.conf` configuration. Doing so weakens the cluster's zero-trust posture and is considered a last resort.
 - Instead, you MUST leverage native database driver environment variables (e.g. `PGSSLMODE: "verify-full"`) in the application container to force SSL. To satisfy strict verification, you MUST mount the `ca.crt` key from the `<cluster_name>-cluster-cert` secret using `extraVolumes`/`extraVolumeMounts` (or similar chart-provided volume mounts) and point the driver to it (e.g. `PGSSLROOTCERT: "/etc/ssl/postgresql/ca.crt"`).
+
+### TrueCharts PVC Affinity Deadlocks
+
+- TrueCharts' `common` library automatically injects a `podAffinity` requirement for any defined PersistentVolumeClaim (`type: pvc`). It expects a pod with the label `truecharts.org/pvc: <pvc-name>` to already be running on the node.
+- If you are deploying an isolated or unique PVC on a single-node cluster (or using a strict `nodeSelector` like `nas: "true"`), the very first pod will get stuck in `Pending` state because the required affinity cannot be satisfied (no other pod with that PVC label exists).
+- To fix this and allow the pod to schedule, you MUST explicitly disable this auto-injection by setting `podOptions.defaultAffinity: false` in the HelmChart values.
