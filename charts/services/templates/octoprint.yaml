@@ -1,141 +1,90 @@
 {{- if (include "app.enabled" (list . "octoprint")) }}
 ---
-apiVersion: v1
-kind: Service
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
   name: octoprint
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  ports:
-    - protocol: TCP
-      name: web
-      port: 5000
-    - protocol: TCP
-      name: webcam
-      port: 8080
-  selector:
-    app: octoprint
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: octoprint-webcam
-  namespace: "{{ .Values.applicationsNamespace }}"
-  annotations:
-    prometheus.io/probe: "false"
-    homer.item.excluded: "true"
-    traefik.ingress.kubernetes.io/router.middlewares: kube-system-cluster-admin-authentication@kubernetescrd
-spec:
-  tls:
-    - hosts:
-        - octoprint-webcam.{{ .Values.fqdn }}
-      secretName: "{{ .Values.fqdn }}-tls"
-  rules:
-    - host: octoprint-webcam.{{ .Values.fqdn }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: octoprint
-                port:
+  chart: oci://oci.trueforge.org/truecharts/octoprint
+  version: 17.6.0
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  values:
+    podOptions:
+      nodeSelector:
+        # TrueCharts auto-injects an amd64 nodeSelector by default.
+        # Nullifying it here allows the pod to schedule on other architectures (e.g. arm64).
+        kubernetes.io/arch: null
+      # TrueCharts auto-injects a podAffinity for PVCs that requires a pod with the 
+      # truecharts.org/pvc label to already exist on the node. Since data is unique 
+      # to octoprint, this deadlocks the first pod in Pending state. Disable to allow scheduling.
+      defaultAffinity: false
+    workload:
+      main:
+        strategy: Recreate
+        podSpec:
+          annotations:
+            backup.velero.io/backup-volumes: data
+          containers:
+            main:
+              env:
+                ENABLE_MJPG_STREAMER: "true"
+                MJPG_STREAMER_INPUT: "-fps 30 -r 1920x1080"
+                CAMERA_DEV: /dev/video0
+              resources:
+                requests:
+                  memory: 512Mi
+                  cpu: 2000m
+                limits:
+                  memory: 2Gi
+                  cpu: null
+                  {{- range .Values.applications.octoprint.devices }}
+                  {{ . }}: "1"
+                  {{- end }}
+    service:
+      webcam:
+        enabled: true
+        ports:
+          webcam:
+            enabled: true
+            port: 8080
+            targetPort: 8080
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          homer.service.name: Automation
+          homer.item.name: OctoPrint
+          homer.item.logo: "https://raw.githubusercontent.com/OctoPrint/OctoPrint/a93b4d397248dc406a75e634c1326fb1b8ddcb63/docs/images/octoprint-logo.png"
+        hosts:
+          - host: octoprint.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - octoprint.{{ .Values.fqdn }}
+      webcam:
+        enabled: true
+        annotations:
+          prometheus.io/probe: "false"
+          homer.item.excluded: "true"
+          traefik.ingress.kubernetes.io/router.middlewares: kube-system-cluster-admin-authentication@kubernetescrd
+        hosts:
+          - host: octoprint-webcam.{{ .Values.fqdn }}
+            paths:
+              - path: /
+                service:
                   name: webcam
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: octoprint
-  namespace: "{{ .Values.applicationsNamespace }}"
-spec:
-  storageClassName: local-path-persistent-namespaced
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: octoprint
-  namespace: "{{ .Values.applicationsNamespace }}"
-  annotations:
-    homer.service.name: Automation
-    homer.item.logo: "https://raw.githubusercontent.com/OctoPrint/OctoPrint/a93b4d397248dc406a75e634c1326fb1b8ddcb63/docs/images/octoprint-logo.png"
-spec:
-  tls:
-    - hosts:
-        - octoprint.{{ .Values.fqdn }}
-      secretName: "{{ .Values.fqdn }}-tls"
-  rules:
-    - host: octoprint.{{ .Values.fqdn }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: octoprint
-                port:
-                  name: web
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: octoprint
-  namespace: "{{ .Values.applicationsNamespace }}"
-  labels:
-    app: octoprint
-spec:
-  replicas: 1
-  strategy:
-    # This is done to ensure devices are freed before creating new container
-    # otherwise deployment is pending
-    type: Recreate
-  selector:
-    matchLabels:
-      app: octoprint
-  template:
-    metadata:
-      annotations:
-        backup.velero.io/backup-volumes: data
-      labels:
-        app: octoprint
-    spec:
-      containers:
-        - name: octoprint
-          image: octoprint/octoprint:1.11.8
-          resources:
-            requests:
-              memory: 512Mi
-              cpu: 2000m
-            limits:
-              {{- range .Values.applications.octoprint.devices }}
-              {{ . }}: "1"
-              {{- end }}
-              memory: 2Gi
-          ports:
-            - name: web
-              containerPort: 5000
-            - name: webcam
-              containerPort: 8080
-          env:
-            - name: ENABLE_MJPG_STREAMER
-              value: "true"
-            - name: MJPG_STREAMER_INPUT
-              value: "-fps 30 -r 1920x1080"
-            - name: OCTOPRINT_PORT
-              value: "5000"
-          volumeMounts:
-            - name: data
-              mountPath: /octoprint
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: octoprint
+                  port: 8080
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - octoprint-webcam.{{ .Values.fqdn }}
+    persistence:
+      data:
+        enabled: true
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+        size: 10Gi
 {{- end }}
