@@ -19,7 +19,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/miniflux
-  version: 18.3.0
+  version: 18.7.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   values:
     workload:
