@@ -1,6 +1,6 @@
 ---
 steps:
-  - name: Lint
+  - name: Lint Ansible and Kubernetes
     image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
     commands:
       - ansible-lint
@@ -11,3 +11,8 @@ steps:
       - helm template charts/services | yamllint --no-warnings -
       - yamllint .
       - yamlfmt -lint
+
+  - name: Lint Python
+    image: mcr.microsoft.com/devcontainers/python:3
+    commands:
+      - black --check .
