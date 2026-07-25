@@ -9,7 +9,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/vaultwarden
-  version: 30.5.0
+  version: 30.8.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   values:
     service:
