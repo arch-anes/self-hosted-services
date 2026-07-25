@@ -1,76 +1,75 @@
 {{- if (include "app.enabled" (list . "minecraft_bedrock")) }}
 ---
-apiVersion: v1
-kind: Service
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
   name: minecraft-bedrock
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  type: NodePort
-  ports:
-    - protocol: UDP
-      name: web
-      port: 19132
-      nodePort: 30778
-  selector:
-    app: minecraft-bedrock
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: minecraft-bedrock
-  namespace: "{{ .Values.applicationsNamespace }}"
-spec:
-  storageClassName: local-path-persistent-namespaced
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: minecraft-bedrock
-  namespace: "{{ .Values.applicationsNamespace }}"
-  labels:
-    app: minecraft-bedrock
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: minecraft-bedrock
-  template:
-    metadata:
-      annotations:
-        backup.velero.io/backup-volumes: data
-      labels:
-        app: minecraft-bedrock
-    spec:
-      containers:
-        - name: minecraft-bedrock
-          image: itzg/minecraft-bedrock-server:2026.7.1
-          stdin: true
-          tty: true
-          resources:
-            requests:
-              memory: 1Gi
-              cpu: 2000m
-            limits:
-              memory: 4Gi
-          env:
-            - name: EULA
-              value: "TRUE"
-          ports:
-            - name: web
-              containerPort: 19132
-          volumeMounts:
-            - name: data
-              mountPath: /data
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: minecraft-bedrock
+  chart: oci://oci.trueforge.org/truecharts/minecraft-bedrock
+  version: 14.10.2
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  values:
+    service:
+      main:
+        type: NodePort
+        ports:
+          main:
+            nodePort: 30778
+    workload:
+      main:
+        podSpec:
+          annotations:
+            backup.velero.io/backup-volumes: config
+          containers:
+            main:
+              probes:
+                liveness:
+                  spec:
+                    periodSeconds: 10
+                readiness:
+                  spec:
+                    periodSeconds: 10
+                startup:
+                  spec:
+                    periodSeconds: 10
+              env:
+                EULA: true
+                ENABLE_LAN_VISIBILITY: true
+                VERSION: "LATEST"
+                SERVER_NAME: null
+                GAMEMODE: "survival"
+                DIFFICULTY: null
+                LEVEL_TYPE: null
+                ALLOW_CHEATS: false
+                MAX_PLAYERS: null
+                ONLINE_MODE: true
+                WHITE_LIST: false
+                # WHITE_LIST_USERS: "USER:XUID,USER:XUID"
+                VIEW_DISTANCE: null
+                TICK_DISTANCE: null
+                PLAYER_IDLE_TIMEOUT: null
+                MAX_THREADS: null
+                LEVEL_NAME: "Bedrock level"
+                LEVEL_SEED: ""
+                DEFAULT_PLAYER_PERMISSION_LEVEL: "member"
+                TEXTUREPACK_REQUIRED: false
+                SERVER_AUTHORITATIVE_MOVEMENT: server-auth
+                PLAYER_MOVEMENT_SCORE_THRESHOLD: null
+                PLAYER_MOVEMENT_DISTANCE_THRESHOLD: null
+                PLAYER_MOVEMENT_DURATION_THRESHOLD_IN_MS: null
+                CORRECT_PLAYER_MOVEMENT: false
+    resources:
+      requests:
+        memory: 1Gi
+        cpu: 2000m
+      limits:
+        memory: 4Gi
+        cpu: null
+    persistence:
+      config:
+        enabled: true
+        type: pvc
+        storageClass: local-path-persistent-namespaced
+        size: 10Gi
 {{- end }}
