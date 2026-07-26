@@ -6,6 +6,9 @@
 		"--privileged",
 		"--cgroupns=host"
 	],
+	"features": {
+		"ghcr.io/stuartleeks/dev-container-features/shell-history:0": {}
+	},
 	"customizations": {
 		"vscode": {
 			"settings": {
