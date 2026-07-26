@@ -19,7 +19,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/speedtest-tracker
-  version: 11.6.1
+  version: 11.12.8
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   values:
     workload:
