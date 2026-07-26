@@ -334,8 +334,8 @@ spec:
 {{- if (include "app.enabled" (list . "speedtest_tracker")) }}
           speedtest_tracker:
             # renovate: depName="Speedtest Tracker"
-            gnetId: 24608
-            revision: 2
+            gnetId: 54608
+            revision: 5
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
