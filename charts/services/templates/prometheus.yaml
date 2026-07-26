@@ -343,8 +343,8 @@ spec:
 {{- if .Values.behindTcpProxy }}
           haproxy:
             # renovate: depName="Haproxy"
-            gnetId: 12693
-            revision: 12
+            gnetId: 14693
+            revision: 14
             datasource: Prometheus
 {{- end }}
       prune: true
