@@ -145,52 +145,63 @@ spec:
       dashboards:
         default:
           cert-manager:
+            # renovate: depName="Cert Manager"
             gnetId: 20340
             revision: 1
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
           traefik:
+            # renovate: depName="Traefik"
             gnetId: 17347
             revision: 9
             datasource: Prometheus
           blackbox-exporter:
+            # renovate: depName="Blackbox Exporter"
             gnetId: 21275
             revision: 1
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
           node-exporter-full:
+            # renovate: depName="Node Exporter Full"
             gnetId: 1860
             revision: 41
             datasource: Prometheus
           kubernetes-views-global:
+            # renovate: depName="Kubernetes Views Global"
             gnetId: 15757
             revision: 1
             datasource: Prometheus
           kubernetes-views-nodes:
+            # renovate: depName="Kubernetes Views Nodes"
             gnetId: 15759
             revision: 37
             datasource: Prometheus
           kubernetes-views-namespaces:
+            # renovate: depName="Kubernetes Views Namespaces"
             gnetId: 15758
             revision: 42
             datasource: Prometheus
           kubernetes-views-pods:
+            # renovate: depName="Kubernetes Views Pods"
             gnetId: 15760
             revision: 36
             datasource: Prometheus
           prometheus:
+            # renovate: depName="Prometheus"
             gnetId: 19105
             revision: 7
             datasource: Prometheus
           oom:
+            # renovate: depName="Oom"
             gnetId: 16718
             revision: 1
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
           unpackerr:
+            # renovate: depName="Unpackerr"
             gnetId: 18817
             revision: 1
             datasource:
@@ -198,6 +209,7 @@ spec:
                 value: Prometheus
 {{- if (include "app.enabled" (list . "argo")) }}
           argo-cd:
+            # renovate: depName="Argo Cd"
             gnetId: 14584
             revision: 1
             datasource: Prometheus
@@ -209,12 +221,14 @@ spec:
 {{- end }}
 {{- if (include "app.enabled" (list . "authentik")) }}
           authentik:
+            # renovate: depName="Authentik"
             gnetId: 14837
             revision: 2
             datasource: Prometheus
 {{- end }}
 {{- if (include "app.enabled" (list . "crowdsec")) }}
           crowdsec:
+            # renovate: depName="Crowdsec"
             gnetId: 24049
             revision: 1
             datasource:
@@ -225,6 +239,7 @@ spec:
 {{- end }}
 {{- if (include "app.enabled" (list . "loki")) }}
           loki:
+            # renovate: depName="Loki"
             gnetId: 14055
             revision: 5
             datasource:
@@ -269,6 +284,7 @@ spec:
 {{- end }}
 {{- if (include "app.enabled" (list . "ipmi_exporter")) }}
           ipmi:
+            # renovate: depName="Ipmi"
             gnetId: 15765
             revision: 2
             datasource:
@@ -277,6 +293,7 @@ spec:
 {{- end }}
 {{- if (include "app.enabled" (list . "minio")) }}
           minio:
+            # renovate: depName="Minio"
             gnetId: 13502
             revision: 26
             datasource:
@@ -285,6 +302,7 @@ spec:
 {{- end }}
 {{- if (include "app.enabled" (list . "node_problem_detector")) }}
           node-problem-detector:
+            # renovate: depName="Node Problem Detector"
             gnetId: 15549
             revision: 1
             datasource:
@@ -293,18 +311,21 @@ spec:
 {{- end }}
 {{- if (include "app.enabled" (list . "redis")) }}
           redis:
+            # renovate: depName="Redis"
             gnetId: 763
             revision: 6
             datasource:
               - name: DS_PROM
                 value: Prometheus
           redis-quickstart:
+            # renovate: depName="Redis Quickstart"
             gnetId: 14091
             revision: 1
             datasource: Prometheus
 {{- end }}
 {{- if (include "app.enabled" (list . "velero")) }}
           velero:
+            # renovate: depName="Velero"
             # gnetId: 23838
             gnetId: 15469
             revision: 1
@@ -312,6 +333,7 @@ spec:
 {{- end }}
 {{- if (include "app.enabled" (list . "speedtest_tracker")) }}
           speedtest_tracker:
+            # renovate: depName="Speedtest Tracker"
             gnetId: 24608
             revision: 2
             datasource:
@@ -320,6 +342,7 @@ spec:
 {{- end }}
 {{- if .Values.behindTcpProxy }}
           haproxy:
+            # renovate: depName="Haproxy"
             gnetId: 12693
             revision: 12
             datasource: Prometheus

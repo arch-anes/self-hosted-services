@@ -57,6 +57,17 @@
         "moduleName: [\"']github\\.com/(?<depName>[^/]+/[^/]+)[\"']\\s*\\n\\s*version: [\"'](?<currentValue>[^\"']+)[\"']"
       ],
       "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/prometheus\\.yaml$/"
+      ],
+      "matchStrings": [
+        "#\\s+renovate:\\s+depName=\"(?<depName>.*)\"\\n\\s+gnetId:\\s+(?<packageName>.*?)\\n\\s+revision:\\s+(?<currentValue>.*)"
+      ],
+      "versioningTemplate": "regex:^(?<major>\\d+)$",
+      "datasourceTemplate": "custom.grafana-dashboards"
     }
   ],
   "packageRules": [
@@ -86,6 +97,26 @@
       "matchManagers": [
         "custom.regex"
       ]
+    },
+    {
+      "description": "Grafana dashboard commit messages",
+      "commitMessageTopic": "Grafana dashboard {{depName}}",
+      "matchDatasources": [
+        "custom.grafana-dashboards"
+      ],
+      "matchFileNames": [
+        "charts/services/templates/prometheus.yaml"
+      ]
+    },
+    {
+      "description": "Group Kubernetes Grafana dashboards together",
+      "matchDatasources": [
+        "custom.grafana-dashboards"
+      ],
+      "matchDepNames": [
+        "Kubernetes Views *"
+      ],
+      "groupName": "Grafana dashboards Kubernetes Views"
     },
     {
       "matchJsonata": [
@@ -152,5 +183,14 @@
         "github-releases"
       ]
     }
-  ]
+  ],
+  "customDatasources": {
+    "grafana-dashboards": {
+      "defaultRegistryUrlTemplate": "https://grafana.com/api/dashboards/{{packageName}}",
+      "format": "json",
+      "transformTemplates": [
+        "{\"releases\":[{\"version\": $string(revision)}]}"
+      ]
+    }
+  }
 }
