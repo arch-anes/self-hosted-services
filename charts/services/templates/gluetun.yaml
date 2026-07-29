@@ -57,7 +57,7 @@ spec:
             spec:
               containers:
                 - name: vpn
-                  image: qmcgaw/gluetun:v3.41.1
+                  image: qmcgaw/gluetun:v3.41.2@sha256:280809bc6900ed06d6529ad246499103efb31fd80c6327cbfaf90de0b17c3a99
                   securityContext:
                     privileged: true
                     capabilities:
