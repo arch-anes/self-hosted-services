@@ -51,8 +51,8 @@ spec:
         limits:
           memory: 64Mi
         requests:
-          memory: 16Mi
-          cpu: 100m
+          memory: {{ include "app.resources.memory" (list $ "16Mi") }}
+          cpu: {{ include "app.resources.cpu" (list $ "100m") }}
     defaultRules:
       rules:
         windows: false
@@ -393,8 +393,8 @@ spec:
         limits:
           memory: 2Gi
         requests:
-          memory: 1Gi
-          cpu: 2000m
+          memory: {{ include "app.resources.memory" (list $ "1Gi") }}
+          cpu: {{ include "app.resources.cpu" (list $ "2000m") }}
     prometheus:
       prometheusSpec:
         enableAdminAPI: true
@@ -421,8 +421,8 @@ spec:
           limits:
             memory: 5Gi
           requests:
-            cpu: 500m
-            memory: 1Gi
+            cpu: {{ include "app.resources.cpu" (list $ "500m") }}
+            memory: {{ include "app.resources.memory" (list $ "1Gi") }}
 {{- if (include "app.enabled" (list . "ipmi_exporter")) }}
         secrets:
           - ipmi-exporter
@@ -486,8 +486,8 @@ spec:
                   image: ghcr.io/druggeri/alertmanager_gotify_bridge:2.3.2
                   resources:
                     requests:
-                      cpu: 100m
-                      memory: 16Mi
+                      cpu: {{ include "app.resources.cpu" (list $ "100m") }}
+                      memory: {{ include "app.resources.memory" (list $ "16Mi") }}
                     limits:
                       memory: 64Mi
                   ports:
@@ -534,8 +534,8 @@ spec:
                 limits:
                   memory: 64Mi
                 requests:
-                  memory: 16Mi
-                  cpu: 100m
+                  memory: {{ include "app.resources.memory" (list $ "16Mi") }}
+                  cpu: {{ include "app.resources.cpu" (list $ "100m") }}
               https:
                 enabled: true
                 useServiceAccountCredentials: true
@@ -657,8 +657,8 @@ spec:
                 limits:
                   memory: 64Mi
                 requests:
-                  memory: 16Mi
-                  cpu: 100m
+                  memory: {{ include "app.resources.memory" (list $ "16Mi") }}
+                  cpu: {{ include "app.resources.cpu" (list $ "100m") }}
       - apiVersion: helm.cattle.io/v1
         kind: HelmChart
         metadata:
@@ -681,8 +681,8 @@ spec:
                 limits:
                   memory: 64Mi
                 requests:
-                  memory: 16Mi
-                  cpu: 100m
+                  memory: {{ include "app.resources.memory" (list $ "16Mi") }}
+                  cpu: {{ include "app.resources.cpu" (list $ "100m") }}
               tolerations:
                 - effect: "NoExecute"
                   operator: "Exists"
@@ -704,6 +704,6 @@ spec:
                 limits:
                   memory: 64Mi
                 requests:
-                  memory: 16Mi
-                  cpu: 100m
+                  memory: {{ include "app.resources.memory" (list $ "16Mi") }}
+                  cpu: {{ include "app.resources.cpu" (list $ "100m") }}
 {{- end }}

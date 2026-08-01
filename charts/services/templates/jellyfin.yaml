@@ -44,8 +44,8 @@ spec:
                 JELLYFIN_PublishedServerUrl: "https://jellyfin.{{ .Values.fqdn }}"
     resources:
       requests:
-        memory: 2Gi
-        cpu: 1000m
+        memory: {{ include "app.resources.memory" (list $ "2Gi") }}
+        cpu: {{ include "app.resources.cpu" (list $ "1000m") }}
       limits:
         memory: 4Gi
         cpu: null

@@ -112,8 +112,8 @@ spec:
                 {{- end }}
               resources:
                 requests:
-                  memory: 1Gi
-                  cpu: 250m
+                  memory: {{ include "app.resources.memory" (list $ "1Gi") }}
+                  cpu: {{ include "app.resources.cpu" (list $ "250m") }}
                 limits:
                   cpu: null
                   memory: 4Gi
@@ -129,8 +129,8 @@ spec:
               resources:
                 excludeExtra: false
                 requests:
-                  memory: 1Gi
-                  cpu: 250m
+                  memory: {{ include "app.resources.memory" (list $ "1Gi") }}
+                  cpu: {{ include "app.resources.cpu" (list $ "250m") }}
                 limits:
                   cpu: null
                   memory: 10Gi
@@ -152,8 +152,8 @@ spec:
             targetSelector: microservices
     resources:
       requests:
-        memory: 128Mi
-        cpu: 1000m
+        memory: {{ include "app.resources.memory" (list $ "128Mi") }}
+        cpu: {{ include "app.resources.cpu" (list $ "1000m") }}
       limits:
         cpu: null
         memory: 2Gi
@@ -357,8 +357,8 @@ spec:
                           value: require
                       resources:
                         requests:
-                          cpu: 10m
-                          memory: 32Mi
+                          cpu: {{ include "app.resources.cpu" (list $ "10m") }}
+                          memory: {{ include "app.resources.memory" (list $ "32Mi") }}
                         limits:
                           memory: 64Mi
 {{- end }}

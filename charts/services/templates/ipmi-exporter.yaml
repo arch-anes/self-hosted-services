@@ -134,8 +134,8 @@ spec:
         cpu: null
         memory: 128Mi
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: {{ include "app.resources.cpu" (list $ "100m") }}
+        memory: {{ include "app.resources.memory" (list $ "128Mi") }}
     scrapeConfig:
       enabled: true
       mode: remote

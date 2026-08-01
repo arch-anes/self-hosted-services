@@ -13,8 +13,8 @@ spec:
   values:
     resources:
       requests:
-        memory: 128Mi
-        cpu: 250m
+        memory: {{ include "app.resources.memory" (list $ "128Mi") }}
+        cpu: {{ include "app.resources.cpu" (list $ "250m") }}
       limits:
         memory: 256Mi
         cpu: null

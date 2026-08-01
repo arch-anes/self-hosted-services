@@ -61,8 +61,8 @@ spec:
                 CORRECT_PLAYER_MOVEMENT: false
     resources:
       requests:
-        memory: 1Gi
-        cpu: 2000m
+        memory: {{ include "app.resources.memory" (list $ "1Gi") }}
+        cpu: {{ include "app.resources.cpu" (list $ "2000m") }}
       limits:
         memory: 4Gi
         cpu: null

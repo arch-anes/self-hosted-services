@@ -141,8 +141,8 @@ spec:
                   args: ["-c", "java -jar /joal/joal.jar --server.port=12345 --joal-conf=/data --spring.main.web-environment=true --joal.ui.path.prefix=app --joal.ui.secret-token=$$SECRET_TOKEN"]
                   resources:
                     requests:
-                      memory: 128Mi
-                      cpu: 250m
+                      memory: {{ include "app.resources.memory" (list $ "128Mi") }}
+                      cpu: {{ include "app.resources.cpu" (list $ "250m") }}
                     limits:
                       memory: 1Gi
                   ports:

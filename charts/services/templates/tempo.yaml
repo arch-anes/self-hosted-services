@@ -49,8 +49,8 @@ spec:
       retention: 8760h # 1 year
       resources:
         requests:
-          cpu: 200m
-          memory: 512Mi
+          cpu: {{ include "app.resources.cpu" (list $ "200m") }}
+          memory: {{ include "app.resources.memory" (list $ "512Mi") }}
         limits:
           memory: 4Gi
       metricsGenerator:

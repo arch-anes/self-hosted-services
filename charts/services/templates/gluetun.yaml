@@ -65,8 +65,8 @@ spec:
                         - NET_ADMIN
                   resources:
                     requests:
-                      memory: 512Mi
-                      cpu: 1250m
+                      memory: {{ include "app.resources.memory" (list $ "512Mi") }}
+                      cpu: {{ include "app.resources.cpu" (list $ "1250m") }}
                     limits:
                       memory: 1Gi
                   env:
@@ -98,8 +98,8 @@ spec:
                       containerPort: 1080
                   resources:
                     requests:
-                      memory: 128Mi
-                      cpu: 1000m
+                      memory: {{ include "app.resources.memory" (list $ "128Mi") }}
+                      cpu: {{ include "app.resources.cpu" (list $ "1000m") }}
                     limits:
                       memory: 256Mi
 {{- end }}

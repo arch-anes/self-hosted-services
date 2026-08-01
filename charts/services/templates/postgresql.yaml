@@ -20,8 +20,8 @@ spec:
     resources:
       controller:
         requests:
-          cpu: 500m
-          memory: 256Mi
+          cpu: {{ include "app.resources.cpu" (list $ "500m") }}
+          memory: {{ include "app.resources.memory" (list $ "256Mi") }}
         limits:
           memory: 512Mi
 
@@ -458,8 +458,8 @@ spec:
                           postgres-operator.crunchydata.com/instance-set: instance1
               resources:
                 requests:
-                  cpu: "1000m"
-                  memory: "1Gi"
+                  cpu: {{ include "app.resources.cpu" (list $ "1000m") }}
+                  memory: {{ include "app.resources.memory" (list $ "1Gi") }}
                 limits:
                   hugepages-2Mi: "2Gi"
                   memory: "4Gi"

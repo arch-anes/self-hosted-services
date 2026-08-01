@@ -63,8 +63,8 @@ spec:
         SITE_IS_PUBLIC: True
       resources:
         requests:
-          cpu: 1000m
-          memory: 250Mi
+          cpu: {{ include "app.resources.cpu" (list $ "1000m") }}
+          memory: {{ include "app.resources.memory" (list $ "250Mi") }}
         limits:
           memory: 1Gi
       ingress:
@@ -111,8 +111,8 @@ spec:
     ml-api:
       resources:
         requests:
-          cpu: 250m
-          memory: 250Mi
+          cpu: {{ include "app.resources.cpu" (list $ "250m") }}
+          memory: {{ include "app.resources.memory" (list $ "250Mi") }}
         limits:
           memory: 2Gi
     persistence:

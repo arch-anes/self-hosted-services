@@ -86,8 +86,8 @@ spec:
           readOnly: true
       resources:
         requests:
-          memory: 256Mi
-          cpu: 250m
+          memory: {{ include "app.resources.memory" (list $ "256Mi") }}
+          cpu: {{ include "app.resources.cpu" (list $ "250m") }}
         limits:
           memory: 512Mi
           cpu: null
@@ -97,8 +97,8 @@ spec:
     frontend:
       resources:
         requests:
-          memory: 128Mi
-          cpu: 100m
+          memory: {{ include "app.resources.memory" (list $ "128Mi") }}
+          cpu: {{ include "app.resources.cpu" (list $ "100m") }}
         limits:
           memory: 256Mi
           cpu: null

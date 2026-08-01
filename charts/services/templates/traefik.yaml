@@ -227,8 +227,8 @@ spec:
 {{- end }}
     resources:
       requests:
-        memory: 512Mi
-        cpu: 1000m
+        memory: {{ include "app.resources.memory" (list $ "512Mi") }}
+        cpu: {{ include "app.resources.cpu" (list $ "1000m") }}
       limits:
         memory: 512Mi
     autoscaling:

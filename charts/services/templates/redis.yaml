@@ -25,8 +25,8 @@ spec:
       automountServiceAccountToken: true
       resources:
         requests:
-          memory: 128Mi
-          cpu: 500m
+          memory: {{ include "app.resources.memory" (list $ "128Mi") }}
+          cpu: {{ include "app.resources.cpu" (list $ "500m") }}
         limits:
           memory: 256Mi
       nodeSelector:
@@ -40,8 +40,8 @@ spec:
         reloader.stakater.com/auto: "true"
       resources:
         requests:
-          memory: 128Mi
-          cpu: 125m
+          memory: {{ include "app.resources.memory" (list $ "128Mi") }}
+          cpu: {{ include "app.resources.cpu" (list $ "125m") }}
         limits:
           memory: 256Mi
     kubectl:
@@ -49,8 +49,8 @@ spec:
         golang: relaxed
       resources:
         requests:
-          memory: 128Mi
-          cpu: 125m
+          memory: {{ include "app.resources.memory" (list $ "128Mi") }}
+          cpu: {{ include "app.resources.cpu" (list $ "125m") }}
         limits:
           memory: 256Mi
     metrics:
@@ -59,8 +59,8 @@ spec:
         golang: relaxed
       resources:
         requests:
-          memory: 128Mi
-          cpu: 125m
+          memory: {{ include "app.resources.memory" (list $ "128Mi") }}
+          cpu: {{ include "app.resources.cpu" (list $ "125m") }}
         limits:
           memory: 256Mi
       serviceMonitor:

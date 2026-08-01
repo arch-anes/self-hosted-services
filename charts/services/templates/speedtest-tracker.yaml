@@ -62,8 +62,8 @@ spec:
                 REDIS_URL: redis://:$(REDIS_HOST_PASSWORD)@redis-master:6379
     resources:
       requests:
-        memory: 256Mi
-        cpu: 1000m
+        memory: {{ include "app.resources.memory" (list $ "256Mi") }}
+        cpu: {{ include "app.resources.cpu" (list $ "1000m") }}
       limits:
         memory: 1Gi
         cpu: null

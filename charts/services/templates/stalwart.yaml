@@ -449,8 +449,8 @@ spec:
       limits:
         memory: 1Gi
       requests:
-        cpu: 100m
-        memory: 256Mi
+        cpu: {{ include "app.resources.cpu" (list $ "100m") }}
+        memory: {{ include "app.resources.memory" (list $ "256Mi") }}
     persistence:
       enabled: true
       storageClass: local-path-persistent-namespaced

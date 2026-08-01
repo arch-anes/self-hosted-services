@@ -15,8 +15,8 @@ spec:
       enabled: true
     resources:
       requests:
-        cpu: 100m
-        memory: 256Mi
+        cpu: {{ include "app.resources.cpu" (list $ "100m") }}
+        memory: {{ include "app.resources.memory" (list $ "256Mi") }}
       limits:
         memory: 512Mi
 {{- end }}

@@ -18,8 +18,8 @@ spec:
         enabled: {{ include "metrics.enabled" . }}
     resources:
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: {{ include "app.resources.cpu" (list $ "100m") }}
+        memory: {{ include "app.resources.memory" (list $ "128Mi") }}
       limits:
         memory: 512Mi
 {{- end }}

@@ -48,8 +48,8 @@ spec:
     priorityClassName: backup-priority
     resources:
       requests:
-        cpu: 100m
-        memory: 64Mi
+        cpu: {{ include "app.resources.cpu" (list $ "100m") }}
+        memory: {{ include "app.resources.memory" (list $ "64Mi") }}
       limits:
         memory: 1Gi
     credentials:
@@ -64,8 +64,8 @@ spec:
         - --node-agent-configmap=velero-node-agent-config
       resources:
         requests:
-          cpu: 10m
-          memory: 64Mi
+          cpu: {{ include "app.resources.cpu" (list $ "10m") }}
+          memory: {{ include "app.resources.memory" (list $ "64Mi") }}
         limits:
           memory: 256Mi
     configMaps:

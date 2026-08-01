@@ -51,8 +51,8 @@ spec:
         limits:
           memory: 250Mi
         requests:
-          cpu: 500m
-          memory: 250Mi
+          cpu: {{ include "app.resources.cpu" (list $ "500m") }}
+          memory: {{ include "app.resources.memory" (list $ "250Mi") }}
       metrics:
         enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:
@@ -84,8 +84,8 @@ spec:
         limits:
           memory: 500Mi
         requests:
-          cpu: 500m
-          memory: 500Mi
+          cpu: {{ include "app.resources.cpu" (list $ "500m") }}
+          memory: {{ include "app.resources.memory" (list $ "500Mi") }}
       metrics:
         enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:

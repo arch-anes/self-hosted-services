@@ -37,8 +37,8 @@ spec:
       enabled: true
       resources:
         requests:
-          memory: 128Mi
-          cpu: 100m
+          memory: {{ include "app.resources.memory" (list $ "128Mi") }}
+          cpu: {{ include "app.resources.cpu" (list $ "100m") }}
         limits:
           memory: 1Gi
       config:
@@ -72,8 +72,8 @@ spec:
       nas: "true"
     resources:
       requests:
-        memory: 512Mi
-        cpu: 1000m
+        memory: {{ include "app.resources.memory" (list $ "512Mi") }}
+        cpu: {{ include "app.resources.cpu" (list $ "1000m") }}
       limits:
         memory: 3Gi
     persistence:
@@ -168,8 +168,8 @@ spec:
       enabled: true
       resources:
         requests:
-          memory: 128Mi
-          cpu: 100m
+          memory: {{ include "app.resources.memory" (list $ "128Mi") }}
+          cpu: {{ include "app.resources.cpu" (list $ "100m") }}
         limits:
           memory: 1Gi
     ingress:

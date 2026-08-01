@@ -16,8 +16,8 @@ spec:
       limits:
         memory: 64Mi
       requests:
-        cpu: 10m
-        memory: 32Mi
+        cpu: {{ include "app.resources.cpu" (list $ "10m") }}
+        memory: {{ include "app.resources.memory" (list $ "32Mi") }}
     config:
       modules:
         http_2xx:

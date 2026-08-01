@@ -54,8 +54,8 @@ spec:
                 RUN_MIGRATIONS: 1
     resources:
       requests:
-        memory: 128Mi
-        cpu: 500m
+        memory: {{ include "app.resources.memory" (list $ "128Mi") }}
+        cpu: {{ include "app.resources.cpu" (list $ "500m") }}
       limits:
         memory: 256Mi
         cpu: null

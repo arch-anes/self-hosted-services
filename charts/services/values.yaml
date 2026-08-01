@@ -63,6 +63,11 @@ enableAllApplicationsByDefault: true
 # Set to false to use 1 replica instead of 3 for services that support HA
 highAvailability: true
 
+# Low Resource Mode
+# Set to true to override application requests to minimal values (e.g. 10m CPU, 50Mi RAM)
+# Helps scheduling on resource-constrained clusters
+lowResourceMode: false
+
 applications:
   akri:
     # enabled: true

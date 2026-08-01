@@ -84,8 +84,8 @@ spec:
       replicas: {{ include "ha.replicas" . }}
       resources:
         requests:
-          memory: 512Mi
-          cpu: 250m
+          memory: {{ include "app.resources.memory" (list $ "512Mi") }}
+          cpu: {{ include "app.resources.cpu" (list $ "250m") }}
         limits:
           memory: 2Gi
       ingress:
@@ -109,8 +109,8 @@ spec:
         reloader.stakater.com/auto: "true"
       resources:
         requests:
-          memory: 512Mi
-          cpu: 1000m
+          memory: {{ include "app.resources.memory" (list $ "512Mi") }}
+          cpu: {{ include "app.resources.cpu" (list $ "1000m") }}
         limits:
           memory: 2Gi
       metrics:

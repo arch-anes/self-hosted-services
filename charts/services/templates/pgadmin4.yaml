@@ -70,8 +70,8 @@ spec:
             - pgadmin4.{{ .Values.fqdn }}
     resources:
       requests:
-        memory: 256Mi
-        cpu: 125m
+        memory: {{ include "app.resources.memory" (list $ "256Mi") }}
+        cpu: {{ include "app.resources.cpu" (list $ "125m") }}
       limits:
         memory: 1Gi
 {{- end }}

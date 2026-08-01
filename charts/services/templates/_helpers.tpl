@@ -81,3 +81,23 @@
   {{- end -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "app.resources.cpu" -}}
+{{- $scope := index . 0 -}}
+{{- $cpu := index . 1 -}}
+{{- if $scope.Values.lowResourceMode -}}
+10m
+{{- else -}}
+{{- $cpu -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "app.resources.memory" -}}
+{{- $scope := index . 0 -}}
+{{- $memory := index . 1 -}}
+{{- if $scope.Values.lowResourceMode -}}
+50Mi
+{{- else -}}
+{{- $memory -}}
+{{- end -}}
+{{- end -}}

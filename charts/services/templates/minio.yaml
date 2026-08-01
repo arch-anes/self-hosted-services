@@ -17,8 +17,8 @@ spec:
           value: "kube-system"
       resources:
         requests:
-          cpu: 1000m
-          memory: 256Mi
+          cpu: {{ include "app.resources.cpu" (list $ "1000m") }}
+          memory: {{ include "app.resources.memory" (list $ "256Mi") }}
           ephemeral-storage: 500Mi
         limits:
           memory: 512Mi
@@ -75,8 +75,8 @@ spec:
             nas: "true"
           resources:
             requests:
-              cpu: 1000m
-              memory: 1Gi
+              cpu: {{ include "app.resources.cpu" (list $ "1000m") }}
+              memory: {{ include "app.resources.memory" (list $ "1Gi") }}
               ephemeral-storage: 500Mi
             limits:
               memory: 2Gi

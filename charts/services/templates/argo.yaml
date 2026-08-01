@@ -24,8 +24,8 @@ spec:
         limits:
           memory: 1Gi
         requests:
-          cpu: 500m
-          memory: 128Mi
+          cpu: {{ include "app.resources.cpu" (list $ "500m") }}
+          memory: {{ include "app.resources.memory" (list $ "128Mi") }}
       ingress:
         enabled: true
         annotations:
@@ -58,8 +58,8 @@ spec:
         limits:
           memory: 1Gi
         requests:
-          cpu: 500m
-          memory: 128Mi
+          cpu: {{ include "app.resources.cpu" (list $ "500m") }}
+          memory: {{ include "app.resources.memory" (list $ "128Mi") }}
       metrics:
         enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:
@@ -69,8 +69,8 @@ spec:
         limits:
           memory: 1Gi
         requests:
-          cpu: 500m
-          memory: 128Mi
+          cpu: {{ include "app.resources.cpu" (list $ "500m") }}
+          memory: {{ include "app.resources.memory" (list $ "128Mi") }}
       metrics:
         enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:
@@ -80,8 +80,8 @@ spec:
         limits:
           memory: 512Mi
         requests:
-          cpu: 250m
-          memory: 64Mi
+          cpu: {{ include "app.resources.cpu" (list $ "250m") }}
+          memory: {{ include "app.resources.memory" (list $ "64Mi") }}
       metrics:
         enabled: {{ include "metrics.enabled" . }}
         serviceMonitor:

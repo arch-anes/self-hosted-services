@@ -80,8 +80,8 @@ spec:
                     expandObjectName: false
     resources:
       requests:
-        memory: 256Mi
-        cpu: 100m
+        memory: {{ include "app.resources.memory" (list $ "256Mi") }}
+        cpu: {{ include "app.resources.cpu" (list $ "100m") }}
       limits:
         memory: 1Gi
         cpu: null

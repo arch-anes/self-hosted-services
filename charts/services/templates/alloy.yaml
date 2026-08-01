@@ -21,8 +21,8 @@ spec:
         limits:
           memory: 256Mi
         requests:
-          cpu: 500m
-          memory: 128Mi
+          cpu: {{ include "app.resources.cpu" (list $ "500m") }}
+          memory: {{ include "app.resources.memory" (list $ "128Mi") }}
       mounts:
         varlog: true
         dockercontainers: true

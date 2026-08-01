@@ -21,8 +21,8 @@ spec:
       reloader.stakater.com/auto: "true"
     resources:
       requests:
-        memory: 32Mi
-        cpu: 125m
+        memory: {{ include "app.resources.memory" (list $ "32Mi") }}
+        cpu: {{ include "app.resources.cpu" (list $ "125m") }}
       limits:
         memory: 64Mi
     ingress:
