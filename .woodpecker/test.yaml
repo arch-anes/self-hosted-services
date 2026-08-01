@@ -1,15 +1,4 @@
 ---
-when:
-  - path:
-      - "charts/**"
-      - "group_vars/**"
-      - "molecule/**"
-      - "roles/**"
-      - requirements.yml
-      - setup_cluster.yml
-      - setup_router.yml
-      - teardown_cluster.yml
-
 depends_on:
   - lint
 
