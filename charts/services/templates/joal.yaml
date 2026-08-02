@@ -29,7 +29,7 @@ spec:
           name: joal-clients
           namespace: "{{ .Values.applicationsNamespace }}"
         data:
-          transmission-4.1.2.client: |
+          transmission-4.1.3.client: |
             {
               "keyGenerator": {
                   "algorithm": {
@@ -58,7 +58,7 @@ spec:
               "numwant": 80,
               "numwantOnStop": 0,
               "requestHeaders": [
-                  { "name": "User-Agent", "value": "Transmission/4.1.2" },
+                  { "name": "User-Agent", "value": "Transmission/4.1.3" },
                   { "name": "Accept", "value": "*/*" },
                   { "name": "Accept-Encoding", "value": "deflate, gzip" }
               ]
