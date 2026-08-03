@@ -1,0 +1,42 @@
+# ------------------------------------------------------------------------------
+# Core Configuration
+# ------------------------------------------------------------------------------
+domain_name = "example.com"
+public_ip   = "203.0.113.1"
+
+# ------------------------------------------------------------------------------
+# Feature Toggles
+# ------------------------------------------------------------------------------
+# Set any of these to true to enable the corresponding automation
+enable_cloudflare = false
+enable_aws_ses    = false
+enable_tailscale  = false
+enable_b2_backups = false
+
+# ------------------------------------------------------------------------------
+# Cloudflare (Required if enable_cloudflare = true)
+# ------------------------------------------------------------------------------
+# Get your Zone ID from the Overview page of your domain on the Cloudflare dashboard.
+# cloudflare_zone_id     = "your_zone_id_here"
+
+# API Token needs permissions: Zone.DNS (Edit), Zone.Zone (Read)
+# cloudflare_admin_token = "your_api_token_here"
+
+# ------------------------------------------------------------------------------
+# AWS SES (Required if enable_aws_ses = true)
+# ------------------------------------------------------------------------------
+# aws_region     = "us-east-1"
+# aws_access_key = "AKIA..."
+# aws_secret_key = "secret..."
+
+# ------------------------------------------------------------------------------
+# Tailscale (Required if enable_tailscale = true)
+# ------------------------------------------------------------------------------
+# tailscale_api_key = "tskey-api-..."
+# tailscale_tailnet = "your-tailnet.ts.net"
+
+# ------------------------------------------------------------------------------
+# Backblaze B2 (Required if enable_b2_backups = true)
+# ------------------------------------------------------------------------------
+# b2_application_key_id = "your_key_id"
+# b2_application_key    = "your_application_key"

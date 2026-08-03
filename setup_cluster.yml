@@ -1,6 +1,14 @@
 # code: language=ansible
 
 ---
+- name: Setup cloud infrastructure
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  roles:
+    - name: Apply OpenTofu cloud infrastructure
+      role: cloud_setup
+
 - name: Setup cluster
   any_errors_fatal: true
   hosts:

@@ -1,0 +1,24 @@
+---
+- name: Apply OpenTofu cloud infrastructure
+  community.general.terraform:
+    project_path: './tofu'
+    binary_path: 'tofu'
+    state: present
+    variables:
+      enable_cloudflare: "{{ enable_cloudflare | default(false) }}"
+      enable_aws_ses: "{{ enable_aws_ses | default(false) }}"
+      enable_tailscale: "{{ enable_tailscale | default(false) }}"
+      enable_b2_backups: "{{ enable_b2_backups | default(false) }}"
+      domain_name: "{{ domain_name | default('') }}"
+      cloudflare_zone_id: "{{ cloudflare_zone_id | default('') }}"
+      cloudflare_admin_token: "{{ cloudflare_admin_token | default('') }}"
+      public_ip: "{{ public_ip | default('') }}"
+      aws_region: "{{ aws_region | default('us-east-1') }}"
+      aws_access_key: "{{ aws_access_key | default('') }}"
+      aws_secret_key: "{{ aws_secret_key | default('') }}"
+      tailscale_api_key: "{{ tailscale_api_key | default('') }}"
+      tailscale_tailnet: "{{ tailscale_tailnet | default('') }}"
+      b2_application_key_id: "{{ b2_application_key_id | default('') }}"
+      b2_application_key: "{{ b2_application_key | default('') }}"
+  register: tofu_outputs
+  when: enable_cloudflare | default(false) or enable_aws_ses | default(false) or enable_tailscale | default(false) or enable_b2_backups | default(false)

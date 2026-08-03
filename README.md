@@ -139,6 +139,25 @@ all:
     timezone: America/Vancouver
     tenants_count: 1
     tailscale_oauth_secret: "some_secret"
+    
+    # Cloud automation feature flags
+    enable_cloudflare: false
+    enable_aws_ses: false
+    enable_tailscale: false
+    enable_b2_backups: false
+    
+    # Cloud configuration (if toggles above are enabled)
+    # domain_name: "example.com"
+    # public_ip: "203.0.113.1"
+    # cloudflare_zone_id: "..."
+    # cloudflare_admin_token: "..."
+    # aws_region: "us-east-1"
+    # aws_access_key: "..."
+    # aws_secret_key: "..."
+    # tailscale_api_key: "..."
+    # tailscale_tailnet: "..."
+    # b2_application_key_id: "..."
+    # b2_application_key: "..."
     chartValuesOverrides:
       fqdn: "example.com"
       storageLocation: /storage
