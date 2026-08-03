@@ -28,13 +28,6 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         podSpec:
-          initContainers:
-            download-u2p:
-              enabled: true
-              type: init
-              imageSelector: alpineImage
-              command: [/bin/sh]
-              args: [-c, "wget -O /custom/u2p.yml https://raw.githubusercontent.com/Jackett/Jackett/refs/heads/master/src/Jackett.Common/Definitions/u2p.yml"]
           containers:
             {{- include "tunnel.truecharts.container" . | nindent 12 }}
             main:
@@ -103,15 +96,6 @@ spec:
         defaultMode: "0400"
       config:
         type: emptyDir
-      custom-definitions:
-        enabled: true
-        type: emptyDir
-        targetSelector:
-          main:
-            download-u2p:
-              mountPath: /custom
-            main:
-              mountPath: /config/Definitions/Custom/
     metrics:
       main:
         enabled: {{ include "metrics.enabled" . }}
