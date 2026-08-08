@@ -50,7 +50,7 @@
   vars:
     k3s_agent: "{{ kubernetes_cluster_k3s_agent }}"
     k3s_server: "{{ kubernetes_cluster_k3s_server }}"
-    k3s_release_version: v1.35
+    k3s_release_version: v1.36
     k3s_become: true
     k3s_etcd_datastore: true
     k3s_use_unsupported_config: true
