@@ -337,11 +337,6 @@ spec:
                         context["email"] = recovery_email
                     return True
               - identifiers:
-                  policy: !KeyOf default-recovery-email-destination
-                  target: !KeyOf default-recovery-email
-                  order: 0
-                model: authentik_policies.policybinding
-              - identifiers:
                   name: default-recovery-user-write
                 id: default-recovery-user-write
                 model: authentik_stages_user_write.userwritestage
@@ -355,7 +350,6 @@ spec:
                   user_fields:
                     - email
                     - username
-                    - attributes.recovery_email
               - identifiers:
                   name: default-recovery-user-login
                 id: default-recovery-user-login
@@ -436,6 +430,15 @@ spec:
                   target: !KeyOf flow-binding-email
                   order: 0
                 state: absent
+                model: authentik_policies.policybinding
+                attrs:
+                  negate: false
+                  enabled: true
+                  timeout: 30
+              - identifiers:
+                  policy: !KeyOf default-recovery-email-destination
+                  target: !KeyOf flow-binding-email
+                  order: 10
                 model: authentik_policies.policybinding
                 attrs:
                   negate: false
