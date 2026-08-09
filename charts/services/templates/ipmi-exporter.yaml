@@ -133,7 +133,7 @@ spec:
       key: config.yml
     resources:
       limits:
-        cpu: null
+        cpu: 1000m # defining CPU limit higher than the charts'
         memory: 128Mi
       requests:
         cpu: {{ include "app.resources.cpu" (list $ "100m") }}
