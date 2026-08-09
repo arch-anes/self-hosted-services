@@ -32,11 +32,6 @@ spec:
     env:
       email: admin@{{ .Values.fqdn }}
     envVarsExtra:
-      - name: PGADMIN_DEFAULT_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            name: pgadmin4
-            key: password
       - name: DATABASE_PASSWORD
         valueFrom:
           secretKeyRef:
