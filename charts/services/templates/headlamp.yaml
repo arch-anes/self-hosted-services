@@ -10,6 +10,8 @@ spec:
   repo: https://kubernetes-sigs.github.io/headlamp/
   version: 0.43.0
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     config:
       enableHelm: true

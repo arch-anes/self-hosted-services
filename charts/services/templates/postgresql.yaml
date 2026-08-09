@@ -10,6 +10,8 @@ spec:
   chart: oci://registry.developers.crunchydata.com/crunchydata/pgo
   version: 6.0.2
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     relatedImages:
       postgres_17:
@@ -37,6 +39,8 @@ spec:
   repo: https://arch-anes.github.io/charts
   version: 0.2.1
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     objects:
       - apiVersion: rbac.authorization.k8s.io/v1
@@ -368,6 +372,8 @@ spec:
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   failurePolicy: abort # Do not uninstall this chart on failure, otherwise the cluster will be deleted
   takeOwnership: true
+  serverSide: "true"
+  forceConflicts: true
   values:
     objects:
       - apiVersion: v1

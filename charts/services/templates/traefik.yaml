@@ -20,6 +20,8 @@ spec:
   repo: https://traefik.github.io/charts
   version: 41.2.0
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     extraObjects:
       - apiVersion: traefik.io/v1alpha1

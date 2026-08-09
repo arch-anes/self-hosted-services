@@ -10,6 +10,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/redisinsight
   version: 12.9.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     workload:
       main:

@@ -22,6 +22,8 @@ spec:
   repo: https://arch-anes.github.io/charts
   version: 0.2.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     objects:
       - kind: Service

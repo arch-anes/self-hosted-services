@@ -21,6 +21,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/prowlarr
   version: 22.8.6
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     {{- include "tunnel.truecharts.image" . | nindent 4 }}
     workload:

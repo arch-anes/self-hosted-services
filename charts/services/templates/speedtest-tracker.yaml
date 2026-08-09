@@ -21,6 +21,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/speedtest-tracker
   version: 11.12.8
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     workload:
       main:

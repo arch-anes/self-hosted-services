@@ -9,6 +9,8 @@ spec:
   chart: oci://ghcr.io/deliveryhero/helm-charts/node-problem-detector
   version: 2.4.1
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     metrics:
       enabled: {{ include "metrics.enabled" . }}

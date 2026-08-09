@@ -10,6 +10,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/bazarr
   version: 24.7.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     workload:
       main:

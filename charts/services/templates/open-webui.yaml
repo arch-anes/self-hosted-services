@@ -12,6 +12,8 @@ spec:
   repo: https://helm.openwebui.com/
   version: 16.0.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     pipelines:
       enabled: false

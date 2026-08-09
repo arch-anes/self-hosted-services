@@ -10,6 +10,8 @@ spec:
   repo: https://arch-anes.github.io/homer-operator/
   version: 0.2.26
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     watchedNamespaces:
       - {{ .Values.applicationsNamespace }}

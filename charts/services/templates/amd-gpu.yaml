@@ -10,6 +10,8 @@ spec:
   repo: https://rocm.github.io/k8s-device-plugin/
   version: 0.21.0
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     tolerations:
       - key: "dedicated"

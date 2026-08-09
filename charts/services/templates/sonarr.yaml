@@ -10,6 +10,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/sonarr
   version: 26.7.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     workload:
       main:

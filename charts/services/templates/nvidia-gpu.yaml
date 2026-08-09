@@ -10,6 +10,8 @@ spec:
   repo: https://nvidia.github.io/k8s-device-plugin
   version: 0.19.3
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     tolerations:
       - key: nvidia.com/gpu

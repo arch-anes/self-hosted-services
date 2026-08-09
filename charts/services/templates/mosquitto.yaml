@@ -9,6 +9,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/mosquitto
   version: 18.3.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     workload:
       main:

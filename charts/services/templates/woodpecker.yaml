@@ -23,6 +23,8 @@ spec:
   chart: oci://ghcr.io/woodpecker-ci/helm/woodpecker
   version: 3.7.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     server:
       env:

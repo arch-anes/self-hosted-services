@@ -9,6 +9,8 @@ spec:
   chart: oci://registry.k8s.io/nfd/charts/node-feature-discovery
   version: 0.19.0
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     featureGates:
       NodeFeatureAPI: true

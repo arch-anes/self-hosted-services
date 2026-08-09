@@ -24,6 +24,8 @@ spec:
   repo: https://charts.jetstack.io
   version: v1.21.1
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     crds:
       enabled: true

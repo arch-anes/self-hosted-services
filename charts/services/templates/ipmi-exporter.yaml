@@ -119,6 +119,8 @@ spec:
   repo: https://prometheus-community.github.io/helm-charts
   version: 0.8.0
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     image:
       repository: ghcr.io/arch-anes/ipmi-exporter-linux-amd64

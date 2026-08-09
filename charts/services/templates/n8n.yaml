@@ -21,6 +21,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/n8n
   version: 21.26.5
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     deployment:
       N8N_DIAGNOSTICS_ENABLED: false

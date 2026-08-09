@@ -11,6 +11,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/tracearr
   version: 4.13.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     workload:
       main:

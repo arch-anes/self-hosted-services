@@ -21,6 +21,8 @@ spec:
   repo: https://crowdsecurity.github.io/helm-charts
   version: 0.24.0
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     container_runtime: containerd
     config:

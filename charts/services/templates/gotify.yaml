@@ -11,6 +11,8 @@ spec:
   repo: https://arch-anes.github.io/charts
   version: 1.0.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     workload:
       main:

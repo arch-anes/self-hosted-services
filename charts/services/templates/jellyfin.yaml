@@ -23,6 +23,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/jellyfin
   version: 23.6.3
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     securityContext:
       pod:

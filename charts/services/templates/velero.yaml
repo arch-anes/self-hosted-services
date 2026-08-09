@@ -43,6 +43,8 @@ spec:
   version: 12.0.3
   targetNamespace: kube-system
   failurePolicy: abort
+  serverSide: "true"
+  forceConflicts: true
   values:
     cleanUpCRDs: false # Do not delete CRDs on chart uninstall to preserve any backups
     priorityClassName: backup-priority

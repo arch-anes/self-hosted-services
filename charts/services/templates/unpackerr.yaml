@@ -10,6 +10,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/unpackerr
   version: 17.4.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     workload:
       main:

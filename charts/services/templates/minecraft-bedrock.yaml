@@ -9,6 +9,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/minecraft-bedrock
   version: 14.10.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     service:
       main:

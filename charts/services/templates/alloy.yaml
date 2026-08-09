@@ -10,6 +10,8 @@ spec:
   chart: alloy
   version: 1.6.0
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     controller:
       tolerations:

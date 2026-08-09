@@ -21,6 +21,8 @@ spec:
   repo: https://helm.runix.net
   version: 1.65.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     annotations:
       reloader.stakater.com/auto: "true"

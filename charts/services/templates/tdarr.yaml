@@ -9,6 +9,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/tdarr
   version: 13.28.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     workload:
       main:
@@ -89,6 +91,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/tdarr-node
   version: 13.28.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     workload:
       main:

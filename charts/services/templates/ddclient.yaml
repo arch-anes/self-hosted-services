@@ -9,6 +9,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/ddclient
   version: 14.3.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     configmap:
       config:

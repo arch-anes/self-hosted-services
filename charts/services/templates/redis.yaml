@@ -9,6 +9,8 @@ spec:
   chart: oci://registry-1.docker.io/bitnamicharts/redis
   version: 27.0.12
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     global:
       defaultFips: relaxed

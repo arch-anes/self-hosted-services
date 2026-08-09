@@ -10,6 +10,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/frigate
   version: 19.6.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     {{- $gpuVendor := .Values.applications.frigate.gpu_vendor }}
     workload:

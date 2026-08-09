@@ -9,6 +9,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/octoprint
   version: 17.6.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     podOptions:
       nodeSelector:

@@ -15,6 +15,8 @@ spec:
   repo: https://charts.netbox.oss.netboxlabs.com
   version: 8.3.47
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     loginRequired: true
     housekeeping:

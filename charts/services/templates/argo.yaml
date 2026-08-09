@@ -13,6 +13,8 @@ spec:
   version: 9.5.20
   targetNamespace: kube-system
   takeOwnership: true
+  serverSide: "true"
+  forceConflicts: true
   values:
     global:
       domain: argo.{{ .Values.fqdn }}
@@ -99,6 +101,8 @@ spec:
   repo: https://argoproj.github.io/argo-helm
   version: 2.0.5
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     projects:
       self-hosted-services-{{ .Values.applicationsNamespace }}:

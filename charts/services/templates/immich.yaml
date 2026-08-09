@@ -39,6 +39,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/immich
   version: 33.7.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     immich:
     {{- $mlGpuVendor := dig "machine_learning" "gpu_vendor" "" .Values.applications.immich }}

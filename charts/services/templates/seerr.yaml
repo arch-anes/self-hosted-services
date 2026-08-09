@@ -9,6 +9,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/seerr
   version: 16.4.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     podOptions:
       # TrueCharts auto-injects a podAffinity for PVCs that requires a pod with the 

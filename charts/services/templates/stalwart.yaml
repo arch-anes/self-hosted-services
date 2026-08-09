@@ -26,6 +26,8 @@ spec:
   repo: https://arch-anes.github.io/charts
   version: 0.2.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     objects:
       - apiVersion: v1
@@ -116,6 +118,8 @@ spec:
   chart: oci://codeberg.org/wrenix/helm-charts/stalwart-mail
   version: 1.0.7
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     replicaCount: 1
     certificate:

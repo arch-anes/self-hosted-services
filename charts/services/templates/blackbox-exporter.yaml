@@ -11,6 +11,8 @@ spec:
   repo: https://prometheus-community.github.io/helm-charts
   version: 11.15.1
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     resources:
       limits:

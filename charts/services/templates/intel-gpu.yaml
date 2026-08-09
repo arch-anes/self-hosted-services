@@ -6,6 +6,8 @@ metadata:
   name: intel-device-plugins-operator
   namespace: kube-system
 spec:
+  serverSide: "true"
+  forceConflicts: true
   chart: intel-device-plugins-operator
   repo: https://intel.github.io/helm-charts/
   version: 0.36.0
@@ -22,6 +24,8 @@ spec:
   repo: https://intel.github.io/helm-charts/
   version: 0.36.0
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     tolerations:
       - key: "dedicated"

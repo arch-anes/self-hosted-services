@@ -21,6 +21,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/transmission
   version: 25.7.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     {{- include "tunnel.truecharts.image" . | nindent 4 }}
     configmap:

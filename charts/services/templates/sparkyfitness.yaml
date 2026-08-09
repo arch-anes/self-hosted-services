@@ -11,6 +11,8 @@ spec:
   chart: oci://ghcr.io/codewithcj/charts/sparkyfitness
   version: 1.6.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     config:
       frontendUrl: "https://fit.{{ .Values.fqdn }}"

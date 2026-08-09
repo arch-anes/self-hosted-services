@@ -23,6 +23,8 @@ spec:
   repo: https://grafana.github.io/helm-charts
   version: 6.55.0
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     deploymentMode: SingleBinary
     global:

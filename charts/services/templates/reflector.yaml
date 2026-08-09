@@ -10,6 +10,8 @@ spec:
   repo: https://emberstack.github.io/helm-charts
   version: 10.0.55
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     autoscaling:
       enabled: true

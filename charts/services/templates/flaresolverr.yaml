@@ -10,6 +10,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/flaresolverr
   version: 17.7.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     {{- include "tunnel.truecharts.image" . | nindent 4 }}
     workload:

@@ -23,6 +23,8 @@ spec:
   chart: oci://oci.trueforge.org/truecharts/valheim
   version: 14.3.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     service:
       valheim:

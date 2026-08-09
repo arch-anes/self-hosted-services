@@ -10,6 +10,8 @@ spec:
   repo: https://operator.min.io
   version: 7.1.1
   targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
   values:
     operator:
       env:
@@ -51,6 +53,8 @@ spec:
   repo: https://operator.min.io
   version: 7.1.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     tenant:
       name: minio

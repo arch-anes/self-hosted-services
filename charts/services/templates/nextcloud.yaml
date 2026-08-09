@@ -26,6 +26,8 @@ spec:
   repo: https://nextcloud.github.io/helm/
   version: 9.2.5
   targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
   values:
     podAnnotations:
       backup.velero.io/backup-volumes: nextcloud-main

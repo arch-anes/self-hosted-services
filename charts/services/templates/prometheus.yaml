@@ -23,6 +23,8 @@ spec:
   version: 88.2.0
   targetNamespace: kube-system
   bootstrap: true
+  serverSide: "true"
+  forceConflicts: true
   values:
     crds:
       enabled: true
@@ -524,6 +526,8 @@ spec:
           repo: https://arch-anes.github.io/charts
           version: 0.1.11
           targetNamespace: kube-system
+          serverSide: "true"
+          forceConflicts: true
           values:
             metricsPort: 10250
             component: k3s-server
@@ -669,6 +673,8 @@ spec:
           repo: https://arch-anes.github.io/charts
           version: 0.1.11
           targetNamespace: kube-system
+          serverSide: "true"
+          forceConflicts: true
           values:
             metricsPort: 2381
             component: kube-etcd
