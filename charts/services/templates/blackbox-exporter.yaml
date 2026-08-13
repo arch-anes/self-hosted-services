@@ -9,7 +9,7 @@ metadata:
 spec:
   chart: prometheus-blackbox-exporter
   repo: https://prometheus-community.github.io/helm-charts
-  version: 11.15.1
+  version: 11.17.2
   targetNamespace: kube-system
   serverSide: "true"
   forceConflicts: true
