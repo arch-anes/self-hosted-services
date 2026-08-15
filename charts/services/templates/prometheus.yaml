@@ -172,7 +172,7 @@ spec:
             datasource: Prometheus
           kubernetes-views-global:
             # renovate: depName="Kubernetes Views Global"
-            gnetId: 435757
+            gnetId: 15757
             revision: 43
             datasource: Prometheus
           kubernetes-views-nodes:

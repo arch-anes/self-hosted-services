@@ -64,8 +64,9 @@
         "/prometheus\\.yaml$/"
       ],
       "matchStrings": [
-        "#\\s+renovate:\\s+depName=\"(?<depName>.*)\"\\n\\s+gnetId:\\s+(?<packageName>.*?)\\n\\s+revision:\\s+(?<currentValue>.*)"
+        "#\\s+renovate:\\s+depName=\"(?<depName>[^\"]+)\"\\n\\s+gnetId:\\s+(?<gnetId>\\d+)\\n\\s+revision:\\s+(?<currentValue>\\d+)"
       ],
+      "packageNameTemplate": "{{{gnetId}}}",
       "versioningTemplate": "regex:^(?<major>\\d+)$",
       "datasourceTemplate": "custom.grafana-dashboards"
     }
