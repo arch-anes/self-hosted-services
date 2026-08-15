@@ -33,6 +33,7 @@
     - name: Update Homebrew
       community.general.homebrew:
         update_homebrew: true
+        upgrade_all: true
 
     - name: Configure Homebrew in shell environment (all users)
       become: true
