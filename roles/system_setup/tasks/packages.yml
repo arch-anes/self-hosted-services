@@ -10,6 +10,7 @@
         pkg:
           - curl
           - diffutils
+          - etcd-client
           - htop
           - nnn
           - rasdaemon
