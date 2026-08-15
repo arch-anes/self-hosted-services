@@ -17,24 +17,18 @@ This guide applies to the `charts/services` subtree. Follow the repository-wide
 
 ## 2. Template Helpers
 
-- You MUST wrap every application template with:
-
-  ```gotemplate
-  {{- if (include "app.enabled" (list . "app_name")) }}
-  ```
-
-- You MUST declare hard dependencies with:
-
-  ```gotemplate
-  {{- include "app.require" (list . "AppName" "dependency" "Display") -}}
-  ```
-
-- You MUST declare GPU resources with the `gpu.device` helper. Do not duplicate
-  vendor mapping or driver checks in application templates. For example:
-
-  ```gotemplate
-  {{- include "gpu.device" (list . "AppName" $gpuVendor) | nindent 18 }}
-  ```
+- You MUST gate every application template with `app.enabled` and declare hard
+  dependencies with `app.require`.
+- Treat the helper definitions in
+  [`templates/_helpers.tpl`](templates/_helpers.tpl) as authoritative.
+- Follow [`templates/nextcloud.yaml`](templates/nextcloud.yaml) as the reference
+  for application gating and dependency declarations.
+- You MUST declare GPU resources through `gpu.device`. Follow
+  [`templates/immich.yaml`](templates/immich.yaml) as the reference and do not
+  duplicate vendor mapping or driver checks in application templates.
+- Implement VPN routing through the helper defined in
+  [`templates/_tunnel.tpl`](templates/_tunnel.tpl). Follow
+  [`templates/joal.yaml`](templates/joal.yaml) as the reference integration.
 
 ## 3. Workload Configuration
 
@@ -155,13 +149,10 @@ The following annotations are optional:
 
 - Any helper change MUST include `helm-unittest` coverage in
   `tests/<topic>_test.yaml`.
-- Helper test fixtures MUST use a gate such as:
-
-  ```gotemplate
-  {{- if (.Values.testFixtures).<name> }}
-  ```
-
-  This keeps ordinary `helm template` and `helm lint` runs valid.
+- Helper test fixtures MUST follow the gated pattern in
+  [`templates/tests-helpers-fixture.yaml`](templates/tests-helpers-fixture.yaml),
+  with assertions in [`tests/helpers_test.yaml`](tests/helpers_test.yaml). This
+  keeps ordinary `helm template` and `helm lint` runs valid.
 - After changing helpers, verify with `helm unittest charts/services` from the
   repository root. Because `helm` requires explicit permission under the root
   guide, ask before running it.
