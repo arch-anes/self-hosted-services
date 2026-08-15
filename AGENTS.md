@@ -106,13 +106,16 @@ Use `.woodpecker/lint.yaml` as the source of truth for linting and validation.
 Do not duplicate its complete tool list in agent guides. Follow any additional
 validation requirements in the applicable scoped guide.
 
-## 6. Completion Checklist
+## 6. Definition of Done
 
-Before handing off a change, confirm that:
+A task is complete only when:
 
-- The diff contains only the requested feature, fix, or documentation update.
-- No sensitive inventory file was read or modified, and no real secret was
-  introduced.
-- The applicable root and scoped instructions were followed.
-- Required validation passed, or skipped validation is reported with a reason.
-- No production-affecting command was run without explicit permission.
+- The requested implementation is complete and follows every applicable agent
+  guide.
+- Targeted validation for the changed behavior passes.
+- All additional validation required by the applicable scoped guide passes, or
+  each skipped check is reported with its reason.
+- The final diff has been reviewed for unrelated changes.
+- The diff contains no real secrets, sensitive inventory data, or unexpected
+  generated files.
+- No production-affecting command was run without explicit user approval.
