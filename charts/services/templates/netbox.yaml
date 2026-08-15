@@ -26,7 +26,7 @@ spec:
           memory: {{ include "app.resources.memory" (list $ "512Mi") }}
           ephemeral-storage: 50Mi
         limits:
-          memory: 1024Mi
+          memory: 2Gi
           ephemeral-storage: 2Gi
       extraVolumes:
         - name: postgresql-certs
