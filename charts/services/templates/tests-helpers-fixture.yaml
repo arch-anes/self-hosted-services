@@ -13,9 +13,12 @@ metadata:
 data:
   app_enabled_foo: {{ include "app.enabled" (list . "foo") | quote }}
   app_enabled_bar: {{ include "app.enabled" (list . "bar") | quote }}
+  app_enabled_foo_value: {{ include "app.enabled" (list . "foo") | default false | quote }}
   metrics_enabled: {{ include "metrics.enabled" . | quote }}
+  metrics_enabled_value: {{ include "metrics.enabled" . | default false | quote }}
   ldap_base_dn: {{ include "ldap.base_dn" . | quote }}
   ha_enabled: {{ include "ha.enabled" . | quote }}
+  ha_enabled_value: {{ include "ha.enabled" . | default false | quote }}
   ha_replicas: {{ include "ha.replicas" . | quote }}
   ip_local_proxy_ranges_string: {{ include "ip.local_proxy_ranges.string" . | quote }}
   ip_proxy_ranges_count: {{ include "ip.proxy_ranges" . | fromYamlArray | len | quote }}

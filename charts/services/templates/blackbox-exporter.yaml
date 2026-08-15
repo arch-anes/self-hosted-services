@@ -31,7 +31,7 @@ spec:
             follow_redirects: true
             preferred_ip_protocol: "ip4"
     serviceMonitor:
-      enabled: {{ include "metrics.enabled" . }}
+      enabled: {{ include "metrics.enabled" . | default false }}
     prometheusRule:
       enabled: true
       rules:

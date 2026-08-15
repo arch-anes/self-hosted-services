@@ -149,7 +149,7 @@ spec:
         existingClaim: multimedia
     metrics:
       main:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         endpoints:
           - port: metrics
             path: /metrics

@@ -27,5 +27,5 @@ spec:
             - {{ . | quote }}
             {{- end }}
     prometheus:
-      enabled: {{ include "metrics.enabled" . }}
+      enabled: {{ include "metrics.enabled" . | default false }}
 {{- end }}

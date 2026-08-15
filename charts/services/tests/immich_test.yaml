@@ -1,0 +1,62 @@
+suite: immich
+templates:
+  - immich.yaml
+set:
+  enableAllApplicationsByDefault: false
+  applications:
+    immich:
+      enabled: true
+    postgresql:
+      enabled: true
+    redis:
+      enabled: true
+tests:
+  - it: renders explicit false values when metrics are disabled
+    documentIndex: 2
+    set:
+      applications:
+        prometheus:
+          enabled: false
+    asserts:
+      - equal:
+          path: spec.values.service.main.ports.metrics.enabled
+          value: false
+      - equal:
+          path: spec.values.service.microservices.ports.metrics.enabled
+          value: false
+      - equal:
+          path: spec.values.metrics.main.enabled
+          value: false
+      - equal:
+          path: spec.values.metrics.microservices.enabled
+          value: false
+      - notExists:
+          path: spec.values.workload.main.podSpec.containers.main.env.IMMICH_TELEMETRY_INCLUDE
+      - notExists:
+          path: spec.values.workload.microservices.podSpec.containers.microservices.env.IMMICH_TELEMETRY_INCLUDE
+
+  - it: preserves true values when metrics are enabled
+    documentIndex: 2
+    set:
+      applications:
+        prometheus:
+          enabled: true
+    asserts:
+      - equal:
+          path: spec.values.service.main.ports.metrics.enabled
+          value: true
+      - equal:
+          path: spec.values.service.microservices.ports.metrics.enabled
+          value: true
+      - equal:
+          path: spec.values.metrics.main.enabled
+          value: true
+      - equal:
+          path: spec.values.metrics.microservices.enabled
+          value: true
+      - equal:
+          path: spec.values.workload.main.podSpec.containers.main.env.IMMICH_TELEMETRY_INCLUDE
+          value: all
+      - equal:
+          path: spec.values.workload.microservices.podSpec.containers.microservices.env.IMMICH_TELEMETRY_INCLUDE
+          value: all

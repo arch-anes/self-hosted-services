@@ -97,11 +97,11 @@ spec:
         {{- .Values.applications.velero.remoteBackupLocations | toYaml | nindent 8 }}
     metrics:
       nodeAgentPodMonitor:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
       serviceMonitor:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
       prometheusRule:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         spec:
           - alert: VeleroBackupFailed
             annotations:

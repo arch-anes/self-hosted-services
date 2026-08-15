@@ -141,7 +141,7 @@ spec:
         fixedMiddlewares: []
     prometheus:
       serviceMonitor:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
     ingress:
       main:
         enabled: true

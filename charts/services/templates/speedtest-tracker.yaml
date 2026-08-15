@@ -109,7 +109,7 @@ spec:
         enabled: false
     metrics:
       main:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         type: servicemonitor
         targetSelector: main
         endpoints:

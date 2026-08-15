@@ -115,7 +115,7 @@ spec:
               - homebox.{{ .Values.fqdn }}
     persistence:
       data:
-        enabled: {{ include "app.enabled" (list . "minio") }}
+        enabled: {{ include "app.enabled" (list . "minio") | default false }}
         type: pvc
         storageClass: local-path-persistent-namespaced
       postgresql-certs:
@@ -130,7 +130,7 @@ spec:
         enabled: false
     configmap:
       authentik-blueprint:
-        enabled: {{ include "app.enabled" (list . "authentik") }}
+        enabled: {{ include "app.enabled" (list . "authentik") | default false }}
         data:
           blueprint.yaml: |
             # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json

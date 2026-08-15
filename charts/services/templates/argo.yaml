@@ -42,9 +42,9 @@ spec:
               - argo.{{ .Values.fqdn }}
             secretName: "{{ .Values.fqdn }}-tls"
       metrics:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         serviceMonitor:
-          enabled: {{ include "metrics.enabled" . }}
+          enabled: {{ include "metrics.enabled" . | default false }}
     redis:
       enabled: false
     dex:
@@ -63,9 +63,9 @@ spec:
           cpu: {{ include "app.resources.cpu" (list $ "500m") }}
           memory: {{ include "app.resources.memory" (list $ "128Mi") }}
       metrics:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         serviceMonitor:
-          enabled: {{ include "metrics.enabled" . }}
+          enabled: {{ include "metrics.enabled" . | default false }}
     repoServer:
       resources:
         limits:
@@ -74,9 +74,9 @@ spec:
           cpu: {{ include "app.resources.cpu" (list $ "500m") }}
           memory: {{ include "app.resources.memory" (list $ "128Mi") }}
       metrics:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         serviceMonitor:
-          enabled: {{ include "metrics.enabled" . }}
+          enabled: {{ include "metrics.enabled" . | default false }}
     applicationSet:
       resources:
         limits:
@@ -85,9 +85,9 @@ spec:
           cpu: {{ include "app.resources.cpu" (list $ "250m") }}
           memory: {{ include "app.resources.memory" (list $ "64Mi") }}
       metrics:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         serviceMonitor:
-          enabled: {{ include "metrics.enabled" . }}
+          enabled: {{ include "metrics.enabled" . | default false }}
 {{- end }}
 
 ---

@@ -339,12 +339,12 @@ spec:
           level: trace
           enable:
             log-exporter: false
-            span-exporter: {{ (include "app.enabled" (list . "tempo")) }}
+            span-exporter: {{ include "app.enabled" (list . "tempo") | default false }}
           transport: http
           endpoint: http://tempo.kube-system.svc.cluster.local:4318/v1/traces
       metrics:
         prometheus:
-          enable: {{ include "metrics.enabled" . }}
+          enable: {{ include "metrics.enabled" . | default false }}
     env:
       - name: POSTGRESQL_PASSWORD
         valueFrom:
@@ -390,9 +390,9 @@ spec:
       enabled: false
       config: {}
       promExporter:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         podMonitor:
-          enabled: {{ include "metrics.enabled" . }}
+          enabled: {{ include "metrics.enabled" . | default false }}
     ingress:
       enabled: true
       annotations:
@@ -443,10 +443,10 @@ spec:
         https: null
     prometheus:
       servicemonitor:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
     grafana:
       dashboards:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         labels:
           grafana_dashboard: "1"
     resources:

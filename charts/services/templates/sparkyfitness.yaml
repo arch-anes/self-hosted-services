@@ -19,7 +19,7 @@ spec:
       adminEmail: "admin@{{ .Values.fqdn }}"
       extraTrustedOrigins: "https://fit.{{ .Values.fqdn }}"
       forceEmailLogin: {{ not (include "app.enabled" (list . "authentik")) }}
-      disableEmailLogin: {{ include "app.enabled" (list . "authentik") }}
+      disableEmailLogin: {{ include "app.enabled" (list . "authentik") | default false }}
       disableSignup: false
 {{- if (include "app.enabled" (list . "authentik")) }}
       oidc:

@@ -109,12 +109,12 @@ spec:
         headers:
           defaultMode: keep
     metrics:
-      addInternals: {{ include "metrics.enabled" . }}
+      addInternals: {{ include "metrics.enabled" . | default false }}
       prometheus:
         service:
-          enabled: {{ include "metrics.enabled" . }}
+          enabled: {{ include "metrics.enabled" . | default false }}
         serviceMonitor:
-          enabled: {{ include "metrics.enabled" . }}
+          enabled: {{ include "metrics.enabled" . | default false }}
 {{- if (include "app.enabled" (list . "tempo")) }}
     tracing:
       capturedRequestHeaders:
@@ -234,7 +234,7 @@ spec:
       limits:
         memory: 512Mi
     autoscaling:
-      enabled: {{ include "ha.enabled" . }}
+      enabled: {{ include "ha.enabled" . | default false }}
       minReplicas: 3
       maxReplicas: 10
       metrics:

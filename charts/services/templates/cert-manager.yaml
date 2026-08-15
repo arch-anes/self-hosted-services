@@ -34,9 +34,9 @@ spec:
     dns01RecursiveNameserversOnly: true
     dns01RecursiveNameservers: "https://1.1.1.1/dns-query,https://8.8.8.8/dns-query"
     prometheus:
-      enabled: {{ include "metrics.enabled" . }}
+      enabled: {{ include "metrics.enabled" . | default false }}
       servicemonitor:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
     resources:
       requests:
         memory: {{ include "app.resources.memory" (list $ "128Mi") }}

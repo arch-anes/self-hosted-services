@@ -103,9 +103,9 @@ spec:
             hosts:
               - auth.{{ .Values.fqdn }}
       metrics:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         serviceMonitor:
-          enabled: {{ include "metrics.enabled" . }}
+          enabled: {{ include "metrics.enabled" . | default false }}
     worker:
       deploymentAnnotations:
         reloader.stakater.com/auto: "true"
@@ -116,9 +116,9 @@ spec:
         limits:
           memory: 2Gi
       metrics:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         serviceMonitor:
-          enabled: {{ include "metrics.enabled" . }}
+          enabled: {{ include "metrics.enabled" . | default false }}
     authentik:
       enabled: false # Disable secret generation
     postgresql:

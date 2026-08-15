@@ -100,7 +100,7 @@ spec:
         type: emptyDir
     metrics:
       main:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         endpoints:
           - port: metrics
             path: /metrics

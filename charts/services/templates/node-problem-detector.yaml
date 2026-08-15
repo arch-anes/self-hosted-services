@@ -13,11 +13,11 @@ spec:
   forceConflicts: true
   values:
     metrics:
-      enabled: {{ include "metrics.enabled" . }}
+      enabled: {{ include "metrics.enabled" . | default false }}
       serviceMonitor:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
       prometheusRule:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
     resources:
       requests:
         cpu: {{ include "app.resources.cpu" (list $ "100m") }}

@@ -63,14 +63,14 @@ spec:
                 {{- end }}
     service:
       main:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         ports:
           main:
             enabled: true
             port: 5656
     metrics:
       main:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         endpoints:
           - port: main
             path: /metrics

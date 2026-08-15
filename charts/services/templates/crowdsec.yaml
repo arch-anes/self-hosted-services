@@ -56,9 +56,9 @@ spec:
           cpu: {{ include "app.resources.cpu" (list $ "500m") }}
           memory: {{ include "app.resources.memory" (list $ "250Mi") }}
       metrics:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         serviceMonitor:
-          enabled: {{ include "metrics.enabled" . }}
+          enabled: {{ include "metrics.enabled" . | default false }}
       nodeSelector:
         public: "true"
     lapi:
@@ -89,9 +89,9 @@ spec:
           cpu: {{ include "app.resources.cpu" (list $ "500m") }}
           memory: {{ include "app.resources.memory" (list $ "500Mi") }}
       metrics:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         serviceMonitor:
-          enabled: {{ include "metrics.enabled" . }}
+          enabled: {{ include "metrics.enabled" . | default false }}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

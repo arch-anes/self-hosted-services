@@ -141,14 +141,14 @@ spec:
       main:
         ports:
           metrics:
-            enabled: {{ include "metrics.enabled" . }}
+            enabled: {{ include "metrics.enabled" . | default false }}
             port: 8081
             protocol: http
             targetSelector: main
       microservices:
         ports:
           metrics:
-            enabled: {{ include "metrics.enabled" . }}
+            enabled: {{ include "metrics.enabled" . | default false }}
             port: 8082
             protocol: http
             targetSelector: microservices
@@ -232,14 +232,14 @@ spec:
         enabled: false
     metrics:
       main:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         type: servicemonitor
         targetSelector: main
         endpoints:
           - port: metrics
             path: /metrics
       microservices:
-        enabled: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
         type: servicemonitor
         targetSelector: microservices
         endpoints:

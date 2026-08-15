@@ -21,6 +21,15 @@ This guide applies to the `charts/services` subtree. Follow the repository-wide
   dependencies with `app.require`.
 - Treat the helper definitions in
   [`templates/_helpers.tpl`](templates/_helpers.tpl) as authoritative.
+- Helm's `include` function always returns a string. Boolean predicate helpers
+  return `"true"` or an empty string so they remain safe in conditions. When
+  rendering them into YAML fields, you MUST default empty output to `false`,
+  for example:
+
+  ```gotemplate
+  enabled: {{ include "metrics.enabled" . | default false }}
+  ```
+
 - Follow [`templates/nextcloud.yaml`](templates/nextcloud.yaml) as the reference
   for application gating and dependency declarations.
 - You MUST declare GPU resources through `gpu.device`. Follow

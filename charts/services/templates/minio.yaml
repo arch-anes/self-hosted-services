@@ -85,8 +85,8 @@ spec:
             limits:
               memory: 2Gi
       metrics:
-        enabled: {{ include "metrics.enabled" . }}
-      prometheusOperator: {{ include "metrics.enabled" . }}
+        enabled: {{ include "metrics.enabled" . | default false }}
+      prometheusOperator: {{ include "metrics.enabled" . | default false }}
 {{- if or (and .Values.primaryTenant (or (include "app.enabled" (list . "loki")) (include "app.enabled" (list . "tempo")))) (include "app.enabled" (list . "stalwart")) }}
       buckets:
 {{- if (include "app.enabled" (list . "homebox")) }}
