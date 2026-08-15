@@ -135,7 +135,7 @@ spec:
                   cpu: {{ include "app.resources.cpu" (list $ "250m") }}
                 limits:
                   cpu: null
-                  memory: 10Gi
+                  memory: 15Gi
                   {{- include "gpu.device" (list . "Immich's machine learning" $mlGpuVendor) | nindent 18 }}
     service:
       main:
