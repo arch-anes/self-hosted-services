@@ -163,7 +163,7 @@ The following annotations are optional:
   with assertions in [`tests/helpers_test.yaml`](tests/helpers_test.yaml). This
   keeps ordinary `helm template` and `helm lint` runs valid.
 - After changing helpers, verify with `helm unittest charts/services` from the
-  repository root. Because `helm` requires explicit permission under the root
-  guide, ask before running it.
+  repository root. This local, non-mutating validation does not require
+  explicit permission under the root guide.
 
 [cpu-limits]: https://home.robusta.dev/blog/stop-using-cpu-limits

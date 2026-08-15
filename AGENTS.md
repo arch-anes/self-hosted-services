@@ -38,8 +38,11 @@ continue to apply; this root guide takes precedence if instructions conflict.
 
 ### 2.1 Production Commands
 
-- You MUST NOT run `kubectl`, `helm`, or `ansible-playbook` without explicit
-  user permission. These commands can affect live infrastructure.
+- You MUST NOT run `kubectl`, `ansible-playbook`, or any `helm` command that
+  connects to or mutates a cluster without explicit user permission. These
+  commands can affect live infrastructure.
+- You MAY run local, non-mutating Helm validation commands without explicit
+  permission, including `helm lint`, `helm template`, and `helm unittest`.
 - Permission to inspect or edit the repository does not imply permission to
   deploy, reconcile, or mutate a cluster.
 
