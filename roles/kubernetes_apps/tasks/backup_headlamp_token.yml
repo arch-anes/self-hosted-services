@@ -1,0 +1,21 @@
+# code: language=ansible
+---
+
+- name: Back up Headlamp token
+  run_once: true
+  block:
+    - name: Get Headlamp token
+      ansible.builtin.command: "kubectl -n kube-system get secret headlamp-token -o go-template='{{ '{{' }} .data.token | base64decode }}'"
+      become: true
+      changed_when: false
+      no_log: true
+      register: kubernetes_apps_headlamp_token
+
+    - name: Back up Headlamp token on the controller
+      ansible.builtin.copy:
+        content: "{{ kubernetes_apps_headlamp_token.stdout }}\n"
+        dest: "{{ prepare_keys_backup_directory }}/headlamp-token"
+        mode: '0600'
+      delegate_to: localhost
+      become: false
+      no_log: true

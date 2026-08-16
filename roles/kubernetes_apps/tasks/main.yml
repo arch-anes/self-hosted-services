@@ -25,10 +25,10 @@
     - name: Deploy helm chart
       ansible.builtin.include_tasks: apply_helm_chart.yml
 
-- name: Extract Headlamp token
-  ansible.builtin.include_tasks: extract_headlamp_token.yml
+- name: Back up Headlamp token
+  ansible.builtin.include_tasks: backup_headlamp_token.yml
   # Workaround for https://github.com/ansible/ansible/issues/11496
   when:
-    - display_headlamp_token
+    - backup_keys_to_controller | default(false) | bool
     - k3s_control_node is defined
     - k3s_control_node

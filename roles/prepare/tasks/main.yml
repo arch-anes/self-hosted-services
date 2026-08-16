@@ -1,0 +1,18 @@
+# code: language=ansible
+---
+
+- name: Define inventory name
+  ansible.builtin.set_fact:
+    prepare_inventory_name: >-
+      {{ (inventory_file | default('inventory') | splitext | first | basename) }}
+
+- name: Define controller key backup directory
+  ansible.builtin.set_fact:
+    prepare_keys_backup_directory: >-
+      {{ role_path | dirname | dirname }}/keys_backup/{{ prepare_inventory_name }}
+
+- name: Detect host facts
+  ansible.builtin.include_tasks: detect.yml
+
+- name: Prepare controller key backups
+  ansible.builtin.include_tasks: keys_backup.yml

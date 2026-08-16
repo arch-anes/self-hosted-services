@@ -12,8 +12,8 @@
     - name: Global handlers
       role: common
 
-    - name: Detect system facts
-      role: detect
+    - name: Prepare hosts and controller state
+      role: prepare
 
     - name: Setup system
       role: system_setup

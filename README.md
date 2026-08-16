@@ -136,7 +136,7 @@ all:
     skip_k8s_setup: false
     skip_binary_update: false
     manifest_only_setup: false
-    display_headlamp_token: false
+    backup_keys_to_controller: false
     timezone: America/Vancouver
     tenants_count: 1
     tailscale_oauth_secret: "some_secret"

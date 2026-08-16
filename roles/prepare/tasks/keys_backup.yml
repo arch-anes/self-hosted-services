@@ -1,0 +1,12 @@
+# code: language=ansible
+---
+
+- name: Create controller key backup directory
+  ansible.builtin.file:
+    path: "{{ prepare_keys_backup_directory }}"
+    state: directory
+    mode: '0700'
+  delegate_to: localhost
+  become: false
+  run_once: true
+  when: backup_keys_to_controller | default(false) | bool

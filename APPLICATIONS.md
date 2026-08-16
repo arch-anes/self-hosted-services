@@ -65,7 +65,10 @@ highAvailability: false  # Set to false to use 1 replica instead of 3
 - **Obico:** Configure the [Obico secret](charts/services/templates/obico.yaml) with a Django secret key.
 - **RED Discord Bot:** [Create a bot account](https://docs.discord.red/en/stable/bot_application_guide.html), then configure the [RED secret](charts/services/templates/red.yaml) with its token.
 - **Minecraft Bedrock:** Connect on UDP port 30778.
-- **Headlamp:** Run the playbook with `display_headlamp_token: true` to print a token.
+- **Headlamp:** Enable `backup_keys_to_controller` to save its token to
+  `keys_backup/<inventory-name>/headlamp-token` in the repository root on the
+  Ansible controller. The inventory name is derived from the inventory file
+  basename with a trailing `.yml` or `.yaml` removed.
 - **Velero:** Create an S3-compatible backup bucket and access key, then configure the [Velero secrets](charts/services/templates/velero.yaml) with those credentials and an encryption key.
 - **Prometheus and Grafana:** Configure the [Prometheus secret](charts/services/templates/prometheus.yaml) with Grafana admin credentials.
 - **Loki and Tempo:** Configure their [Loki](charts/services/templates/loki.yaml) and [Tempo](charts/services/templates/tempo.yaml) secrets with MinIO credentials.

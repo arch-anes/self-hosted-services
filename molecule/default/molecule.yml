@@ -84,7 +84,7 @@ provisioner:
           skip_k8s_setup: false
           skip_binary_update: false
           manifest_only_setup: false
-          display_headlamp_token: false
+          backup_keys_to_controller: false
           tenants_count: 1
           chartValuesOverrides:
             enableAllApplicationsByDefault: false
