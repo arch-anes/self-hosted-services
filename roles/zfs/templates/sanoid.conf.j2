@@ -1,0 +1,30 @@
+{% for pool_datasets in zfs_sanoid_datasets | default([]) %}
+{% set encrypted_dataset = pool_datasets.pool ~ '/encrypted' %}
+{% if encrypted_dataset in zfs_dataset_names | default([]) %}
+[{{ encrypted_dataset }}]
+    use_template = production
+    recursive = yes
+{% endif %}
+
+{% for dataset in pool_datasets.datasets %}
+{% set dataset_name = encrypted_dataset ~ '/' ~ dataset.name %}
+{% if dataset_name in zfs_dataset_names | default([]) and not (dataset.snapshot | default(true) | bool) %}
+[{{ dataset_name }}]
+    autosnap = no
+    autoprune = no
+
+{% endif %}
+{% endfor %}
+{% endfor %}
+#############################
+# templates below this line #
+#############################
+
+[template_production]
+    frequently = 0
+    hourly = 36
+    daily = 30
+    monthly = 3
+    yearly = 0
+    autosnap = yes
+    autoprune = yes
