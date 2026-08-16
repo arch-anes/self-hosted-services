@@ -14,11 +14,6 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
-    service:
-      main:
-        ports:
-          main:
-            targetPort: 80
     workload:
       main:
         annotations:
@@ -224,5 +219,5 @@ spec:
                       service:
                         name: vaultwarden
                         port:
-                          number: 80
+                          number: 10102
 {{- end }}
