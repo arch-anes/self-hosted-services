@@ -1,0 +1,15 @@
+---
+
+- name: Provision ZFS pools
+  become: true
+  when:
+    - ansible_distribution == 'Ubuntu'
+    - zfs is defined
+    - zfs.pools | default([]) | length > 0
+  block:
+    - name: Provision declared ZFS pools
+      ansible.builtin.include_tasks: pool_configuration.yml
+      loop: "{{ zfs.pools }}"
+      loop_control:
+        loop_var: zfs_pool
+        label: "{{ zfs_pool.name }}"

@@ -1,0 +1,31 @@
+---
+
+- name: Validate ZFS vdev declaration
+  ansible.builtin.assert:
+    that:
+      - zfs_vdev.disks is defined
+      - zfs_vdev.disks | length > 0
+      - zfs_vdev.type is defined
+    fail_msg: "Every ZFS vdev must declare disks and an explicit type."
+
+- name: Require stable ZFS device identifiers
+  ansible.builtin.assert:
+    that: >-
+      zfs_vdev.disks |
+      reject('match', '^/dev/disk/(by-id|by-partuuid|by-uuid)/[^/]+$') |
+      list | length == 0
+    fail_msg: >-
+      Every ZFS vdev device must use a stable /dev/disk/by-id,
+      /dev/disk/by-partuuid, or /dev/disk/by-uuid path.
+
+- name: Determine whether ZFS vdev already exists
+  ansible.builtin.set_fact:
+    zfs_vdev_existing_disk_count: >-
+      {{ zfs_vdev.disks |
+         select('in', zfs_existing_pool_disk_paths) | list | length }}
+
+- name: Select missing ZFS vdev for creation
+  ansible.builtin.set_fact:
+    zfs_pool_vdevs_to_add: "{{ zfs_pool_vdevs_to_add + [zfs_vdev] }}"
+  when:
+    - not (zfs_pool_exists | bool) or zfs_vdev_existing_disk_count | int != zfs_vdev.disks | length

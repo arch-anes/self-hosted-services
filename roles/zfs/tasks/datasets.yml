@@ -1,0 +1,120 @@
+---
+- name: Gather ZFS facts about the pool
+  community.general.zfs_facts:
+    name: "{{ zfs_pool.name }}"
+    recurse: true
+    type: filesystem
+
+- name: Build encrypted dataset facts
+  ansible.builtin.set_fact:
+    zfs_encrypted_dataset: "{{ zfs_pool.name }}/encrypted"
+    zfs_encryption_key_location: >-
+      {{ zfs_pool.encryption_key_location |
+         default('/root/' ~ zfs_pool.name ~ '-keyfile-zfs') }}
+
+- name: Select existing encrypted dataset facts
+  ansible.builtin.set_fact:
+    zfs_encrypted_dataset_facts: >-
+      {{ ansible_zfs_datasets | selectattr('name', 'equalto', zfs_encrypted_dataset) | list }}
+
+- name: Determine whether encrypted dataset exists
+  ansible.builtin.set_fact:
+    zfs_encrypted_dataset_exists: "{{ zfs_encrypted_dataset_facts | length > 0 }}"
+
+- name: Prepare the encrypted ZFS dataset
+  block:
+    - name: Refuse a changed key location for an existing encrypted dataset
+      ansible.builtin.assert:
+        that: >-
+          (zfs_encrypted_dataset_facts | first).keylocation ==
+          'file://' ~ zfs_encryption_key_location
+        fail_msg: >-
+          {{ zfs_encrypted_dataset }} uses {{ (zfs_encrypted_dataset_facts | first).keylocation }}
+          but the configuration declares file://{{ zfs_encryption_key_location }}.
+      when: zfs_encrypted_dataset_exists | bool
+
+    - name: Check whether the encryption key already exists
+      ansible.builtin.stat:
+        path: "{{ zfs_encryption_key_location }}"
+      register: zfs_encryption_key
+
+    - name: Generate encrypted dataset key once
+      ansible.builtin.command:
+        argv: [openssl, rand, -out, "{{ zfs_encryption_key_location }}", '32']
+        creates: "{{ zfs_encryption_key_location }}"
+      no_log: true
+      when:
+        - not (zfs_encrypted_dataset_exists | bool)
+        - not zfs_encryption_key.stat.exists
+
+    - name: Restrict encrypted dataset key permissions
+      ansible.builtin.file:
+        path: "{{ zfs_encryption_key_location }}"
+        state: file
+        mode: "0600"
+
+    - name: Back up ZFS encryption key to the controller
+      ansible.builtin.fetch:
+        src: "{{ zfs_encryption_key_location }}"
+        dest: "{{ prepare_keys_backup_directory }}/{{ inventory_hostname }}-{{ zfs_pool.name }}-keyfile-zfs"
+        flat: true
+        validate_checksum: true
+      no_log: true
+      when: backup_keys_to_controller | default(false) | bool
+
+    - name: Create encrypted ZFS dataset
+      community.general.zfs:
+        name: "{{ zfs_encrypted_dataset }}"
+        state: present
+        extra_zfs_properties:
+          encryption: "on"
+          keyformat: raw
+          keylocation: "file://{{ zfs_encryption_key_location }}"
+          mountpoint: "{{ zfs_pool.mountpoint | default('/storage') }}"
+          recordsize: 1M
+      when: not (zfs_encrypted_dataset_exists | bool)
+
+- name: Set encrypted ZFS dataset recordsize
+  community.general.zfs:
+    name: "{{ zfs_encrypted_dataset }}"
+    state: present
+    extra_zfs_properties:
+      recordsize: 1M
+
+- name: Build configured ZFS datasets
+  ansible.builtin.set_fact:
+    zfs_datasets:
+      - { name: cluster-local-storage, recordsize: 16k, snapshot: false }
+      - { name: multimedia, recordsize: 1M, snapshot: false }
+
+- name: Add configured ZFS datasets
+  ansible.builtin.set_fact:
+    zfs_datasets: "{{ zfs_datasets + (zfs_pool.datasets | default([])) }}"
+
+- name: Register datasets for Sanoid
+  ansible.builtin.set_fact:
+    zfs_sanoid_datasets: >-
+      {{ zfs_sanoid_datasets | default([]) + [{
+        'pool': zfs_pool.name,
+        'datasets': zfs_datasets
+      }] }}
+
+- name: Validate configured ZFS datasets
+  ansible.builtin.assert:
+    that:
+      - item.name is defined
+      - item.recordsize is defined
+    fail_msg: "Every configured ZFS dataset must specify a name and recordsize."
+  loop: "{{ zfs_datasets }}"
+  loop_control:
+    label: "{{ item.name | default('missing dataset name') }}"
+
+- name: Create configured ZFS datasets
+  community.general.zfs:
+    name: "{{ zfs_encrypted_dataset }}/{{ item.name }}"
+    state: present
+    extra_zfs_properties:
+      recordsize: "{{ item.recordsize }}"
+  loop: "{{ zfs_datasets }}"
+  loop_control:
+    label: "{{ zfs_encrypted_dataset }}/{{ item.name }}"
