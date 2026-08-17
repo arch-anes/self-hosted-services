@@ -9,7 +9,7 @@ metadata:
 spec:
   chart: gotify
   repo: https://arch-anes.github.io/charts
-  version: 1.0.0
+  version: 1.0.1
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   serverSide: "true"
   forceConflicts: true
