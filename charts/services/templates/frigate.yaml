@@ -42,6 +42,14 @@ spec:
               {{- if eq $gpuVendor "nvidia" }}
               imageSelector: tensorrtImage
               {{- end }}
+              {{- if or (eq $gpuVendor "intel") (eq $gpuVendor "intel_xe") }}
+              securityContext:
+                capabilities:
+                  add:
+                    - PERFMON
+                seccompProfile:
+                  type: Unconfined
+              {{- end }}
               probes:
                 liveness:
                   type: http
