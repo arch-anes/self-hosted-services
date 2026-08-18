@@ -14,6 +14,13 @@ spec:
   forceConflicts: true
   values:
     {{- $gpuVendor := .Values.applications.frigate.gpu_vendor }}
+    securityContext:
+      pod:
+        supplementalGroups:
+          - 44
+          - 46
+          - 109
+          - 110
     workload:
       main:
         podSpec:
