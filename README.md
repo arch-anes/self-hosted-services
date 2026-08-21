@@ -58,43 +58,27 @@ AWS SES provides outbound email for applications in this stack.
 
 ## Configure ZFS (optional, recommended)
 
-ZFS adds checksumming, compression, and reliable storage management. Run these steps on each host that will provide ZFS storage.
+ZFS adds checksumming, compression, and reliable storage management. Put the
+`zfs` object directly under each storage-capable host in your Ansible inventory,
+as shown in [Create an inventory](#create-an-inventory). Not every Kubernetes
+node necessarily has disks intended for a ZFS pool. Use whole-disk, stable
+`/dev/disk/by-id`, `/dev/disk/by-partuuid`, or `/dev/disk/by-uuid` paths; the
+role rejects `/dev/sdX`, `/dev/nvme*`, and every other unstable device path.
 
-1. Install ZFS if it is not already present:
+The role creates `cluster-local-storage` (128K recordsize) and `multimedia`
+(1M recordsize) beneath the encrypted dataset. Any additional dataset must
+declare a `recordsize`.
 
-   ```
-    sudo apt install zfsutils-linux
-   ```
-2. List drives by stable identifier:
+Existing pools are never recreated or destroyed. Existing vdevs must exactly
+match the declared disk set and topology; otherwise the run fails before it can
+change the pool. Declared vdevs that are absent are added. A disk already owned
+by another pool is rejected. Existing encrypted datasets must retain their
+configured key location; an existing key at that location is reused. Back up
+each host's keyfile before relying on encrypted storage.
 
-   ```
-    ls -lld /dev/disk/by-id/*
-   ```
-3. Create and configure the pool. Replace both device placeholders with the identifiers from the previous step:
-
-   ```
-    sudo zpool create -m /zfs-pool-dummy-mountpoint-do-not-use storage mirror SOME_DEVICE_1 SOME_DEVICE_2
-    sudo zfs set compression=lz4 storage
-    sudo zfs set atime=off storage
-   ```
-4. Generate an encryption key and back it up somewhere safe:
-
-   ```
-    sudo openssl rand -out /root/keyfile-zfs 32
-   ```
-5. Create the encrypted dataset:
-
-   ```
-    sudo zfs create -o encryption=on -o keylocation=file:///root/keyfile-zfs -o keyformat=raw -o mountpoint=/storage storage/encrypted
-   ```
-6. Create the datasets used by the cluster:
-
-   ```
-    sudo zfs create storage/encrypted/cluster-local-storage
-   ```
-   ```
-    sudo zfs create storage/encrypted/multimedia
-   ```
+Set `backup_keys_to_controller: true` under inventory `all.vars` to back up
+generated or reused keys to the Ansible controller. They are stored in the
+gitignored `keys_backup/<inventory>` directory.
 
 ## Configure Tailscale (optional)
 
@@ -131,6 +115,7 @@ all:
   vars:
     k3s_control_node: false
     skip_system_setup: false
+    skip_zfs_setup: false
     skip_firewall_setup: false
     skip_vpn_setup: false
     skip_k8s_setup: false
@@ -161,6 +146,23 @@ k3s_cluster:
       labels:
         - local=true
         - nas=true
+      zfs:
+        pools:
+          - name: storage
+            vdevs:
+              - type: mirror
+                disks:
+                  - /dev/disk/by-id/wwn-0x5000...
+                  - /dev/disk/by-id/wwn-0x5000...
+            # Optional; defaults to /root/pool_name-keyfile-zfs
+            encryption_key_location: /root/storage-keyfile-zfs
+            # Optional; defaults to /storage
+            mountpoint: /storage
+            datasets:
+              - name: backups
+                recordsize: 1M
+                # Optional; snapshots are enabled by default.
+                snapshot: true
     small_manager:
       k3s_control_node: true
       labels:

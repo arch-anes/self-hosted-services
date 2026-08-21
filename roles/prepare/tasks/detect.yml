@@ -34,3 +34,7 @@
         'armv7' if ansible_machine == 'armv7l' else
         'unknown'
       }}
+
+- name: Gather existing ZFS pool facts
+  community.general.zpool_facts:
+  when: ansible_distribution == 'Ubuntu'
