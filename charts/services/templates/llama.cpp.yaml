@@ -56,6 +56,11 @@ spec:
                     name: hugging-face
                     key: token
                     expandObjectName: false
+                {{- if .Values.applications.llama_cpp.use_vulkan }}
+                RADV_PERFTEST: "nogttspill"
+                GGML_VK_ALLOW_GRAPHICS_QUEUE: "1"
+                GGML_VK_DISABLE_INTEGER_DOT_PRODUCT: "1"
+                {{- end }}
               extraArgs:
                 - --sleep-idle-seconds 
                 - "3600"
