@@ -11,6 +11,8 @@ steps:
       - helm template charts/services | yamllint --no-warnings -
       - yamllint .
       - yamlfmt -lint
+      - python3 scripts/pull-upstream-helm-charts.py
+      - python3 scripts/check-helm-chart-values.py
 
   - name: Lint Python
     image: mcr.microsoft.com/devcontainers/python:3
