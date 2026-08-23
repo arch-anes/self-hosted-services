@@ -56,6 +56,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "octoprint"
           gethomepage.dev/group: Automation
           gethomepage.dev/name: OctoPrint
           gethomepage.dev/icon: "https://raw.githubusercontent.com/OctoPrint/OctoPrint/a93b4d397248dc406a75e634c1326fb1b8ddcb63/docs/images/octoprint-logo.png"

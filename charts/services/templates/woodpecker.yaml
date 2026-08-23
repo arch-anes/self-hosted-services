@@ -52,6 +52,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "woodpecker"
           gethomepage.dev/group: Administration
           gethomepage.dev/name: Woodpecker
           gethomepage.dev/icon: "https://woodpecker-ci.org/img/logo.svg"

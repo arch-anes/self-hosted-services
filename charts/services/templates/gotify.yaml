@@ -66,6 +66,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "gotify"
           gethomepage.dev/group: Feed
           gethomepage.dev/icon: "https://raw.githubusercontent.com/gotify/logo/87aef9091f51644eaccf78e7b67f8ce94271efeb/gotify-logo.png"
         hosts:

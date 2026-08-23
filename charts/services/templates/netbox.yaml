@@ -100,6 +100,7 @@ spec:
       enabled: true
       annotations:
         gethomepage.dev/enabled: "true"
+        gethomepage.dev/app: "netbox"
         gethomepage.dev/group: Administration
         gethomepage.dev/icon: "https://raw.githubusercontent.com/netbox-community/netbox/b88b5b0b1b5b78f5a6221019ac41d7a6dd6d73b2/docs/netbox_logo_dark.svg"
       hosts:

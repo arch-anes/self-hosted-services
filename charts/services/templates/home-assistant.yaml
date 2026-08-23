@@ -147,6 +147,7 @@ spec:
         enabled: true
         annotations:    
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "home-assistant"
           gethomepage.dev/group: Automation
           gethomepage.dev/name: "Home Assistant"
           gethomepage.dev/icon: "https://upload.wikimedia.org/wikipedia/en/4/49/Home_Assistant_logo_%282023%29.svg"

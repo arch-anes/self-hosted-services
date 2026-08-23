@@ -143,6 +143,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "minio-operator"
           gethomepage.dev/group: Media
           gethomepage.dev/name: MinIO
           gethomepage.dev/icon: "https://cdn.prod.website-files.com/681c8426519d8db8f867c1e8/68656cb290ee4fa91989c2dc_Brand-Logo%20%E2%9C%85.svg"

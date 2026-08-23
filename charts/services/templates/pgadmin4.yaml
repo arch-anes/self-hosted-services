@@ -53,6 +53,7 @@ spec:
       enabled: true
       annotations:
         gethomepage.dev/enabled: "true"
+        gethomepage.dev/app: "pgadmin4"
         gethomepage.dev/group: Administration
         gethomepage.dev/name: pgAdmin4
         gethomepage.dev/icon: "https://www.pgadmin.org/static/docs/pgadmin4-dev/docs/en_US/_build/html/_images/logo-right-128.png"

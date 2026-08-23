@@ -60,6 +60,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "jellyfin"
           gethomepage.dev/group: Media
           gethomepage.dev/weight: "1"
           gethomepage.dev/icon: "https://github.com/jellyfin/jellyfin/raw/cd36b8067fcf80c5ebb47bdd9bea0047d1fe3aef/Emby.Dlna/Images/logo240.png"

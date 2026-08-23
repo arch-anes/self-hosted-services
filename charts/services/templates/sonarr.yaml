@@ -75,6 +75,7 @@ spec:
         enabled: true
         annotations:    
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "sonarr"
           gethomepage.dev/group: Arr
           gethomepage.dev/icon: "https://raw.githubusercontent.com/Sonarr/Sonarr/1f785dd30ddf6f1ae61b171afc12ce691c100ee2/Logo/256.png"
         hosts:

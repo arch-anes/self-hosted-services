@@ -110,6 +110,7 @@ spec:
       enabled: true
       annotations:
         gethomepage.dev/enabled: "true"
+        gethomepage.dev/app: "sparkyfitness"
         gethomepage.dev/group: "Monitoring"
         gethomepage.dev/name: "SparkyFitness"
         gethomepage.dev/icon: "https://codewithcj.github.io/SparkyFitness/logo.png"

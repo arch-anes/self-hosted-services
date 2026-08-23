@@ -82,6 +82,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "n8n"
           gethomepage.dev/group: Automation
           gethomepage.dev/icon: "https://d33wubrfki0l68.cloudfront.net/b8db213a4d85ebec7b82272cacb727a05a9a1475/96e9f/_images/n8n-docs-icon.svg"
         hosts:

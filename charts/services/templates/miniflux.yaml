@@ -69,6 +69,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "miniflux"
           gethomepage.dev/group: Feed
           gethomepage.dev/icon: "https://raw.githubusercontent.com/miniflux/v2/06c37a132f6a90a30db12ad3f263cc6a97678d4a/ui/static/bin/maskable-icon-192.png"
         hosts:

@@ -94,6 +94,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "transmission"
           gethomepage.dev/group: Media
           gethomepage.dev/icon: "https://raw.githubusercontent.com/transmission/transmission/0ce4adf07ce4b6cfabf81e2d027f96197bb9a305/web/assets/img/logo.png"
         hosts:

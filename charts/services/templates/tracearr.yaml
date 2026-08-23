@@ -59,6 +59,7 @@ spec:
         enabled: true
         annotations:    
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "tracearr"
           gethomepage.dev/group: Arr
           gethomepage.dev/icon: "https://raw.githubusercontent.com/connorgallopo/Tracearr/bebc5783dbe4992712b91c53ca5ec00d317eceaf/apps/web/public/web-app-manifest-512x512-transparent.png"
         hosts:

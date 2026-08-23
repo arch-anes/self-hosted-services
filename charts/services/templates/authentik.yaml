@@ -94,6 +94,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "authentik"
           gethomepage.dev/group: Administration
           gethomepage.dev/name: Authentik
           gethomepage.dev/icon: "https://raw.githubusercontent.com/goauthentik/authentik/c91c97178f5f3915d60ff50040588771143fd98d/web/icons/icon.png"

@@ -53,6 +53,7 @@ spec:
         enabled: true
         annotations:    
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "tdarr"
           gethomepage.dev/group: Arr
           gethomepage.dev/icon: "https://home.tdarr.io/static/media/logo3-min.246d6df44c7f16ddebaf.png"
         hosts:

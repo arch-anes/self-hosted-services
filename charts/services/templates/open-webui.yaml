@@ -111,6 +111,7 @@ spec:
       enabled: true
       annotations:
         gethomepage.dev/enabled: "true"
+        gethomepage.dev/app: "open-webui"
         gethomepage.dev/group: Automation
         gethomepage.dev/icon: "https://openwebui.com/favicon.png"
       host: chat.{{ .Values.fqdn }}

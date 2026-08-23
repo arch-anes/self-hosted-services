@@ -93,6 +93,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "wakapi"
           gethomepage.dev/group: Monitoring
           gethomepage.dev/icon: "https://raw.githubusercontent.com/muety/wakapi/b3924c41191cdbad2fefdd22c8cf3308bb59616a/static/assets/images/logo.svg"
         hosts:

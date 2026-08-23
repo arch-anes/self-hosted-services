@@ -148,6 +148,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "traefik"
           gethomepage.dev/group: Monitoring
           gethomepage.dev/name: "Traefik Dashboard"
           gethomepage.dev/icon: "https://raw.githubusercontent.com/traefik/traefik/aa8eb1af6eb5457516169315676ec22f968e727d/webui/public/app-logo-128x128.png"

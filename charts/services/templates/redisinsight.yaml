@@ -48,6 +48,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "redisinsight"
           gethomepage.dev/group: Administration
           gethomepage.dev/name: Redis Insight
           gethomepage.dev/icon: "https://raw.githubusercontent.com/RedisInsight/RedisInsight/6622d918f254dd8d46c98cf0ec2ea726e5727a9c/resources/logo.svg"

@@ -103,6 +103,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "homebox"
           gethomepage.dev/group: Feed
           gethomepage.dev/name: HomeBox
           gethomepage.dev/icon: "https://homebox.software/_astro/lilbox.CmeGTiwj_Z1HYzg2.svg"

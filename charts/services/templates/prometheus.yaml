@@ -371,6 +371,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "prometheus"
           gethomepage.dev/group: Monitoring
           gethomepage.dev/name: Grafana
           gethomepage.dev/icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Grafana_logo.svg/1920px-Grafana_logo.svg.png"

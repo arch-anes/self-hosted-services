@@ -51,6 +51,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "homepage"
           gethomepage.dev/group: "Administration"
           gethomepage.dev/name: "Homepage"
           gethomepage.dev/icon: "https://truecharts.org/img/hotlink-ok/chart-icons/homepage.webp"

@@ -85,6 +85,7 @@ spec:
           annotations:
             prometheus.io/probe: "false"
             gethomepage.dev/enabled: "true"
+            gethomepage.dev/app: "joal"
             gethomepage.dev/group: Media
             gethomepage.dev/icon: "https://raw.githubusercontent.com/anthonyraymond/joal/cad5df11990d4304476d574484003ccbcdd0b700/src/main/resources/public/favicon.ico"
         spec:

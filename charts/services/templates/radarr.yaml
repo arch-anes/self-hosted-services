@@ -75,6 +75,7 @@ spec:
         enabled: true
         annotations:    
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "radarr"
           gethomepage.dev/group: Arr
           gethomepage.dev/icon: "https://raw.githubusercontent.com/Radarr/Radarr/e4429d2919f73d8ffd1389614c74e58b9a447c50/Logo/256.png"
         hosts:

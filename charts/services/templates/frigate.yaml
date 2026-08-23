@@ -95,6 +95,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "frigate"
           gethomepage.dev/group: Monitoring
           gethomepage.dev/icon: "https://raw.githubusercontent.com/blakeblackshear/frigate/37ea6b46b51e459a51f25f29fead2797e0fa04a4/docs/static/img/branding/logo.svg"
           {{- if .Values.applications.frigate.private }}

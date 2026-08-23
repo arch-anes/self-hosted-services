@@ -74,6 +74,7 @@ spec:
           enabled: true
           annotations:
             gethomepage.dev/enabled: "true"
+            gethomepage.dev/app: "obico"
             gethomepage.dev/group: Automation
             gethomepage.dev/name: obico
             gethomepage.dev/weight: "1"

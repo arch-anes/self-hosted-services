@@ -90,6 +90,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "vaultwarden"
           gethomepage.dev/group: Administration
           gethomepage.dev/name: Vaultwarden
           gethomepage.dev/icon: "https://raw.githubusercontent.com/dani-garcia/vaultwarden/22f5e0496cca369af378c4f6379a0260b521fcbb/resources/vaultwarden-icon.svg"

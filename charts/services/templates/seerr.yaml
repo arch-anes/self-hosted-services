@@ -48,6 +48,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "seerr"
           gethomepage.dev/group: Arr
           gethomepage.dev/weight: "1"
           gethomepage.dev/icon: "https://raw.githubusercontent.com/Fallenbagel/jellyseerr/54cfeefe74de2c7df97491aa6cb954b94759ac5d/public/logo_stacked.svg"

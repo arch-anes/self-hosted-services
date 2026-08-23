@@ -138,6 +138,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "odoo"
           gethomepage.dev/group: Administration
           gethomepage.dev/icon: "https://odoocdn.com/openerp_website/static/src/img/assets/svg/odoo_logo.svg"
         hosts:

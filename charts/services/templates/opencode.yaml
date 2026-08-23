@@ -68,6 +68,7 @@ spec:
         enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "opencode"
           gethomepage.dev/group: Automation
           gethomepage.dev/name: OpenCode
           gethomepage.dev/icon: "https://raw.githubusercontent.com/anomalyco/opencode/dev/packages/console/app/src/asset/logo-ornate-dark.svg"

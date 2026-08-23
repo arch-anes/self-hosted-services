@@ -188,6 +188,7 @@ spec:
       annotations:
         # traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
         gethomepage.dev/enabled: "true"
+        gethomepage.dev/app: "litellm"
         gethomepage.dev/group: Automation
         gethomepage.dev/name: LiteLLM
         gethomepage.dev/icon: "https://raw.githubusercontent.com/BerriAI/litellm/main/ui/litellm-dashboard/public/logo.png"

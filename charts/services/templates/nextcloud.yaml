@@ -178,6 +178,7 @@ spec:
       enabled: true
       annotations:
         gethomepage.dev/enabled: "true"
+        gethomepage.dev/app: "nextcloud"
         gethomepage.dev/group: Media
         gethomepage.dev/weight: "2"
         gethomepage.dev/icon: "https://github.com/nextcloud/server/raw/0450e47f8dda26d19a0a252ddd5a117fddfa6885/core/img/logo/logo.png"

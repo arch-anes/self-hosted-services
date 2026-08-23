@@ -124,6 +124,7 @@ spec:
         annotations:
           prometheus.io/probe: "false"
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/app: "stalwart"
           gethomepage.dev/group: Administration
           gethomepage.dev/name: Stalwart
           gethomepage.dev/icon: https://raw.githubusercontent.com/stalwartlabs/stalwart/de7f0e8e37edce397a196bf47f08f1eaa2743078/img/logo-red.svg

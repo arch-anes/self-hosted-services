@@ -26,6 +26,7 @@ spec:
       enabled: true
       annotations:
         gethomepage.dev/enabled: "true"
+        gethomepage.dev/app: "headlamp"
         gethomepage.dev/group: Administration
         gethomepage.dev/name: "Headlamp"
         gethomepage.dev/icon: "https://headlamp.dev/img/logo.svg"
