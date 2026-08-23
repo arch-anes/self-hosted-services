@@ -12,14 +12,40 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    forceConfigFromValues: true
     workload:
       main:
         podSpec:
           containers:
             main:
               env:
-                PUID: "1000"
-                PGID: "1000"
+                HOMEPAGE_ALLOWED_HOSTS: "dash.{{ .Values.fqdn }}"
+    configmap:
+      config:
+        enabled: true
+        data:
+          settings.yaml: |
+            ---
+            title: "Dashboard"
+            subtitle: "Homer"
+            logo: "logo.png"
+            headerStyle: "clean"
+          kubernetes.yaml: |
+            ---
+            mode: cluster
+          services.yaml: |
+            ---
+            # Discovered via Ingress
+          widgets.yaml: |
+            ---
+            # No default widgets to match Homer
+          bookmarks.yaml: |
+            ---
+            # No bookmarks
+    persistence:
+      config:
+        enabled: true
+        type: emptyDir
     ingress:
       main:
         enabled: true
