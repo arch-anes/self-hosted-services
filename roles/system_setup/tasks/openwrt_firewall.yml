@@ -1,0 +1,36 @@
+# code: language=ansible
+---
+
+- name: Allow LAN to reach Guest
+  community.openwrt.uci:
+    command: section
+    config: firewall
+    name: lan_guest
+    type: rule
+    value:
+      name: GLACL_LAN to Guest
+      gl_prio: '1'
+      target: ACCEPT
+      src: lan
+      dest: guest
+      proto: all
+      enabled: '1'
+    autocommit: true
+  notify: Restart firewall
+
+- name: Allow LAN to reach IoT
+  community.openwrt.uci:
+    command: section
+    config: firewall
+    name: lan_iot
+    type: rule
+    value:
+      name: GLACL_LAN to IoT
+      gl_prio: '1'
+      target: ACCEPT
+      src: lan
+      dest: iot
+      proto: all
+      enabled: '1'
+    autocommit: true
+  notify: Restart firewall
