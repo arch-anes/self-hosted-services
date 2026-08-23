@@ -55,8 +55,9 @@ spec:
       main:
         enabled: true
         annotations:
-          homer.service.name: Arr
-          homer.item.logo: "https://lazylibrarian.gitlab.io/logo.svg"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Arr
+          gethomepage.dev/icon: "https://lazylibrarian.gitlab.io/logo.svg"
         hosts:
           - host: lib.{{ .Values.fqdn }}
             paths:

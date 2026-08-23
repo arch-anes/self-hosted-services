@@ -73,10 +73,11 @@ spec:
         main:
           enabled: true
           annotations:
-            homer.service.name: Automation
-            homer.item.name: obico
-            homer.item.rank: "1"
-            homer.item.logo: "https://raw.githubusercontent.com/TheSpaghettiDetective/obico-server/471c0364c7c823194bc9c5c2b13e76aa1ebad6b9/frontend/static/img/logo-compact.png"
+            gethomepage.dev/enabled: "true"
+            gethomepage.dev/group: Automation
+            gethomepage.dev/name: obico
+            gethomepage.dev/weight: "1"
+            gethomepage.dev/icon: "https://raw.githubusercontent.com/TheSpaghettiDetective/obico-server/471c0364c7c823194bc9c5c2b13e76aa1ebad6b9/frontend/static/img/logo-compact.png"
           hosts:
             - host: obico.{{ .Values.fqdn }}
               paths:

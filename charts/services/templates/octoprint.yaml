@@ -55,9 +55,10 @@ spec:
       main:
         enabled: true
         annotations:
-          homer.service.name: Automation
-          homer.item.name: OctoPrint
-          homer.item.logo: "https://raw.githubusercontent.com/OctoPrint/OctoPrint/a93b4d397248dc406a75e634c1326fb1b8ddcb63/docs/images/octoprint-logo.png"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Automation
+          gethomepage.dev/name: OctoPrint
+          gethomepage.dev/icon: "https://raw.githubusercontent.com/OctoPrint/OctoPrint/a93b4d397248dc406a75e634c1326fb1b8ddcb63/docs/images/octoprint-logo.png"
         hosts:
           - host: octoprint.{{ .Values.fqdn }}
             paths:
@@ -70,7 +71,6 @@ spec:
         enabled: true
         annotations:
           prometheus.io/probe: "false"
-          homer.item.excluded: "true"
           traefik.ingress.kubernetes.io/router.middlewares: kube-system-cluster-admin-authentication@kubernetescrd
         hosts:
           - host: octoprint-webcam.{{ .Values.fqdn }}

@@ -1,0 +1,84 @@
+{{- if (include "app.enabled" (list . "homepage")) }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: homepage
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  chart: oci://oci.trueforge.org/truecharts/homepage
+  version: 13.1.1
+  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  serverSide: "true"
+  forceConflicts: true
+  values:
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                PUID: "1000"
+                PGID: "1000"
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: "Administration"
+          gethomepage.dev/name: "Homepage"
+          gethomepage.dev/icon: "https://truecharts.org/img/hotlink-ok/chart-icons/homepage.webp"
+        hosts:
+          - host: dash.{{ .Values.fqdn }}
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - dash.{{ .Values.fqdn }}
+    rbac:
+      main:
+        enabled: true
+        clusterWide: true
+        rules:
+          - apiGroups:
+              - ""
+            resources:
+              - namespaces
+              - pods
+              - nodes
+            verbs:
+              - get
+              - list
+          - apiGroups:
+              - extensions
+              - networking.k8s.io
+            resources:
+              - ingresses
+            verbs:
+              - get
+              - list
+          - apiGroups:
+              - traefik.containo.us
+              - traefik.io
+            resources:
+              - ingressroutes
+            verbs:
+              - get
+              - list
+          - apiGroups:
+              - metrics.k8s.io
+            resources:
+              - nodes
+              - pods
+            verbs:
+              - get
+              - list
+          - apiGroups:
+              - apiextensions.k8s.io
+            resources:
+              - customresourcedefinitions/status
+            verbs:
+              - get
+{{- end }}

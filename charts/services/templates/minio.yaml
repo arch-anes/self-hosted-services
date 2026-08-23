@@ -132,7 +132,6 @@ spec:
         enabled: true
         annotations:
             prometheus.io/probe: "false"
-            homer.item.excluded: "true"
         tls:
           - secretName: "{{ .Values.fqdn }}-tls"
             hosts:
@@ -143,9 +142,10 @@ spec:
       console:
         enabled: true
         annotations:
-          homer.service.name: Media
-          homer.item.name: MinIO
-          homer.item.logo: "https://cdn.prod.website-files.com/681c8426519d8db8f867c1e8/68656cb290ee4fa91989c2dc_Brand-Logo%20%E2%9C%85.svg"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Media
+          gethomepage.dev/name: MinIO
+          gethomepage.dev/icon: "https://cdn.prod.website-files.com/681c8426519d8db8f867c1e8/68656cb290ee4fa91989c2dc_Brand-Logo%20%E2%9C%85.svg"
         tls:
           - secretName: "{{ .Values.fqdn }}-tls"
             hosts:

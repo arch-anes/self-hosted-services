@@ -187,9 +187,10 @@ spec:
       className: null
       annotations:
         # traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
-        homer.service.name: Automation
-        homer.item.name: LiteLLM
-        homer.item.logo: "https://raw.githubusercontent.com/BerriAI/litellm/main/ui/litellm-dashboard/public/logo.png"
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/group: Automation
+        gethomepage.dev/name: LiteLLM
+        gethomepage.dev/icon: "https://raw.githubusercontent.com/BerriAI/litellm/main/ui/litellm-dashboard/public/logo.png"
       hosts:
         - host: ai.{{ .Values.fqdn }}
           paths:

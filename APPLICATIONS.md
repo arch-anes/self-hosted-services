@@ -13,14 +13,14 @@ This page is the operational reference. It lists the included applications and o
 | Media | Jellyfin, Jellyseerr, Sonarr, Radarr, Bazarr, Prowlarr, Tdarr, Tracearr, LazyLibrarian, Transmission, Unpackerr, JOAL, FlareSolverr, Gluetun |
 | Storage and home | Immich, Nextcloud, Filebrowser, MinIO, ArchiveBox, Home Assistant, n8n, Mosquitto |
 | Monitoring and notifications | Gotify, Miniflux, Speedtest Tracker, Epic Games Free Games, Wakapi |
-| Operations | NetBox, Homebox, Odoo, PostgreSQL, pgAdmin4, Redis, Redis Insight, Headlamp, Homer Operator |
+| Operations | NetBox, Homebox, Odoo, PostgreSQL, pgAdmin4, Redis, Redis Insight, Headlamp, Homepage |
 | Hardware and gaming | OctoPrint, Obico, RED Discord Bot, Minecraft Bedrock, Akri, Intel GPU, NVIDIA GPU, AMD GPU |
 | Backups and observability | Velero, Prometheus, Grafana, Blackbox Exporter, Loki, Tempo, Alloy, Node Problem Detector, iDRAC Exporter, IPMI Exporter |
 | AI and email | llama.cpp, Open WebUI, Stalwart |
 
 ## High availability
 
-Redis, PostgreSQL, Authentik, CrowdSec, and Homer Operator run with three replicas by default. On limited hardware, set `highAvailability: false` in your inventory values to run one replica of each instead. This reduces resource use and fault tolerance.
+Redis, PostgreSQL, Authentik, CrowdSec, and Homepage run with three replicas by default. On limited hardware, set `highAvailability: false` in your inventory values to run one replica of each instead. This reduces resource use and fault tolerance.
 
 ```yaml
 # In your inventory chartValuesOverrides or values.yaml

@@ -51,9 +51,10 @@ spec:
       ingress:
         enabled: true
         annotations:
-          homer.service.name: Administration
-          homer.item.name: Woodpecker
-          homer.item.logo: "https://woodpecker-ci.org/img/logo.svg"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Administration
+          gethomepage.dev/name: Woodpecker
+          gethomepage.dev/icon: "https://woodpecker-ci.org/img/logo.svg"
         hosts:
           - host: ci.{{ .Values.fqdn }}
             paths:

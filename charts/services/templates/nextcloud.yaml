@@ -177,10 +177,10 @@ spec:
     ingress:
       enabled: true
       annotations:
-        homer.service.name: Media
-        homer.item.rank: "2"
-        homer.item.logo: "https://github.com/nextcloud/server/raw/0450e47f8dda26d19a0a252ddd5a117fddfa6885/core/img/logo/logo.png"
-        homer.item.type: "Nextcloud"
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/group: Media
+        gethomepage.dev/weight: "2"
+        gethomepage.dev/icon: "https://github.com/nextcloud/server/raw/0450e47f8dda26d19a0a252ddd5a117fddfa6885/core/img/logo/logo.png"
       hosts:
         - host: nextcloud.{{ .Values.fqdn }}
           paths:

@@ -47,9 +47,10 @@ spec:
       main:
         enabled: true
         annotations:
-          homer.service.name: Administration
-          homer.item.name: Redis Insight
-          homer.item.logo: "https://raw.githubusercontent.com/RedisInsight/RedisInsight/6622d918f254dd8d46c98cf0ec2ea726e5727a9c/resources/logo.svg"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Administration
+          gethomepage.dev/name: Redis Insight
+          gethomepage.dev/icon: "https://raw.githubusercontent.com/RedisInsight/RedisInsight/6622d918f254dd8d46c98cf0ec2ea726e5727a9c/resources/logo.svg"
           traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd,kube-system-cluster-admin-authentication@kubernetescrd
         hosts:
           - host: redis.{{ .Values.fqdn }}

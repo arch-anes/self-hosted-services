@@ -52,8 +52,9 @@ spec:
       main:
         enabled: true
         annotations:    
-          homer.service.name: Arr
-          homer.item.logo: "https://home.tdarr.io/static/media/logo3-min.246d6df44c7f16ddebaf.png"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Arr
+          gethomepage.dev/icon: "https://home.tdarr.io/static/media/logo3-min.246d6df44c7f16ddebaf.png"
         hosts:
           - host: tdarr.{{ .Values.fqdn }}
             paths:

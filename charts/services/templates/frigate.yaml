@@ -94,8 +94,9 @@ spec:
       main:
         enabled: true
         annotations:
-          homer.service.name: Monitoring
-          homer.item.logo: "https://raw.githubusercontent.com/blakeblackshear/frigate/37ea6b46b51e459a51f25f29fead2797e0fa04a4/docs/static/img/branding/logo.svg"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Monitoring
+          gethomepage.dev/icon: "https://raw.githubusercontent.com/blakeblackshear/frigate/37ea6b46b51e459a51f25f29fead2797e0fa04a4/docs/static/img/branding/logo.svg"
           {{- if .Values.applications.frigate.private }}
           traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
           {{- end }}

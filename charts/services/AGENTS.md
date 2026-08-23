@@ -113,24 +113,23 @@ Implement the shared-service choices in the root guide as follows:
 - You MUST use `external-secrets.io/v1`. You MUST NOT introduce the deprecated
   `v1beta1` API.
 
-## 6. Ingress and Homer Discovery
+## 6. Ingress and Homepage Discovery
 
-`homer-operator` discovers Ingress resources automatically. Every included
+`homepage` discovers Ingress resources automatically when configured via annotations. Every included
 Ingress MUST have:
 
-- `homer.service.name`: dashboard group name, such as `Media`.
-- `homer.item.name`: display name.
-- `homer.item.logo`: URL to a square logo; SVG is preferred.
+- `gethomepage.dev/enabled: "true"`
+- `gethomepage.dev/group`: dashboard group name, such as `Media`.
+- `gethomepage.dev/name`: display name.
+- `gethomepage.dev/icon`: URL to a square logo; SVG is preferred, or a valid icon name.
 
-An Ingress intentionally hidden from the dashboard MUST instead include
-`homer.item.excluded: "true"` to prevent clutter.
+An Ingress intentionally hidden from the dashboard SHOULD simply omit the `gethomepage.dev/enabled` annotation.
 
 The following annotations are optional:
 
-- `homer.service.icon`
-- `homer.service.rank`
-- `homer.item.rank`
-- `homer.item.type`
+- `gethomepage.dev/description`
+- `gethomepage.dev/weight`
+- `gethomepage.dev/widget.type` and associated widget configurations
 
 ## 7. Observability
 

@@ -93,8 +93,9 @@ spec:
       main:
         enabled: true
         annotations:
-          homer.service.name: Media
-          homer.item.logo: "https://raw.githubusercontent.com/transmission/transmission/0ce4adf07ce4b6cfabf81e2d027f96197bb9a305/web/assets/img/logo.png"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Media
+          gethomepage.dev/icon: "https://raw.githubusercontent.com/transmission/transmission/0ce4adf07ce4b6cfabf81e2d027f96197bb9a305/web/assets/img/logo.png"
         hosts:
           - host: transmission.{{ .Values.fqdn }}
             paths:

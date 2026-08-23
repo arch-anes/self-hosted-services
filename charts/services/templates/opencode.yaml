@@ -67,9 +67,10 @@ spec:
       main:
         enabled: true
         annotations:
-          homer.service.name: Automation
-          homer.item.name: OpenCode
-          homer.item.logo: "https://raw.githubusercontent.com/anomalyco/opencode/dev/packages/console/app/src/asset/logo-ornate-dark.svg"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Automation
+          gethomepage.dev/name: OpenCode
+          gethomepage.dev/icon: "https://raw.githubusercontent.com/anomalyco/opencode/dev/packages/console/app/src/asset/logo-ornate-dark.svg"
           traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
         hosts:
           - host: code.{{ .Values.fqdn }}

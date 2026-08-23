@@ -109,9 +109,10 @@ spec:
     ingress:
       enabled: true
       annotations:
-        homer.service.name: "Monitoring"
-        homer.item.name: "SparkyFitness"
-        homer.item.logo: "https://codewithcj.github.io/SparkyFitness/logo.png"
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/group: "Monitoring"
+        gethomepage.dev/name: "SparkyFitness"
+        gethomepage.dev/icon: "https://codewithcj.github.io/SparkyFitness/logo.png"
       hosts:
         - host: fit.{{ .Values.fqdn }}
           paths:

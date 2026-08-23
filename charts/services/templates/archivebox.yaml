@@ -60,8 +60,9 @@ spec:
       main:
         enabled: true
         annotations:    
-          homer.service.name: Feed
-          homer.item.logo: "https://archivebox.io/icon.png"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Feed
+          gethomepage.dev/icon: "https://archivebox.io/icon.png"
         hosts:
           - host: archive.{{ .Values.fqdn }}
             paths:

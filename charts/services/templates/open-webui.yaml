@@ -110,8 +110,9 @@ spec:
     ingress:
       enabled: true
       annotations:
-        homer.service.name: Automation
-        homer.item.logo: "https://openwebui.com/favicon.png"
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/group: Automation
+        gethomepage.dev/icon: "https://openwebui.com/favicon.png"
       host: chat.{{ .Values.fqdn }}
       tls: true
       existingSecret: "{{ .Values.fqdn }}-tls"

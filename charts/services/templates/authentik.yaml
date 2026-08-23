@@ -93,9 +93,10 @@ spec:
       ingress:
         enabled: true
         annotations:
-          homer.service.name: Administration
-          homer.item.name: Authentik
-          homer.item.logo: "https://raw.githubusercontent.com/goauthentik/authentik/c91c97178f5f3915d60ff50040588771143fd98d/web/icons/icon.png"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Administration
+          gethomepage.dev/name: Authentik
+          gethomepage.dev/icon: "https://raw.githubusercontent.com/goauthentik/authentik/c91c97178f5f3915d60ff50040588771143fd98d/web/icons/icon.png"
         hosts:
           - auth.{{ .Values.fqdn }}
         tls:
@@ -761,7 +762,6 @@ spec:
           namespace: "{{ .Values.applicationsNamespace }}"
           annotations:
             prometheus.io/probe: "false"
-            homer.item.excluded: "true"
             traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
         spec:
           tls:

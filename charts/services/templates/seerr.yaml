@@ -47,11 +47,10 @@ spec:
       main:
         enabled: true
         annotations:
-          homer.service.name: Arr
-          homer.service.logo: "fas fa-ship"
-          homer.service.rank: "3"
-          homer.item.rank: "1"
-          homer.item.logo: "https://raw.githubusercontent.com/Fallenbagel/jellyseerr/54cfeefe74de2c7df97491aa6cb954b94759ac5d/public/logo_stacked.svg"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Arr
+          gethomepage.dev/weight: "1"
+          gethomepage.dev/icon: "https://raw.githubusercontent.com/Fallenbagel/jellyseerr/54cfeefe74de2c7df97491aa6cb954b94759ac5d/public/logo_stacked.svg"
         hosts:
           - host: jellyseerr.{{ .Values.fqdn }}
             paths:

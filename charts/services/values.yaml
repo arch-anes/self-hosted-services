@@ -121,7 +121,7 @@ applications:
   #   enabled: true
   homebox: {}
   #   enabled: true
-  homer_operator: {}
+  homepage: {}
   #   enabled: true
   idrac_exporter: {}
   #   enabled: true

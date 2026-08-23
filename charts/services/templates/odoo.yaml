@@ -137,8 +137,9 @@ spec:
       main:
         enabled: true
         annotations:
-          homer.service.name: Administration
-          homer.item.logo: "https://odoocdn.com/openerp_website/static/src/img/assets/svg/odoo_logo.svg"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Administration
+          gethomepage.dev/icon: "https://odoocdn.com/openerp_website/static/src/img/assets/svg/odoo_logo.svg"
         hosts:
           - host: odoo.{{ .Values.fqdn }}
             paths:
@@ -151,7 +152,6 @@ spec:
         enabled: true
         annotations:
           prometheus.io/probe: "false"
-          homer.item.excluded: "true"
         hosts:
           - host: odoo.{{ .Values.fqdn }}
             paths:

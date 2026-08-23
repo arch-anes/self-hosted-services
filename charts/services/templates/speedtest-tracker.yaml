@@ -76,10 +76,10 @@ spec:
       main:
         enabled: {{ .Values.applications.speedtest_tracker.dashboard.enabled }}
         annotations:    
-          homer.service.name: Monitoring
-          homer.item.name: "Speedtest Tracker"
-          homer.item.type: SpeedtestTracker
-          homer.item.logo: "https://raw.githubusercontent.com/henrywhitaker3/Speedtest-Tracker/8cb2e8a3236850b4a07e887ac376c0d4d5e804f4/public/icons/fav/ms-icon-310x310.png"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Monitoring
+          gethomepage.dev/name: "Speedtest Tracker"
+          gethomepage.dev/icon: "https://raw.githubusercontent.com/henrywhitaker3/Speedtest-Tracker/8cb2e8a3236850b4a07e887ac376c0d4d5e804f4/public/icons/fav/ms-icon-310x310.png"
         hosts:
           - host: speedtest.{{ .Values.fqdn }}
             paths:

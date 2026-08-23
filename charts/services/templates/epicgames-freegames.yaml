@@ -22,7 +22,6 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
   annotations:
     prometheus.io/probe: "false"
-    homer.item.excluded: "true"
 spec:
   tls:
     - hosts:

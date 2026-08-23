@@ -92,8 +92,9 @@ spec:
       main:
         enabled: true
         annotations:
-          homer.service.name: Monitoring
-          homer.item.logo: "https://raw.githubusercontent.com/muety/wakapi/b3924c41191cdbad2fefdd22c8cf3308bb59616a/static/assets/images/logo.svg"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Monitoring
+          gethomepage.dev/icon: "https://raw.githubusercontent.com/muety/wakapi/b3924c41191cdbad2fefdd22c8cf3308bb59616a/static/assets/images/logo.svg"
         hosts:
           - host: wakapi.{{ .Values.fqdn }}
             paths:

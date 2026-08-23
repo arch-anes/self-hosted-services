@@ -146,9 +146,10 @@ spec:
       main:
         enabled: true
         annotations:    
-          homer.service.name: Automation
-          homer.item.name: "Home Assistant"
-          homer.item.logo: "https://upload.wikimedia.org/wikipedia/en/4/49/Home_Assistant_logo_%282023%29.svg"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Automation
+          gethomepage.dev/name: "Home Assistant"
+          gethomepage.dev/icon: "https://upload.wikimedia.org/wikipedia/en/4/49/Home_Assistant_logo_%282023%29.svg"
         hosts:
           - host: ha.{{ .Values.fqdn }}
             paths:

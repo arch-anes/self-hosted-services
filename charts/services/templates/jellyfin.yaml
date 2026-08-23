@@ -59,11 +59,10 @@ spec:
       main:
         enabled: true
         annotations:
-          homer.service.name: Media
-          homer.service.icon: "fas fa-video"
-          homer.service.rank: "1"
-          homer.item.rank: "1"
-          homer.item.logo: "https://github.com/jellyfin/jellyfin/raw/cd36b8067fcf80c5ebb47bdd9bea0047d1fe3aef/Emby.Dlna/Images/logo240.png"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Media
+          gethomepage.dev/weight: "1"
+          gethomepage.dev/icon: "https://github.com/jellyfin/jellyfin/raw/cd36b8067fcf80c5ebb47bdd9bea0047d1fe3aef/Emby.Dlna/Images/logo240.png"
         hosts:
           - host: jellyfin.{{ .Values.fqdn }}
             paths:

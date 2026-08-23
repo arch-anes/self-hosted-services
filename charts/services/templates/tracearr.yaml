@@ -58,8 +58,9 @@ spec:
       main:
         enabled: true
         annotations:    
-          homer.service.name: Arr
-          homer.item.logo: "https://raw.githubusercontent.com/connorgallopo/Tracearr/bebc5783dbe4992712b91c53ca5ec00d317eceaf/apps/web/public/web-app-manifest-512x512-transparent.png"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Arr
+          gethomepage.dev/icon: "https://raw.githubusercontent.com/connorgallopo/Tracearr/bebc5783dbe4992712b91c53ca5ec00d317eceaf/apps/web/public/web-app-manifest-512x512-transparent.png"
         hosts:
           - host: tracearr.{{ .Values.fqdn }}
             paths:
