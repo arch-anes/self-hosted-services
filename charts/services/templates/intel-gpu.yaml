@@ -32,6 +32,5 @@ spec:
         operator: Equal
         value: "ai"
         effect: "NoSchedule"
-    resourceManager: false
     sharedDevNum: 10
 {{- end }}

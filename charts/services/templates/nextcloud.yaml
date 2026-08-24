@@ -182,10 +182,6 @@ spec:
         homer.item.rank: "2"
         homer.item.logo: "https://github.com/nextcloud/server/raw/0450e47f8dda26d19a0a252ddd5a117fddfa6885/core/img/logo/logo.png"
         homer.item.type: "Nextcloud"
-      hosts:
-        - host: nextcloud.{{ .Values.fqdn }}
-          paths:
-            - path: /
       tls:
         - secretName: {{ .Values.fqdn }}-tls
           hosts:

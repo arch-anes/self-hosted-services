@@ -19,8 +19,6 @@ spec:
       enabled: false
     ollama:
       enabled: false
-    postgresql:
-      enabled: false
 {{- if (include "app.enabled" (list . "llama_cpp")) }}
     openaiBaseApiUrl: "http://llama-cpp:8080/v1"
     openaiBaseApiUrls:

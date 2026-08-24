@@ -127,9 +127,6 @@ spec:
                   query: 'sum by (service,span_name) (rate(traces_spanmetrics_calls_total{$$__tags,status_code="STATUS_CODE_ERROR"}[5m]))'
 {{- end }}
 {{- end }}
-      defaultDashboards:
-        namespace: kube-system
-        useExistingNamespace: true
       defaultDashboardsTimezone: browser
       dashboardProviders:
         dashboardproviders.yaml:

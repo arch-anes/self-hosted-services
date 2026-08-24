@@ -93,9 +93,6 @@ spec:
         limits:
           memory: 512Mi
           cpu: null
-      podAnnotations:
-        reloader.stakater.com/auto: "true"
-        backup.velero.io/backup-volumes: "uploads"
     frontend:
       resources:
         requests:
@@ -104,8 +101,6 @@ spec:
         limits:
           memory: 256Mi
           cpu: null
-      podAnnotations:
-        reloader.stakater.com/auto: "true"
     ingress:
       enabled: true
       annotations:
