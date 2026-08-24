@@ -16,7 +16,7 @@ spec:
       defaultFips: relaxed
     auth:
       existingSecret: redis
-      existingSecretKey: redis-password
+      existingSecretPasswordKey: redis-password
     architecture: replication
     rbac:
       create: true

@@ -168,12 +168,13 @@ spec:
         passwordKey: password
     cronjob:
       enabled: true
-      resources:
-        requests:
-          memory: {{ include "app.resources.memory" (list $ "128Mi") }}
-          cpu: {{ include "app.resources.cpu" (list $ "100m") }}
-        limits:
-          memory: 1Gi
+      sidecar:
+        resources:
+          requests:
+            memory: {{ include "app.resources.memory" (list $ "128Mi") }}
+            cpu: {{ include "app.resources.cpu" (list $ "100m") }}
+          limits:
+            memory: 1Gi
     ingress:
       enabled: true
       annotations:

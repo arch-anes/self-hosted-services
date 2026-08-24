@@ -70,7 +70,7 @@ spec:
     persistence:
       enabled: true
       size: 20Gi
-      storageClass: local-path-ephemeral
+      storageClassName: local-path-ephemeral
     nodeSelector:
       # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
       kubernetes.io/arch: amd64
