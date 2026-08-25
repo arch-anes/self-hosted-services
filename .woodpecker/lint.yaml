@@ -7,7 +7,7 @@ steps:
       - helm lint charts/services
       - helm template charts/services
       - helm unittest charts/services
-      - helm template charts/services | kubeconform -summary -schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+      - helm template charts/services | kubeconform -summary -schema-location default -schema-location 'https://raw.githubusercontent.com/abelfodil/CRDs-catalog/helmchart/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
       - helm template charts/services | yamllint --no-warnings -
       - yamllint .
       - yamlfmt -lint
