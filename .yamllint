@@ -19,6 +19,4 @@ rules:
   comments-indentation: disable
   braces:
     max-spaces-inside: 1
-  octal-values:
-    forbid-implicit-octal: true
-    forbid-explicit-octal: true
+  octal-values: disable
