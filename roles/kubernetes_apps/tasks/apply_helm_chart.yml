@@ -12,7 +12,7 @@
     - name: Render helm templates
       kubernetes.core.helm_template:
         chart_ref: "{{ kubernetes_apps_chart_folder }}"
-        values: "{{ chartValuesOverrides | default({}) }}"
+        release_values: "{{ chartValuesOverrides | default({}) }}"
       delegate_to: localhost
       register: kubernetes_apps_helm_template
       changed_when: false
@@ -21,7 +21,7 @@
       ansible.builtin.copy:
         dest: "{{ kubernetes_apps_aggregate_path }}"
         content: "{{ kubernetes_apps_helm_template.stdout }}"
-        mode: 0400
+        mode: "0400"
 
     - name: Apply aggregate manifest
       ansible.builtin.command: "kubectl apply -f {{ kubernetes_apps_aggregate_path }} --server-side --force-conflicts"

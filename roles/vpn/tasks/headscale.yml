@@ -13,7 +13,7 @@
     name: install_deb
   vars:
     install_deb_binary_name: headscale
-    install_deb_url: "https://github.com/juanfont/headscale/releases/download/v0.25.1/headscale_0.25.1_linux_{{ detect_cpu_arch }}.deb"
+    install_deb_url: "https://github.com/juanfont/headscale/releases/download/v0.25.1/headscale_0.25.1_linux_{{ prepare_detect_cpu_arch }}.deb"
 
 - name: Generate headscale configuration file
   ansible.builtin.template:

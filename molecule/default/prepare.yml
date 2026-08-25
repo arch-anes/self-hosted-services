@@ -6,7 +6,7 @@
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/sample_secrets.yml"
         dest: "{{ playbook_dir }}/../../charts/services/templates/00_secrets.yml"
-        mode: 0600
+        mode: "0600"
 
 - name: Verify hosts
   hosts: all

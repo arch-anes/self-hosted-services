@@ -31,17 +31,17 @@
 - name: Tailscale configuration arguments
   ansible.builtin.set_fact:
     # https://github.com/tailscale/tailscale/issues/11717
-    vpn_netfilter_mode_arg: "{{ '' if detect_is_openwrt else '--netfilter-mode=off' }}"
-    vpn_advertise_route_arg: "{{ '--advertise-routes=' ~ detect_haproxy_virtual_ip ~ '/32' if detect_is_openwrt else '' }}"
+    vpn_netfilter_mode_arg: "{{ '' if prepare_detect_is_openwrt else '--netfilter-mode=off' }}"
+    vpn_advertise_route_arg: "{{ '--advertise-routes=' ~ prepare_detect_haproxy_virtual_ip ~ '/32' if prepare_detect_is_openwrt else '' }}"
 
 - name: Setup Tailscale
   ansible.builtin.import_role:
     name: artis3n.tailscale.machine
   vars:
-    tailscale_manage_binaries_skip: "{{ detect_is_openwrt }}"
+    tailscale_manage_binaries_skip: "{{ prepare_detect_is_openwrt }}"
     tailscale_oauth_ephemeral: "{{ vpn_headscale_host != 'localhost' }}"
     tailscale_authkey: "{{ vpn_tailscale_oauth_secret | default(tailscale_oauth_secret) }}"
-    tailscale_service: "{{ 'tailscale' if detect_is_openwrt else 'tailscaled' }}"
+    tailscale_service: "{{ 'tailscale' if prepare_detect_is_openwrt else 'tailscaled' }}"
     tailscale_tags:
       - "ansible"
     tailscale_args: "--accept-dns=false {{ vpn_netfilter_mode_arg }} {{ vpn_advertise_route_arg }} {{ vpn_login_server_arg }}"

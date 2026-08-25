@@ -9,10 +9,16 @@ ignore: |
 
 rules:
   line-length: disable
-  braces: disable
   trailing-spaces: disable
   indentation: disable
   commas:
     level: warning
   comments:
     level: warning
+    min-spaces-from-content: 1
+  comments-indentation: disable
+  braces:
+    max-spaces-inside: 1
+  octal-values:
+    forbid-implicit-octal: true
+    forbid-explicit-octal: true

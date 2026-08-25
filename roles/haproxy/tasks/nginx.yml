@@ -32,10 +32,10 @@
         block: |
           {{ nginx_managed_block_spacing }}# listen 80;
           {{ nginx_managed_block_spacing }}listen 127.0.0.1:80;
-          {{ nginx_managed_block_spacing }}listen {{ detect_router_lan_ip }}:80;
+          {{ nginx_managed_block_spacing }}listen {{ prepare_detect_router_lan_ip }}:80;
           {{ nginx_managed_block_spacing }}listen [::1]:80;
 
           {{ nginx_managed_block_spacing }}# listen 443 ssl;
           {{ nginx_managed_block_spacing }}listen 127.0.0.1:443 ssl;
-          {{ nginx_managed_block_spacing }}listen {{ detect_router_lan_ip }}:443 ssl;
+          {{ nginx_managed_block_spacing }}listen {{ prepare_detect_router_lan_ip }}:443 ssl;
           {{ nginx_managed_block_spacing }}listen [::1]:443 ssl;
