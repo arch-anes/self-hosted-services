@@ -128,8 +128,9 @@ spec:
         enabled: false
     backup:
       enabled: false
-    twake: # Webmail client
-      enabled: false
+    webclients:
+      twake:
+        enabled: false
     config:
       config:
         local-keys:
