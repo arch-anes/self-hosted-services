@@ -10,7 +10,7 @@ metadata:
 spec:
   chart: open-webui
   repo: https://helm.openwebui.com/
-  version: 16.0.0
+  version: 16.1.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   serverSide: "true"
   forceConflicts: true
