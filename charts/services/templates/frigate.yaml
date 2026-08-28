@@ -84,7 +84,7 @@ spec:
                   {{- include "gpu.device" (list . "Frigate" $gpuVendor) | nindent 18 }}
     global:
       traefik:
-        fixedMiddlewares: []
+        commonMiddlewares: []
     service:
       main:
         ports:

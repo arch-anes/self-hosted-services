@@ -42,7 +42,7 @@ spec:
         type: emptyDir
     global:
       traefik:
-        fixedMiddlewares: []
+        commonMiddlewares: []
     ingress:
       main:
         enabled: true

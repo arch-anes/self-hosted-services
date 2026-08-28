@@ -138,7 +138,7 @@ spec:
         cpu: null
     global:
       traefik:
-        fixedMiddlewares: []
+        commonMiddlewares: []
     prometheus:
       serviceMonitor:
         enabled: {{ include "metrics.enabled" . | default false }}

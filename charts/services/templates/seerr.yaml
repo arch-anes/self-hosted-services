@@ -42,7 +42,7 @@ spec:
         cpu: null
     global:
       traefik:
-        fixedMiddlewares: []
+        commonMiddlewares: []
     ingress:
       main:
         enabled: true

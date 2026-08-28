@@ -54,7 +54,7 @@ spec:
         {{- include "gpu.device" (list . "Jellyfin" .Values.applications.jellyfin.gpu_vendor) | nindent 8 }}
     global:
       traefik:
-        fixedMiddlewares: []
+        commonMiddlewares: []
     ingress:
       main:
         enabled: true

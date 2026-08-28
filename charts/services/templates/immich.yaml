@@ -161,7 +161,7 @@ spec:
         memory: 2Gi
     global:
       traefik:
-        fixedMiddlewares: []
+        commonMiddlewares: []
     ingress:
       main:
         enabled: true

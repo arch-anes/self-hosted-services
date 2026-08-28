@@ -133,7 +133,7 @@ spec:
             port: 8072
     global:
       traefik:
-        fixedMiddlewares: []
+        commonMiddlewares: []
     ingress:
       main:
         enabled: true
