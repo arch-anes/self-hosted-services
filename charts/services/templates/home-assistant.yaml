@@ -139,9 +139,15 @@ spec:
     global:
       traefik:
         commonMiddlewares: []
-    prometheus:
-      serviceMonitor:
+    metrics:
+      main:
+        # TODO: fix authentication for metrics endpoint
         enabled: {{ include "metrics.enabled" . | default false }}
+        type: servicemonitor
+        targetSelector: main
+        endpoints:
+          - port: metrics
+            path: /api/prometheus
     ingress:
       main:
         enabled: true

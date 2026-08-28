@@ -18,7 +18,7 @@ spec:
         - operator: Exists
           effect: NoSchedule
     alloy:
-      reportingEnabled: false
+      enableReporting: false
       resources:
         limits:
           memory: 256Mi

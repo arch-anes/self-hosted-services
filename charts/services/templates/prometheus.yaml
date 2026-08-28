@@ -430,14 +430,10 @@ spec:
     # Avoid duplicated metrics in k3s: https://tinyurl.com/mrhjre9n
     kubelet:
       jobNameOverride: k3s-server
-      service:
-        enabled: false
       serviceMonitor:
         enabled: false
     kubeApiServer:
       jobNameOverride: k3s-server
-      service:
-        enabled: false
       serviceMonitor:
         enabled: false
     kubeControllerManager:

@@ -33,5 +33,5 @@ spec:
         limits:
           memory: 128Mi
     prometheus:
-      enabled: {{ include "metrics.enabled" . | default false }}
+      enable: {{ include "metrics.enabled" . | default false }}
 {{- end }}
