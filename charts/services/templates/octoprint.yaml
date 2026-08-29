@@ -68,6 +68,8 @@ spec:
               - octoprint.{{ .Values.fqdn }}
       webcam:
         enabled: true
+        targetSelector:
+          webcam: webcam
         annotations:
           prometheus.io/probe: "false"
           homer.item.excluded: "true"
@@ -76,9 +78,6 @@ spec:
           - host: octoprint-webcam.{{ .Values.fqdn }}
             paths:
               - path: /
-                service:
-                  name: webcam
-                  port: 8080
         tls:
           - secretName: "{{ .Values.fqdn }}-tls"
             hosts:
