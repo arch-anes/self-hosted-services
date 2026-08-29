@@ -27,11 +27,6 @@ spec:
                   topologyKey: "kubernetes.io/hostname"
           annotations:
             backup.velero.io/backup-volumes: data
-          containers:
-            main:
-              fixedEnv:
-                PUID: "1000"
-                PGID: "1000"
     resources:
       requests:
         memory: {{ include "app.resources.memory" (list $ "512Mi") }}
