@@ -34,7 +34,6 @@ limits:
 privileged: true
 runAsUser: 0
 runAsGroup: 0
-runAsNonRoot: false
 capabilities:
   add:
     - NET_ADMIN
