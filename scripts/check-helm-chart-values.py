@@ -1,62 +1,71 @@
 #!/usr/bin/env python3
-"""Validate every HelmChart override against its generated chart schema.
+"""Validate the values in rendered HelmChart resources.
 
-The chart pull script generates ``values.schema.json`` with the ``helm schema``
-plugin. This check renders the local HelmChart resources and supplies each
-``spec.values`` document to its pulled chart. It runs ``helm lint`` first.
-When lint fails, it also calls ``helm schema validate`` to distinguish an
-invalid override from an upstream template problem. A chart with valid values
-but a lint failure is reported as a warning so its upstream template defect is
-visible without making this values check fail.
+The chart pull script generates full-values, override, and HelmChart schemas
+for each cached upstream chart. This script renders the services chart once.
+It then writes each HelmChart resource to a temporary file.
+
+Each Kubeconform process receives one resource and one chart-specific schema.
+This design prevents Kubeconform from loading all chart schemas for each
+resource. The processes run concurrently and report progress as they finish.
 """
 
 from __future__ import annotations
 
+import concurrent.futures
+import os
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 import yaml
 
+HELMCHART_SCHEMA_NAME = "helmchart.schema.json"
+VALUES_OVERRIDE_SCHEMA_NAME = "values.override.schema.json"
 IGNORED_CHARTS = {"generic"}
+VALIDATION_TIMEOUT_SECONDS = 120
 
 
 class CheckError(Exception):
-    """A required chart or Helm command is unavailable."""
+    """A required schema or local validation command failed."""
 
 
 @dataclass(frozen=True)
 class HelmChartResource:
-    """One rendered HelmChart and its upstream chart override values."""
+    """Store the identity and YAML data of one rendered HelmChart resource."""
 
     name: str
     chart: str
     version: str
-    values: dict[str, Any]
+    document: dict[str, object]
+
+
+@dataclass(frozen=True)
+class ValidationJob:
+    """Pair one isolated HelmChart file with its resource schema."""
+
+    resource: HelmChartResource
+    document_path: Path
+    schema_path: Path
 
 
 def repo_root() -> Path:
-    """Return the repository root relative to this script's fixed location.
-
-    Both scripts live in the repository's ``scripts`` directory.  Resolving
-    their path works in a Git checkout and a source archive, without relying
-    on the current working directory or Git metadata.
-    """
+    """Return the repository root relative to this script's location."""
     return Path(__file__).resolve().parents[1]
 
 
 def render_resources(root: Path) -> list[HelmChartResource]:
-    """Return non-generic HelmChart resources rendered from ``charts/services``.
+    """Render the services chart and return its supported HelmChart resources.
 
-    Rendering first resolves the repository's Helm templates, so the returned
-    values are the exact ``spec.values`` documents supplied to each upstream
-    chart by the services chart.
+    The generic chart accepts arbitrary Kubernetes objects. It has no upstream
+    values schema, so this script does not validate its values.
 
     Raises:
-        CheckError: If ``helm template`` cannot render the services chart.
+        CheckError: Helm cannot render the chart, or a HelmChart has no spec.
     """
+    print("Rendering the services chart...", flush=True)
     result = subprocess.run(
         ["helm", "template", "charts/services"],
         cwd=root,
@@ -71,130 +80,184 @@ def render_resources(root: Path) -> list[HelmChartResource]:
     for document in yaml.safe_load_all(result.stdout):
         if not isinstance(document, dict) or document.get("kind") != "HelmChart":
             continue
+
         spec = document.get("spec")
         if not isinstance(spec, dict):
-            continue
+            raise CheckError("a rendered HelmChart resource has no object spec")
+
         chart = str(spec.get("chart", "")).rstrip("/").rsplit("/", 1)[-1]
-        if not chart or chart in IGNORED_CHARTS:
+        if not chart:
+            raise CheckError("a rendered HelmChart resource has no chart name")
+        if chart in IGNORED_CHARTS:
             continue
-        values = spec.get("values")
+
+        metadata = document.get("metadata")
+        name = metadata.get("name", "?") if isinstance(metadata, dict) else "?"
         resources.append(
             HelmChartResource(
-                name=str((document.get("metadata") or {}).get("name", "?")),
+                name=str(name),
                 chart=chart,
                 version=str(spec.get("version", "")),
-                values=values if isinstance(values, dict) else {},
+                document=document,
             )
         )
+
+    print(f"Rendered {len(resources)} HelmChart resources", flush=True)
+    if not resources:
+        raise CheckError("the rendered services chart has no supported HelmChart resources")
     return resources
 
 
-def chart_path(root: Path, resource: HelmChartResource) -> Path:
-    """Return the cached chart directory after checking its required inputs.
-
-    The cache must contain the version requested by ``resource`` and a schema
-    generated by ``pull-upstream-helm-charts.py``.  Checking both here avoids
-    validating overrides against stale chart defaults or schemas.
+def chart_schema_path(root: Path, resource: HelmChartResource) -> Path:
+    """Return the matching schema for a rendered HelmChart resource.
 
     Raises:
-        CheckError: If the chart, requested version, or generated schema is
-            missing.
+        CheckError: The chart cache is absent, stale, or incomplete.
     """
-    path = root / "charts" / "services" / "upstream-charts" / resource.chart
-    chart_file = path / "Chart.yaml"
+    chart_dir = root / "charts" / "services" / "upstream-charts" / resource.chart
+    chart_file = chart_dir / "Chart.yaml"
     if not chart_file.is_file():
         raise CheckError(
-            f"{resource.name}: chart {resource.chart} is missing; " "run scripts/pull-upstream-helm-charts.py"
+            f"{resource.name}: chart {resource.chart} is missing. " "Run scripts/pull-upstream-helm-charts.py."
         )
-    chart = yaml.safe_load(chart_file.read_text()) or {}
-    if str(chart.get("version", "")) != resource.version:
+
+    chart = yaml.safe_load(chart_file.read_text(encoding="utf-8"))
+    if not isinstance(chart, dict):
+        raise CheckError(f"{resource.name}: {chart_file} does not contain an object")
+
+    cached_version = str(chart.get("version", ""))
+    if cached_version != resource.version:
         raise CheckError(
-            f"{resource.name}: chart {resource.chart} is version {chart.get('version')}, "
-            f"but the HelmChart requests {resource.version}; "
-            "run scripts/pull-upstream-helm-charts.py"
+            f"{resource.name}: chart {resource.chart} is version {cached_version}, "
+            f"but the HelmChart requests {resource.version}. "
+            "Run scripts/pull-upstream-helm-charts.py."
         )
-    if not (path / "values.schema.json").is_file():
-        raise CheckError(
-            f"{resource.name}: generated schema is missing for {resource.chart}; "
-            "run scripts/pull-upstream-helm-charts.py"
-        )
-    return path
+
+    for schema_name in (
+        "values.schema.json",
+        VALUES_OVERRIDE_SCHEMA_NAME,
+        HELMCHART_SCHEMA_NAME,
+    ):
+        schema_path = chart_dir / schema_name
+        if not schema_path.is_file():
+            raise CheckError(
+                f"{resource.name}: {schema_name} is missing for {resource.chart}. "
+                "Run scripts/pull-upstream-helm-charts.py."
+            )
+    return chart_dir / HELMCHART_SCHEMA_NAME
 
 
-def run_helm(command: list[str], path: Path, resource: HelmChartResource) -> subprocess.CompletedProcess[str]:
-    """Run ``helm`` for a chart with a resource's values serialized to stdin.
+def prepare_jobs(
+    root: Path,
+    resources: list[HelmChartResource],
+    directory: Path,
+) -> tuple[list[ValidationJob], list[str]]:
+    """Create one validation job and temporary YAML file for each resource.
 
-    Callers include ``--values -`` when Helm itself must read the override
-    document.  ``helm schema validate`` reads the same YAML from stdin by its
-    plugin contract.  Command output is always captured so callers can choose
-    whether it belongs in a pass, warning, or failure report.
+    A missing schema affects only its matching resource. The function returns
+    all setup errors so the caller can still validate the remaining resources.
     """
-    return subprocess.run(
-        ["helm", *command, str(path)],
-        input=yaml.safe_dump(resource.values, sort_keys=False),
-        capture_output=True,
-        text=True,
-        check=False,
+    jobs: list[ValidationJob] = []
+    errors: list[str] = []
+    for index, resource in enumerate(resources, start=1):
+        try:
+            schema_path = chart_schema_path(root, resource)
+        except CheckError as exc:
+            errors.append(str(exc))
+            continue
+
+        document_path = directory / f"{index:03d}.yaml"
+        document_path.write_text(
+            yaml.safe_dump(resource.document, sort_keys=False),
+            encoding="utf-8",
+        )
+        jobs.append(
+            ValidationJob(
+                resource=resource,
+                document_path=document_path,
+                schema_path=schema_path,
+            )
+        )
+    return jobs, errors
+
+
+def validate_job(job: ValidationJob) -> str | None:
+    """Validate one HelmChart file and return an error message if it fails."""
+    try:
+        result = subprocess.run(
+            [
+                "kubeconform",
+                "-strict",
+                "-schema-location",
+                job.schema_path.resolve().as_uri(),
+                str(job.document_path),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=VALIDATION_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired:
+        return f"validation exceeded {VALIDATION_TIMEOUT_SECONDS}s"
+
+    if not result.returncode:
+        return None
+    return "\n".join(part.strip() for part in (result.stdout, result.stderr) if part.strip())
+
+
+def validate_jobs(jobs: list[ValidationJob]) -> list[str]:
+    """Validate jobs with one worker per available CPU and report progress."""
+    if not jobs:
+        return []
+
+    workers = min(os.process_cpu_count() or 1, len(jobs))
+    print(
+        f"Validating {len(jobs)} HelmChart resources with {workers} workers...",
+        flush=True,
     )
+    failures: list[str] = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = {executor.submit(validate_job, job): job for job in jobs}
+        for completed, future in enumerate(concurrent.futures.as_completed(futures), start=1):
+            job = futures[future]
+            try:
+                diagnostic = future.result()
+            except Exception as exc:
+                diagnostic = f"unexpected validation error: {exc}"
+
+            status = "FAIL" if diagnostic else "PASS"
+            print(
+                f"[{completed}/{len(jobs)}] {status} {job.resource.name} "
+                f"({job.resource.chart} {job.resource.version})",
+                flush=True,
+            )
+            if diagnostic:
+                failures.append(f"{job.resource.name}:\n{diagnostic}")
+    return failures
 
 
 def main() -> int:
-    """Lint each rendered override and return a process exit status.
-
-    Helm lint is the primary check.  A failed lint is then checked with the
-    generated schema: if schema validation succeeds, the values are valid and
-    the lint result is retained as a warning for an upstream template issue.
-    If validation also fails, the override is reported as a failure.
-    """
+    """Render the services chart and validate each HelmChart resource."""
+    root = repo_root()
     try:
-        root = repo_root()
         resources = render_resources(root)
-    except (CheckError, OSError, subprocess.CalledProcessError) as exc:
+        with tempfile.TemporaryDirectory(prefix="helmchart-values-") as temporary:
+            jobs, setup_errors = prepare_jobs(root, resources, Path(temporary))
+            print(f"Wrote {len(jobs)} isolated HelmChart files", flush=True)
+            failures = [*setup_errors, *validate_jobs(jobs)]
+    except (CheckError, OSError, yaml.YAMLError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 
-    failures = 0
-    warnings = 0
-    for resource in resources:
-        try:
-            path = chart_path(root, resource)
-        except CheckError as exc:
-            print(f"error: {exc}", file=sys.stderr)
-            failures += 1
-            continue
-
-        lint = run_helm(["lint", "--values", "-"], path, resource)
-        if not lint.returncode:
-            print(f"PASS {resource.name} ({resource.chart} {resource.version})", flush=True)
-            continue
-
-        validation = run_helm(["schema", "validate"], path, resource)
-        if not validation.returncode:
-            warnings += 1
-            output = (lint.stdout + lint.stderr).strip()
-            print(
-                f"WARN {resource.name} ({resource.chart} {resource.version}): "
-                "helm lint failed, but the override matches the generated schemas",
-                file=sys.stderr,
-                flush=True,
-            )
-            print(output, file=sys.stderr, flush=True)
-            continue
-
-        if validation.returncode:
-            failures += 1
-            output = (validation.stdout + validation.stderr).strip()
-            print(f"FAIL {resource.name} ({resource.chart} {resource.version})", file=sys.stderr, flush=True)
-            print(output, file=sys.stderr, flush=True)
-
-    total = len(resources)
     if failures:
-        print(f"{failures} of {total} HelmChart resources failed", file=sys.stderr)
+        print("\n\n".join(failures), file=sys.stderr)
+        print(
+            f"{len(failures)} of {len(resources)} HelmChart resources failed",
+            file=sys.stderr,
+        )
         return 1
-    if warnings:
-        print(f"{total} HelmChart resources passed with {warnings} Helm lint warning(s)")
-    else:
-        print(f"{total} HelmChart resources passed")
+
+    print(f"All {len(resources)} HelmChart resources match their generated schemas")
     return 0
 
 
