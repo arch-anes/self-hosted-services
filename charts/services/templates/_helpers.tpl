@@ -24,15 +24,23 @@
 {{- end -}}
 
 {{- define "ip.proxy_ranges" -}}
-{{- concat .Values.localIpRanges .Values.cloudFlareIpRanges | toYaml }}
+{{- concat .Values.localIpv4Ranges .Values.localIpv6Ranges .Values.cloudFlareIpRanges | toYaml }}
 {{- end -}}
 
 {{- define "ip.local_proxy_ranges.string" -}}
-{{- .Values.localIpRanges | join "," }}
+{{- concat .Values.localIpv4Ranges .Values.localIpv6Ranges | join "," }}
 {{- end -}}
 
 {{- define "ip.private_ranges" -}}
-{{- concat .Values.localIpRanges .Values.tailscaleIpRanges | toYaml }}
+{{- concat .Values.localIpv4Ranges .Values.localIpv6Ranges .Values.tailscaleIpv4Ranges .Values.tailscaleIpv6Ranges | toYaml }}
+{{- end -}}
+
+{{- define "ip.private_ipv4_ranges" -}}
+{{- concat .Values.localIpv4Ranges .Values.tailscaleIpv4Ranges | toYaml }}
+{{- end -}}
+
+{{- define "ip.private_ipv6_ranges" -}}
+{{- concat .Values.localIpv6Ranges .Values.tailscaleIpv6Ranges | toYaml }}
 {{- end -}}
 
 {{- define "ha.enabled" -}}

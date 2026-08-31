@@ -178,7 +178,7 @@ tests:
   # ----- ip.local_proxy_ranges.string -----
   - it: ip.local_proxy_ranges.string joins ranges with commas
     set:
-      localIpRanges:
+      localIpv4Ranges:
         - 10.0.0.0/8
         - 172.16.0.0/12
     asserts:
@@ -188,7 +188,7 @@ tests:
 
   - it: ip.local_proxy_ranges.string handles single range
     set:
-      localIpRanges:
+      localIpv4Ranges:
         - 10.0.0.0/8
     asserts:
       - equal:
@@ -198,7 +198,7 @@ tests:
   # ----- ip.proxy_ranges (local + cloudflare) -----
   - it: ip.proxy_ranges concatenates local + cloudflare ranges
     set:
-      localIpRanges:
+      localIpv4Ranges:
         - 10.0.0.0/8
       cloudFlareIpRanges:
         - 1.1.1.1/32
@@ -211,13 +211,36 @@ tests:
   # ----- ip.private_ranges (local + tailscale) -----
   - it: ip.private_ranges concatenates local + tailscale ranges
     set:
-      localIpRanges:
+      localIpv4Ranges:
         - 10.0.0.0/8
-      tailscaleIpRanges:
+      tailscaleIpv4Ranges:
         - 100.64.0.0/10
+      tailscaleIpv6Ranges: []
     asserts:
       - equal:
           path: data\.ip_private_ranges_count
+          value: "2"
+      - equal:
+          path: data\.ip_private_ipv4_ranges_count
+          value: "2"
+      - equal:
+          path: data\.ip_private_ipv6_ranges_count
+          value: "0"
+
+  - it: ip.private_ipv6_ranges contains local and Tailscale IPv6 ranges
+    set:
+      localIpv4Ranges: []
+      localIpv6Ranges:
+        - fd00::/8
+      tailscaleIpv4Ranges: []
+      tailscaleIpv6Ranges:
+        - fd7a:115c:a1e0::/48
+    asserts:
+      - equal:
+          path: data\.ip_private_ipv4_ranges_count
+          value: "0"
+      - equal:
+          path: data\.ip_private_ipv6_ranges_count
           value: "2"
 
 ---

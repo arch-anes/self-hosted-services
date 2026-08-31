@@ -20,14 +20,21 @@ fqdn: example.org
 behindTcpProxy: true
 tcpProxyIp: 192.168.1.1
 
-# Private IP ranges
-localIpRanges:
+# Local IPv4 ranges
+localIpv4Ranges:
   - 10.0.0.0/8
   - 172.16.0.0/12
   - 192.168.0.0/16
 
-tailscaleIpRanges:
+# Local IPv6 ranges
+localIpv6Ranges: []
+
+# Tailscale IPv4 ranges
+tailscaleIpv4Ranges:
   - 100.64.0.0/10
+
+# Tailscale IPv6 ranges
+tailscaleIpv6Ranges:
   - fd7a:115c:a1e0::/48
 
 # Cloudflare IP ranges

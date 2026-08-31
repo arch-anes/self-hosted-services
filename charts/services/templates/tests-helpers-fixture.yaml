@@ -23,6 +23,8 @@ data:
   ip_local_proxy_ranges_string: {{ include "ip.local_proxy_ranges.string" . | quote }}
   ip_proxy_ranges_count: {{ include "ip.proxy_ranges" . | fromYamlArray | len | quote }}
   ip_private_ranges_count: {{ include "ip.private_ranges" . | fromYamlArray | len | quote }}
+  ip_private_ipv4_ranges_count: {{ include "ip.private_ipv4_ranges" . | fromYamlArray | len | quote }}
+  ip_private_ipv6_ranges_count: {{ include "ip.private_ipv6_ranges" . | fromYamlArray | len | quote }}
 {{- end }}
 {{- if (.Values.testFixtures).require }}
 ---
