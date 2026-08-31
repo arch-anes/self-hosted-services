@@ -29,6 +29,8 @@ spec:
       enabled: false
       redis:
         enabled: false
+    podLabels:
+      networking.arch-anes.io/egress: restricted-local
     extraEnvVars:
       - name: WEBUI_SECRET_KEY
         valueFrom:
@@ -175,5 +177,30 @@ spec:
               rewrite:
                 - transform:
                     template: client_secret
+      - apiVersion: networking.k8s.io/v1
+        kind: NetworkPolicy
+        metadata:
+          name: open-webui-egress
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: open-webui
+          policyTypes:
+            - Egress
+          egress:
+            - to:
+                - podSelector:
+                    matchExpressions:
+                      - key: app.kubernetes.io/name
+                        operator: In
+                        values:
+                          - authentik
+                          - llama-cpp
+                          - llama-cpp-embeddings
+                      - key: postgres-operator.crunchydata.com/cluster
+                        operator: In
+                        values:
+                          - postgresql
     {{- end }}
 {{- end }}
