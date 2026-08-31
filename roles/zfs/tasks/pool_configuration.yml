@@ -1,0 +1,61 @@
+---
+
+- name: Validate ZFS pool declaration
+  ansible.builtin.assert:
+    that:
+      - zfs_pool.name is defined
+      - zfs_pool.vdevs is defined
+      - zfs_pool.vdevs | length > 0
+    fail_msg: >-
+      Provide a pool name and at least one vdev.
+
+- name: Determine whether ZFS pool exists
+  ansible.builtin.set_fact:
+    zfs_pool_exists: >-
+      {{ ansible_zfs_pools | default([]) |
+         selectattr('name', 'equalto', zfs_pool.name) | list | length > 0 }}
+
+- name: Read existing ZFS pool device paths
+  ansible.builtin.command:
+    argv: [zpool, status, -P, "{{ zfs_pool.name }}"]
+  changed_when: false
+  register: zfs_existing_pool_status
+  when: zfs_pool_exists | bool
+
+- name: Extract existing ZFS provider disk paths
+  ansible.builtin.set_fact:
+    zfs_existing_pool_disk_paths: >-
+      {{ zfs_existing_pool_status.stdout_lines |
+         select('match', '^\s*/dev/') |
+         map('regex_replace', '^\s*(\S+).*$', '\1') | list }}
+  when: zfs_pool_exists | bool
+
+- name: Initialize ZFS vdev reconciliation
+  ansible.builtin.set_fact:
+    zfs_pool_vdevs_to_add: []
+    zfs_existing_pool_disk_paths: "{{ zfs_existing_pool_disk_paths | default([]) }}"
+
+- name: Resolve declared ZFS vdevs
+  ansible.builtin.include_tasks: vdev.yml
+  loop: "{{ zfs_pool.vdevs }}"
+  loop_control:
+    loop_var: zfs_vdev
+
+- name: Create or expand ZFS pool safely
+  community.general.zpool:
+    name: "{{ zfs_pool.name }}"
+    state: present
+    force: false
+    filesystem_properties: "{{ zfs_pool.filesystem_properties | default({'compression': 'lz4', 'atime': 'off'}) }}"
+    mountpoint: "/zfs-{{ zfs_pool.name }}-do-not-use"
+    vdevs: "{{ zfs_pool_vdevs_to_add }}"
+  when: zfs_pool_vdevs_to_add | length > 0
+  register: zfs_pool_creation
+
+- name: Refresh ZFS pool facts after pool provisioning
+  community.general.zpool_facts:
+    pool: zfs_pool.name
+  when: zfs_pool_creation.changed  # noqa: no-handler
+
+- name: Configure ZFS datasets
+  ansible.builtin.include_tasks: datasets.yml

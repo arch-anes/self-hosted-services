@@ -1,0 +1,11 @@
+# code: language=ansible
+---
+
+- name: Configure ZFS host settings
+  ansible.builtin.include_tasks: host_settings.yml
+
+- name: Provision ZFS pools
+  ansible.builtin.include_tasks: pools.yml
+
+- name: Configure Sanoid
+  ansible.builtin.include_tasks: sanoid.yml

@@ -1,0 +1,51 @@
+---
+
+- name: Configure Sanoid
+  become: true
+  when: ansible_distribution == 'Ubuntu'
+  block:
+    - name: Create Sanoid configuration directory
+      ansible.builtin.file:
+        path: /etc/sanoid
+        state: directory
+        mode: '0755'
+
+    - name: Declare legacy storage dataset configuration
+      ansible.builtin.set_fact:
+        zfs_sanoid_datasets:
+          - pool: storage
+            datasets:
+              - name: cluster-local-storage
+                snapshot: false
+              - name: multimedia
+                snapshot: false
+      when: zfs_sanoid_datasets is not defined
+
+    - name: Refresh ZFS facts after dataset provisioning
+      community.general.zfs_facts:
+        name: "{{ item }}"
+        recurse: true
+        type: filesystem
+      loop: "{{ ansible_zfs_pools | map(attribute='name') | list }}"
+      loop_control:
+        label: "{{ inventory_hostname }}_{{ item }}"
+      register: zfs_sanoid_facts
+
+    - name: Build ZFS dataset name list from refreshed facts
+      ansible.builtin.set_fact:
+        zfs_dataset_names: >-
+          {{ zfs_sanoid_facts.results |
+             map(attribute='ansible_facts.ansible_zfs_datasets') | flatten |
+             map(attribute='name') | list }}
+
+    - name: Generate Sanoid configuration file
+      ansible.builtin.template:
+        src: sanoid.conf.j2
+        dest: /etc/sanoid/sanoid.conf
+        mode: '0644'
+
+    - name: Enable and start Sanoid timer
+      ansible.builtin.systemd:
+        name: sanoid.timer
+        enabled: true
+        state: started

@@ -20,6 +20,11 @@
       when:
         - not (skip_system_setup or manifest_only_setup)
 
+    - name: Setup ZFS
+      role: zfs
+      when:
+        - not (skip_zfs_setup or manifest_only_setup)
+
     - name: Create a VPN mesh network
       role: vpn
       when:
