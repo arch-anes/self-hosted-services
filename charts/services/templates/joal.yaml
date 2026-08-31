@@ -134,6 +134,7 @@ spec:
                 backup.velero.io/backup-volumes: config
               labels:
                 app: joal
+                networking.arch-anes.io/egress: tunnel-only
             spec:
               containers:
                 {{- include "tunnel.deployment.container" . | nindent 16 }}

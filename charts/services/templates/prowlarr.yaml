@@ -30,6 +30,8 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         podSpec:
+          labels:
+            networking.arch-anes.io/egress: tunnel-only
           containers:
             {{- include "tunnel.truecharts.container" . | nindent 12 }}
             main:

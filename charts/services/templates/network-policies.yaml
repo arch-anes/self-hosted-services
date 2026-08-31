@@ -89,14 +89,20 @@ spec:
 
 ---
 # Keep external access available without permitting direct connections to pod
-# or Service addresses in other namespaces.
+# or Service addresses in other namespaces. The excluded ranges are the k3s
+# pod and Service CIDRs also used by the tunnel helper.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-external-egress
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  podSelector: {}
+  podSelector:
+    matchExpressions:
+      - key: networking.arch-anes.io/egress
+        operator: NotIn
+        values:
+          - tunnel-only
   policyTypes:
     - Egress
   egress:
@@ -104,5 +110,7 @@ spec:
         - ipBlock:
             cidr: 0.0.0.0/0
             except:
-              - 10.42.0.0/16
-              - 10.43.0.0/16
+              {{- include "ip.private_ipv4_ranges" . | nindent 14 }}
+    - to:
+        - ipBlock:
+            cidr: 2000::/3

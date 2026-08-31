@@ -63,6 +63,8 @@ spec:
         podSpec:
           annotations:
             backup.velero.io/backup-volumes: config
+          labels:
+            networking.arch-anes.io/egress: tunnel-only
           affinity:
             podAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:

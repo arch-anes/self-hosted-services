@@ -17,6 +17,8 @@ spec:
     workload:
       main:
         podSpec:
+          labels:
+            networking.arch-anes.io/egress: tunnel-only
           containers:
             {{- include "tunnel.truecharts.container" . | nindent 12 }}
             main:
