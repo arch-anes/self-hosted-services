@@ -15,7 +15,7 @@
 
 - name: Set k3s pre-config
   ansible.builtin.set_fact:
-    kubernetes_cluster_advertised_ip: "{{ ansible_default_ipv4.address }}"
+    kubernetes_cluster_advertised_ip: "{{ ansible_facts['default_ipv4']['address'] }}"
 
 - name: Set k3s config
   ansible.builtin.set_fact:

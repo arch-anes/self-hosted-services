@@ -3,23 +3,23 @@
 
 - name: Gather facts if not already collected
   ansible.builtin.setup:
-  when: ansible_kernel is not defined
+  when: ansible_facts['kernel'] is not defined
 
 - name: Detect machine type
   ansible.builtin.set_fact:
-    prepare_detect_is_raspberry_pi: "{{ 'raspi' in ansible_kernel }}"
-    prepare_detect_is_openwrt: "{{ ansible_distribution == 'OpenWrt' }}"
+    prepare_detect_is_raspberry_pi: "{{ 'raspi' in ansible_facts['kernel'] }}"
+    prepare_detect_is_openwrt: "{{ ansible_facts['distribution'] == 'OpenWrt' }}"
 
 - name: Detect router network facts
   when: prepare_detect_is_openwrt
   block:
     - name: Detect WAN Interface
       ansible.builtin.set_fact:
-        prepare_detect_wan_interface: "{{ wan_interface | default(ansible_default_ipv4.interface) }}"
+        prepare_detect_wan_interface: "{{ wan_interface | default(ansible_facts['default_ipv4']['interface']) }}"
 
     - name: Detect router LAN IP
       ansible.builtin.set_fact:
-        prepare_detect_router_lan_ip: "{{ lan_ip | default(ansible_br_lan.ipv4.address) }}"
+        prepare_detect_router_lan_ip: "{{ lan_ip | default(ansible_facts['br_lan']['ipv4']['address']) }}"
 
     - name: Deduce HAProxy virtual IP
       ansible.builtin.set_fact:
@@ -29,8 +29,8 @@
   ansible.builtin.set_fact:
     prepare_detect_cpu_arch: >-
       {{
-        'amd64' if ansible_architecture == 'x86_64' else
-        'arm64' if ansible_architecture == 'aarch64' else
-        'armv7' if ansible_machine == 'armv7l' else
+        'amd64' if ansible_facts['architecture'] == 'x86_64' else
+        'arm64' if ansible_facts['architecture'] == 'aarch64' else
+        'armv7' if ansible_facts['machine'] == 'armv7l' else
         'unknown'
       }}

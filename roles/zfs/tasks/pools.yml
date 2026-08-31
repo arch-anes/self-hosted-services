@@ -2,12 +2,12 @@
 
 - name: Gather existing ZFS pool facts
   community.general.zpool_facts:
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_facts['distribution'] == 'Ubuntu'
 
 - name: Provision ZFS pools
   become: true
   when:
-    - ansible_distribution == 'Ubuntu'
+    - ansible_facts['distribution'] == 'Ubuntu'
     - zfs is defined
     - zfs.pools | default([]) | length > 0
   block:

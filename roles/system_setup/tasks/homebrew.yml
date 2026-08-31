@@ -2,7 +2,7 @@
 ---
 
 - name: Install Homebrew
-  when: ansible_distribution == "Ubuntu"
+  when: ansible_facts['distribution'] == "Ubuntu"
   block:
     - name: Install Homebrew dependencies
       become: true

@@ -28,7 +28,7 @@
 
 - name: Set headscale server url
   ansible.builtin.set_fact:
-    vpn_headscale_server_url: "http://{{ ansible_default_ipv4.address }}:8080"
+    vpn_headscale_server_url: "http://{{ ansible_facts['default_ipv4']['address'] }}:8080"
 
 - name: Create a headscale user
   ansible.builtin.command: "headscale users create ansible"

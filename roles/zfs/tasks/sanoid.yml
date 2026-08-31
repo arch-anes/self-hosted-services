@@ -2,7 +2,7 @@
 
 - name: Configure Sanoid
   become: true
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_facts['distribution'] == 'Ubuntu'
   block:
     - name: Create Sanoid configuration directory
       ansible.builtin.file:
@@ -26,7 +26,7 @@
         name: "{{ item }}"
         recurse: true
         type: filesystem
-      loop: "{{ ansible_zfs_pools | map(attribute='name') | list }}"
+      loop: "{{ ansible_facts['zfs_pools'] | map(attribute='name') | list }}"
       loop_control:
         label: "{{ inventory_hostname }}_{{ item }}"
       register: zfs_sanoid_facts

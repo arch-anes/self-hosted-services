@@ -2,7 +2,7 @@
 
 - name: Configure ZFS host settings
   become: true
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_facts['distribution'] == 'Ubuntu'
   block:
     - name: Generate zfs-load-key service file
       ansible.builtin.template:
@@ -19,7 +19,7 @@
 
     - name: Calculate ZFS ARC limit (25% of RAM)
       ansible.builtin.set_fact:
-        zfs_arc_max_bytes: "{{ (ansible_memtotal_mb * 1024 * 1024 * 0.25) | int }}"
+        zfs_arc_max_bytes: "{{ (ansible_facts['memtotal_mb'] * 1024 * 1024 * 0.25) | int }}"
 
     - name: Limit ZFS ARC size in modprobe config
       ansible.builtin.copy:
