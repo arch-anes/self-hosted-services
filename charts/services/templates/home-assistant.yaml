@@ -102,6 +102,8 @@ spec:
         podSpec:
           annotations:
             backup.velero.io/backup-volumes: config
+          labels:
+            networking.arch-anes.io/egress: lan-access
           containers:
             main:
               env:

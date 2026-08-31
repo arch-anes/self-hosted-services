@@ -114,3 +114,25 @@ spec:
     - to:
         - ipBlock:
             cidr: 2000::/3
+
+---
+# LAN access is only available to applications that need to communicate with
+# local devices. iDRAC and IPMI exporters run in kube-system and are outside
+# this application-namespace policy.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-lan-egress
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  podSelector:
+    matchLabels:
+      networking.arch-anes.io/egress: lan-access
+  policyTypes:
+    - Egress
+  egress:
+    {{- range (concat .Values.localIpv4Ranges .Values.localIpv6Ranges) }}
+    - to:
+        - ipBlock:
+            cidr: {{ . }}
+    {{- end }}
