@@ -1,4 +1,5 @@
 ---
+ansible_managed: This file is managed by Ansible.
 k3s_control_node: false
 labels: []
 taints: []
