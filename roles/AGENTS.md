@@ -8,6 +8,12 @@ This guide applies to the `roles` subtree. Follow the repository-wide
 - You SHOULD prefer roles over direct tasks in playbooks.
 - You MUST gate optional behavior with `when` clauses for `skip_*` variables.
 
+## Global Variables
+
+- When you add a global Ansible variable, you MUST add it to the inventory
+  example in [`../README.md`](../README.md) and to the `vars` section under
+  `provisioner.inventory.hosts.all` in every applicable Molecule file.
+
 ## Validation
 
 - Before running Ansible playbooks or Molecule tests, you MUST install
