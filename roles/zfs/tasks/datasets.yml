@@ -15,7 +15,7 @@
 - name: Select existing encrypted dataset facts
   ansible.builtin.set_fact:
     zfs_encrypted_dataset_facts: >-
-      {{ ansible_zfs_datasets | selectattr('name', 'equalto', zfs_encrypted_dataset) | list }}
+      {{ ansible_facts['zfs_datasets'] | selectattr('name', 'equalto', zfs_encrypted_dataset) | list }}
 
 - name: Determine whether encrypted dataset exists
   ansible.builtin.set_fact:

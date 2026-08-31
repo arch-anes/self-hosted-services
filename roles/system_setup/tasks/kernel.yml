@@ -2,7 +2,7 @@
 ---
 
 - name: Allocate huge pages
-  when: ansible_distribution == 'Ubuntu' and not prepare_detect_is_raspberry_pi
+  when: ansible_facts['distribution'] == 'Ubuntu' and not prepare_detect_is_raspberry_pi
   become: true
   ansible.posix.sysctl:
     name: vm.nr_hugepages
@@ -12,7 +12,7 @@
     reload: true
 
 - name: Increase inotify max user instances
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_facts['distribution'] == 'Ubuntu'
   become: true
   ansible.posix.sysctl:
     name: fs.inotify.max_user_instances
@@ -22,7 +22,7 @@
     reload: true
 
 - name: Increase inotify max user watches
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_facts['distribution'] == 'Ubuntu'
   become: true
   ansible.posix.sysctl:
     name: fs.inotify.max_user_watches

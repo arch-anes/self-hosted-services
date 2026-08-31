@@ -12,7 +12,7 @@
 - name: Determine whether ZFS pool exists
   ansible.builtin.set_fact:
     zfs_pool_exists: >-
-      {{ ansible_zfs_pools | default([]) |
+      {{ ansible_facts['zfs_pools'] | default([]) |
          selectattr('name', 'equalto', zfs_pool.name) | list | length > 0 }}
 
 - name: Read existing ZFS pool device paths

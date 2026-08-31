@@ -3,7 +3,7 @@
 
 - name: Setup DNS resolution
   become: true
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_facts['distribution'] == 'Ubuntu'
   block:
     - name: Create systemd-resolved drop-in config folder
       ansible.builtin.file:
