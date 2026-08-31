@@ -1,0 +1,108 @@
+---
+# Isolate tenant workloads from other namespaces. Connections originating from
+# kube-system are allowed so cluster services, such as Prometheus, can scrape
+# application metrics. Responses to those connections are permitted by the
+# CNI's connection tracking and do not need an egress rule.
+#
+# Do not apply a blanket ingress deny policy to kube-system. Its workloads can
+# receive node-level and host-network traffic, whose sources cannot be reliably
+# selected by a standard NetworkPolicy. Protect sensitive kube-system workloads
+# individually instead.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: namespace-isolation
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector: {}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+
+---
+# Allow infrastructure access required by every workload: DNS through CoreDNS
+# and the Kubernetes API. Permit both the API Service address on TCP 443 and
+# TCP 6443 within the node network because Service translation can expose the
+# control-plane endpoint before NetworkPolicy evaluation.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-essential-services
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - to:
+        - ipBlock:
+            cidr: 10.43.0.1/32
+      ports:
+        - port: 443
+          protocol: TCP
+    - to:
+      - ipBlock:
+          cidr: 192.168.0.0/16
+      ports:
+      - port: 6443
+        protocol: TCP
+
+---
+# NetworkPolicy rules are additive. Exclude restricted-local workloads from the
+# namespace-wide same-namespace egress rule so their own policies remain
+# restrictive.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: same-namespace-egress
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  podSelector:
+    matchExpressions:
+      - key: networking.arch-anes.io/egress
+        operator: NotIn
+        values:
+          - restricted-local
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector: {}
+
+---
+# Keep external access available without permitting direct connections to pod
+# or Service addresses in other namespaces.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-external-egress
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.42.0.0/16
+              - 10.43.0.0/16
