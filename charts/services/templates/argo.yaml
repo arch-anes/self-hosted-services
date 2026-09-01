@@ -10,7 +10,7 @@ metadata:
 spec:
   chart: argo-cd
   repo: https://argoproj.github.io/argo-helm
-  version: 9.5.20
+  version: 10.5.0
   targetNamespace: kube-system
   takeOwnership: true
   serverSide: "true"
