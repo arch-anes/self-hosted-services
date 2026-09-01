@@ -336,7 +336,7 @@ spec:
                     kubernetes.io/arch: amd64
                   containers:
                     - name: prewarm
-                      image: ghcr.io/arch-anes/crunchy-postgres:ubi9-17.9-2610
+                      image: ghcr.io/arch-anes/crunchy-postgres:ubi9-17.11-2633
                       command:
                         - psql
                         - -c
