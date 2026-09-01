@@ -17,7 +17,7 @@ spec:
       postgres_17:
         image: ghcr.io/arch-anes/crunchy-postgres:ubi9-17.11-2633
       postgres_18:
-        image: ghcr.io/arch-anes/crunchy-postgres:ubi9-18.4-2621
+        image: ghcr.io/arch-anes/crunchy-postgres:ubi9-18.6-2633
     replicas: 1
     resources:
       controller:
