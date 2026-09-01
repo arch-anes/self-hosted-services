@@ -2,7 +2,9 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "schedule:earlyMondays",
-    "config:best-practices"
+    "config:recommended",
+    "abandonments:recommended",
+    ":configMigration"
   ],
   "timezone": "America/Toronto",
   "kubernetes": {
