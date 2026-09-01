@@ -9,7 +9,7 @@ metadata:
 spec:
   chart: wakapi
   repo: https://arch-anes.github.io/charts
-  version: 0.1.4
+  version: 0.1.5
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   serverSide: "true"
   forceConflicts: true
