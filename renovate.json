@@ -26,6 +26,16 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
+        "/charts/services/templates/postgresql\\.yaml$"
+      ],
+      "matchStrings": [
+        "postgres_\\d+:\\s*\\n\\s*image:\\s*(?<depName>[^:]+):(?<currentValue>[^\\s]+)"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
         "/charts/.+\\.ya?ml$/",
         "/charts/.+\\.tpl$/"
       ],
@@ -72,6 +82,12 @@
     }
   ],
   "packageRules": [
+    {
+      "matchPackageNames": [
+        "ghcr.io/arch-anes/crunchy-postgres"
+      ],
+      "versioning": "regex:^(?<compatibility>ubi9-(?<major>\\d+))\\.(?<minor>\\d+)-(?<patch>\\d+)$"
+    },
     {
       "description": "Custom commit messages",
       "commitMessageExtra": "from {{currentVersion}} -> {{newVersion}} ([changelog]({{sourceUrl}}))",
