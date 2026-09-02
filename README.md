@@ -16,7 +16,7 @@ See [the application catalog](APPLICATIONS.md) for the complete list and service
 
 ## Prerequisites
 
-- Ubuntu 24.04 LTS hosts
+- Ubuntu 26.04 LTS hosts
 - A domain managed by Cloudflare
 - Ansible access to every host
 

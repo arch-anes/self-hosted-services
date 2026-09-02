@@ -13,7 +13,7 @@ lint: |
   ansible-lint --exclude ${HOME}/.ansible/roles/
 platforms:
   - name: replica1
-    box: cloud-image/ubuntu-24.04
+    box: cloud-image/ubuntu-26.04
     memory: 4096
     cpus: 2
     groups:
@@ -25,7 +25,7 @@ platforms:
         ip: "192.168.123.11"
         auto_config: true
   - name: replica2
-    box: cloud-image/ubuntu-24.04
+    box: cloud-image/ubuntu-26.04
     memory: 4096
     cpus: 2
     groups:
@@ -37,7 +37,7 @@ platforms:
         ip: "192.168.123.12"
         auto_config: true
   - name: replica3
-    box: cloud-image/ubuntu-24.04
+    box: cloud-image/ubuntu-26.04
     memory: 4096
     cpus: 2
     groups:
@@ -49,7 +49,7 @@ platforms:
         ip: "192.168.123.13"
         auto_config: true
   - name: replica4
-    box: cloud-image/ubuntu-24.04
+    box: cloud-image/ubuntu-26.04
     memory: 4096
     cpus: 2
     groups:
@@ -61,7 +61,7 @@ platforms:
         ip: "192.168.123.14"
         auto_config: true
   - name: headscale1
-    box: cloud-image/ubuntu-24.04
+    box: cloud-image/ubuntu-26.04
     memory: 1024
     cpus: 1
     groups:
