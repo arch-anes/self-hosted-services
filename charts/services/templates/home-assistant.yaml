@@ -13,10 +13,6 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
-    homeassistant:
-      trusted_proxies:
-        - 10.42.0.0/16
-        - 10.43.0.0/16
     configmap:
       init:
         data:
