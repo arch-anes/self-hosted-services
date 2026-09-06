@@ -15,15 +15,16 @@ spec:
   values:
     useLatestContainers: true
     useDevelopmentContainers: false
+    {{- $udevRules := .Values.applications.akri.udevRules }}
     udev:
       discovery:
-        enabled: true
+        enabled: {{ not (empty $udevRules) }}
       configuration:
-        enabled: true
+        enabled: {{ not (empty $udevRules) }}
         capacity: 5
         discoveryDetails:
           udevRules:
-            {{- range .Values.applications.akri.udevRules }}
+            {{- range $udevRules }}
             - {{ . | quote }}
             {{- end }}
     prometheus:
