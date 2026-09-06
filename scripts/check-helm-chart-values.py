@@ -3,15 +3,19 @@
 
 The script reads static chart references from the services templates. It pulls
 each distinct chart and asks the Helm schema plugin to analyze its templates.
-It then validates the rendered HelmChart resources against those schemas.
+It reuses schemas when the chart, generator binary, and generated files match
+the saved state. It then validates rendered HelmChart resources against those
+schemas.
 """
 
 from __future__ import annotations
 
 import concurrent.futures
+import hashlib
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -32,6 +36,14 @@ HELMCHART_API_VERSION = "helm.cattle.io/v1"
 HELMCHART_KIND = "HelmChart"
 HELMCHART_SCHEMA_NAME = "helmchart.schema.json"
 VALUES_OVERRIDE_SCHEMA_NAME = "values.override.schema.json"
+SCHEMA_STATE_NAME = ".helm-schema-state.json"
+# Increment this when this script changes how it derives schemas.
+SCHEMA_STATE_VERSION = 1
+GENERATED_SCHEMA_NAMES = {
+    "values.schema.json",
+    VALUES_OVERRIDE_SCHEMA_NAME,
+    HELMCHART_SCHEMA_NAME,
+}
 COMMAND_TIMEOUT_SECONDS = 120
 
 JsonSchema = dict[str, object] | bool
@@ -168,6 +180,156 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
+def _sha256_file(path: Path) -> str:
+    """Return a file's SHA-256 digest without loading it into memory."""
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for block in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _helm_schema_binary() -> Path:
+    """Resolve the executable used by the installed Helm schema plugin."""
+    try:
+        result = subprocess.run(
+            ["helm", "env", "HELM_PLUGINS"],
+            capture_output=True,
+            text=True,
+            check=False,
+            stdin=subprocess.DEVNULL,
+            timeout=COMMAND_TIMEOUT_SECONDS,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise RuntimeError(f"cannot locate Helm plugins: {exc}") from exc
+    if result.returncode or not result.stdout.strip():
+        diagnostic = result.stderr.strip() or "HELM_PLUGINS is empty"
+        raise RuntimeError(f"cannot locate Helm plugins: {diagnostic}")
+
+    plugins_dir = Path(result.stdout.strip())
+    plugin_dir: Path | None = None
+    manifest: dict[str, object] | None = None
+    manifest_path: Path | None = None
+    for candidate in sorted(plugins_dir.glob("*/plugin.yaml")):
+        try:
+            candidate_manifest = yaml.safe_load(candidate.read_text(encoding="utf-8"))
+        except (OSError, yaml.YAMLError):
+            continue
+        if isinstance(candidate_manifest, dict) and candidate_manifest.get("name") == "schema":
+            plugin_dir = candidate.parent
+            manifest = candidate_manifest
+            manifest_path = candidate
+            break
+    if plugin_dir is None or manifest is None or manifest_path is None:
+        raise RuntimeError(f"the Helm schema plugin is not installed in {plugins_dir}")
+
+    runtime_config = manifest.get("runtimeConfig")
+    commands = runtime_config.get("platformCommand") if isinstance(runtime_config, dict) else None
+    if not isinstance(commands, list):
+        raise RuntimeError(f"{manifest_path} has no runtime platform command")
+
+    platform_name = "windows" if os.name == "nt" else "darwin" if sys.platform == "darwin" else "linux"
+    platform_commands = [entry for entry in commands if isinstance(entry, dict) and entry.get("os") == platform_name]
+    generic_commands = [entry for entry in commands if isinstance(entry, dict) and "os" not in entry]
+    selected = next(iter(platform_commands or generic_commands), None)
+    command = selected.get("command") if isinstance(selected, dict) else None
+    if not isinstance(command, str):
+        raise RuntimeError(f"{manifest_path} has no command for {platform_name}")
+
+    expanded_command = command.replace("${HELM_PLUGIN_DIR}", str(plugin_dir)).replace(
+        "$HELM_PLUGIN_DIR",
+        str(plugin_dir),
+    )
+    command_parts = shlex.split(expanded_command, posix=os.name != "nt")
+    if len(command_parts) != 1:
+        raise RuntimeError(f"cannot identify the helm-schema executable from {command!r}")
+
+    binary = Path(command_parts[0])
+    if not binary.is_absolute():
+        binary = plugin_dir / binary
+    binary = binary.resolve()
+    if not binary.is_file():
+        raise RuntimeError(f"the helm-schema executable is missing: {binary}")
+    return binary
+
+
+def _chart_schema_input_digest(chart_dir: Path) -> str:
+    """Hash every chart input that can affect generated schemas."""
+    digest = hashlib.sha256()
+    for path in sorted(candidate for candidate in chart_dir.rglob("*") if candidate.is_file()):
+        if path.name == SCHEMA_STATE_NAME or path.name in GENERATED_SCHEMA_NAMES:
+            continue
+        digest.update(path.relative_to(chart_dir).as_posix().encode())
+        digest.update(b"\0")
+        digest.update(_sha256_file(path).encode())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def _schema_output_paths(chart_dir: Path) -> set[Path]:
+    """Return every generated schema expected below one chart directory."""
+    return {
+        *chart_dir.rglob("values.schema.json"),
+        chart_dir / "values.schema.json",
+        chart_dir / VALUES_OVERRIDE_SCHEMA_NAME,
+        chart_dir / HELMCHART_SCHEMA_NAME,
+    }
+
+
+def _schema_output_digests(chart_dir: Path) -> dict[str, str]:
+    """Return the relative path and digest of every generated schema."""
+    output_paths = _schema_output_paths(chart_dir)
+    missing = [path for path in output_paths if not path.is_file()]
+    if missing:
+        names = ", ".join(sorted(path.relative_to(chart_dir).as_posix() for path in missing))
+        raise RuntimeError(f"generated schema files are missing: {names}")
+    return {path.relative_to(chart_dir).as_posix(): _sha256_file(path) for path in sorted(output_paths)}
+
+
+def _schema_state_is_current(
+    chart_dir: Path,
+    chart_version: str,
+    chart_digest: str,
+    generator_digest: str,
+) -> bool:
+    """Return whether the saved schema inputs and outputs still match."""
+    try:
+        state = json.loads((chart_dir / SCHEMA_STATE_NAME).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    if not isinstance(state, dict):
+        return False
+    if state.get("version") != SCHEMA_STATE_VERSION:
+        return False
+    if state.get("chartVersion") != chart_version:
+        return False
+    if state.get("chartSha256") != chart_digest:
+        return False
+    if state.get("generatorSha256") != generator_digest:
+        return False
+
+    outputs = state.get("outputs")
+    if not isinstance(outputs, dict):
+        return False
+    current_paths = {path.relative_to(chart_dir).as_posix() for path in _schema_output_paths(chart_dir)}
+    if set(outputs) != current_paths:
+        return False
+
+    for relative_path, expected_digest in outputs.items():
+        if not isinstance(relative_path, str) or not isinstance(expected_digest, str):
+            return False
+        relative = Path(relative_path)
+        if relative.is_absolute() or ".." in relative.parts:
+            return False
+        path = chart_dir / relative
+        try:
+            if not path.is_file() or _sha256_file(path) != expected_digest:
+                return False
+        except OSError:
+            return False
+    return True
+
+
 def refresh_schema(chart_dir: Path) -> bool:
     """Generate schemas for one chart and its unpacked dependencies.
 
@@ -199,20 +361,17 @@ def refresh_schema(chart_dir: Path) -> bool:
     return True
 
 
-def fetch_chart(chart: str, repo: str | None, version: str, output_dir: Path) -> bool:
-    """Cache one chart version and generate its full-values schemas.
+def fetch_chart(
+    reference: ChartReference,
+    output_dir: Path,
+    generator_digest: str,
+) -> bool:
+    """Prepare one chart and return whether its schemas were regenerated.
 
-    A matching cached chart does not require another download. The function
-    still refreshes its schemas because the generator can change.
-
-    If the cached version differs, Helm replaces that chart directory with the
-    requested version.
-
-    Returns:
-        True if the chart and its schemas are available. Otherwise, False.
+    A chart is current only when its version, source digest, generator digest,
+    generated paths, and generated file digests match the saved state.
     """
-    chart_name = Path(chart).name
-    final_dir = output_dir / chart_name
+    final_dir = output_dir / reference.name
     chart_yaml = final_dir / "Chart.yaml"
 
     if chart_yaml.is_file():
@@ -221,35 +380,48 @@ def fetch_chart(chart: str, repo: str | None, version: str, output_dir: Path) ->
             chart_yaml.read_text(encoding="utf-8"),
             re.MULTILINE,
         )
-        if match and match.group(1).strip().strip("\"'") == version:
-            print(f"Chart {chart_name} {version} is cached. " "Refreshing its schemas.")
-            return refresh_schema(final_dir)
+        if match and match.group(1).strip().strip("\"'") == reference.version:
+            chart_digest = _chart_schema_input_digest(final_dir)
+            if _schema_state_is_current(
+                final_dir,
+                reference.version,
+                chart_digest,
+                generator_digest,
+            ):
+                print(f"Chart {reference.name} {reference.version} and its schemas are cached.")
+                return False
+            print(f"Chart {reference.name} {reference.version} is cached. Refreshing its schemas.")
+            if refresh_schema(final_dir):
+                return True
+            raise RuntimeError(f"schema generation failed for {reference.name}")
 
-    if chart.startswith("oci://"):
-        print(f"Pulling OCI chart {chart} (version: {version}) -> {final_dir}")
+    if reference.chart.startswith("oci://"):
+        print(f"Pulling OCI chart {reference.chart} (version: {reference.version}) -> {final_dir}")
         command = [
             "helm",
             "pull",
-            chart,
+            reference.chart,
             "--version",
-            version,
+            reference.version,
             "--untar",
             "--untardir",
             str(output_dir),
         ]
     else:
-        if not repo:
-            print(f"Cannot pull {chart}: its HelmChart has no repository")
-            return False
-        print(f"Pulling chart {chart} from {repo} (version: {version}) -> {final_dir}")
+        if not reference.repository:
+            raise RuntimeError(f"cannot pull {reference.chart}: its HelmChart has no repository")
+        print(
+            f"Pulling chart {reference.chart} from {reference.repository} "
+            f"(version: {reference.version}) -> {final_dir}"
+        )
         command = [
             "helm",
             "pull",
-            chart,
+            reference.chart,
             "--repo",
-            repo or "",
+            reference.repository,
             "--version",
-            version,
+            reference.version,
             "--untar",
             "--untardir",
             str(output_dir),
@@ -267,13 +439,13 @@ def fetch_chart(chart: str, repo: str | None, version: str, output_dir: Path) ->
             timeout=COMMAND_TIMEOUT_SECONDS,
         )
     except subprocess.TimeoutExpired:
-        print(f"Timeout while pulling {chart}")
-        return False
+        raise RuntimeError(f"timed out while pulling {reference.chart}") from None
     except subprocess.CalledProcessError as exc:
-        print(f"Failed to pull {chart}: {exc.stderr.strip()}")
-        return False
+        raise RuntimeError(f"failed to pull {reference.chart}: {exc.stderr.strip()}") from exc
 
-    return refresh_schema(final_dir)
+    if refresh_schema(final_dir):
+        return True
+    raise RuntimeError(f"schema generation failed for {reference.name}")
 
 
 def gather_chart_references(templates_dir: Path) -> set[ChartReference]:
@@ -313,8 +485,12 @@ def _chart_references_by_name(
     return references_by_name
 
 
-def fetch_charts(chart_references: set[ChartReference], output_dir: Path) -> None:
-    """Fetch all distinct charts concurrently.
+def fetch_charts(
+    chart_references: set[ChartReference],
+    output_dir: Path,
+    generator_digest: str,
+) -> set[ChartReference]:
+    """Prepare charts concurrently and return those with new schemas.
 
     Each available CPU supplies one worker. Each worker owns one output
     directory. The function waits for all workers and reports all errors.
@@ -329,26 +505,22 @@ def fetch_charts(chart_references: set[ChartReference], output_dir: Path) -> Non
     workers = min(os.process_cpu_count() or 1, len(chart_references))
     print(f"Found {len(chart_references)} distinct charts. " f"Fetching them with {workers} workers...")
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
-        futures = [
-            executor.submit(
-                fetch_chart,
-                reference.chart,
-                reference.repository,
-                reference.version,
-                output_dir,
-            )
+        futures = {
+            executor.submit(fetch_chart, reference, output_dir, generator_digest): reference
             for reference in sorted(chart_references, key=_reference_sort_key)
-        ]
-        failures = 0
+        }
+        changed_references: set[ChartReference] = set()
+        failures: list[str] = []
         for future in concurrent.futures.as_completed(futures):
+            reference = futures[future]
             try:
-                if not future.result():
-                    failures += 1
+                if future.result():
+                    changed_references.add(reference)
             except Exception as exc:
-                failures += 1
-                print(f"Unexpected chart error: {exc}")
+                failures.append(f"{reference.name}: {exc}")
     if failures:
-        raise RuntimeError(f"{failures} chart fetch or schema generation job(s) failed")
+        raise RuntimeError("\n".join(failures))
+    return changed_references
 
 
 def _helmchart_schema(chart_name: str, version: str) -> dict:
@@ -484,7 +656,29 @@ def _write_json(path: Path, value: object) -> None:
     )
 
 
-def generate_helmchart_schemas(chart_references: set[ChartReference], services_dir: Path) -> None:
+def _write_schema_state(
+    chart_dir: Path,
+    chart_version: str,
+    generator_digest: str,
+) -> None:
+    """Record the inputs and outputs of successful schema generation."""
+    _write_json(
+        chart_dir / SCHEMA_STATE_NAME,
+        {
+            "version": SCHEMA_STATE_VERSION,
+            "chartVersion": chart_version,
+            "chartSha256": _chart_schema_input_digest(chart_dir),
+            "generatorSha256": generator_digest,
+            "outputs": _schema_output_digests(chart_dir),
+        },
+    )
+
+
+def generate_helmchart_schemas(
+    chart_references: set[ChartReference],
+    services_dir: Path,
+    generator_digest: str,
+) -> None:
     """Write override and HelmChart schemas beside each full-values schema.
 
     Raises:
@@ -514,8 +708,10 @@ def generate_helmchart_schemas(chart_references: set[ChartReference], services_d
             chart_dir / HELMCHART_SCHEMA_NAME,
             _helmchart_schema(chart_name, reference.version),
         )
+        _write_schema_state(chart_dir, reference.version, generator_digest)
 
-    print(f"Wrote {len(references_by_name)} HelmChart resource schemas")
+    if references_by_name:
+        print(f"Wrote {len(references_by_name)} HelmChart resource schemas")
 
 
 def prepare_upstream_charts(root: Path) -> None:
@@ -526,8 +722,17 @@ def prepare_upstream_charts(root: Path) -> None:
 
     output_dir.mkdir(parents=True, exist_ok=True)
     chart_references = gather_chart_references(templates_dir)
-    fetch_charts(chart_references, output_dir)
-    generate_helmchart_schemas(chart_references, services_dir)
+    generator_digest = _sha256_file(_helm_schema_binary())
+    changed_references = fetch_charts(
+        chart_references,
+        output_dir,
+        generator_digest,
+    )
+    generate_helmchart_schemas(
+        changed_references,
+        services_dir,
+        generator_digest,
+    )
 
 
 def render_resources(root: Path) -> list[HelmChartResource]:

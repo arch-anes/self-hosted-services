@@ -152,8 +152,9 @@ The following annotations are optional:
   `version` fields used by Renovate.
 - You SHOULD run `scripts/check-helm-chart-values.py` from the repository root
   when adding or updating a chart. The script updates the local chart cache,
-  regenerates schemas, and validates the configured values. Store the upstream
-  defaults in `upstream-charts/<chartname>/values.yaml`.
+  regenerates schemas when their chart or generator changes, and validates the
+  configured values. Store the upstream defaults in
+  `upstream-charts/<chartname>/values.yaml`.
 
 ## 9. Validation
 
