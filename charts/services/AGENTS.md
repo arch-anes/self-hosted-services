@@ -150,9 +150,10 @@ The following annotations are optional:
 - You MUST use the `oci://` prefix in the `chart` field for OCI Helm charts.
 - You MUST keep Helm dependencies discoverable through the `chart`, `repo`, and
   `version` fields used by Renovate.
-- You SHOULD run `scripts/pull-upstream-helm-charts.py` from the repository root
-  when adding or updating a chart. Store the upstream defaults in
-  `upstream-charts/<chartname>/values.yaml`.
+- You SHOULD run `scripts/check-helm-chart-values.py` from the repository root
+  when adding or updating a chart. The script updates the local chart cache,
+  regenerates schemas, and validates the configured values. Store the upstream
+  defaults in `upstream-charts/<chartname>/values.yaml`.
 
 ## 9. Validation
 
