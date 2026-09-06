@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-"""Cache upstream Helm charts, generate schemas, and validate chart values.
+"""Prepare and validate each rendered HelmChart as one independent job.
 
-The script reads static chart references from the services templates. It pulls
-each distinct chart and asks the Helm schema plugin to analyze its templates.
-It reuses schemas when the chart, generator binary, and generated files match
-the saved state. It then validates rendered HelmChart resources against those
-schemas.
+The services chart is rendered once to obtain its exact HelmChart resources.
+Separate worker pools prepare charts, update schemas, and validate values. A
+chart enters its next pool as soon as its current task completes.
 """
 
 from __future__ import annotations
@@ -19,16 +17,11 @@ import shlex
 import shutil
 import subprocess
 import sys
-import tempfile
-from collections.abc import Iterator
 from dataclasses import dataclass
+from enum import Enum, auto
 from pathlib import Path
 
 import yaml
-
-SPEC_RE = re.compile(r"^\s*spec:\s*$")
-FIELD_RE = re.compile(r"^\s*(chart|repo|version):\s*(.+)$")
-DOCUMENT_SEPARATOR_RE = re.compile(r"^---\s*$", re.MULTILINE)
 
 IGNORED_CHARTS = {"generic"}
 
@@ -89,90 +82,37 @@ class HelmChartResource:
     """Store the identity and YAML data of one rendered HelmChart resource."""
 
     name: str
-    chart: str
-    version: str
+    reference: ChartReference
     document: dict[str, object]
 
 
 @dataclass(frozen=True)
-class ValidationJob:
-    """Pair one isolated HelmChart file with its resource schema."""
+class ChartPreparation:
+    """Describe whether the chart and its schemas came from their caches."""
 
-    resource: HelmChartResource
-    document_path: Path
-    schema_path: Path
+    chart_status: str
+    schema_status: str
 
-
-def _parse_helm_chart_doc(document: str) -> ChartReference | None:
-    """Read a chart reference from one static HelmChart document.
-
-    Helm templates are not valid YAML before Helm renders them. This small
-    parser reads only direct fields in the spec block. It ignores template
-    expressions and nested YAML.
-    """
-    lines = iter(document.splitlines())
-    spec_indent = -1
-
-    for line in lines:
-        if SPEC_RE.match(line):
-            spec_indent = len(line) - len(line.lstrip())
-            break
-    else:
-        return None
-
-    chart, repo, version = None, None, None
-    expected_indent = -1
-
-    for line in lines:
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#"):
-            continue
-
-        current_indent = len(line) - len(line.lstrip())
-
-        if current_indent <= spec_indent and not line.lstrip().startswith("{{"):
-            break
-
-        if line.lstrip().startswith("{{"):
-            continue
-
-        if expected_indent == -1:
-            expected_indent = current_indent
-
-        if current_indent != expected_indent:
-            continue
-
-        match = FIELD_RE.match(line)
-        if not match:
-            continue
-
-        key, value = match.groups()
-        value = value.strip().strip("\"'")
-
-        if key == "chart" and chart is None:
-            chart = value
-        elif key == "repo" and repo is None:
-            repo = value
-        elif key == "version" and version is None:
-            version = value
-
-    if chart and version:
-        return ChartReference(chart, repo, version)
-    return None
+    def __str__(self) -> str:
+        """Return the concise status shown beside a completed chart."""
+        return f"chart {self.chart_status}, schema {self.schema_status}"
 
 
-def parse_charts_from_file(file_path: Path) -> Iterator[ChartReference]:
-    """Yield each complete HelmChart reference in one template file.
+class PipelineStage(Enum):
+    """Name the independently scheduled stages of a chart pipeline."""
 
-    A template can contain other Kubernetes resources. The function ignores
-    documents that do not contain a static chart and version.
-    """
-    content = file_path.read_text(encoding="utf-8")
-    for document in DOCUMENT_SEPARATOR_RE.split(content):
-        if "kind: HelmChart" not in document:
-            continue
-        if chart := _parse_helm_chart_doc(document):
-            yield chart
+    PREPARE = auto()
+    SCHEMA = auto()
+    VALIDATE = auto()
+
+
+@dataclass(frozen=True)
+class PendingTask:
+    """Identify the chart and optional resource owned by one pending future."""
+
+    stage: PipelineStage
+    reference: ChartReference
+    resource: HelmChartResource | None = None
 
 
 def repo_root() -> Path:
@@ -330,17 +270,10 @@ def _schema_state_is_current(
     return True
 
 
-def refresh_schema(chart_dir: Path) -> bool:
-    """Generate schemas for one chart and its unpacked dependencies.
-
-    The Helm plugin replaces each values.schema.json file below the chart
-    directory. This function prints plugin output for diagnostics.
-
-    Returns:
-        True if schema generation succeeds. Otherwise, False.
-    """
+def refresh_schema(chart_dir: Path) -> None:
+    """Generate schemas for one chart and its unpacked dependencies."""
     try:
-        result = subprocess.run(
+        subprocess.run(
             ["helm", "schema", str(chart_dir)],
             capture_output=True,
             text=True,
@@ -348,25 +281,19 @@ def refresh_schema(chart_dir: Path) -> bool:
             stdin=subprocess.DEVNULL,
             timeout=COMMAND_TIMEOUT_SECONDS,
         )
-    except subprocess.TimeoutExpired:
-        print(f"Timeout while generating schema for {chart_dir.name}")
-        return False
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(f"schema generation timed out for {chart_dir.name}") from exc
     except subprocess.CalledProcessError as exc:
-        print(f"Failed to generate schema for {chart_dir.name}: {exc.stderr.strip()}")
-        return False
-
-    output = (result.stdout + result.stderr).strip()
-    if output:
-        print(output)
-    return True
+        diagnostic = exc.stderr.strip() or exc.stdout.strip() or f"exit status {exc.returncode}"
+        raise RuntimeError(f"schema generation failed for {chart_dir.name}: {diagnostic}") from exc
 
 
-def fetch_chart(
+def prepare_chart(
     reference: ChartReference,
     output_dir: Path,
     generator_digest: str,
-) -> bool:
-    """Prepare one chart and return whether its schemas were regenerated.
+) -> ChartPreparation:
+    """Prepare one chart and report whether its schemas need an update.
 
     A chart is current only when its version, source digest, generator digest,
     generated paths, and generated file digests match the saved state.
@@ -388,15 +315,10 @@ def fetch_chart(
                 chart_digest,
                 generator_digest,
             ):
-                print(f"Chart {reference.name} {reference.version} and its schemas are cached.")
-                return False
-            print(f"Chart {reference.name} {reference.version} is cached. Refreshing its schemas.")
-            if refresh_schema(final_dir):
-                return True
-            raise RuntimeError(f"schema generation failed for {reference.name}")
+                return ChartPreparation("cached", "cached")
+            return ChartPreparation("cached", "update required")
 
     if reference.chart.startswith("oci://"):
-        print(f"Pulling OCI chart {reference.chart} (version: {reference.version}) -> {final_dir}")
         command = [
             "helm",
             "pull",
@@ -410,10 +332,6 @@ def fetch_chart(
     else:
         if not reference.repository:
             raise RuntimeError(f"cannot pull {reference.chart}: its HelmChart has no repository")
-        print(
-            f"Pulling chart {reference.chart} from {reference.repository} "
-            f"(version: {reference.version}) -> {final_dir}"
-        )
         command = [
             "helm",
             "pull",
@@ -443,19 +361,7 @@ def fetch_chart(
     except subprocess.CalledProcessError as exc:
         raise RuntimeError(f"failed to pull {reference.chart}: {exc.stderr.strip()}") from exc
 
-    if refresh_schema(final_dir):
-        return True
-    raise RuntimeError(f"schema generation failed for {reference.name}")
-
-
-def gather_chart_references(templates_dir: Path) -> set[ChartReference]:
-    """Return the distinct supported chart references in all templates."""
-    return {
-        chart_data
-        for file_path in templates_dir.glob("*.yaml")
-        for chart_data in parse_charts_from_file(file_path)
-        if chart_data.name not in IGNORED_CHARTS
-    }
+    return ChartPreparation("downloaded", "update required")
 
 
 def _reference_sort_key(reference: ChartReference) -> tuple[str, str, str]:
@@ -479,48 +385,8 @@ def _chart_references_by_name(
     for reference in sorted(chart_references, key=_reference_sort_key):
         previous = references_by_name.setdefault(reference.name, reference)
         if previous != reference:
-            raise RuntimeError(
-                f"chart directory {reference.name} is requested by both " f"{previous!r} and {reference!r}"
-            )
+            raise RuntimeError(f"chart directory {reference.name} is requested by both {previous!r} and {reference!r}")
     return references_by_name
-
-
-def fetch_charts(
-    chart_references: set[ChartReference],
-    output_dir: Path,
-    generator_digest: str,
-) -> set[ChartReference]:
-    """Prepare charts concurrently and return those with new schemas.
-
-    Each available CPU supplies one worker. Each worker owns one output
-    directory. The function waits for all workers and reports all errors.
-
-    Raises:
-        RuntimeError: One or more workers do not complete successfully.
-    """
-    if not chart_references:
-        raise RuntimeError("no supported chart references were found")
-
-    _chart_references_by_name(chart_references)
-    workers = min(os.process_cpu_count() or 1, len(chart_references))
-    print(f"Found {len(chart_references)} distinct charts. " f"Fetching them with {workers} workers...")
-    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
-        futures = {
-            executor.submit(fetch_chart, reference, output_dir, generator_digest): reference
-            for reference in sorted(chart_references, key=_reference_sort_key)
-        }
-        changed_references: set[ChartReference] = set()
-        failures: list[str] = []
-        for future in concurrent.futures.as_completed(futures):
-            reference = futures[future]
-            try:
-                if future.result():
-                    changed_references.add(reference)
-            except Exception as exc:
-                failures.append(f"{reference.name}: {exc}")
-    if failures:
-        raise RuntimeError("\n".join(failures))
-    return changed_references
 
 
 def _helmchart_schema(chart_name: str, version: str) -> dict:
@@ -675,64 +541,31 @@ def _write_schema_state(
 
 
 def generate_helmchart_schemas(
-    chart_references: set[ChartReference],
-    services_dir: Path,
+    reference: ChartReference,
+    chart_dir: Path,
     generator_digest: str,
 ) -> None:
-    """Write override and HelmChart schemas beside each full-values schema.
+    """Write override and HelmChart schemas beside one full-values schema."""
+    values_schema_path = chart_dir / "values.schema.json"
+    if not values_schema_path.is_file():
+        raise RuntimeError(f"generated schema is missing for {reference.name}")
 
-    Raises:
-        RuntimeError: A cache name is ambiguous, or a generated schema is
-            missing or invalid.
-    """
-    references_by_name = _chart_references_by_name(chart_references)
-    for chart_name, reference in references_by_name.items():
-        chart_dir = services_dir / "upstream-charts" / chart_name
-        values_schema_path = chart_dir / "values.schema.json"
-        if not values_schema_path.is_file():
-            raise RuntimeError(f"generated schema is missing for {chart_name}")
+    try:
+        values_schema = json.loads(values_schema_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"cannot read generated schema for {reference.name}: {exc}") from exc
+    if not isinstance(values_schema, (bool, dict)):
+        raise RuntimeError(f"generated schema for {reference.name} is not a JSON Schema object")
 
-        try:
-            values_schema = json.loads(values_schema_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as exc:
-            raise RuntimeError(f"cannot read generated schema for {chart_name}: {exc}") from exc
-
-        if not isinstance(values_schema, (bool, dict)):
-            raise RuntimeError(f"generated schema for {chart_name} is not a JSON Schema object")
-
-        _write_json(
-            chart_dir / VALUES_OVERRIDE_SCHEMA_NAME,
-            _values_override_schema(values_schema),
-        )
-        _write_json(
-            chart_dir / HELMCHART_SCHEMA_NAME,
-            _helmchart_schema(chart_name, reference.version),
-        )
-        _write_schema_state(chart_dir, reference.version, generator_digest)
-
-    if references_by_name:
-        print(f"Wrote {len(references_by_name)} HelmChart resource schemas")
-
-
-def prepare_upstream_charts(root: Path) -> None:
-    """Populate chart caches and regenerate chart and HelmChart schemas."""
-    services_dir = root / "charts" / "services"
-    templates_dir = services_dir / "templates"
-    output_dir = services_dir / "upstream-charts"
-
-    output_dir.mkdir(parents=True, exist_ok=True)
-    chart_references = gather_chart_references(templates_dir)
-    generator_digest = _sha256_file(_helm_schema_binary())
-    changed_references = fetch_charts(
-        chart_references,
-        output_dir,
-        generator_digest,
+    _write_json(
+        chart_dir / VALUES_OVERRIDE_SCHEMA_NAME,
+        _values_override_schema(values_schema),
     )
-    generate_helmchart_schemas(
-        changed_references,
-        services_dir,
-        generator_digest,
+    _write_json(
+        chart_dir / HELMCHART_SCHEMA_NAME,
+        _helmchart_schema(reference.name, reference.version),
     )
+    _write_schema_state(chart_dir, reference.version, generator_digest)
 
 
 def render_resources(root: Path) -> list[HelmChartResource]:
@@ -741,14 +574,18 @@ def render_resources(root: Path) -> list[HelmChartResource]:
     The generic chart accepts arbitrary Kubernetes objects. It has no upstream
     values schema, so this script does not validate its values.
     """
-    print("Rendering the services chart...", flush=True)
-    result = subprocess.run(
-        ["helm", "template", "charts/services"],
-        cwd=root,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    try:
+        result = subprocess.run(
+            ["helm", "template", "charts/services"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=False,
+            stdin=subprocess.DEVNULL,
+            timeout=COMMAND_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise CheckError("helm template timed out") from exc
     if result.returncode:
         raise CheckError(f"helm template failed:\n{result.stderr.strip()}")
 
@@ -761,10 +598,18 @@ def render_resources(root: Path) -> list[HelmChartResource]:
         if not isinstance(spec, dict):
             raise CheckError("a rendered HelmChart resource has no object spec")
 
-        chart = str(spec.get("chart", "")).rstrip("/").rsplit("/", 1)[-1]
-        if not chart:
+        chart = spec.get("chart")
+        if not isinstance(chart, str) or not chart:
             raise CheckError("a rendered HelmChart resource has no chart name")
-        if chart in IGNORED_CHARTS:
+        repository = spec.get("repo")
+        if repository is not None and not isinstance(repository, str):
+            raise CheckError(f"HelmChart for {chart} has a non-string repository")
+        version = spec.get("version")
+        if not isinstance(version, (str, int, float)) or not str(version):
+            raise CheckError(f"HelmChart for {chart} has no version")
+
+        reference = ChartReference(chart, repository, str(version))
+        if reference.name in IGNORED_CHARTS:
             continue
 
         metadata = document.get("metadata")
@@ -772,34 +617,30 @@ def render_resources(root: Path) -> list[HelmChartResource]:
         resources.append(
             HelmChartResource(
                 name=str(name),
-                chart=chart,
-                version=str(spec.get("version", "")),
+                reference=reference,
                 document=document,
             )
         )
 
-    print(f"Rendered {len(resources)} HelmChart resources", flush=True)
     if not resources:
         raise CheckError("the rendered services chart has no supported HelmChart resources")
     return resources
 
 
-def chart_schema_path(root: Path, resource: HelmChartResource) -> Path:
-    """Return the matching schema for a rendered HelmChart resource."""
-    chart_dir = root / "charts" / "services" / "upstream-charts" / resource.chart
+def chart_schema_path(chart_dir: Path, reference: ChartReference) -> Path:
+    """Return the prepared HelmChart schema after checking its chart."""
     chart_file = chart_dir / "Chart.yaml"
     if not chart_file.is_file():
-        raise CheckError(f"{resource.name}: chart {resource.chart} is missing after preparation")
+        raise CheckError(f"chart {reference.name} is missing after preparation")
 
     chart = yaml.safe_load(chart_file.read_text(encoding="utf-8"))
     if not isinstance(chart, dict):
-        raise CheckError(f"{resource.name}: {chart_file} does not contain an object")
+        raise CheckError(f"{chart_file} does not contain an object")
 
     cached_version = str(chart.get("version", ""))
-    if cached_version != resource.version:
+    if cached_version != reference.version:
         raise CheckError(
-            f"{resource.name}: chart {resource.chart} is version {cached_version}, "
-            f"but the HelmChart requests {resource.version}"
+            f"chart {reference.name} is version {cached_version}, " f"but the HelmChart requests {reference.version}"
         )
 
     for schema_name in (
@@ -809,45 +650,21 @@ def chart_schema_path(root: Path, resource: HelmChartResource) -> Path:
     ):
         schema_path = chart_dir / schema_name
         if not schema_path.is_file():
-            raise CheckError(f"{resource.name}: {schema_name} is missing for {resource.chart}")
+            raise CheckError(f"{schema_name} is missing for {reference.name}")
     return chart_dir / HELMCHART_SCHEMA_NAME
 
 
-def prepare_validation_jobs(
-    root: Path,
-    resources: list[HelmChartResource],
-    directory: Path,
-) -> tuple[list[ValidationJob], list[str]]:
-    """Create one temporary HelmChart file and validation job per resource."""
-    jobs: list[ValidationJob] = []
-    errors: list[str] = []
-    for index, resource in enumerate(resources, start=1):
-        try:
-            schema_path = chart_schema_path(root, resource)
-        except CheckError as exc:
-            errors.append(str(exc))
-            continue
-
-        document_path = directory / f"{index:03d}.yaml"
-        document_path.write_text(
-            yaml.safe_dump(resource.document, sort_keys=False),
-            encoding="utf-8",
-        )
-        jobs.append(ValidationJob(resource, document_path, schema_path))
-    return jobs, errors
-
-
-def validate_job(job: ValidationJob) -> str | None:
-    """Validate one HelmChart file and return a diagnostic on failure."""
+def validate_resource(resource: HelmChartResource, schema_path: Path) -> str | None:
+    """Validate one HelmChart resource and return a diagnostic on failure."""
     try:
         result = subprocess.run(
             [
                 "kubeconform",
                 "-strict",
                 "-schema-location",
-                job.schema_path.resolve().as_uri(),
-                str(job.document_path),
+                schema_path.resolve().as_uri(),
             ],
+            input=yaml.safe_dump(resource.document, sort_keys=False),
             capture_output=True,
             text=True,
             check=False,
@@ -861,43 +678,212 @@ def validate_job(job: ValidationJob) -> str | None:
     return "\n".join(part.strip() for part in (result.stdout, result.stderr) if part.strip())
 
 
-def validate_jobs(jobs: list[ValidationJob]) -> list[str]:
-    """Validate HelmChart resources concurrently and report each result."""
-    if not jobs:
-        return []
+def _validation_failure(resource: HelmChartResource, diagnostic: object) -> str | None:
+    """Format a failed validation result and ignore a successful one."""
+    if diagnostic is None:
+        return None
+    if isinstance(diagnostic, BaseException):
+        diagnostic = f"unexpected validation error: {diagnostic}"
+    return f"{resource.name}:\n{diagnostic}"
 
-    workers = min(os.process_cpu_count() or 1, len(jobs))
-    print(f"Validating {len(jobs)} HelmChart resources with {workers} workers...", flush=True)
+
+def update_chart_schema(
+    reference: ChartReference,
+    output_dir: Path,
+    generator_digest: str,
+) -> Path:
+    """Regenerate one chart's schemas and return its resource schema."""
+    chart_dir = output_dir / reference.name
+    refresh_schema(chart_dir)
+    generate_helmchart_schemas(reference, chart_dir, generator_digest)
+    return chart_schema_path(chart_dir, reference)
+
+
+def _resources_by_reference(
+    resources: list[HelmChartResource],
+) -> dict[ChartReference, list[HelmChartResource]]:
+    """Group rendered resources by the exact chart package they use."""
+    grouped: dict[ChartReference, list[HelmChartResource]] = {}
+    for resource in resources:
+        grouped.setdefault(resource.reference, []).append(resource)
+    _chart_references_by_name(set(grouped))
+    return grouped
+
+
+def _validation_tasks(
+    executor: concurrent.futures.ThreadPoolExecutor,
+    reference: ChartReference,
+    resources: list[HelmChartResource],
+    schema_path: Path,
+) -> dict[concurrent.futures.Future, PendingTask]:
+    """Submit one validation future per resource that uses a chart."""
+    return {
+        executor.submit(validate_resource, resource, schema_path): PendingTask(
+            PipelineStage.VALIDATE,
+            reference,
+            resource,
+        )
+        for resource in resources
+    }
+
+
+def check_charts(
+    resources: list[HelmChartResource],
+    output_dir: Path,
+    generator_digest: str,
+) -> list[str]:
+    """Pass charts through task-specific pools without waiting between stages.
+
+    Chart preparation uses one worker per distinct chart because cache reads
+    and downloads are I/O-heavy. Schema generation and validation each use a
+    CPU-sized pool because both run local analysis processes.
+    """
+    grouped = _resources_by_reference(resources)
+    chart_count = len(grouped)
+    cpu_workers = min(os.process_cpu_count() or 1, chart_count)
+    validation_workers = min(cpu_workers, len(resources))
+    print(f"Checking {chart_count} charts...", flush=True)
+
     failures: list[str] = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
-        futures = {executor.submit(validate_job, job): job for job in jobs}
-        for completed, future in enumerate(concurrent.futures.as_completed(futures), start=1):
-            job = futures[future]
-            try:
-                diagnostic = future.result()
-            except Exception as exc:
-                diagnostic = f"unexpected validation error: {exc}"
+    chart_failures: dict[ChartReference, list[str]] = {reference: [] for reference in grouped}
+    preparations: dict[ChartReference, ChartPreparation] = {}
+    remaining_validations: dict[ChartReference, int] = {}
+    completed = 0
 
-            status = "FAIL" if diagnostic else "PASS"
-            print(
-                f"[{completed}/{len(jobs)}] {status} {job.resource.name} "
-                f"({job.resource.chart} {job.resource.version})",
-                flush=True,
+    def complete_chart(reference: ChartReference) -> None:
+        """Record and print the final result for one chart."""
+        nonlocal completed
+        completed += 1
+        current_failures = chart_failures[reference]
+        failures.extend(current_failures)
+        outcome = "FAIL" if current_failures else "PASS"
+        preparation = preparations.get(reference)
+        detail = f" ({preparation})" if preparation else ""
+        print(
+            f"[{completed}/{chart_count}] {reference.name}: {outcome}{detail}",
+            flush=True,
+        )
+
+    with (
+        concurrent.futures.ThreadPoolExecutor(
+            max_workers=chart_count,
+            thread_name_prefix="chart",
+        ) as chart_executor,
+        concurrent.futures.ThreadPoolExecutor(
+            max_workers=cpu_workers,
+            thread_name_prefix="schema",
+        ) as schema_executor,
+        concurrent.futures.ThreadPoolExecutor(
+            max_workers=validation_workers,
+            thread_name_prefix="validation",
+        ) as validation_executor,
+    ):
+        pending: dict[concurrent.futures.Future, PendingTask] = {
+            chart_executor.submit(
+                prepare_chart,
+                reference,
+                output_dir,
+                generator_digest,
+            ): PendingTask(PipelineStage.PREPARE, reference)
+            for reference in sorted(grouped, key=_reference_sort_key)
+        }
+
+        while pending:
+            done, _ = concurrent.futures.wait(
+                pending,
+                return_when=concurrent.futures.FIRST_COMPLETED,
             )
-            if diagnostic:
-                failures.append(f"{job.resource.name}:\n{diagnostic}")
+            for future in done:
+                task = pending.pop(future)
+                reference = task.reference
+
+                if task.stage is PipelineStage.PREPARE:
+                    try:
+                        preparation = future.result()
+                        preparations[reference] = preparation
+                        if preparation.schema_status == "update required":
+                            schema_future = schema_executor.submit(
+                                update_chart_schema,
+                                reference,
+                                output_dir,
+                                generator_digest,
+                            )
+                            pending[schema_future] = PendingTask(PipelineStage.SCHEMA, reference)
+                            continue
+
+                        schema_path = chart_schema_path(output_dir / reference.name, reference)
+                    except Exception as exc:
+                        chart_failures[reference].append(f"{reference.name}: {exc}")
+                        complete_chart(reference)
+                        continue
+
+                    remaining_validations[reference] = len(grouped[reference])
+                    pending.update(
+                        _validation_tasks(
+                            validation_executor,
+                            reference,
+                            grouped[reference],
+                            schema_path,
+                        )
+                    )
+                    continue
+
+                if task.stage is PipelineStage.SCHEMA:
+                    try:
+                        schema_path = future.result()
+                    except Exception as exc:
+                        preparation = preparations[reference]
+                        preparations[reference] = ChartPreparation(
+                            preparation.chart_status,
+                            "update failed",
+                        )
+                        chart_failures[reference].append(f"{reference.name}: {exc}")
+                        complete_chart(reference)
+                        continue
+
+                    preparation = preparations[reference]
+                    preparations[reference] = ChartPreparation(
+                        preparation.chart_status,
+                        "updated",
+                    )
+                    remaining_validations[reference] = len(grouped[reference])
+                    pending.update(
+                        _validation_tasks(
+                            validation_executor,
+                            reference,
+                            grouped[reference],
+                            schema_path,
+                        )
+                    )
+                    continue
+
+                resource = task.resource
+                diagnostic = (
+                    "validation task has no HelmChart resource"
+                    if resource is None
+                    else future.exception() or future.result()
+                )
+                if resource is not None and (failure := _validation_failure(resource, diagnostic)):
+                    chart_failures[reference].append(failure)
+                elif diagnostic:
+                    chart_failures[reference].append(f"{reference.name}: {diagnostic}")
+
+                remaining_validations[reference] -= 1
+                if not remaining_validations[reference]:
+                    complete_chart(reference)
+
     return failures
 
 
 def main() -> int:
-    """Prepare chart schemas and validate all rendered HelmChart values."""
+    """Render HelmCharts and run each through its independent pipeline."""
     root = repo_root()
     try:
-        prepare_upstream_charts(root)
+        output_dir = root / "charts" / "services" / "upstream-charts"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        generator_digest = _sha256_file(_helm_schema_binary())
         resources = render_resources(root)
-        with tempfile.TemporaryDirectory(prefix="helmchart-values-") as temporary:
-            jobs, setup_errors = prepare_validation_jobs(root, resources, Path(temporary))
-            failures = [*setup_errors, *validate_jobs(jobs)]
+        failures = check_charts(resources, output_dir, generator_digest)
     except (CheckError, RuntimeError, OSError, yaml.YAMLError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
