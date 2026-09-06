@@ -7,7 +7,7 @@
   ansible.posix.sysctl:
     name: vm.nr_hugepages
     value: "{{ 1024 * (tenants_count | int) }}"  # 2Gi of huge pages per tenant, matches what's in charts/services/templates/postgresql.yaml
-    sysctl_file: /etc/sysctl.conf
+    sysctl_file: /etc/sysctl.d/99-k3s.conf
     state: present
     reload: true
 
@@ -17,7 +17,7 @@
   ansible.posix.sysctl:
     name: fs.inotify.max_user_instances
     value: "8192"
-    sysctl_file: /etc/sysctl.conf
+    sysctl_file: /etc/sysctl.d/99-k3s.conf
     state: present
     reload: true
 
@@ -27,6 +27,6 @@
   ansible.posix.sysctl:
     name: fs.inotify.max_user_watches
     value: "524288"
-    sysctl_file: /etc/sysctl.conf
+    sysctl_file: /etc/sysctl.d/99-k3s.conf
     state: present
     reload: true
