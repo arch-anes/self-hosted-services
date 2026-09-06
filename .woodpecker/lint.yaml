@@ -1,4 +1,11 @@
 ---
+when:
+  - event: pull_request
+  - event: push
+    branch:
+      - main
+      - dev
+
 steps:
   - name: Lint Ansible and Kubernetes
     image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest

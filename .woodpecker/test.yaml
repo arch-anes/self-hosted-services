@@ -1,6 +1,7 @@
 ---
 when:
-  - path:
+  - event: pull_request
+    path: &path
       - "charts/**"
       - "group_vars/**"
       - "molecule/**"
@@ -9,6 +10,11 @@ when:
       - setup_cluster.yml
       - setup_router.yml
       - teardown_cluster.yml
+  - event: push
+    branch:
+      - main
+      - dev
+    path: *path
 
 depends_on:
   - lint
