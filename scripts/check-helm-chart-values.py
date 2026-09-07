@@ -52,6 +52,10 @@ GENERATED_SCHEMA_NAMES = {
     HELMCHART_SCHEMA_NAME,
 }
 COMMAND_TIMEOUT_SECONDS = 120
+KUBECONFORM_SCHEMA_LOCATIONS = (
+    "default",
+    "https://raw.githubusercontent.com/abelfodil/CRDs-catalog/helmchart/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json",
+)
 
 JsonSchema = dict[str, object] | bool
 
@@ -1008,24 +1012,27 @@ def render_chart(
 def validate_manifests(rendered_yaml: str, cache_dir: Path) -> str | None:
     """Strictly validate Kubernetes objects produced by one rendered chart.
 
-    Unknown custom resources are ignored here because their schemas are not
-    generally available offline. HelmChart custom resources are separately
-    validated by this script before their charts are rendered.
+    Kubeconform first searches its built-in Kubernetes schemas and the same CRD
+    catalog used by CI. Resources absent from both sources are ignored because
+    many upstream charts contain custom resources without published schemas.
+    HelmChart resources are separately validated before their charts render.
     """
     if not rendered_yaml.strip():
         return None
 
     cache_dir.mkdir(parents=True, exist_ok=True)
     try:
+        schema_arguments = [
+            argument for location in KUBECONFORM_SCHEMA_LOCATIONS for argument in ("-schema-location", location)
+        ]
         result = subprocess.run(
             [
                 "kubeconform",
                 "-strict",
-                "-ignore-missing-schemas",
                 "-cache",
                 str(cache_dir),
-                "-schema-location",
-                "default",
+                *schema_arguments,
+                "-ignore-missing-schemas",
             ],
             input=rendered_yaml,
             capture_output=True,
@@ -1502,7 +1509,14 @@ def main() -> int:
         output_dir.mkdir(parents=True, exist_ok=True)
         generator_digest = _sha256_file(_helm_schema_binary())
         manifest_tool_digest = hashlib.sha256(
-            f"{_executable_digest('helm')}:{_executable_digest('kubeconform')}".encode()
+            "\0".join(
+                (
+                    _executable_digest("helm"),
+                    _executable_digest("kubeconform"),
+                    *KUBECONFORM_SCHEMA_LOCATIONS,
+                    "ignore-missing-schemas",
+                )
+            ).encode()
         ).hexdigest()
         resources = render_resources(root)
         summary = check_charts(resources, output_dir, generator_digest, manifest_tool_digest)
