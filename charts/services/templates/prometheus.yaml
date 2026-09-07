@@ -333,7 +333,7 @@ spec:
 {{- if (include "app.enabled" (list . "speedtest_tracker")) }}
           speedtest_tracker:
             # renovate: depName="Speedtest Tracker"
-            gnetId: 54608
+            gnetId: 24608
             revision: 5
             datasource:
               - name: DS_PROMETHEUS
@@ -342,7 +342,7 @@ spec:
 {{- if .Values.behindTcpProxy }}
           haproxy:
             # renovate: depName="Haproxy"
-            gnetId: 14693
+            gnetId: 12693
             revision: 14
             datasource: Prometheus
 {{- end }}
