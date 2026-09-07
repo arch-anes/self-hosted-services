@@ -1,0 +1,21 @@
+# code: language=ansible
+---
+
+- name: Configure overlay network checksum offloading
+  when: ansible_facts['distribution'] == 'Ubuntu'
+  become: true
+  block:
+    - name: Manage overlay checksum offload udev rules
+      notify: Reload udev
+      ansible.builtin.copy:
+        dest: /etc/udev/rules.d/99-network-checksum-offload.rules
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          # Managed by Ansible (roles/system_setup)
+          # Disable tx-checksum-ip-generic on virtual overlay/tunnel interfaces (flannel.1, tailscale0)
+          # to ensure inner TCP/UDP checksums are calculated in software. This avoids silent packet drops
+          # and TCP stalls on modern kernels when physical NICs lack hardware encapsulation offload.
+          SUBSYSTEM=="net", ACTION=="add|change", KERNEL=="flannel.1", RUN+="/usr/sbin/ethtool -K flannel.1 tx-checksum-ip-generic off"
+          SUBSYSTEM=="net", ACTION=="add|change", KERNEL=="tailscale0", RUN+="/usr/sbin/ethtool -K tailscale0 tx-checksum-ip-generic off"

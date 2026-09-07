@@ -42,3 +42,9 @@
   ansible.builtin.service:
     name: nginx
     state: restarted
+
+- name: Reload udev
+  become: true
+  ansible.builtin.shell:
+    cmd: udevadm control --reload-rules && udevadm trigger --subsystem-match=net --action=change
+  changed_when: false

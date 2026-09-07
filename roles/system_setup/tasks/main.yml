@@ -10,6 +10,9 @@
 - name: Setup kernel
   ansible.builtin.include_tasks: kernel.yml
 
+- name: Setup udev
+  ansible.builtin.include_tasks: udev.yml
+
 - name: Setup timezone
   ansible.builtin.include_tasks: tz.yml
 

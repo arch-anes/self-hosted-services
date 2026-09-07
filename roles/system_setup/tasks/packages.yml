@@ -11,6 +11,7 @@
           - curl
           - diffutils
           - etcd-client
+          - ethtool
           - htop
           - nnn
           - rasdaemon
