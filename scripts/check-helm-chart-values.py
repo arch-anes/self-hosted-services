@@ -77,6 +77,24 @@ class CheckError(Exception):
     """A required schema or local validation command failed."""
 
 
+SafeYamlLoader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
+
+class HelmYamlLoader(SafeYamlLoader):
+    """Load Helm output safely, using libyaml when it is available."""
+
+
+def _construct_yaml_value(
+    loader: HelmYamlLoader,
+    node: yaml.nodes.ScalarNode,
+) -> str:
+    """Treat the bare equals marker emitted by some charts as text."""
+    return loader.construct_scalar(node)
+
+
+HelmYamlLoader.add_constructor("tag:yaml.org,2002:value", _construct_yaml_value)
+
+
 @dataclass(frozen=True)
 class HelmChartResource:
     """Store the identity and YAML data of one rendered HelmChart resource."""
@@ -152,7 +170,10 @@ def _helm_schema_binary() -> Path:
     manifest_path: Path | None = None
     for candidate in sorted(plugins_dir.glob("*/plugin.yaml")):
         try:
-            candidate_manifest = yaml.safe_load(candidate.read_text(encoding="utf-8"))
+            candidate_manifest = yaml.load(
+                candidate.read_text(encoding="utf-8"),
+                Loader=HelmYamlLoader,
+            )
         except (OSError, yaml.YAMLError):
             continue
         if isinstance(candidate_manifest, dict) and candidate_manifest.get("name") == "schema":
@@ -590,8 +611,11 @@ def render_resources(root: Path) -> list[HelmChartResource]:
         raise CheckError(f"helm template failed:\n{result.stderr.strip()}")
 
     resources: list[HelmChartResource] = []
-    for document in yaml.safe_load_all(result.stdout):
-        if not isinstance(document, dict) or document.get("kind") != "HelmChart":
+    if HELMCHART_KIND not in result.stdout:
+        raise CheckError("the rendered services chart has no supported HelmChart resources")
+
+    for document in yaml.load_all(result.stdout, Loader=HelmYamlLoader):
+        if not isinstance(document, dict) or document.get("kind") != HELMCHART_KIND:
             continue
 
         spec = document.get("spec")
@@ -633,7 +657,7 @@ def chart_schema_path(chart_dir: Path, reference: ChartReference) -> Path:
     if not chart_file.is_file():
         raise CheckError(f"chart {reference.name} is missing after preparation")
 
-    chart = yaml.safe_load(chart_file.read_text(encoding="utf-8"))
+    chart = yaml.load(chart_file.read_text(encoding="utf-8"), Loader=HelmYamlLoader)
     if not isinstance(chart, dict):
         raise CheckError(f"{chart_file} does not contain an object")
 
