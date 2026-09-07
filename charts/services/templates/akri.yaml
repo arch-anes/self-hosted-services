@@ -13,7 +13,6 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
-    useLatestContainers: true
     useDevelopmentContainers: false
     {{- $udevRules := .Values.applications.akri.udevRules }}
     udev:
