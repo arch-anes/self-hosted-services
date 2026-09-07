@@ -1,9 +1,18 @@
 #!/usr/bin/env python3
-"""Prepare and validate every HelmChart reachable from the services chart.
+"""Validate every HelmChart reachable from the services chart.
 
 The services chart is rendered once to find its HelmChart resources. Each
-resource prepares its package, validates its values, and renders independently.
-Rendered output can add more HelmCharts to the same iterative work queue.
+resource independently passes through this iterative pipeline:
+
+1. Prepare its chart package and generated override schema.
+2. Validate its ``spec.values`` against that override schema.
+3. Render the chart with those exact values and offline CRD capabilities.
+4. Validate the rendered Kubernetes objects with Kubeconform.
+5. Add HelmCharts found in rendered output to the same work queue.
+
+Successful value validation and rendered nested-chart discovery are cached by
+their relevant inputs. Cached rendered output never bypasses validation after a
+chart, value, validator, or available CRD API changes.
 """
 
 from __future__ import annotations
@@ -32,7 +41,7 @@ HELMCHART_KIND = "HelmChart"
 HELMCHART_SCHEMA_NAME = "helmchart.schema.json"
 VALUES_OVERRIDE_SCHEMA_NAME = "values.override.schema.json"
 SCHEMA_STATE_NAME = ".helm-schema-state.json"
-RENDER_CACHE_VERSION = 1
+RENDER_CACHE_VERSION = 2
 VALUE_CACHE_VERSION = 1
 CRD_CACHE_VERSION = 1
 # Increment this when this script changes how it derives schemas.
@@ -86,7 +95,7 @@ SafeYamlLoader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
 
 
 class HelmYamlLoader(SafeYamlLoader):
-    """Load Helm output with PyYAML's safe constructors."""
+    """Load Helm output safely, using libyaml when the installed PyYAML has it."""
 
 
 def _construct_yaml_value(
@@ -147,23 +156,25 @@ class ChartPreparation:
 
 
 class PipelineStage(Enum):
-    """Name the independently scheduled stages of a chart pipeline."""
+    """Name the independently scheduled package, value, render, and manifest stages."""
 
     PREPARE = auto()
     SCHEMA = auto()
     VALIDATE = auto()
     RENDER = auto()
+    MANIFEST = auto()
 
 
 @dataclass(frozen=True)
 class PendingTask:
-    """Identify the chart and optional resource owned by one pending future."""
+    """Keep the resource and cache data needed when one worker future finishes."""
 
     stage: PipelineStage
     reference: ChartReference
     resource: HelmChartResource | None = None
     value_cache_path: Path | None = None
     render_cache_path: Path | None = None
+    nested_resources: tuple[HelmChartResource, ...] = ()
 
 
 def repo_root() -> Path:
@@ -929,7 +940,7 @@ def chart_schema_path(chart_dir: Path, reference: ChartReference) -> Path:
 
 
 def validate_resource(resource: HelmChartResource, schema_path: Path) -> str | None:
-    """Validate one HelmChart resource and return a diagnostic on failure."""
+    """Validate one HelmChart resource against its generated override schema."""
     try:
         result = subprocess.run(
             [
@@ -957,7 +968,12 @@ def render_chart(
     chart_dir: Path,
     api_versions: tuple[str, ...],
 ) -> str:
-    """Render one chart using its HelmChart values and local CRD capabilities."""
+    """Render one chart with its HelmChart values and local CRD capabilities.
+
+    The generated override schema was validated first, so Helm's full-values
+    schema is skipped. That schema describes merged defaults, not a partial
+    override, and can reject valid null map removals.
+    """
     api_version_arguments = [argument for version in api_versions for argument in ("--api-versions", version)]
     try:
         result = subprocess.run(
@@ -989,6 +1005,42 @@ def render_chart(
     return result.stdout
 
 
+def validate_manifests(rendered_yaml: str, cache_dir: Path) -> str | None:
+    """Strictly validate Kubernetes objects produced by one rendered chart.
+
+    Unknown custom resources are ignored here because their schemas are not
+    generally available offline. HelmChart custom resources are separately
+    validated by this script before their charts are rendered.
+    """
+    if not rendered_yaml.strip():
+        return None
+
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        result = subprocess.run(
+            [
+                "kubeconform",
+                "-strict",
+                "-ignore-missing-schemas",
+                "-cache",
+                str(cache_dir),
+                "-schema-location",
+                "default",
+            ],
+            input=rendered_yaml,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=COMMAND_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired:
+        return f"manifest validation exceeded {COMMAND_TIMEOUT_SECONDS}s"
+
+    if not result.returncode:
+        return None
+    return "\n".join(part.strip() for part in (result.stdout, result.stderr) if part.strip())
+
+
 def _render_cache_path(
     cache_dir: Path,
     resource: HelmChartResource,
@@ -996,7 +1048,13 @@ def _render_cache_path(
     tool_digest: str,
     api_versions: tuple[str, ...],
 ) -> Path:
-    """Return the cache path for nested HelmCharts found in rendered output."""
+    """Return the cache path for one fully validated rendered chart.
+
+    The cache key covers every local input that can alter Helm rendering or
+    Kubernetes validation. Its data records only HelmCharts discovered in the
+    validated output, which lets cached runs continue nested discovery without
+    retaining or reparsing full rendered manifests.
+    """
     digest = hashlib.sha256()
     for value in (
         str(RENDER_CACHE_VERSION),
@@ -1011,7 +1069,7 @@ def _render_cache_path(
 
 
 def _render_cache_dir() -> Path:
-    """Return the user cache directory for rendered-chart discovery."""
+    """Return the user cache directory for validated rendered-chart discovery."""
     cache_home = Path(os.environ["XDG_CACHE_HOME"]) if "XDG_CACHE_HOME" in os.environ else Path.home() / ".cache"
     return cache_home / "self-hosted-services" / "helm-renders"
 
@@ -1019,14 +1077,14 @@ def _render_cache_dir() -> Path:
 def _value_cache_path(
     resource: HelmChartResource,
     schema_path: Path,
-    validator_digest: str,
+    kubeconform_digest: str,
 ) -> Path:
-    """Return the cache path for a successful HelmChart value validation."""
+    """Return the cache path for a successful generated-schema validation."""
     digest = hashlib.sha256()
     for value in (
         str(VALUE_CACHE_VERSION),
         _sha256_file(schema_path),
-        validator_digest,
+        kubeconform_digest,
         yaml.safe_dump(resource.document, sort_keys=True),
     ):
         digest.update(value.encode())
@@ -1079,7 +1137,7 @@ def _write_render_cache(path: Path, resources: tuple[HelmChartResource, ...]) ->
 
 
 def _read_render_cache(path: Path) -> list[HelmChartResource] | None:
-    """Read cached nested HelmCharts, treating invalid cache data as a miss."""
+    """Read cached nested HelmCharts, treating missing or invalid data as a miss."""
     if not path.is_file():
         return None
     try:
@@ -1142,8 +1200,7 @@ def check_charts(
     resources: list[HelmChartResource],
     output_dir: Path,
     generator_digest: str,
-    validator_digest: str,
-    render_tool_digest: str,
+    manifest_tool_digest: str,
 ) -> CheckSummary:
     """Run dynamically discovered HelmCharts through independent worker pools.
 
@@ -1198,7 +1255,7 @@ def check_charts(
             render_cache_dir,
             resource,
             preparation.render_digest,
-            render_tool_digest,
+            manifest_tool_digest,
             api_version_list,
         )
         return _read_render_cache(path)
@@ -1220,6 +1277,10 @@ def check_charts(
             max_workers=cpu_workers,
             thread_name_prefix="render",
         ) as render_executor,
+        concurrent.futures.ThreadPoolExecutor(
+            max_workers=cpu_workers,
+            thread_name_prefix="manifest",
+        ) as manifest_executor,
     ):
         pending: dict[concurrent.futures.Future, PendingTask] = {}
 
@@ -1234,7 +1295,7 @@ def check_charts(
                 render_cache_dir,
                 resource,
                 preparations[resource.reference].render_digest,
-                render_tool_digest,
+                manifest_tool_digest,
                 api_version_list,
             )
             render_future = render_executor.submit(
@@ -1263,7 +1324,7 @@ def check_charts(
             """Submit schema validation after its shared chart preparation ends."""
             schema_path = schemas.get(resource.reference)
             if schema_path is not None:
-                cache_path = _value_cache_path(resource, schema_path, validator_digest)
+                cache_path = _value_cache_path(resource, schema_path, manifest_tool_digest)
                 if cache_path.is_file():
                     future: concurrent.futures.Future[str | None] = concurrent.futures.Future()
                     future.set_result(None)
@@ -1324,6 +1385,7 @@ def check_charts(
                 schedule_validation(resource)
 
         add_resources(resources)
+        manifest_cache_dir = output_dir / ".kubeconform-cache"
         render_cache_dir = _render_cache_dir()
 
         while pending:
@@ -1411,9 +1473,20 @@ def check_charts(
                 if task.stage is PipelineStage.RENDER:
                     nested_resources = tuple(_helmcharts_from_yaml(result, resource))
                     add_resources(list(nested_resources))
-                    if task.render_cache_path is not None:
-                        _write_render_cache(task.render_cache_path, nested_resources)
-                    complete_resource(resource)
+                    manifest_future = manifest_executor.submit(validate_manifests, result, manifest_cache_dir)
+                    pending[manifest_future] = PendingTask(
+                        PipelineStage.MANIFEST,
+                        reference,
+                        resource,
+                        render_cache_path=task.render_cache_path,
+                        nested_resources=nested_resources,
+                    )
+                    continue
+
+                if task.stage is PipelineStage.MANIFEST:
+                    if result is None and task.render_cache_path is not None:
+                        _write_render_cache(task.render_cache_path, task.nested_resources)
+                    complete_resource(resource, result)
                     continue
 
                 raise CheckError(f"unsupported pipeline stage: {task.stage}")
@@ -1428,10 +1501,11 @@ def main() -> int:
         output_dir = root / "charts" / "services" / "upstream-charts"
         output_dir.mkdir(parents=True, exist_ok=True)
         generator_digest = _sha256_file(_helm_schema_binary())
-        validator_digest = _executable_digest("kubeconform")
-        render_tool_digest = _executable_digest("helm")
+        manifest_tool_digest = hashlib.sha256(
+            f"{_executable_digest('helm')}:{_executable_digest('kubeconform')}".encode()
+        ).hexdigest()
         resources = render_resources(root)
-        summary = check_charts(resources, output_dir, generator_digest, validator_digest, render_tool_digest)
+        summary = check_charts(resources, output_dir, generator_digest, manifest_tool_digest)
     except (CheckError, RuntimeError, OSError, yaml.YAMLError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
