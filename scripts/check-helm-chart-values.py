@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Validate every HelmChart reachable from the services chart.
+"""Validate the services chart and every HelmChart reachable from it.
 
-The services chart is rendered once to find its HelmChart resources. Each
-resource independently passes through this iterative pipeline:
+The services chart is rendered and its Kubernetes objects are validated before
+its HelmChart resources independently pass through this iterative pipeline:
 
 1. Prepare its chart package and generated override schema.
 2. Validate its ``spec.values`` against that override schema.
@@ -786,8 +786,8 @@ def _helmcharts_from_yaml(
     ]
 
 
-def render_resources(root: Path) -> list[HelmChartResource]:
-    """Render the services chart and find direct and embedded HelmCharts."""
+def render_services_chart(root: Path) -> str:
+    """Render the services chart for the pinned Kubernetes version."""
     try:
         result = subprocess.run(
             ["helm", "template", "charts/services", "--kube-version", KUBERNETES_VERSION],
@@ -803,7 +803,12 @@ def render_resources(root: Path) -> list[HelmChartResource]:
     if result.returncode:
         raise CheckError(f"helm template failed:\n{result.stderr.strip()}")
 
-    resources = _helmcharts_from_yaml(result.stdout)
+    return result.stdout
+
+
+def services_helmcharts(rendered_yaml: str) -> list[HelmChartResource]:
+    """Return direct and embedded HelmCharts from rendered services objects."""
+    resources = _helmcharts_from_yaml(rendered_yaml)
     if not resources:
         raise CheckError("the rendered services chart has no supported HelmChart resources")
     return resources
@@ -1012,33 +1017,18 @@ def render_chart(
     return result.stdout
 
 
-def validate_manifests(rendered_yaml: str, cache_dir: Path) -> str | None:
-    """Strictly validate Kubernetes objects produced by one rendered chart.
-
-    Kubeconform uses the same pinned Kubernetes version, built-in schemas, and
-    CRD catalog as CI. Resources absent from both schema sources are ignored
-    because many upstream charts contain custom resources without published
-    schemas. HelmChart resources are separately validated before charts render.
-    """
+def _kubeconform_diagnostic(
+    rendered_yaml: str,
+    arguments: list[str],
+    timeout_message: str,
+) -> str | None:
+    """Run Kubeconform and return its diagnostic when validation fails."""
     if not rendered_yaml.strip():
         return None
 
-    cache_dir.mkdir(parents=True, exist_ok=True)
     try:
-        schema_arguments = [
-            argument for location in KUBECONFORM_SCHEMA_LOCATIONS for argument in ("-schema-location", location)
-        ]
         result = subprocess.run(
-            [
-                "kubeconform",
-                "-strict",
-                "-kubernetes-version",
-                KUBERNETES_VERSION,
-                "-cache",
-                str(cache_dir),
-                *schema_arguments,
-                "-ignore-missing-schemas",
-            ],
+            ["kubeconform", *arguments],
             input=rendered_yaml,
             capture_output=True,
             text=True,
@@ -1046,11 +1036,60 @@ def validate_manifests(rendered_yaml: str, cache_dir: Path) -> str | None:
             timeout=COMMAND_TIMEOUT_SECONDS,
         )
     except subprocess.TimeoutExpired:
-        return f"manifest validation exceeded {COMMAND_TIMEOUT_SECONDS}s"
+        return timeout_message
 
     if not result.returncode:
         return None
     return "\n".join(part.strip() for part in (result.stdout, result.stderr) if part.strip())
+
+
+def _kubeconform_schema_arguments() -> list[str]:
+    """Return the built-in and CRD-catalog schema locations."""
+    return [argument for location in KUBECONFORM_SCHEMA_LOCATIONS for argument in ("-schema-location", location)]
+
+
+def validate_services_manifests(rendered_yaml: str, cache_dir: Path) -> str | None:
+    """Validate rendered services objects with complete schema coverage.
+
+    Every object must have a schema from Kubernetes or the CRD catalog. This
+    validates the services chart itself, including its HelmChart resources.
+    """
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    return _kubeconform_diagnostic(
+        rendered_yaml,
+        [
+            "-summary",
+            "-kubernetes-version",
+            KUBERNETES_VERSION,
+            "-cache",
+            str(cache_dir),
+            *_kubeconform_schema_arguments(),
+        ],
+        f"services manifest validation exceeded {COMMAND_TIMEOUT_SECONDS}s",
+    )
+
+
+def validate_manifests(rendered_yaml: str, cache_dir: Path) -> str | None:
+    """Strictly validate Kubernetes objects produced by one rendered chart.
+
+    Resources absent from Kubernetes and the CRD catalog are ignored because
+    many upstream charts contain custom resources without published schemas.
+    HelmChart resources are separately validated before charts render.
+    """
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    return _kubeconform_diagnostic(
+        rendered_yaml,
+        [
+            "-strict",
+            "-kubernetes-version",
+            KUBERNETES_VERSION,
+            "-cache",
+            str(cache_dir),
+            *_kubeconform_schema_arguments(),
+            "-ignore-missing-schemas",
+        ],
+        f"manifest validation exceeded {COMMAND_TIMEOUT_SECONDS}s",
+    )
 
 
 def _render_cache_path(
@@ -1524,7 +1563,11 @@ def main() -> int:
                 )
             ).encode()
         ).hexdigest()
-        resources = render_resources(root)
+        rendered_services = render_services_chart(root)
+        manifest_cache_dir = output_dir / ".kubeconform-cache"
+        if diagnostic := validate_services_manifests(rendered_services, manifest_cache_dir):
+            raise CheckError(f"services chart manifests are invalid:\n{diagnostic}")
+        resources = services_helmcharts(rendered_services)
         summary = check_charts(resources, output_dir, generator_digest, manifest_tool_digest)
     except (CheckError, RuntimeError, OSError, yaml.YAMLError) as exc:
         print(f"error: {exc}", file=sys.stderr)
