@@ -52,6 +52,7 @@ GENERATED_SCHEMA_NAMES = {
     HELMCHART_SCHEMA_NAME,
 }
 COMMAND_TIMEOUT_SECONDS = 120
+KUBERNETES_VERSION = "1.36.0"
 KUBECONFORM_SCHEMA_LOCATIONS = (
     "default",
     "https://raw.githubusercontent.com/abelfodil/CRDs-catalog/helmchart/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json",
@@ -789,7 +790,7 @@ def render_resources(root: Path) -> list[HelmChartResource]:
     """Render the services chart and find direct and embedded HelmCharts."""
     try:
         result = subprocess.run(
-            ["helm", "template", "charts/services"],
+            ["helm", "template", "charts/services", "--kube-version", KUBERNETES_VERSION],
             cwd=root,
             capture_output=True,
             text=True,
@@ -972,7 +973,7 @@ def render_chart(
     chart_dir: Path,
     api_versions: tuple[str, ...],
 ) -> str:
-    """Render one chart with its HelmChart values and local CRD capabilities.
+    """Render one chart for the pinned Kubernetes version and local CRD APIs.
 
     The generated override schema was validated first, so Helm's full-values
     schema is skipped. That schema describes merged defaults, not a partial
@@ -988,6 +989,8 @@ def render_chart(
                 str(chart_dir),
                 "--namespace",
                 resource.target_namespace,
+                "--kube-version",
+                KUBERNETES_VERSION,
                 "--include-crds",
                 "--skip-schema-validation",
                 "--values",
@@ -1012,10 +1015,10 @@ def render_chart(
 def validate_manifests(rendered_yaml: str, cache_dir: Path) -> str | None:
     """Strictly validate Kubernetes objects produced by one rendered chart.
 
-    Kubeconform first searches its built-in Kubernetes schemas and the same CRD
-    catalog used by CI. Resources absent from both sources are ignored because
-    many upstream charts contain custom resources without published schemas.
-    HelmChart resources are separately validated before their charts render.
+    Kubeconform uses the same pinned Kubernetes version, built-in schemas, and
+    CRD catalog as CI. Resources absent from both schema sources are ignored
+    because many upstream charts contain custom resources without published
+    schemas. HelmChart resources are separately validated before charts render.
     """
     if not rendered_yaml.strip():
         return None
@@ -1029,6 +1032,8 @@ def validate_manifests(rendered_yaml: str, cache_dir: Path) -> str | None:
             [
                 "kubeconform",
                 "-strict",
+                "-kubernetes-version",
+                KUBERNETES_VERSION,
                 "-cache",
                 str(cache_dir),
                 *schema_arguments,
@@ -1513,6 +1518,7 @@ def main() -> int:
                 (
                     _executable_digest("helm"),
                     _executable_digest("kubeconform"),
+                    KUBERNETES_VERSION,
                     *KUBECONFORM_SCHEMA_LOCATIONS,
                     "ignore-missing-schemas",
                 )
