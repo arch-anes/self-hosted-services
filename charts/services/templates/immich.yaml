@@ -323,7 +323,7 @@ spec:
           name: immich-vchordrq-prewarm
           namespace: "{{ .Values.applicationsNamespace }}"
         spec:
-          schedule: "*/5 * * * *"
+          schedule: "0 * * * *"
           concurrencyPolicy: Forbid
           successfulJobsHistoryLimit: 1
           failedJobsHistoryLimit: 3
