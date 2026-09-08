@@ -154,6 +154,9 @@ spec:
       extraVolumeMounts:
         - name: postgresql-certs
           mountPath: /etc/postgres/tls
+      podSecurityContext:
+        fsGroup: 82
+        fsGroupChangePolicy: OnRootMismatch
     internalDatabase:
       enabled: false
     externalDatabase:
