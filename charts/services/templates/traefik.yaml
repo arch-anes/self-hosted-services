@@ -63,7 +63,7 @@ spec:
           ipAllowList:
             sourceRange:
               {{- include "ip.private_ranges" . | nindent 14 }}
-{{- if (include "app.enabled" (list . "crowdsec")) }}
+      {{- if (include "app.enabled" (list . "crowdsec")) }}
       - apiVersion: traefik.io/v1alpha1
         kind: Middleware
         metadata:
@@ -101,7 +101,7 @@ spec:
         - name: wait-for-network
           image: busybox:1
           command: ['sh', '-c', 'until nslookup github.com; do echo waiting for network; sleep 2; done']
-{{- end }}
+      {{- end }}
     accessLog:
       enabled: true
       addInternals: true
@@ -115,7 +115,7 @@ spec:
           enabled: {{ include "metrics.enabled" . | default false }}
         serviceMonitor:
           enabled: {{ include "metrics.enabled" . | default false }}
-{{- if (include "app.enabled" (list . "tempo")) }}
+    {{- if (include "app.enabled" (list . "tempo")) }}
     tracing:
       capturedRequestHeaders:
         - "X-Real-Ip"
@@ -127,7 +127,7 @@ spec:
         http:
           enabled: true
           endpoint: http://tempo:4318/v1/traces
-{{- end }}
+    {{- end }}
     nodeSelector:
       public: "true"
     affinity:
@@ -179,23 +179,23 @@ spec:
               to: websecure
               scheme: https
               permanent: true
-{{- if .Values.behindTcpProxy }}
+        {{- if .Values.behindTcpProxy }}
         proxyProtocol:
           trustedIPs:
             {{- include "ip.proxy_ranges" . | nindent 12 }}
         forwardedHeaders:
           trustedIPs:
             {{- include "ip.proxy_ranges" . | nindent 12 }}
-{{- end }}
+        {{- end }}
       websecure:
-{{- if .Values.behindTcpProxy }}
+        {{- if .Values.behindTcpProxy }}
         proxyProtocol:
           trustedIPs:
             {{- include "ip.proxy_ranges" . | nindent 12 }}
         forwardedHeaders:
           trustedIPs:
             {{- include "ip.proxy_ranges" . | nindent 12 }}
-{{- end }}
+        {{- end }}
         transport:
           respondingTimeouts:
             readTimeout: 0
@@ -203,20 +203,20 @@ spec:
           middlewares:
             - kube-system-traefik-redirect-www@kubernetescrd
             - kube-system-traefik-websecure@kubernetescrd
-{{- if (include "app.enabled" (list . "crowdsec")) }}
+            {{- if (include "app.enabled" (list . "crowdsec")) }}
             - kube-system-crowdsec@kubernetescrd
-{{- end }}
+            {{- end }}
           tls:
             enabled: true
         http3:
           enabled: true
-{{- range $name, $port := dict "imap" 993 "smtp" 465 "mx" 2465 "mqtt" 1883 "mqtts" 8883 }}
+      {{- range $name, $port := dict "imap" 993 "smtp" 465 "mx" 2465 "mqtt" 1883 "mqtts" 8883 }}
       {{ $name }}:
-{{- if $.Values.behindTcpProxy }}
+        {{- if $.Values.behindTcpProxy }}
         proxyProtocol:
           trustedIPs:
             {{- include "ip.proxy_ranges" $ | nindent 12 }}
-{{- end }}
+        {{- end }}
         port: {{ $port }}
         expose:
           default: true
@@ -226,7 +226,7 @@ spec:
           respondingTimeouts:
             readTimeout: 0
             idleTimeout: 1h
-{{- end }}
+      {{- end }}
     resources:
       requests:
         memory: {{ include "app.resources.memory" (list $ "512Mi") }}

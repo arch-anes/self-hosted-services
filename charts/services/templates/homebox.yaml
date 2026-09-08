@@ -27,7 +27,7 @@ spec:
                     key: api_key_pepper
                     expandObjectName: false
                 HBOX_OPTIONS_TRUST_PROXY: "true"
-{{- if (include "app.enabled" (list . "authentik")) }}
+                {{- if (include "app.enabled" (list . "authentik")) }}
                 HBOX_OIDC_ENABLED: "true"
                 HBOX_OIDC_AUTO_REDIRECT: "true"
                 HBOX_OPTIONS_ALLOW_LOCAL_LOGIN: "false"
@@ -43,8 +43,8 @@ spec:
                     key: client_secret
                     expandObjectName: false
                 HBOX_OIDC_ISSUER_URL: "https://auth.{{ .Values.fqdn }}/application/o/homebox/"
-{{- end }}
-{{- if (include "app.enabled" (list . "minio")) }}
+                {{- end }}
+                {{- if (include "app.enabled" (list . "minio")) }}
                 AWS_ACCESS_KEY_ID:
                   secretKeyRef:
                     name: homebox
@@ -56,7 +56,7 @@ spec:
                     key: s3_secretkey
                     expandObjectName: false
                 HBOX_STORAGE_CONN_STRING: "s3://homebox?endpoint=http://minio&disable_https=true&use_path_style=true&region=us-east-1"
-{{- end }}
+                {{- end }}
                 HBOX_DATABASE_DRIVER: postgres
                 HBOX_DATABASE_HOST: postgresql-primary
                 HBOX_DATABASE_PORT: "5432"

@@ -37,7 +37,7 @@ spec:
       rules:
         - alert: IngressServiceDown
           annotations:
-            description: "The ingress service {{`{{ $labels.instance }}`}} is not reachable since 5m."
+            description: "The ingress service {{ `{{ $labels.instance }}` }} is not reachable since 5m."
             summary: Ingress service not reachable.
           expr: probe_success{job="ingress-probe"} == 0
           for: 5m

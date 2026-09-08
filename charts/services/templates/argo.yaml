@@ -150,7 +150,7 @@ spec:
               path: charts/services
               helm:
                 valuesObject:
-                  {{- .Values | toYaml | nindent 18}}
+                  {{- .Values | toYaml | nindent 18 }}
             destination:
               server: https://kubernetes.default.svc
               namespace: {{ .Values.applicationsNamespace }}

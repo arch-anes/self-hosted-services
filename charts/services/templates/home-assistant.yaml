@@ -147,7 +147,7 @@ spec:
     ingress:
       main:
         enabled: true
-        annotations:    
+        annotations:
           homer.service.name: Automation
           homer.item.name: "Home Assistant"
           homer.item.logo: "https://upload.wikimedia.org/wikipedia/en/4/49/Home_Assistant_logo_%282023%29.svg"
@@ -176,7 +176,7 @@ spec:
     cnpg:
       main:
         enabled: false
-{{- if (include "app.enabled" (list . "authentik")) }}
+    {{- if (include "app.enabled" (list . "authentik")) }}
     extraTpl:
       - apiVersion: v1
         kind: ConfigMap
@@ -250,5 +250,5 @@ spec:
               rewrite:
                 - transform:
                     template: client_secret
-{{- end }}
+    {{- end }}
 {{- end }}

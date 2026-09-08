@@ -13,8 +13,8 @@ spec:
   forceConflicts: true
   values:
     podOptions:
-      # TrueCharts auto-injects a podAffinity for PVCs that requires a pod with the 
-      # truecharts.org/pvc label to already exist on the node. Since config is unique 
+      # TrueCharts auto-injects a podAffinity for PVCs that requires a pod with the
+      # truecharts.org/pvc label to already exist on the node. Since config is unique
       # to seerr, this deadlocks the first pod in Pending state. Disable to allow scheduling.
       defaultAffinity: false
     workload:

@@ -51,7 +51,7 @@ spec:
     ingress:
       main:
         enabled: true
-        annotations:    
+        annotations:
           homer.service.name: Arr
           homer.item.logo: "https://home.tdarr.io/static/media/logo3-min.246d6df44c7f16ddebaf.png"
         hosts:

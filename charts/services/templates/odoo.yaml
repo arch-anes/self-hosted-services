@@ -28,9 +28,9 @@ spec:
               args:
                 - --init=base
                 - --without-demo=all
-              {{- if .Values.applications.odoo.updatePluginsOnStartup }}
+                {{- if .Values.applications.odoo.updatePluginsOnStartup }}
                 - --update=all
-              {{- end }}
+                {{- end }}
               probes:
                 liveness:
                   spec:
@@ -40,11 +40,11 @@ spec:
                   spec:
                     periodSeconds: 30
                     failureThreshold: 10
-              {{- if .Values.applications.odoo.updatePluginsOnStartup }}
+                {{- if .Values.applications.odoo.updatePluginsOnStartup }}
                 startup:
                   spec:
                     initialDelaySeconds: 600
-              {{- end }}
+                {{- end }}
               env:
                 HOST: postgresql-primary
                 USER: odoo
@@ -185,7 +185,7 @@ spec:
         creds:
           host: "dummy"
           password: "dummy"
-{{- if (include "app.enabled" (list . "authentik")) }}
+    {{- if (include "app.enabled" (list . "authentik")) }}
     extraTpl:
       - apiVersion: external-secrets.io/v1
         kind: ExternalSecret
@@ -207,5 +207,5 @@ spec:
               rewrite:
                 - transform:
                     template: odoo_sa_password
-{{- end }}
+    {{- end }}
 {{- end }}

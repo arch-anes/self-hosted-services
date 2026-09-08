@@ -416,33 +416,33 @@ spec:
             FROM dbs;
             \o
             \i /tmp/grant_users_public_permissions.sql
-{{- if (include "app.enabled" (list . "immich")) }}
+            {{- if (include "app.enabled" (list . "immich")) }}
             \c immich
             BEGIN;
             CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
             CREATE EXTENSION IF NOT EXISTS vector CASCADE;
             CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
             COMMIT;
-{{- end }}
-{{- if (include "app.enabled" (list . "odoo")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "odoo")) }}
             \c odoo
             BEGIN;
             CREATE EXTENSION IF NOT EXISTS vector CASCADE;
             COMMIT;
-{{- end }}
-{{- if (include "app.enabled" (list . "tracearr")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "tracearr")) }}
             \c tracearr
             BEGIN;
             CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
             COMMIT;
-{{- end }}
-{{- if (include "app.enabled" (list . "sparkyfitness")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "sparkyfitness")) }}
             \c sparkyfitness
             BEGIN;
             CREATE EXTENSION IF NOT EXISTS pg_stat_statements CASCADE;
             GRANT EXECUTE ON FUNCTION pg_stat_statements_reset TO sparkyfitness;
             COMMIT;
-{{- end }}
+            {{- end }}
       - apiVersion: postgres-operator.crunchydata.com/v1
         kind: PostgresCluster
         metadata:
@@ -489,196 +489,196 @@ spec:
                   - "hostssl all all 10.42.0.0/16 scram-sha-256"
                   - "hostssl all all 10.43.0.0/16 scram-sha-256"
                   # Remove once https://github.com/stalwartlabs/stalwart/issues/2380 is resolved and the application no longer requires non-SSL connections to the database
-{{- if (include "app.enabled" (list . "stalwart")) }}
+                  {{- if (include "app.enabled" (list . "stalwart")) }}
                   - "hostnossl stalwart stalwart 10.42.0.0/16 scram-sha-256"
                   - "hostnossl stalwart stalwart 10.43.0.0/16 scram-sha-256"
-{{- end }}
+                  {{- end }}
           users:
             - name: postgres
               password:
                 type: AlphaNumeric
-{{- if (include "app.enabled" (list . "authentik")) }}
+            {{- if (include "app.enabled" (list . "authentik")) }}
             - name: authentik
               password:
                 type: AlphaNumeric
               databases:
                 - authentik
-{{- end }}
-{{- if (include "app.enabled" (list . "bazarr")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "bazarr")) }}
             - name: bazarr
               password:
                 type: AlphaNumeric
               databases:
                 - bazarr
-{{- end }}
-{{- if (include "app.enabled" (list . "gotify")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "gotify")) }}
             - name: gotify
               password:
                 type: AlphaNumeric
               databases:
                 - gotify
-{{- end }}
-{{- if (include "app.enabled" (list . "home_assistant")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "home_assistant")) }}
             - name: home-assistant
               password:
                 type: AlphaNumeric
               databases:
                 - home-assistant
-{{- end }}
-{{- if (include "app.enabled" (list . "homebox")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "homebox")) }}
             - name: homebox
               password:
                 type: AlphaNumeric
               databases:
                 - homebox
-{{- end }}
-{{- if (include "app.enabled" (list . "immich")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "immich")) }}
             - name: immich
               password:
                 type: AlphaNumeric
               databases:
                 - immich
-{{- end }}
-{{- if (include "app.enabled" (list . "miniflux")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "miniflux")) }}
             - name: miniflux
               password:
                 type: AlphaNumeric
               databases:
                 - miniflux
-{{- end }}
-{{- if (include "app.enabled" (list . "n8n")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "n8n")) }}
             - name: n8n
               password:
                 type: AlphaNumeric
               databases:
                 - n8n
-{{- end }}
-{{- if (include "app.enabled" (list . "netbox")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "netbox")) }}
             - name: netbox
               password:
                 type: AlphaNumeric
               databases:
                 - netbox
-{{- end }}
-{{- if (include "app.enabled" (list . "nextcloud")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "nextcloud")) }}
             - name: nextcloud
               password:
                 type: AlphaNumeric
               databases:
                 - nextcloud
-{{- end }}
-{{- if (include "app.enabled" (list . "obico")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "obico")) }}
             - name: obico
               password:
                 type: AlphaNumeric
               databases:
                 - obico
-{{- end }}
-{{- if (include "app.enabled" (list . "odoo")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "odoo")) }}
             - name: odoo
               password:
                 type: AlphaNumeric
               databases:
                 - odoo
-{{- end }}
-{{- if (include "app.enabled" (list . "open_webui")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "open_webui")) }}
             - name: open-webui
               password:
                 type: AlphaNumeric
               databases:
                 - open-webui
-{{- end }}
-{{- if (include "app.enabled" (list . "pgadmin4")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "pgadmin4")) }}
             - name: pgadmin4
               password:
                 type: AlphaNumeric
               databases:
                 - pgadmin4
-{{- end }}
-{{- if (include "app.enabled" (list . "prowlarr")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "prowlarr")) }}
             - name: prowlarr
               password:
                 type: AlphaNumeric
               databases:
                 - prowlarr_log
                 - prowlarr_main
-{{- end }}
-{{- if (include "app.enabled" (list . "radarr")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "radarr")) }}
             - name: radarr
               password:
                 type: AlphaNumeric
               databases:
                 - radarr_log
                 - radarr_main
-{{- end }}
-{{- if (include "app.enabled" (list . "sonarr")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "sonarr")) }}
             - name: sonarr
               password:
                 type: AlphaNumeric
               databases:
                 - sonarr_log
                 - sonarr_main
-{{- end }}
-{{- if (include "app.enabled" (list . "speedtest_tracker")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "speedtest_tracker")) }}
             - name: speedtest-tracker
               password:
                 type: AlphaNumeric
               databases:
                 - speedtest-tracker
-{{- end }}
-{{- if (include "app.enabled" (list . "sparkyfitness")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "sparkyfitness")) }}
             - name: sparkyfitness
               password:
                 type: AlphaNumeric
               databases:
                 - sparkyfitness
-{{- end }}
-{{- if (include "app.enabled" (list . "stalwart")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "stalwart")) }}
             - name: stalwart
               password:
                 type: AlphaNumeric
               databases:
                 - stalwart
-{{- end }}
-{{- if (include "app.enabled" (list . "tracearr")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "tracearr")) }}
             - name: tracearr
               password:
                 type: AlphaNumeric
               databases:
                 - tracearr
-{{- end }}
-{{- if (include "app.enabled" (list . "vaultwarden")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "vaultwarden")) }}
             - name: vaultwarden
               password:
                 type: AlphaNumeric
               databases:
                 - vaultwarden
-{{- end }}
-{{- if (include "app.enabled" (list . "wakapi")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "wakapi")) }}
             - name: wakapi
               password:
                 type: AlphaNumeric
               databases:
                 - wakapi
-{{- end }}
-{{- if (include "app.enabled" (list . "woodpecker")) }}
+            {{- end }}
+            {{- if (include "app.enabled" (list . "woodpecker")) }}
             - name: woodpecker
               password:
                 type: AlphaNumeric
               databases:
                 - woodpecker
-{{- end }}
+            {{- end }}
 {{- with .Values.applications.postgresql.additionalUsers }}
 {{- toYaml . | nindent 12 }}
 {{- end }}
           databaseInitSQL:
             name: postgresql
             key: bootstrap.sql
-{{- if (include "metrics.enabled" .) }}
+          {{- if (include "metrics.enabled" .) }}
           monitoring:
             pgmonitor:
               exporter: {}
-{{- end }}
+          {{- end }}
           backups:
             pgbackrest:
               manual:

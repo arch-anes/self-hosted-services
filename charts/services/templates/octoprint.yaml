@@ -17,8 +17,8 @@ spec:
         # TrueCharts auto-injects an amd64 nodeSelector by default.
         # Nullifying it here allows the pod to schedule on other architectures (e.g. arm64).
         kubernetes.io/arch: null
-      # TrueCharts auto-injects a podAffinity for PVCs that requires a pod with the 
-      # truecharts.org/pvc label to already exist on the node. Since data is unique 
+      # TrueCharts auto-injects a podAffinity for PVCs that requires a pod with the
+      # truecharts.org/pvc label to already exist on the node. Since data is unique
       # to octoprint, this deadlocks the first pod in Pending state. Disable to allow scheduling.
       defaultAffinity: false
     workload:

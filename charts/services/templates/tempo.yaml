@@ -1,4 +1,4 @@
-{{- if and .Values.primaryTenant  (include "app.enabled" (list . "tempo")) }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "tempo")) }}
 {{- include "app.require" (list . "Tempo" "prometheus" "Prometheus") -}}
 {{- include "app.require" (list . "Tempo" "minio" "MinIO") -}}
 # ---

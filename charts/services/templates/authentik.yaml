@@ -131,77 +131,77 @@ spec:
         - authentik-ldap-blueprint
         - authentik-extra-blueprints
         - authentik-traefik-forward-auth
-{{- if (include "app.enabled" (list . "gotify")) }}
+        {{- if (include "app.enabled" (list . "gotify")) }}
         - authentik-gotify-blueprint
-{{- end }}
-{{- if (include "app.enabled" (list . "home_assistant")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "home_assistant")) }}
         - authentik-home-assistant-blueprint
-{{- end }}
-{{- if (include "app.enabled" (list . "homebox")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "homebox")) }}
         - homebox-authentik-blueprint
-{{- end }}
-{{- if (include "app.enabled" (list . "immich")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "immich")) }}
         - immich-authentik-blueprint
-{{- end }}
-{{- if (include "app.enabled" (list . "minio")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "minio")) }}
         - authentik-minio-blueprint
-{{- end }}
-{{- if (include "app.enabled" (list . "nextcloud")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "nextcloud")) }}
         - authentik-nextcloud-blueprint
-{{- end }}
-{{- if (include "app.enabled" (list . "odoo")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "odoo")) }}
         - odoo-authentik-blueprint
-{{- end }}
-{{- if (include "app.enabled" (list . "open_webui")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "open_webui")) }}
         - authentik-open-webui-blueprint
-{{- end }}
-{{- if (include "app.enabled" (list . "sparkyfitness")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "sparkyfitness")) }}
         - sparkyfitness-authentik-blueprint
-{{- end }}
-{{- if (include "app.enabled" (list . "stalwart")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "stalwart")) }}
         - authentik-stalwart-blueprint
-{{- end }}
-{{- if (include "app.enabled" (list . "vaultwarden")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "vaultwarden")) }}
         - vaultwarden-authentik-blueprint
-{{- end }}
-{{- if and (include "app.enabled" (list . "wakapi")) (not .Values.applications.wakapi.trusted_header_auth) }}
+        {{- end }}
+        {{- if and (include "app.enabled" (list . "wakapi")) (not .Values.applications.wakapi.trusted_header_auth) }}
         - wakapi-authentik-blueprint
-{{- end }}
+        {{- end }}
       secrets:
         - ldap
-{{- if (include "app.enabled" (list . "gotify")) }}
+        {{- if (include "app.enabled" (list . "gotify")) }}
         - gotify
-{{- end }}
-{{- if (include "app.enabled" (list . "home_assistant")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "home_assistant")) }}
         - home-assistant-oidc
-{{- end }}
-{{- if (include "app.enabled" (list . "homebox")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "homebox")) }}
         - homebox
-{{- end }}
-{{- if (include "app.enabled" (list . "immich")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "immich")) }}
         - immich
-{{- end }}
-{{- if (include "app.enabled" (list . "minio")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "minio")) }}
         - minio-oidc
-{{- end }}
-{{- if (include "app.enabled" (list . "nextcloud")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "nextcloud")) }}
         - nextcloud-oidc
-{{- end }}
-{{- if (include "app.enabled" (list . "odoo")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "odoo")) }}
         - odoo
-{{- end }}
-{{- if (include "app.enabled" (list . "open_webui")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "open_webui")) }}
         - open-webui
-{{- end }}
-{{- if (include "app.enabled" (list . "sparkyfitness")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "sparkyfitness")) }}
         - sparkyfitness-oidc
-{{- end }}
-{{- if (include "app.enabled" (list . "vaultwarden")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "vaultwarden")) }}
         - vaultwarden
-{{- end }}
-{{- if and (include "app.enabled" (list . "wakapi")) (not .Values.applications.wakapi.trusted_header_auth) }}
+        {{- end }}
+        {{- if and (include "app.enabled" (list . "wakapi")) (not .Values.applications.wakapi.trusted_header_auth) }}
         - wakapi
-{{- end }}
+        {{- end }}
     additionalObjects:
       - apiVersion: external-secrets.io/v1
         kind: ExternalSecret

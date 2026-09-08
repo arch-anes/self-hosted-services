@@ -1,5 +1,5 @@
 {{- if (include "app.enabled" (list . "transmission")) }}
-{{- include "app.require" (list . "Transmission" "gluetun" "Gluetun" ) -}}
+{{- include "app.require" (list . "Transmission" "gluetun" "Gluetun") -}}
 # ---
 # apiVersion: v1
 # kind: Secret

@@ -33,7 +33,7 @@ spec:
                 PGSSLROOTCERT: /etc/postgres/tls/ca.crt
                 PGSSLCERT: /etc/postgres/tls/tls.crt
                 PGSSLKEY: /etc/postgres/tls/tls.key
-{{- if (include "app.enabled" (list . "authentik")) }}
+                {{- if (include "app.enabled" (list . "authentik")) }}
                 GOTIFY_OIDC_ENABLED: "true"
                 GOTIFY_OIDC_ISSUER: "https://auth.{{ .Values.fqdn }}/application/o/gotify/"
                 GOTIFY_OIDC_CLIENTID:
@@ -50,7 +50,7 @@ spec:
                 GOTIFY_OIDC_LINK_BY_USERNAME: "true"
                 GOTIFY_OIDC_AUTOREGISTER: "true"
                 GOTIFY_OIDC_USERNAMECLAIM: "preferred_username"
-{{- end }}
+                {{- end }}
     resources:
       requests:
         memory: {{ include "app.resources.memory" (list $ "128Mi") }}
@@ -86,7 +86,7 @@ spec:
         mountPath: /etc/postgres/tls
         readOnly: true
         defaultMode: "0400"
-{{- if (include "app.enabled" (list . "authentik")) }}
+    {{- if (include "app.enabled" (list . "authentik")) }}
     extraTpl:
       - apiVersion: v1
         kind: ConfigMap
@@ -160,5 +160,5 @@ spec:
               rewrite:
                 - transform:
                     template: client_secret
-{{- end }}
+    {{- end }}
 {{- end }}

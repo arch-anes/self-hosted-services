@@ -59,7 +59,7 @@ spec:
     ingress:
       main:
         enabled: true
-        annotations:    
+        annotations:
           homer.service.name: Feed
           homer.item.logo: "https://archivebox.io/icon.png"
         hosts:

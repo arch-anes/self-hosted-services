@@ -40,7 +40,7 @@ spec:
                 - __meta_kubernetes_pod_node_name
               targetLabel: instance
               action: replace
-            - sourceLabels: 
+            - sourceLabels:
                 - __meta_kubernetes_pod_node_name
               separator: ;
               regex: ^(.*)$
@@ -58,7 +58,7 @@ spec:
     defaultRules:
       rules:
         windows: false
-{{- if (include "app.enabled" (list . "gotify")) }}
+    {{- if (include "app.enabled" (list . "gotify")) }}
     alertmanager:
       alertmanagerSpec:
         retention: 336h # 2 weeks
@@ -81,13 +81,13 @@ spec:
             webhook_configs:
               - url: "http://alertmanager-gotify-bridge.kube-system.svc.cluster.local:8080/gotify_webhook"
                 send_resolved: false
-{{- end }}
+    {{- end }}
     grafana:
       annotations:
         reloader.stakater.com/auto: "true"
-{{- if or (include "app.enabled" (list . "loki")) (include "app.enabled" (list . "tempo")) }}
+      {{- if or (include "app.enabled" (list . "loki")) (include "app.enabled" (list . "tempo")) }}
       additionalDataSources:
-{{- if (include "app.enabled" (list . "loki")) }}
+        {{- if (include "app.enabled" (list . "loki")) }}
         - name: Loki
           type: loki
           uid: loki
@@ -97,8 +97,8 @@ spec:
           jsonData:
             timeout: 60
             maxLines: 1000
-{{- end }}
-{{- if (include "app.enabled" (list . "tempo")) }}
+        {{- end }}
+        {{- if (include "app.enabled" (list . "tempo")) }}
         - name: Tempo
           uid: tempo
           type: tempo
@@ -125,8 +125,8 @@ spec:
                 - name: Error rate
                   unit: ops
                   query: 'sum by (service,span_name) (rate(traces_spanmetrics_calls_total{$$__tags,status_code="STATUS_CODE_ERROR"}[5m]))'
-{{- end }}
-{{- end }}
+        {{- end }}
+      {{- end }}
       defaultDashboardsTimezone: browser
       dashboardProviders:
         dashboardproviders.yaml:
@@ -206,26 +206,26 @@ spec:
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
-{{- if (include "app.enabled" (list . "argo")) }}
+          {{- if (include "app.enabled" (list . "argo")) }}
           argo-cd:
             # renovate: depName="Argo Cd"
             gnetId: 14584
             revision: 1
             datasource: Prometheus
-{{- end }}
-{{- if or (include "app.enabled" (list . "prowlarr")) (include "app.enabled" (list . "radarr")) (include "app.enabled" (list . "sonarr")) }}
+          {{- end }}
+          {{- if or (include "app.enabled" (list . "prowlarr")) (include "app.enabled" (list . "radarr")) (include "app.enabled" (list . "sonarr")) }}
           arr:
             url: https://raw.githubusercontent.com/onedr0p/exportarr/3cd394508cf9456f8df4ce4a5d1adc33bb51da2b/examples/grafana/dashboard2.json
             datasource: Prometheus
-{{- end }}
-{{- if (include "app.enabled" (list . "authentik")) }}
+          {{- end }}
+          {{- if (include "app.enabled" (list . "authentik")) }}
           authentik:
             # renovate: depName="Authentik"
             gnetId: 14837
             revision: 2
             datasource: Prometheus
-{{- end }}
-{{- if (include "app.enabled" (list . "crowdsec")) }}
+          {{- end }}
+          {{- if (include "app.enabled" (list . "crowdsec")) }}
           crowdsec:
             # renovate: depName="Crowdsec"
             gnetId: 24049
@@ -235,8 +235,8 @@ spec:
                 value: Prometheus
               - name: DS_LOKI
                 value: Loki
-{{- end }}
-{{- if (include "app.enabled" (list . "loki")) }}
+          {{- end }}
+          {{- if (include "app.enabled" (list . "loki")) }}
           loki:
             # renovate: depName="Loki"
             gnetId: 14055
@@ -246,8 +246,8 @@ spec:
                 value: Prometheus
               - name: DS_LOKI
                 value: Loki
-{{- end }}
-{{- if (include "app.enabled" (list . "postgresql")) }}
+          {{- end }}
+          {{- if (include "app.enabled" (list . "postgresql")) }}
           pgbackrest:
             url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/6b9bb005f171690d228bf49ca19f8f4caff95451/kustomize/monitoring/grafana/dashboards/pgbackrest.json
             datasource: Prometheus
@@ -263,8 +263,8 @@ spec:
           postgresql-query-statistics:
             url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/6b9bb005f171690d228bf49ca19f8f4caff95451/kustomize/monitoring/grafana/dashboards/query_statistics.json
             datasource: Prometheus
-{{- end }}
-{{- if (include "app.enabled" (list . "idrac_exporter")) }}
+          {{- end }}
+          {{- if (include "app.enabled" (list . "idrac_exporter")) }}
           bmc:
             url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/8d5d7e3da3d98f773dbfcc2709f21b1d3045f845/grafana/idrac.json
             datasource:
@@ -280,8 +280,8 @@ spec:
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
-{{- end }}
-{{- if (include "app.enabled" (list . "ipmi_exporter")) }}
+          {{- end }}
+          {{- if (include "app.enabled" (list . "ipmi_exporter")) }}
           ipmi:
             # renovate: depName="Ipmi"
             gnetId: 15765
@@ -289,8 +289,8 @@ spec:
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
-{{- end }}
-{{- if (include "app.enabled" (list . "minio")) }}
+          {{- end }}
+          {{- if (include "app.enabled" (list . "minio")) }}
           minio:
             # renovate: depName="Minio"
             gnetId: 13502
@@ -298,8 +298,8 @@ spec:
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
-{{- end }}
-{{- if (include "app.enabled" (list . "node_problem_detector")) }}
+          {{- end }}
+          {{- if (include "app.enabled" (list . "node_problem_detector")) }}
           node-problem-detector:
             # renovate: depName="Node Problem Detector"
             gnetId: 15549
@@ -307,8 +307,8 @@ spec:
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
-{{- end }}
-{{- if (include "app.enabled" (list . "redis")) }}
+          {{- end }}
+          {{- if (include "app.enabled" (list . "redis")) }}
           redis:
             # renovate: depName="Redis"
             gnetId: 763
@@ -321,16 +321,16 @@ spec:
             gnetId: 14091
             revision: 1
             datasource: Prometheus
-{{- end }}
-{{- if (include "app.enabled" (list . "velero")) }}
+          {{- end }}
+          {{- if (include "app.enabled" (list . "velero")) }}
           velero:
             # renovate: depName="Velero"
             # gnetId: 23838
             gnetId: 15469
             revision: 1
             datasource: Prometheus
-{{- end }}
-{{- if (include "app.enabled" (list . "speedtest_tracker")) }}
+          {{- end }}
+          {{- if (include "app.enabled" (list . "speedtest_tracker")) }}
           speedtest_tracker:
             # renovate: depName="Speedtest Tracker"
             gnetId: 24608
@@ -338,14 +338,14 @@ spec:
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
-{{- end }}
-{{- if .Values.behindTcpProxy }}
+          {{- end }}
+          {{- if .Values.behindTcpProxy }}
           haproxy:
             # renovate: depName="Haproxy"
             gnetId: 12693
             revision: 14
             datasource: Prometheus
-{{- end }}
+          {{- end }}
       prune: true
       sidecar:
         # Workaround for https://github.com/grafana/helm-charts/issues/4023
@@ -422,10 +422,10 @@ spec:
           requests:
             cpu: {{ include "app.resources.cpu" (list $ "500m") }}
             memory: {{ include "app.resources.memory" (list $ "1Gi") }}
-{{- if (include "app.enabled" (list . "ipmi_exporter")) }}
+        {{- if (include "app.enabled" (list . "ipmi_exporter")) }}
         secrets:
           - ipmi-exporter
-{{- end }}
+        {{- end }}
     ## k3s only ##
     # Avoid duplicated metrics in k3s: https://tinyurl.com/mrhjre9n
     kubelet:
@@ -460,7 +460,7 @@ spec:
       serviceMonitor:
         enabled: false
     extraManifests:
-{{- if (include "app.enabled" (list . "gotify")) }}
+      {{- if (include "app.enabled" (list . "gotify")) }}
       - apiVersion: apps/v1
         kind: Deployment
         metadata:
@@ -508,7 +508,7 @@ spec:
           ports:
             - port: 8080
               targetPort: 8080
-{{- end }}
+      {{- end }}
       - apiVersion: helm.cattle.io/v1
         kind: HelmChart
         metadata:

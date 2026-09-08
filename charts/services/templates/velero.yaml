@@ -1,4 +1,4 @@
-{{- if and .Values.primaryTenant  (include "app.enabled" (list . "velero")) }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "velero")) }}
 # ---
 # apiVersion: v1
 # kind: Secret

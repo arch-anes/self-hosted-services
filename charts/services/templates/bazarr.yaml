@@ -103,7 +103,7 @@ spec:
     ingress:
       main:
         enabled: true
-        annotations:    
+        annotations:
           homer.service.name: Arr
           homer.item.logo: "https://raw.githubusercontent.com/morpheus65535/bazarr/8282899facad2bc0bb096664a76571fd4f5ec2c9/frontend/public/images/logo128.png"
         hosts:

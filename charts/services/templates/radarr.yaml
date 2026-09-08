@@ -73,7 +73,7 @@ spec:
     ingress:
       main:
         enabled: true
-        annotations:    
+        annotations:
           homer.service.name: Arr
           homer.item.logo: "https://raw.githubusercontent.com/Radarr/Radarr/e4429d2919f73d8ffd1389614c74e58b9a447c50/Logo/256.png"
         hosts:

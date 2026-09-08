@@ -21,7 +21,7 @@ spec:
       forceEmailLogin: {{ not (include "app.enabled" (list . "authentik")) }}
       disableEmailLogin: {{ include "app.enabled" (list . "authentik") | default false }}
       disableSignup: false
-{{- if (include "app.enabled" (list . "authentik")) }}
+      {{- if (include "app.enabled" (list . "authentik")) }}
       oidc:
         enabled: true
         providerSlug: "authentik"
@@ -33,7 +33,7 @@ spec:
         adminGroup: "authentik Admins"
         secrets:
           existingSecret: "sparkyfitness-oidc"
-{{- end }}
+      {{- end }}
       email:
         enabled: true
         port: 587
@@ -116,7 +116,7 @@ spec:
         - secretName: "{{ .Values.fqdn }}-tls"
           hosts:
             - fit.{{ .Values.fqdn }}
-{{- if (include "app.enabled" (list . "authentik")) }}
+    {{- if (include "app.enabled" (list . "authentik")) }}
     extraObjects:
       - apiVersion: external-secrets.io/v1
         kind: ExternalSecret
@@ -187,5 +187,5 @@ spec:
                   name: SparkyFitness
                   provider: !KeyOf sparkyfitness-provider
                   policy_engine_mode: any
-{{- end }}
+    {{- end }}
 {{- end }}

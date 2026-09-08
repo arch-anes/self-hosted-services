@@ -62,7 +62,7 @@ spec:
                 GGML_VK_DISABLE_INTEGER_DOT_PRODUCT: "1"
                 {{- end }}
               extraArgs:
-                - --sleep-idle-seconds 
+                - --sleep-idle-seconds
                 - "3600"
               resources:
                 requests:

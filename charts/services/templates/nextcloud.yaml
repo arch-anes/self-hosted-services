@@ -186,7 +186,7 @@ spec:
         - secretName: {{ .Values.fqdn }}-tls
           hosts:
             - nextcloud.{{ .Values.fqdn }}
-{{- if (include "app.enabled" (list . "authentik")) }}
+    {{- if (include "app.enabled" (list . "authentik")) }}
     extraManifests:
       - apiVersion: v1
         kind: ConfigMap
@@ -258,5 +258,5 @@ spec:
               rewrite:
                 - transform:
                     template: client_secret
-{{- end }}
+    {{- end }}
 {{- end }}

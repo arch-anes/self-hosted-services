@@ -32,7 +32,7 @@ spec:
                     expandObjectName: false
                 WAKAPI_INSECURE_COOKIES: "false"
                 WAKAPI_INVITE_CODES: "false"
-{{- if (include "app.enabled" (list . "authentik")) }}
+                {{- if (include "app.enabled" (list . "authentik")) }}
                 WAKAPI_ALLOW_SIGNUP: "false"
                 WAKAPI_OIDC_ALLOW_SIGNUP: "true"
                 WAKAPI_OIDC_PROVIDERS_0_NAME: authentik
@@ -47,7 +47,7 @@ spec:
                     key: client_secret
                     expandObjectName: false
                 WAKAPI_OIDC_PROVIDERS_0_ENDPOINT: "https://auth.{{ .Values.fqdn }}/application/o/wakapi/"
-{{- end }}
+                {{- end }}
                 WAKAPI_DB_TYPE: postgres
                 WAKAPI_DB_HOST: postgresql-primary
                 WAKAPI_DB_PORT: "5432"

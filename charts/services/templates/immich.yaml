@@ -44,21 +44,21 @@ spec:
   values:
     immich:
     {{- $mlGpuVendor := dig "machine_learning" "gpu_vendor" "" .Values.applications.immich }}
-    {{- if eq $mlGpuVendor "nvidia" }}
+      {{- if eq $mlGpuVendor "nvidia" }}
       {{- if not (include "app.enabled" (list . "nvidia_gpu")) }}
         {{- fail "NVIDIA GPU is selected for Immich's machine learning but nvidia_gpu is not enabled" }}
       {{- end }}
       mlImageType: mlCudaImage
-    {{- else if eq $mlGpuVendor "amd" }}
+      {{- else if eq $mlGpuVendor "amd" }}
       {{- if not (include "app.enabled" (list . "amd_gpu")) }}
         {{- fail "AMD GPU is selected for Immich's machine learning but amd_gpu is not enabled" }}
       {{- end }}
       mlImageType: mlRocmImage
-    {{- else if $mlGpuVendor }}
+      {{- else if $mlGpuVendor }}
       {{- fail (printf "Unknown GPU vendor '%s' selected for Immich's machine learning" $mlGpuVendor) }}
-    {{- else }}
+      {{- else }}
       mlImageType: mlOpenvinoImage
-    {{- end }}
+      {{- end }}
     workload:
       main:
         annotations:

@@ -8,7 +8,7 @@
 # type: Opaque
 # stringData:
 #   enroll_key: "somekey" # Obtainable from https://app.crowdsec.net/security-engines
-#   bouncer_key: "somekey" 
+#   bouncer_key: "somekey"
 
 ---
 apiVersion: helm.cattle.io/v1
@@ -37,7 +37,7 @@ spec:
                 - "evt.Meta.service == 'http' && evt.Parsed.status in ['401', '403'] && \
                   evt.Parsed.http_user_agent matches '(?i)(minio|aws-cli|rclone|boto3|s3cmd|restic|velero|aws-sdk-go)' && \
                   evt.Parsed.target_fqdn matches '^s3[.]'"
-    agent:      
+    agent:
       podAnnotations:
         descheduler.alpha.kubernetes.io/evict: "true"
       acquisition:

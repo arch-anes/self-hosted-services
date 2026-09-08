@@ -22,10 +22,10 @@ spec:
         cpu: null
     cmdOptions:
       v: 5
-{{- if (include "app.enabled" (list . "tempo")) }}
+      {{- if (include "app.enabled" (list . "tempo")) }}
       # https://github.com/kubernetes-sigs/descheduler/issues/1428
       otel-collector-endpoint: tempo:4317
-{{- end }}
+      {{- end }}
     deschedulerPolicy:
       metricsProviders:
         - source: KubernetesMetrics
@@ -43,7 +43,7 @@ spec:
               args:
                 includingInitContainers: true
                 excludeOwnerKinds:
-                - "Job"
+                  - "Job"
                 minPodLifetimeSeconds: 3600
             - name: RemoveDuplicates
             - name: RemovePodsHavingTooManyRestarts
@@ -53,7 +53,7 @@ spec:
             - name: RemovePodsViolatingNodeAffinity
               args:
                 nodeAffinityType:
-                - requiredDuringSchedulingIgnoredDuringExecution
+                  - requiredDuringSchedulingIgnoredDuringExecution
             - name: RemovePodsViolatingNodeTaints
             - name: RemovePodsViolatingInterPodAntiAffinity
             - name: RemovePodsViolatingTopologySpreadConstraint

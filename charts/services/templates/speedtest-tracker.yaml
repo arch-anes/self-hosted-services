@@ -75,7 +75,7 @@ spec:
     ingress:
       main:
         enabled: {{ .Values.applications.speedtest_tracker.dashboard.enabled }}
-        annotations:    
+        annotations:
           homer.service.name: Monitoring
           homer.item.name: "Speedtest Tracker"
           homer.item.type: SpeedtestTracker

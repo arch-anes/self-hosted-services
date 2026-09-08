@@ -15,9 +15,9 @@ spec:
   values:
     watchedNamespaces:
       - {{ .Values.applicationsNamespace }}
-{{- if .Values.primaryTenant }}
+      {{- if .Values.primaryTenant }}
       - kube-system
-{{- end }}
+      {{- end }}
     replicaCount: {{ include "ha.replicas" . }}
     podAnnotations:
       reloader.stakater.com/auto: "true"

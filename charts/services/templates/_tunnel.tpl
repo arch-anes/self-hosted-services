@@ -13,13 +13,13 @@ IPV4_EXCLUDED_ROUTES: |-
 {{- end -}}
 
 {{- define "tunnel.env.list" -}}
-{{- $m := include "tunnel.env.map" . | fromYaml -}}
-{{- $keys := keys $m | sortAlpha -}}
-{{- $list := list -}}
-{{- range $keys -}}
-{{- $list = append $list (dict "name" . "value" (get $m .)) -}}
-{{- end -}}
-{{- toYaml $list | trim -}}
+  {{- $m := include "tunnel.env.map" . | fromYaml -}}
+  {{- $keys := keys $m | sortAlpha -}}
+  {{- $list := list -}}
+  {{- range $keys -}}
+    {{- $list = append $list (dict "name" . "value" (get $m .)) -}}
+  {{- end -}}
+  {{- toYaml $list | trim -}}
 {{- end -}}
 
 {{- define "tunnel.resources" -}}
@@ -46,11 +46,11 @@ capabilities:
   image: {{ include "tunnel.image.ref" . }}
   imagePullPolicy: {{ include "tunnel.image.pullPolicy" . }}
   securityContext:
-    {{- include "tunnel.securityContext" . | nindent 4 }}
+  {{- include "tunnel.securityContext" . | nindent 4 }}
   resources:
-    {{- include "tunnel.resources" . | nindent 4 }}
+  {{- include "tunnel.resources" . | nindent 4 }}
   env:
-    {{- include "tunnel.env.list" . | nindent 4 }}
+  {{- include "tunnel.env.list" . | nindent 4 }}
 {{- end -}}
 
 {{/* TrueCharts-style values */}}
@@ -73,9 +73,9 @@ tunnel:
       enabled: false
   imageSelector: tunnelImage
   securityContext:
-    {{- include "tunnel.securityContext" . | nindent 4 }}
+  {{- include "tunnel.securityContext" . | nindent 4 }}
   resources:
-    {{- include "tunnel.resources" . | nindent 4 }}
+  {{- include "tunnel.resources" . | nindent 4 }}
   env:
-    {{- include "tunnel.env.map" . | nindent 4 }}
+  {{- include "tunnel.env.map" . | nindent 4 }}
 {{- end -}}

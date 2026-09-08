@@ -40,18 +40,18 @@ spec:
             http { endpoint = "0.0.0.0:4318" }
 
             output {
-{{- if (include "app.enabled" (list . "tempo")) }}
+              {{- if (include "app.enabled" (list . "tempo")) }}
               traces = [otelcol.exporter.otlp.default.input]
-{{- end }}
-{{- if (include "app.enabled" (list . "prometheus")) }}
+              {{- end }}
+              {{- if (include "app.enabled" (list . "prometheus")) }}
               metrics = [otelcol.exporter.prometheus.default.input]
-{{- end }}
-{{- if (include "app.enabled" (list . "loki")) }}
+              {{- end }}
+              {{- if (include "app.enabled" (list . "loki")) }}
               logs    = [otelcol.exporter.loki.default.input]
-{{- end }}
+              {{- end }}
             }
           }
-{{- if (include "app.enabled" (list . "prometheus")) }}
+          {{- if (include "app.enabled" (list . "prometheus")) }}
           prometheus.remote_write "default" {
             endpoint {
               url = "http://prometheus-operated:9090/api/v1/write"
@@ -61,15 +61,15 @@ spec:
           otelcol.exporter.prometheus "default" {
             forward_to = [prometheus.remote_write.default.receiver]
           }
-{{- end }}
-{{- if (include "app.enabled" (list . "tempo")) }}
+          {{- end }}
+          {{- if (include "app.enabled" (list . "tempo")) }}
           otelcol.exporter.otlp "default" {
             client {
               endpoint = "tempo:4317"
             }
           }
-{{- end }}
-{{- if (include "app.enabled" (list . "loki")) }}
+          {{- end }}
+          {{- if (include "app.enabled" (list . "loki")) }}
           loki.write "default" {
             endpoint {
               url = "http://loki:3100/loki/api/v1/push"
@@ -199,5 +199,5 @@ spec:
               }
             }
           }
-{{- end }}
+          {{- end }}
 {{- end }}
