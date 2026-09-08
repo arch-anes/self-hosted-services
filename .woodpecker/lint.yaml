@@ -11,6 +11,7 @@ steps:
     image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
     commands:
       - ansible-lint
+      - helm format --check charts/services
       - helm lint charts/services
       - helm unittest charts/services
       - helm template charts/services | yamllint --no-warnings -
