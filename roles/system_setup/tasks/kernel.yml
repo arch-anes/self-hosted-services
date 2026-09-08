@@ -30,3 +30,24 @@
     sysctl_file: /etc/sysctl.d/99-k3s.conf
     state: present
     reload: true
+
+- name: Configure OpenWrt kernel network driver offloading
+  when: prepare_detect_is_openwrt
+  block:
+    - name: Query interface driver information
+      ansible.builtin.command:
+        cmd: "ethtool -i {{ prepare_detect_wan_interface | default('eth1') }}"
+      register: system_setup_ethtool_driver
+      changed_when: false
+      failed_when: false
+
+    - name: Disable GRO on buggy network drivers
+      when: "'mtk_soc_eth' in (system_setup_ethtool_driver.stdout | default(''))"
+      community.openwrt.uci:
+        command: section
+        config: ethtool
+        section: "{{ prepare_detect_wan_interface | default('eth1') }}"
+        type: device
+        value:
+          generic_receive_offload: 'off'
+        autocommit: true
