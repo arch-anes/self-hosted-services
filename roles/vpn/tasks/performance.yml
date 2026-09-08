@@ -16,7 +16,7 @@
       community.openwrt.uci:
         command: section
         config: ethtool
-        section: eth1
+        section: "{{ prepare_detect_wan_interface }}"
         type: device
         value:
           rx_gro_list: 'off'
