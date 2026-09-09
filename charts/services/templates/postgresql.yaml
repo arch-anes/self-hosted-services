@@ -480,6 +480,7 @@ spec:
             parameters:
               password_encryption: scram-sha-256
               max_connections: "1000"
+              max_locks_per_transaction: "256"
               shared_preload_libraries: "pg_stat_statements,cube,earthdistance,vector,vchord,timescaledb"
               shared_buffers: "1GB"
           patroni:
