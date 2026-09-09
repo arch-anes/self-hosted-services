@@ -21,7 +21,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/jellyfin
-  version: 23.6.3
+  version: 24.0.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   serverSide: "true"
   forceConflicts: true
