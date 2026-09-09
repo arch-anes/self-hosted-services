@@ -21,11 +21,12 @@ spec:
         memory: 256Mi
         cpu: null
     cmdOptions:
-      v: 5
+      v: 3
       {{- if (include "app.enabled" (list . "tempo")) }}
       # https://github.com/kubernetes-sigs/descheduler/issues/1428
       otel-collector-endpoint: tempo:4317
       {{- end }}
+    schedule: "*/15 * * * *"
     deschedulerPolicy:
       metricsProviders:
         - source: KubernetesMetrics
