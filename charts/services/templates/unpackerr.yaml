@@ -93,6 +93,7 @@ spec:
         enabled: false
       downloads:
         type: pvc
+        mountPath: /jellyfin/Downloads
         subPath: Downloads
         existingClaim: multimedia
 {{- end }}
