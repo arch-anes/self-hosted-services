@@ -5,3 +5,4 @@ roles/xanmanning.k3s/
 /keys_backup/
 devcontainer-lock.json
 __pycache__/
+.cache/

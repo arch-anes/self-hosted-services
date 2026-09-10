@@ -87,7 +87,7 @@ spec:
       metrics:
         enabled: {{ include "metrics.enabled" . | default false }}
       prometheusOperator: {{ include "metrics.enabled" . | default false }}
-      {{- if or (and .Values.primaryTenant (or (include "app.enabled" (list . "loki")) (include "app.enabled" (list . "tempo")))) (include "app.enabled" (list . "stalwart")) }}
+      {{- if or (and .Values.primaryTenant (or (include "app.enabled" (list . "loki")) (include "app.enabled" (list . "tempo")))) (include "app.enabled" (list . "stalwart")) (include "app.enabled" (list . "woodpecker")) }}
       buckets:
         {{- if (include "app.enabled" (list . "homebox")) }}
         - name: homebox
@@ -102,6 +102,9 @@ spec:
         {{- end }}
         {{- if (include "app.enabled" (list . "stalwart")) }}
         - name: stalwart
+        {{- end }}
+        {{- if (include "app.enabled" (list . "woodpecker")) }}
+        - name: woodpecker-cache
         {{- end }}
       {{- end }}
       env:

@@ -1,5 +1,6 @@
 {{- if (include "app.enabled" (list . "woodpecker")) }}
 {{- include "app.require" (list . "Woodpecker" "postgresql" "PostgreSQL") -}}
+{{- include "app.require" (list . "Woodpecker" "minio" "MinIO") -}}
 # ---
 # apiVersion: v1
 # kind: Secret

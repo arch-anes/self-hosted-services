@@ -20,13 +20,40 @@ depends_on:
   - lint
 
 steps:
+  - name: Restore Vagrant box cache
+    image: pgsty/mc
+    environment: &minio_environment
+      MINIO_ACCESS_KEY:
+        from_secret: minio_access_key
+      MINIO_SECRET_KEY:
+        from_secret: minio_secret_key
+    commands:
+      - &minio_setup mc alias set minio http://minio "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+      - mc mirror --overwrite --preserve --summary minio/woodpecker-cache/vagrant-boxes/ .cache/vagrant/boxes/
+    failure: ignore
+
   - name: molecule-test
     image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
     privileged: true
     commands:
+      - mkdir -p "$HOME/.vagrant.d" .cache/vagrant/boxes
+      - rmdir "$HOME/.vagrant.d/boxes"
+      - ln -sT "$PWD/.cache/vagrant/boxes" "$HOME/.vagrant.d/boxes"
       - sudo chmod 666 /dev/kvm /dev/vhost-net /dev/net/tun
       - sudo virtlogd -d
       - sudo libvirtd -d
       - sudo chmod 666 /var/run/libvirt/libvirt-sock
       - ansible-galaxy install -r requirements.yml
       - molecule test
+
+  - name: Save Vagrant box cache
+    image: pgsty/mc
+    environment: *minio_environment
+    commands:
+      - *minio_setup
+      - mc mirror --overwrite --preserve --summary .cache/vagrant/boxes/ minio/woodpecker-cache/vagrant-boxes/
+    failure: ignore
+    when:
+      status:
+        - failure
+        - success
