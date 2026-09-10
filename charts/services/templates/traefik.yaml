@@ -102,6 +102,8 @@ spec:
           image: busybox:1
           command: ['sh', '-c', 'until nslookup github.com; do echo waiting for network; sleep 2; done']
       {{- end }}
+    global:
+      checkNewVersion: false
     accessLog:
       enabled: true
       addInternals: true
