@@ -81,6 +81,11 @@ spec:
                 separator: ":"
                 replacement: "$1$2"
                 targetLabel: instance
+              - action: labeldrop
+                regex: pod
+            metricRelabelings:
+              - action: labeldrop
+                regex: pod
     resources:
       requests:
         memory: {{ include "app.resources.memory" (list $ "100Mi") }}
