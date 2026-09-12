@@ -20,8 +20,8 @@ metadata:
   namespace: kube-system
 spec:
   chart: loki
-  repo: https://grafana.github.io/helm-charts
-  version: 6.55.0
+  repo: https://grafana-community.github.io/helm-charts
+  version: 18.12.2
   targetNamespace: kube-system
   serverSide: "true"
   forceConflicts: true
@@ -54,7 +54,6 @@ spec:
         bucketNames:
           chunks: loki-chunks
           ruler: loki-ruler
-          admin: loki-admin
         s3:
           endpoint: http://minio.{{ .Values.applicationsNamespace }}.svc.cluster.local
           region: us-east-1

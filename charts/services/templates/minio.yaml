@@ -93,7 +93,6 @@ spec:
         - name: homebox
         {{- end }}
         {{- if and .Values.primaryTenant (include "app.enabled" (list . "loki")) }}
-        - name: loki-admin
         - name: loki-chunks
         - name: loki-ruler
         {{- end }}
