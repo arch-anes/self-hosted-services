@@ -1,5 +1,4 @@
 {{- if (include "app.enabled" (list . "unpackerr")) }}
-{{- include "app.require" (list . "Unpackerr" "transmission" "Transmission") -}}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -32,17 +31,6 @@ spec:
           containers:
             main:
               env:
-                UN_TRANSMISSION_0_URL: http://transmission:9091
-                UN_TRANSMISSION_0_USER:
-                  secretKeyRef:
-                    name: transmission
-                    key: username
-                    expandObjectName: false
-                UN_TRANSMISSION_0_PASS:
-                  secretKeyRef:
-                    name: transmission
-                    key: password
-                    expandObjectName: false
                 {{- if (include "app.enabled" (list . "sonarr")) }}
                 UN_SONARR_0_URL: http://sonarr:8989
                 UN_SONARR_0_API_KEY:
