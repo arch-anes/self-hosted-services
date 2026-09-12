@@ -47,7 +47,6 @@ spec:
             endpoint: minio.{{ .Values.applicationsNamespace }}.svc.cluster.local
             region: us-east-1
             insecure: true
-            forcepathstyle: true
       retention: 8760h # 1 year
       resources:
         requests:
