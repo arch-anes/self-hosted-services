@@ -6,8 +6,8 @@ metadata:
   name: alloy
   namespace: kube-system
 spec:
-  repo: https://grafana.github.io/helm-charts
   chart: alloy
+  repo: https://grafana.github.io/helm-charts
   version: 1.6.0
   targetNamespace: kube-system
   serverSide: "true"
