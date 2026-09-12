@@ -249,14 +249,14 @@ spec:
                     summary: PostgreSQL has settings in pg_settings pending a restart
                 # repo1 (remote): full weekly on Tuesday, incremental daily
                 - alert: PGBackrestRepo1FullBackupStale
-                  expr: ccp_backrest_last_full_backup_time_since_completion_seconds{stanza="postgresql",repo="repo1"} > 648000
+                  expr: ccp_backrest_last_full_backup_time_since_completion_seconds{stanza="db",repo="1"} > 648000
                   for: 60s
                   labels:
                     severity: critical
                   annotations:
                     summary: pgBackRest repo1 full backup has not completed in over 7 days
                 - alert: PGBackrestRepo1IncrBackupStale
-                  expr: ccp_backrest_last_incr_backup_time_since_completion_seconds{stanza="postgresql",repo="repo1"} > 129600
+                  expr: ccp_backrest_last_incr_backup_time_since_completion_seconds{stanza="db",repo="1"} > 129600
                   for: 60s
                   labels:
                     severity: critical
@@ -264,14 +264,14 @@ spec:
                     summary: pgBackRest repo1 incremental backup has not completed in over 24 hours
                 # repo2 (local volume): full weekly on Monday, incremental hourly
                 - alert: PGBackrestRepo2FullBackupStale
-                  expr: ccp_backrest_last_full_backup_time_since_completion_seconds{stanza="postgresql",repo="repo2"} > 648000
+                  expr: ccp_backrest_last_full_backup_time_since_completion_seconds{stanza="db",repo="2"} > 648000
                   for: 60s
                   labels:
                     severity: critical
                   annotations:
                     summary: pgBackRest repo2 full backup has not completed in over 7 days
                 - alert: PGBackrestRepo2IncrBackupStale
-                  expr: ccp_backrest_last_incr_backup_time_since_completion_seconds{stanza="postgresql",repo="repo2"} > 7200
+                  expr: ccp_backrest_last_incr_backup_time_since_completion_seconds{stanza="db",repo="2"} > 7200
                   for: 60s
                   labels:
                     severity: critical
