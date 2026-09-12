@@ -21,20 +21,19 @@ depends_on:
 
 steps:
   - name: Restore Vagrant box cache
-    image: pgsty/mc
-    environment: &minio_environment
-      MINIO_ACCESS_KEY:
-        from_secret: minio_access_key
-      MINIO_SECRET_KEY:
-        from_secret: minio_secret_key
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    volumes:
+      - woodpecker-cache:/cache
     commands:
-      - &minio_setup mc alias set minio http://minio "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
-      - mc mirror --overwrite --preserve --summary minio/woodpecker-cache/vagrant-boxes/ .cache/vagrant/boxes/
+      - mkdir -p .cache/vagrant/boxes /cache/vagrant/boxes
+      - rsync -a --delete --stats --human-readable /cache/vagrant/boxes/ .cache/vagrant/boxes/
     failure: ignore
 
   - name: molecule-test
     image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
     privileged: true
+    depends_on:
+      - Restore Vagrant box cache
     commands:
       - mkdir -p "$HOME/.vagrant.d" .cache/vagrant/boxes
       - rmdir "$HOME/.vagrant.d/boxes"
@@ -47,11 +46,14 @@ steps:
       - molecule test
 
   - name: Save Vagrant box cache
-    image: pgsty/mc
-    environment: *minio_environment
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    depends_on:
+      - molecule-test
+    volumes:
+      - woodpecker-cache:/cache
     commands:
-      - *minio_setup
-      - mc mirror --overwrite --preserve --summary .cache/vagrant/boxes/ minio/woodpecker-cache/vagrant-boxes/
+      - mkdir -p /cache/vagrant/boxes
+      - rsync -a --delete --stats --human-readable .cache/vagrant/boxes/ /cache/vagrant/boxes/
     failure: ignore
     when:
       status:

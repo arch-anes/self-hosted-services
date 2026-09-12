@@ -8,15 +8,12 @@ when:
 
 steps:
   - name: Restore Helm chart cache
-    image: pgsty/mc
-    environment: &minio_environment
-      MINIO_ACCESS_KEY:
-        from_secret: minio_access_key
-      MINIO_SECRET_KEY:
-        from_secret: minio_secret_key
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
+    volumes:
+      - woodpecker-cache:/cache
     commands:
-      - &minio_setup mc alias set minio http://minio "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
-      - mc mirror --overwrite --preserve --summary "minio/woodpecker-cache/upstream-charts/$CI_COMMIT_BRANCH/" .cache/upstream-charts/
+      - mkdir -p .cache/upstream-charts "/cache/upstream-charts/$CI_COMMIT_BRANCH"
+      - rsync -a --delete --stats --human-readable "/cache/upstream-charts/$CI_COMMIT_BRANCH/" .cache/upstream-charts/
     failure: ignore
 
   - name: Lint Ansible and Kubernetes
@@ -34,13 +31,14 @@ steps:
       - python3 scripts/check-helm-chart-values.py
 
   - name: Save Helm chart cache
-    image: pgsty/mc
+    image: ghcr.io/arch-anes/dev-container-kubernetes-ansible:latest
     depends_on:
       - Lint Ansible and Kubernetes
-    environment: *minio_environment
+    volumes:
+      - woodpecker-cache:/cache
     commands:
-      - *minio_setup
-      - mc mirror --overwrite --preserve --summary .cache/upstream-charts/ "minio/woodpecker-cache/upstream-charts/$CI_COMMIT_BRANCH/"
+      - mkdir -p "/cache/upstream-charts/$CI_COMMIT_BRANCH"
+      - rsync -a --delete --stats --human-readable .cache/upstream-charts/ "/cache/upstream-charts/$CI_COMMIT_BRANCH/"
     failure: ignore
     when:
       status:

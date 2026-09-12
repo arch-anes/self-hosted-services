@@ -1,6 +1,5 @@
 {{- if (include "app.enabled" (list . "woodpecker")) }}
 {{- include "app.require" (list . "Woodpecker" "postgresql" "PostgreSQL") -}}
-{{- include "app.require" (list . "Woodpecker" "minio" "MinIO") -}}
 # ---
 # apiVersion: v1
 # kind: Secret
@@ -74,4 +73,17 @@ spec:
         WOODPECKER_MAX_WORKFLOWS: "4"
       extraSecretNamesForEnvFrom:
         - woodpecker
+    additionalObjects:
+      - apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          name: woodpecker-cache
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          storageClassName: local-path-persistent-namespaced
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 50Gi
 {{- end }}
