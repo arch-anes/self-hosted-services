@@ -15,6 +15,7 @@ spec:
   values:
     workload:
       main:
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         podSpec:
