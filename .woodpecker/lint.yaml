@@ -16,7 +16,7 @@ steps:
         from_secret: minio_secret_key
     commands:
       - &minio_setup mc alias set minio http://minio "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
-      - mc mirror --overwrite --preserve --summary "minio/woodpecker-cache/upstream-charts/$CI_COMMIT_BRANCH/" charts/services/upstream-charts/
+      - mc mirror --overwrite --preserve --summary "minio/woodpecker-cache/upstream-charts/$CI_COMMIT_BRANCH/" .cache/upstream-charts/
     failure: ignore
 
   - name: Lint Ansible and Kubernetes
@@ -40,7 +40,7 @@ steps:
     environment: *minio_environment
     commands:
       - *minio_setup
-      - mc mirror --overwrite --preserve --summary charts/services/upstream-charts/ "minio/woodpecker-cache/upstream-charts/$CI_COMMIT_BRANCH/"
+      - mc mirror --overwrite --preserve --summary .cache/upstream-charts/ "minio/woodpecker-cache/upstream-charts/$CI_COMMIT_BRANCH/"
     failure: ignore
     when:
       status:

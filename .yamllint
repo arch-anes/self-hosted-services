@@ -6,6 +6,7 @@ ignore: |
   policies.y*ml
   charts/**/*.y*ml
   .ansible/**/*.y*ml
+  .cache/**/*.y*ml
 
 rules:
   line-length: disable

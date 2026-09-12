@@ -1549,7 +1549,7 @@ def main() -> int:
     """Render HelmCharts and run each through its independent pipeline."""
     root = repo_root()
     try:
-        output_dir = root / "charts" / "services" / "upstream-charts"
+        output_dir = root / ".cache" / "upstream-charts"
         output_dir.mkdir(parents=True, exist_ok=True)
         generator_digest = _sha256_file(_helm_schema_binary())
         manifest_tool_digest = hashlib.sha256(

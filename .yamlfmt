@@ -15,7 +15,7 @@ include:
 exclude:
   - "charts/services/templates/**"
   - "charts/services/tests/**"
-  - "charts/services/upstream-charts/**"
+  - ".cache/upstream-charts/**"
   - "molecule/**"
   - "roles/**"
 

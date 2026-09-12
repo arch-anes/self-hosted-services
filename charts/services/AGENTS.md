@@ -154,7 +154,7 @@ The following annotations are optional:
   when adding or updating a chart. The script updates the local chart cache,
   regenerates schemas when their chart or generator changes, and validates the
   configured values. Store the upstream defaults in
-  `upstream-charts/<chartname>/values.yaml`.
+  `.cache/upstream-charts/<chartname>/values.yaml`.
 
 ## 9. Validation
 
