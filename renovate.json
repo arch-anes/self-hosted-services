@@ -28,6 +28,16 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
+        "/charts/services/templates/_tunnel\\.tpl$/"
+      ],
+      "matchStrings": [
+        "define \\\"tunnel\\.image\\.repository\\\" -\\}}(?<depName>[^\\s]+)\\{\\{- end -\\}}\\s*\\{\\{- define \\\"tunnel\\.image\\.tag\\\" -\\}}(?<currentValue>[^\\s]+)\\{\\{- end -\\}}"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
         "/charts/services/templates/postgresql\\.yaml$"
       ],
       "matchStrings": [
