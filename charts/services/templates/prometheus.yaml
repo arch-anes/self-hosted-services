@@ -378,6 +378,8 @@ spec:
           root_url: https://grafana.{{ .Values.fqdn }}
           domain: grafana.{{ .Values.fqdn }}
           serve_from_sub_path: true
+        plugins:
+          preinstall_auto_update: "false"
       ingress:
         enabled: true
         annotations:
