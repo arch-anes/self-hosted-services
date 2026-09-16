@@ -230,6 +230,11 @@ spec:
         spec:
           refreshPolicy: CreatedOnce
           target:
+            template:
+              engineVersion: v2
+              mergePolicy: Merge
+              data:
+                authentik-blueprint-refresh.yaml: {{ include "authentik.blueprint.secretRefresh" (dict "blueprintName" "Home Assistant OAuth2 Provider") | quote }}
             creationPolicy: Owner
             deletionPolicy: Retain
             name: home-assistant-oidc

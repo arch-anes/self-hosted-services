@@ -23,6 +23,20 @@
   {{- printf "dc=%s" (join ",dc=" (splitList "." $d)) -}}
 {{- end -}}
 
+{{- define "authentik.blueprint.secretRefresh" -}}
+version: 1
+metadata:
+  name: Reapply {{ .blueprintName }}
+  labels:
+    blueprints.goauthentik.io/secret-hash: '{{ "{{" }} . | toJson | sha256sum {{ "}}" }}'
+entries:
+  meta:
+    - model: authentik_blueprints.metaapplyblueprint
+      identifiers:
+        name: {{ .blueprintName }}
+      required: false
+{{- end -}}
+
 {{- define "ip.proxy_ranges" -}}
   {{- concat .Values.localIpv4Ranges .Values.localIpv6Ranges .Values.cloudFlareIpRanges | toYaml }}
 {{- end -}}

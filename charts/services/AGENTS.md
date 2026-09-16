@@ -89,6 +89,10 @@ Implement the shared-service choices in the root guide as follows:
   them through `extraManifests`.
 - TrueCharts and TrueForge integrations MAY provide Authentik blueprints
   through ConfigMap values.
+- Blueprints that read Secret values with `!File` MUST have a Secret-mounted
+  trigger blueprint whose content changes with the Secret and uses
+  `authentik_blueprints.metaapplyblueprint` to re-apply the main blueprint.
+  Authentik hashes the blueprint YAML file, not files referenced by `!File`.
 - You MUST use the `ldap.base_dn` helper when LDAP is required.
 
 ## 5. Secrets and Database Connectivity

@@ -17,6 +17,7 @@ data:
   metrics_enabled: {{ include "metrics.enabled" . | quote }}
   metrics_enabled_value: {{ include "metrics.enabled" . | default false | quote }}
   ldap_base_dn: {{ include "ldap.base_dn" . | quote }}
+  authentik_blueprint_secret_refresh: {{ include "authentik.blueprint.secretRefresh" (dict "blueprintName" "Test Blueprint") | quote }}
   ha_enabled: {{ include "ha.enabled" . | quote }}
   ha_enabled_value: {{ include "ha.enabled" . | default false | quote }}
   ha_replicas: {{ include "ha.replicas" . | quote }}

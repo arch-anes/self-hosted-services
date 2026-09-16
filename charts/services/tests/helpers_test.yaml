@@ -136,6 +136,24 @@ tests:
           path: data\.ldap_base_dn
           value: "dc=example,dc=org"
 
+  # ----- authentik.blueprint.secretRefresh -----
+  - it: builds a hashed trigger that applies the named blueprint
+    asserts:
+      - equal:
+          path: data\.authentik_blueprint_secret_refresh
+          value: |-
+            version: 1
+            metadata:
+              name: Reapply Test Blueprint
+              labels:
+                blueprints.goauthentik.io/secret-hash: '{{ . | toJson | sha256sum }}'
+            entries:
+              meta:
+                - model: authentik_blueprints.metaapplyblueprint
+                  identifiers:
+                    name: Test Blueprint
+                  required: false
+
   # ----- ha.enabled / ha.replicas -----
   - it: ha.enabled returns "true" when highAvailability is true
     set:

@@ -194,6 +194,11 @@ spec:
         spec:
           refreshPolicy: CreatedOnce
           target:
+            template:
+              engineVersion: v2
+              mergePolicy: Merge
+              data:
+                authentik-blueprint-refresh.yaml: {{ include "authentik.blueprint.secretRefresh" (dict "blueprintName" "Odoo Blueprint") | quote }}
             creationPolicy: Owner
             deletionPolicy: Retain
             name: odoo

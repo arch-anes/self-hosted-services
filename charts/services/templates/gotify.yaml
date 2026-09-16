@@ -140,6 +140,11 @@ spec:
         spec:
           refreshPolicy: CreatedOnce
           target:
+            template:
+              engineVersion: v2
+              mergePolicy: Merge
+              data:
+                authentik-blueprint-refresh.yaml: {{ include "authentik.blueprint.secretRefresh" (dict "blueprintName" "Gotify OAuth2 Provider") | quote }}
             name: gotify
             creationPolicy: Owner
             deletionPolicy: Retain
