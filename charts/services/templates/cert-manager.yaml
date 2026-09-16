@@ -1,14 +1,16 @@
 {{- if .Values.primaryTenant }}
-# ---
+---
 # apiVersion: v1
 # kind: Secret
 # metadata:
 #   name: "{{ .Values.fqdn }}-cloudflare"
 #   namespace: "{{ .Values.applicationsNamespace }}"
+#   {{- if .Values.primaryTenant }}
 #   annotations:
 #     reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
 #     reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
 #     reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kube-system"
+#   {{- end }}
 # type: Opaque
 # stringData:
 #   token: "sometoken"
