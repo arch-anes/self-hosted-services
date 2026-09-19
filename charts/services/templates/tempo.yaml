@@ -39,6 +39,12 @@ spec:
             secretKeyRef:
               name: tempo
               key: secretKey
+        - name: AWS_REQUEST_CHECKSUM_CALCULATION
+          value: WHEN_REQUIRED
+        - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+          value: WHEN_REQUIRED
+        - name: AWS_S3_USE_PATH_STYLE_ENDPOINT
+          value: "true"
       storage:
         trace:
           backend: s3
@@ -47,6 +53,7 @@ spec:
             endpoint: minio.{{ .Values.applicationsNamespace }}.svc.cluster.local
             region: us-east-1
             insecure: true
+            forcepathstyle: true
       retention: 8760h # 1 year
       resources:
         requests:

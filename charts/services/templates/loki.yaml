@@ -39,6 +39,12 @@ spec:
             secretKeyRef:
               name: loki
               key: secretKey
+        - name: AWS_REQUEST_CHECKSUM_CALCULATION
+          value: WHEN_REQUIRED
+        - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+          value: WHEN_REQUIRED
+        - name: AWS_S3_USE_PATH_STYLE_ENDPOINT
+          value: "true"
     lokiCanary:
       enabled: false
     test:
@@ -85,6 +91,12 @@ spec:
             secretKeyRef:
               name: loki
               key: secretKey
+        - name: AWS_REQUEST_CHECKSUM_CALCULATION
+          value: WHEN_REQUIRED
+        - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+          value: WHEN_REQUIRED
+        - name: AWS_S3_USE_PATH_STYLE_ENDPOINT
+          value: "true"
       persistence:
         enabled: true
         size: 20Gi
