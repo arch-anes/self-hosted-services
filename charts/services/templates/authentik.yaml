@@ -15,6 +15,8 @@ spec:
   forceConflicts: true
   values:
     global:
+      deploymentAnnotations:
+        secret.reloader.stakater.com/reload: "postgresql-pguser-authentik,smtp"
       env:
         - name: AUTHENTIK_COOKIE_DOMAIN
           value: "{{ .Values.fqdn }}"
@@ -81,8 +83,6 @@ spec:
       nodeSelector:
         kubernetes.io/arch: amd64
     server:
-      deploymentAnnotations:
-        reloader.stakater.com/auto: "true"
       replicas: {{ include "ha.replicas" . }}
       resources:
         requests:
@@ -107,8 +107,6 @@ spec:
         serviceMonitor:
           enabled: {{ include "metrics.enabled" . | default false }}
     worker:
-      deploymentAnnotations:
-        reloader.stakater.com/auto: "true"
       resources:
         requests:
           memory: {{ include "app.resources.memory" (list $ "512Mi") }}
