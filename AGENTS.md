@@ -67,7 +67,16 @@ continue to apply; this root guide takes precedence if instructions conflict.
 - Preserve existing user changes and do not stage or commit them as part of
   your work.
 
-### 3.2 Continuous Improvement
+### 3.2 Commit Messages
+
+- All commits MUST follow the Conventional Commits format:
+  `<type>[optional scope]: <description>`.
+- The type MUST be one of `build`, `chore`, `ci`, `docs`, `feat`, `fix`,
+  `perf`, `refactor`, `revert`, `style`, or `test`.
+- Breaking changes MUST use `!` after the type or scope and include a
+  `BREAKING CHANGE:` footer that describes the migration required.
+
+### 3.3 Continuous Improvement
 
 When a task reveals a durable repository pattern or pitfall, you SHOULD update
 the applicable guide. Unless guide maintenance is part of the requested task,
