@@ -482,6 +482,8 @@ spec:
         metadata:
           name: alertmanager-gotify-bridge
           namespace: kube-system
+          annotations:
+            reloader.stakater.com/auto: "true"
         spec:
           replicas: 1
           selector:

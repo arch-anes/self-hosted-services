@@ -19,8 +19,6 @@ spec:
       - kube-system
       {{- end }}
     replicaCount: {{ include "ha.replicas" . }}
-    podAnnotations:
-      reloader.stakater.com/auto: "true"
     resources:
       requests:
         memory: {{ include "app.resources.memory" (list $ "32Mi") }}

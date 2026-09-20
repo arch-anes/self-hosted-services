@@ -18,6 +18,10 @@ spec:
   values:
     global:
       domain: argo.{{ .Values.fqdn }}
+      deploymentAnnotations:
+        reloader.stakater.com/auto: "true"
+      statefulsetAnnotations:
+        reloader.stakater.com/auto: "true"
     configs:
       params:
         server.insecure: true

@@ -27,6 +27,9 @@ spec:
   forceConflicts: true
   values:
     server:
+      statefulSet:
+        annotations:
+          reloader.stakater.com/auto: "true"
       env:
         WOODPECKER_HOST: "https://ci.{{ .Values.fqdn }}"
         # WOODPECKER_OPEN: "true"

@@ -18,9 +18,14 @@ spec:
       existingSecret: redis
       existingSecretPasswordKey: redis-password
     architecture: replication
+    master:
+      annotations:
+        reloader.stakater.com/auto: "true"
     rbac:
       create: true
     replica:
+      annotations:
+        reloader.stakater.com/auto: "true"
       replicaCount: {{ include "ha.replicas" . }}
       persistence:
         enabled: true

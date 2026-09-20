@@ -37,8 +37,6 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
-    deploymentAnnotations:
-      reloader.stakater.com/auto: "true"
     existingSecret: idrac-exporter-config
     resources:
       limits:

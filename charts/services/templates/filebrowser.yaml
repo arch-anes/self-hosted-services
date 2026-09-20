@@ -14,8 +14,6 @@ spec:
   values:
     workload:
       main:
-        annotations:
-          reloader.stakater.com/auto: "true"
         podSpec:
           nodeSelector:
             nas: "true"

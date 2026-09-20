@@ -18,6 +18,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    commonAnnotations:
+      reloader.stakater.com/auto: "true"
     loginRequired: true
     housekeeping:
       resources:

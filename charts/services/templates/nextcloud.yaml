@@ -29,6 +29,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    deploymentAnnotations:
+      reloader.stakater.com/auto: "true"
     podAnnotations:
       backup.velero.io/backup-volumes: nextcloud-main
     image:

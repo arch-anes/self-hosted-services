@@ -95,8 +95,6 @@ spec:
         mountPath: /etc/traefik/secrets/crowdsec/
         type: secret
     deployment:
-      annotations:
-        reloader.stakater.com/auto: "true"
       initContainers:
         - name: wait-for-network
           image: busybox:1

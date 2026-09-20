@@ -62,6 +62,8 @@ spec:
       nodeSelector:
         public: "true"
     lapi:
+      deployAnnotations:
+        reloader.stakater.com/auto: "true"
       persistentVolume:
         data:
           enabled: true

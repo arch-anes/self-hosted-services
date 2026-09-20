@@ -43,6 +43,8 @@ spec:
     {{- end }}
     workload:
       main:
+        annotations:
+          reloader.stakater.com/auto: "true"
         podSpec:
           containers:
             main:
@@ -78,6 +80,8 @@ spec:
               value: "ai"
               effect: "NoSchedule"
       embeddings:
+        annotations:
+          reloader.stakater.com/auto: "true"
         podSpec:
           containers:
             embeddings:

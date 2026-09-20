@@ -56,8 +56,6 @@ spec:
         memory: 1Gi
     credentials:
       existingSecret: velero-backup-credentials
-    annotations:
-      reloader.stakater.com/auto: "true"
     snapshotsEnabled: false # rancher/local-path-provisionner does not support snapshots
     deployNodeAgent: true
     nodeAgent:

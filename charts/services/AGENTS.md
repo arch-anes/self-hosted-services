@@ -43,11 +43,35 @@ This guide applies to the `charts/services` subtree. Follow the repository-wide
 
 ### 3.1 Reloads and Resources
 
-- You MUST add `reloader.stakater.com/auto: "true"` to Deployments, StatefulSets,
-  and DaemonSets whose environment-variable configuration comes from a
-  ConfigMap or Secret.
+- You MUST add a workload-level Reloader annotation to Deployments,
+  StatefulSets, and DaemonSets whose running containers receive configuration
+  through a ConfigMap or Secret environment variable. Use
+  `reloader.stakater.com/auto: "true"` by default. Use a narrower
+  `secret.reloader.stakater.com/*` or `configmap.reloader.stakater.com/*`
+  annotation only when the triggering resources are intentionally limited.
+- You MUST audit each rendered workload, not only the source template file.
+  Upstream charts can create several workloads from one HelmChart, and OCI
+  chart references must be matched to their chart cache by the final path
+  component. Check every rendered Deployment, StatefulSet, and DaemonSet for
+  environment and `envFrom` references before deciding whether an annotation
+  is needed.
+- You MUST confirm that a referenced ConfigMap or Secret is used by the
+  running application. Do not add Reloader for environment variables that an
+  inherited chart value passes to a component but the component does not use,
+  or for a Secret used only by a registration or setup init container when it
+  is not runtime configuration.
 - You SHOULD NOT add Reloader solely for file-mounted ConfigMaps or Secrets.
   Kubernetes updates those files automatically, and a restart is unnecessary.
+- You MUST verify that the selected upstream chart value renders the
+  annotation on workload metadata. Do not add unsupported values such as
+  `server.annotations` when the chart ignores them. If an upstream chart
+  consumes Secret environment variables but exposes no workload annotation
+  value, record it as an upstream limitation and use an upstream fix or a
+  maintained chart fork rather than an ineffective override.
+- Dedicated unit tests are not required for simple values-only Reloader
+  annotation changes. Validate the rendered workload and run the standard
+  chart checks; retain unit tests for helper logic or other behavior that
+  cannot be verified from rendered output.
 - You MUST NOT set CPU limits. For TrueCharts or TrueForge charts, explicitly
   set the CPU limit to `null`. See [Stop using CPU limits][cpu-limits] for the
   rationale.

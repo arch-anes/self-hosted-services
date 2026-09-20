@@ -125,8 +125,6 @@ spec:
     image:
       repository: ghcr.io/arch-anes/ipmi-exporter-linux-amd64
       tag: "master"
-    additionalAnnotations:
-      reloader.stakater.com/auto: "true"
     configSecret:
       enabled: true
       name: ipmi-exporter

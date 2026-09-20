@@ -26,6 +26,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    annotations:
+      reloader.stakater.com/auto: "true"
     tempo:
       reportingEnabled: false
       extraEnv:

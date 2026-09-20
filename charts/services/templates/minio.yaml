@@ -58,6 +58,9 @@ spec:
   values:
     tenant:
       name: minio
+      poolsMetadata:
+        annotations:
+          reloader.stakater.com/auto: "true"
       image:
         repository: pgsty/silo
         tag: RELEASE.2026-09-16T00-00-00Z

@@ -50,6 +50,8 @@ spec:
     test:
       enabled: false
     loki:
+      annotations:
+        reloader.stakater.com/auto: "true"
       auth_enabled: false
       commonConfig:
         replication_factor: 1

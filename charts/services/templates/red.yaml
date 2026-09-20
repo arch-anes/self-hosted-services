@@ -24,6 +24,8 @@ spec:
   values:
     workload:
       main:
+        annotations:
+          reloader.stakater.com/auto: "true"
         podSpec:
           annotations:
             backup.velero.io/backup-volumes: data
