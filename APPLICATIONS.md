@@ -10,7 +10,7 @@ This page is the operational reference. It lists the included applications and o
 | --- | --- |
 | Core platform | Traefik, cert-manager, Descheduler, ddclient, External Secrets, Reflector, Reloader, Node Feature Discovery, Local Path Provisioner |
 | Identity and delivery | Authentik, CrowdSec, Argo CD |
-| Media | Jellyfin, Jellyseerr, Sonarr, Radarr, Bazarr, Prowlarr, Tdarr, Tracearr, LazyLibrarian, Transmission, Unpackerr, JOAL, FlareSolverr, Gluetun |
+| Media | Jellyfin, Jellyseerr, Sonarr, Radarr, Bazarr, Prowlarr, Tdarr, Tracearr, Chaptarr, Transmission, Unpackerr, JOAL, FlareSolverr, Gluetun |
 | Storage and home | Immich, Nextcloud, Filebrowser, MinIO, ArchiveBox, Home Assistant, n8n, Mosquitto |
 | Monitoring and notifications | Gotify, Miniflux, Speedtest Tracker, Epic Games Free Games, Wakapi |
 | Operations | NetBox, Homebox, Odoo, PostgreSQL, pgAdmin4, Redis, Redis Insight, Headlamp, Homer Operator |
@@ -39,7 +39,7 @@ highAvailability: false  # Set to false to use 1 replica instead of 3
 
 ### Media
 
-- **Jellyfin, Jellyseerr, Bazarr, Prowlarr, Radarr, Sonarr, Tdarr, Tracearr, and LazyLibrarian:** Open the relevant `https://<service>.<your-domain>` address for its first-run configuration.
+- **Jellyfin, Jellyseerr, Bazarr, Prowlarr, Radarr, Sonarr, Tdarr, Tracearr, and Chaptarr:** Open the relevant `https://<service>.<your-domain>` address for its first-run configuration.
 - **Arr stack:** Configure the [Arr secret](charts/services/templates/arr.yaml) with API keys. Add Tdarr's API key to the same secret.
 - **Transmission:** Configure the [Transmission secret](charts/services/templates/transmission.yaml) with credentials.
 - **JOAL:** Configure the [JOAL secret](charts/services/templates/joal.yaml) with an access token.

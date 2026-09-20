@@ -13,6 +13,7 @@
 #   # Generate 32 characters key: openssl rand -hex 16
 #   sonarr_api_key: "some_key"
 #   bazarr_api_key: "some_key"
+#   chaptarr_api_key: "some_key"
 #   bazarr_admin_password_hash: "some_pass_hash"
 #   betaseries_api_key: "some_key"
 #   anidb_api_client: "some_client"

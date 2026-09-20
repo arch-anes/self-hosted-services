@@ -512,6 +512,15 @@ spec:
               databases:
                 - bazarr
             {{- end }}
+            {{- if (include "app.enabled" (list . "chaptarr")) }}
+            - name: chaptarr
+              password:
+                type: AlphaNumeric
+              databases:
+                - chaptarr-main
+                - chaptarr-log
+                - chaptarr-cache
+            {{- end }}
             {{- if (include "app.enabled" (list . "gotify")) }}
             - name: gotify
               password:

@@ -102,6 +102,8 @@ applications:
   #   enabled: true
   blackbox_exporter: {}
   #   enabled: true
+  chaptarr: {}
+  #   enabled: true
   crowdsec: {}
   #   enabled: true
   ddclient: {}
@@ -147,8 +149,6 @@ applications:
   jellyseerr: {}
   #   enabled: true
   joal: {}
-  #   enabled: true
-  lazylibrarian: {}
   #   enabled: true
   llama_cpp:
     # enabled: true

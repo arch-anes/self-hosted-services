@@ -1,14 +1,15 @@
-{{- if (include "app.enabled" (list . "radarr")) }}
-{{- include "app.require" (list . "Radarr" "postgresql" "PostgreSQL") -}}
+{{- if (include "app.enabled" (list . "chaptarr")) }}
+{{- include "app.require" (list . "Chaptarr" "postgresql" "PostgreSQL") -}}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
-  name: radarr
+  name: chaptarr
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
-  chart: oci://oci.trueforge.org/truecharts/radarr
-  version: 27.13.1
+  chart: chaptarr
+  repo: https://arch-anes.github.io/charts
+  version: 0.1.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   serverSide: "true"
   forceConflicts: true
@@ -18,6 +19,8 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         podSpec:
+          nodeSelector:
+            nas: "true"
           affinity:
             podAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
@@ -28,26 +31,29 @@ spec:
                         values:
                           - jellyfin
                   topologyKey: "kubernetes.io/hostname"
+          annotations:
+            backup.velero.io/backup-volumes: multimedia
           containers:
             main:
               env:
-                RADARR__APP__THEME: dark
-                RADARR__AUTH__METHOD: Forms
-                RADARR__AUTH__REQUIRED: Enabled
-                RADARR__POSTGRES__HOST: postgresql-primary
-                RADARR__POSTGRES__PORT: "5432"
-                RADARR__POSTGRES__MAINDB: radarr_main
-                RADARR__POSTGRES__LOGDB: radarr_log
-                RADARR__POSTGRES__USER: radarr
-                RADARR__AUTH__APIKEY:
+                CHAPTARR__APP__THEME: dark
+                CHAPTARR__AUTH__METHOD: Forms
+                CHAPTARR__AUTH__REQUIRED: Enabled
+                CHAPTARR__POSTGRES__HOST: postgresql-primary
+                CHAPTARR__POSTGRES__PORT: "5432"
+                CHAPTARR__POSTGRES__MAINDB: chaptarr-main
+                CHAPTARR__POSTGRES__LOGDB: chaptarr-log
+                CHAPTARR__POSTGRES__CACHEDB: chaptarr-cache
+                CHAPTARR__POSTGRES__USER: chaptarr
+                CHAPTARR__POSTGRES__PASSWORD:
+                  secretKeyRef:
+                    name: postgresql-pguser-chaptarr
+                    key: password
+                    expandObjectName: false
+                CHAPTARR__AUTH__APIKEY:
                   secretKeyRef:
                     name: arr
-                    key: radarr_api_key
-                    expandObjectName: false
-                RADARR__POSTGRES__PASSWORD:
-                  secretKeyRef:
-                    name: postgresql-pguser-radarr
-                    key: password
+                    key: chaptarr_api_key
                     expandObjectName: false
                 PGSSLMODE: verify-full
                 PGSSLROOTCERT: /etc/postgres/tls/ca.crt
@@ -58,7 +64,7 @@ spec:
                 API_KEY:
                   secretKeyRef:
                     name: arr
-                    key: radarr_api_key
+                    key: chaptarr_api_key
                     expandObjectName: false
     resources:
       requests:
@@ -75,15 +81,16 @@ spec:
         enabled: true
         annotations:
           homer.service.name: Arr
-          homer.item.logo: "https://raw.githubusercontent.com/Radarr/Radarr/e4429d2919f73d8ffd1389614c74e58b9a447c50/Logo/256.png"
+          homer.item.name: Chaptarr
+          homer.item.logo: "https://raw.githubusercontent.com/Chaptarr/chaptarr/develop/Logo/chaptarr.png"
         hosts:
-          - host: radarr.{{ .Values.fqdn }}
+          - host: chaptarr.{{ .Values.fqdn }}
             paths:
               - path: /
         tls:
           - secretName: "{{ .Values.fqdn }}-tls"
             hosts:
-              - radarr.{{ .Values.fqdn }}
+              - chaptarr.{{ .Values.fqdn }}
     persistence:
       postgresql-certs:
         enabled: true
