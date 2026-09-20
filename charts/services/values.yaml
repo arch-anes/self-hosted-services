@@ -86,8 +86,6 @@ applications:
   #   enabled: true
   archivebox: {}
   #   enabled: true
-  blackbox_exporter: {}
-  #   enabled: true
   argo:
     # enabled: true
     # The git repository out of which to continuously deploy
@@ -101,6 +99,8 @@ applications:
   authentik: {}
   #   enabled: true
   bazarr: {}
+  #   enabled: true
+  blackbox_exporter: {}
   #   enabled: true
   crowdsec: {}
   #   enabled: true
@@ -221,12 +221,12 @@ applications:
   #   enabled: true
   sonarr: {}
   #   enabled: true
+  sparkyfitness: {}
+  #   enabled: true
   speedtest_tracker:
     # enabled: true
     dashboard:
       enabled: true
-  sparkyfitness: {}
-  #   enabled: true
   stalwart: {}
   #   enabled: true
   tdarr: {}
