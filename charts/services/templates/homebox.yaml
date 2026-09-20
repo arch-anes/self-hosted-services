@@ -27,6 +27,7 @@ spec:
                     key: api_key_pepper
                     expandObjectName: false
                 HBOX_OPTIONS_TRUST_PROXY: "true"
+                HBOX_OPTIONS_GITHUB_RELEASE_CHECK: "false"
                 {{- if (include "app.enabled" (list . "authentik")) }}
                 HBOX_OIDC_ENABLED: "true"
                 HBOX_OIDC_AUTO_REDIRECT: "true"
