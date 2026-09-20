@@ -59,7 +59,10 @@ continue to apply; this root guide takes precedence if instructions conflict.
 
 ### 3.1 Scope and Git Workflow
 
-- You MUST use a dedicated git worktree for each new task.
+- You MUST use a dedicated git worktree for each new task by default. If the
+  user explicitly asks you to make the change directly on a branch, do not
+  create or use a worktree. The user may override the worktree default at any
+  time.
 - You MUST keep each change focused on one feature or fix. Do not include
   opportunistic cleanup or unrelated edits.
 - If a refactor is necessary, perform it as a separate step and commit before
