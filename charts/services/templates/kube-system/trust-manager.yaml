@@ -1,0 +1,29 @@
+{{- if .Values.primaryTenant }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: trust-manager
+  namespace: kube-system
+spec:
+  chart: trust-manager
+  repo: https://charts.jetstack.io
+  version: v0.25.0
+  targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
+  values:
+    app:
+      trust:
+        namespace: kube-system
+      metrics:
+        service:
+          servicemonitor:
+            enabled: {{ include "metrics.enabled" . | default false }}
+    resources:
+      requests:
+        cpu: {{ include "app.resources.cpu" (list $ "50m") }}
+        memory: {{ include "app.resources.memory" (list $ "64Mi") }}
+      limits:
+        memory: 128Mi
+{{- end }}
