@@ -90,6 +90,7 @@ provisioner:
           chartValuesOverrides:
             enableAllApplicationsByDefault: false
             highAvailability: false
+            primaryTenant: true
       k3s_cluster:
         hosts:
           replica1:
