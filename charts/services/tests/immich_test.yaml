@@ -1,6 +1,6 @@
 suite: immich
 templates:
-  - immich.yaml
+  - applications/immich.yaml
 set:
   enableAllApplicationsByDefault: false
   applications:

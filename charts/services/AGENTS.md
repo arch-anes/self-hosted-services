@@ -5,8 +5,10 @@ This guide applies to the `charts/services` subtree. Follow the repository-wide
 
 ## 1. Chart and Resource Layout
 
-- You MUST keep each application's resources in one file:
-  `templates/<app_name>.yaml`.
+- You MUST keep each application's resources in one file under the directory
+  matching its ownership and lifecycle:
+  `templates/{kube-system,platform,applications}/<app_name>.yaml`.
+- Shared helpers and test fixtures MAY remain directly under `templates/`.
 - You MUST use structured YAML objects under `spec.values` for value overrides.
   You MUST NOT use `valuesContent`.
 - You SHOULD prefer the k3s-native `HelmChart` CRD over plain Kubernetes
