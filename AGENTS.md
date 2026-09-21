@@ -102,7 +102,41 @@ leave that change unstaged and uncommitted for user review.
 - You MUST deploy application charts and isolated service instances, including
   `PostgresCluster` and MinIO `tenant` resources, once per tenant.
 
-### 4.3 Shared Services
+### 4.3 Namespace Placement
+
+Use the following rules when choosing a namespace for a resource or Helm
+release:
+
+- **`kube-system`:** Use only for Kubernetes components, node-level
+  daemons, and cluster-wide add-ons that are part of the cluster itself. This
+  includes cert-manager, trust-manager, External Secrets, device plugins, node
+  feature detection, node problem detection, descheduler, and similar system
+  components. Do not place shared application services here.
+- **`platform`:** Use for shared services and operators owned by the primary
+  tenant. This includes ingress, GitOps, observability, backup, security,
+  shared storage, and operators that manage shared or tenant resources, such
+  as the MinIO Operator and PGO. The `platform` namespace
+  is shared by multiple tenants, but MUST be created and managed only by the
+  primary tenant.
+- **Application namespace:** Use `.Values.applicationsNamespace` for
+  tenant-owned workloads and isolated service instances. This includes
+  application charts, Redis, MinIO `tenant` resources, `PostgresCluster`
+  resources, and their Secrets, ConfigMaps, Services, and monitoring objects.
+  These resources MUST remain isolated per tenant.
+
+When a HelmChart deploys a platform service, its `metadata.namespace` and
+`spec.targetNamespace` MUST both be `platform`. When it deploys a system
+component, both MUST normally be `kube-system`. Keep the HelmChart custom
+resource in the same namespace as the release unless the controller requires
+another placement and the reason is documented. A controller's namespace and
+the namespace of the resources it manages are separate decisions.
+
+Before moving a resource between namespaces, update all namespaced support
+objects and references, including Secrets, ConfigMaps, ServiceAccounts,
+monitoring objects, service DNS names, and Traefik middleware names.
+Kubernetes objects cannot be renamed between namespaces.
+
+### 4.4 Shared Services
 
 You MUST use the following platform services whenever the application supports
 them, except where a scoped guide gives more specific implementation details:

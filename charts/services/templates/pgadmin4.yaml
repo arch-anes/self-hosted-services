@@ -1,11 +1,11 @@
-{{- if (include "app.enabled" (list . "pgadmin4")) }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "pgadmin4")) }}
 {{- include "app.require" (list . "pgAdmin4" "postgresql" "PostgreSQL") -}}
 # ---
 # apiVersion: v1
 # kind: Secret
 # metadata:
 #   name: pgadmin4
-#   namespace: "{{ .Values.applicationsNamespace }}"
+#   namespace: platform
 # type: Opaque
 # stringData:
 #   password: "somepassword"
@@ -15,12 +15,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: pgadmin4
-  namespace: "{{ .Values.applicationsNamespace }}"
+  namespace: platform
 spec:
   chart: pgadmin4
   repo: https://helm.runix.net
   version: 1.66.0
-  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:
@@ -38,7 +38,7 @@ spec:
             name: postgresql-pguser-pgadmin4
             key: password
       - name: PGADMIN_CONFIG_CONFIG_DATABASE_URI
-        value: '"postgresql://pgadmin4:$(DATABASE_PASSWORD)@postgresql-primary:5432/pgadmin4"'
+        value: '"postgresql://pgadmin4:$(DATABASE_PASSWORD)@postgresql-primary.{{ .Values.applicationsNamespace }}.svc.cluster.local:5432/pgadmin4"'
     extraVolumes:
       - name: postgresql-certs
         secret:
@@ -55,7 +55,7 @@ spec:
         homer.service.name: Administration
         homer.item.name: pgAdmin4
         homer.item.logo: "https://www.pgadmin.org/static/docs/pgadmin4-dev/docs/en_US/_build/html/_images/logo-right-128.png"
-        traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
+        traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
       hosts:
         - host: pgadmin4.{{ .Values.fqdn }}
           paths:

@@ -5,11 +5,11 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: postgres-operator
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: oci://registry.developers.crunchydata.com/crunchydata/pgo
   version: 6.0.3
-  targetNamespace: kube-system
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:
@@ -33,12 +33,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: postgresql-monitoring
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: generic
   repo: https://arch-anes.github.io/charts
   version: 0.2.1
-  targetNamespace: kube-system
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:
@@ -61,12 +61,12 @@ spec:
         subjects:
           - kind: ServiceAccount
             name: prometheus-kube-prometheus-prometheus
-            namespace: kube-system
+            namespace: platform
       - apiVersion: v1
         kind: Secret
         metadata:
           name: prometheus-pgo-metrics-token
-          namespace: kube-system
+          namespace: platform
           annotations:
             kubernetes.io/service-account.name: prometheus-kube-prometheus-prometheus
         type: kubernetes.io/service-account-token
@@ -74,7 +74,7 @@ spec:
         kind: PrometheusRule
         metadata:
           name: crunchy-postgres-rules
-          namespace: kube-system
+          namespace: platform
         spec:
           groups:
             - name: crunchy-postgres
@@ -282,7 +282,7 @@ spec:
         kind: PodMonitor
         metadata:
           name: pgo-metrics
-          namespace: kube-system
+          namespace: platform
           labels:
             app: postgres-operator
         spec:
@@ -305,7 +305,7 @@ spec:
         kind: PodMonitor
         metadata:
           name: crunchy-postgres-exporter
-          namespace: kube-system
+          namespace: platform
         spec:
           namespaceSelector:
             any: true
@@ -598,7 +598,7 @@ spec:
               databases:
                 - open-webui
             {{- end }}
-            {{- if (include "app.enabled" (list . "pgadmin4")) }}
+            {{- if and .Values.primaryTenant (include "app.enabled" (list . "pgadmin4")) }}
             - name: pgadmin4
               password:
                 type: AlphaNumeric

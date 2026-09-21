@@ -342,7 +342,7 @@ spec:
             log-exporter: false
             span-exporter: {{ include "app.enabled" (list . "tempo") | default false }}
           transport: http
-          endpoint: http://tempo.kube-system.svc.cluster.local:4318/v1/traces
+          endpoint: http://tempo.platform.svc.cluster.local:4318/v1/traces
       metrics:
         prometheus:
           enable: {{ include "metrics.enabled" . | default false }}

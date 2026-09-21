@@ -4,12 +4,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: haproxy-metrics
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: generic
   repo: https://arch-anes.github.io/charts
   version: 0.2.1
-  targetNamespace: kube-system
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:
@@ -18,7 +18,7 @@ spec:
         kind: ScrapeConfig
         metadata:
           name: haproxy
-          namespace: kube-system
+          namespace: platform
         spec:
           jobName: haproxy
           staticConfigs:

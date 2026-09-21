@@ -6,7 +6,7 @@
 # kind: Secret
 # metadata:
 #   name: tempo
-#   namespace: kube-system
+#   namespace: platform
 # type: Opaque
 # stringData:
 #   accessKey: "some_key"
@@ -17,12 +17,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: tempo
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: tempo
   repo: https://grafana-community.github.io/helm-charts
   version: 3.0.0
-  targetNamespace: kube-system
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:

@@ -4,7 +4,7 @@
 # kind: Secret
 # metadata:
 #   name: prometheus
-#   namespace: kube-system
+#   namespace: platform
 # type: Opaque
 # stringData:
 #   grafana-admin-user: "someuser"
@@ -16,12 +16,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: prometheus
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: kube-prometheus-stack
   repo: https://prometheus-community.github.io/helm-charts
   version: 91.1.0
-  targetNamespace: kube-system
+  targetNamespace: platform
   bootstrap: true
   serverSide: "true"
   forceConflicts: true
@@ -79,7 +79,7 @@ spec:
           - name: 'null'
           - name: 'gotify'
             webhook_configs:
-              - url: "http://alertmanager-gotify-bridge.kube-system.svc.cluster.local:8080/gotify_webhook"
+              - url: "http://alertmanager-gotify-bridge.platform.svc.cluster.local:8080/gotify_webhook"
                 send_resolved: false
     {{- end }}
     grafana:
@@ -386,7 +386,7 @@ spec:
           homer.service.name: Monitoring
           homer.item.name: Grafana
           homer.item.logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Grafana_logo.svg/1920px-Grafana_logo.svg.png"
-          traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
         hosts:
           - grafana.{{ .Values.fqdn }}
         tls:
@@ -395,7 +395,7 @@ spec:
               - grafana.{{ .Values.fqdn }}
       persistence:
         enabled: true
-        storageClassName: local-path-persistent
+        storageClassName: local-path-persistent-namespaced
         accessModes:
           - ReadWriteOnce
         size: 20Gi
@@ -481,7 +481,7 @@ spec:
         kind: Deployment
         metadata:
           name: alertmanager-gotify-bridge
-          namespace: kube-system
+          namespace: platform
           annotations:
             reloader.stakater.com/auto: "true"
         spec:
@@ -519,7 +519,7 @@ spec:
         kind: Service
         metadata:
           name: alertmanager-gotify-bridge
-          namespace: kube-system
+          namespace: platform
         spec:
           selector:
             app: alertmanager-gotify-bridge

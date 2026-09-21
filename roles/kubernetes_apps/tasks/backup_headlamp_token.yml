@@ -5,7 +5,7 @@
   run_once: true
   block:
     - name: Get Headlamp token
-      ansible.builtin.command: "kubectl -n kube-system get secret headlamp-token -o go-template='{{ '{{' }} .data.token | base64decode }}'"
+      ansible.builtin.command: "kubectl -n platform get secret headlamp-token -o go-template='{{ .data.token | base64decode }}'"
       become: true
       changed_when: false
       no_log: true

@@ -754,7 +754,7 @@ spec:
           annotations:
             prometheus.io/probe: "false"
             homer.item.excluded: "true"
-            traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
+            traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
         spec:
           tls:
             - hosts:

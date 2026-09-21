@@ -6,7 +6,7 @@
 # kind: Secret
 # metadata:
 #   name: idrac-exporter-config
-#   namespace: kube-system
+#   namespace: platform
 # type: Opaque
 # stringData:
 #   idrac.yml: |
@@ -28,12 +28,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: idrac-exporter
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: idrac-exporter
   repo: https://mrlhansen.github.io/idrac_exporter
   version: 2.6.3
-  targetNamespace: kube-system
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:

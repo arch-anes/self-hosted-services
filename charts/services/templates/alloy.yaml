@@ -4,12 +4,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: alloy
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: alloy
   repo: https://grafana.github.io/helm-charts
   version: 1.12.1
-  targetNamespace: kube-system
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:

@@ -1,15 +1,15 @@
-{{- if (include "app.enabled" (list . "redis_insight")) }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "redis_insight")) }}
 {{- include "app.require" (list . "Redis Insight" "redis" "Redis") -}}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: redisinsight
-  namespace: "{{ .Values.applicationsNamespace }}"
+  namespace: platform
 spec:
   chart: oci://oci.trueforge.org/truecharts/redisinsight
   version: 12.9.0
-  targetNamespace: "{{ .Values.applicationsNamespace }}"
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:
@@ -22,7 +22,7 @@ spec:
             main:
               env:
                 RI_ACCEPT_TERMS_AND_CONDITIONS: "true"
-                RI_REDIS_HOST: redis-master
+                RI_REDIS_HOST: redis-master.{{ .Values.applicationsNamespace }}.svc.cluster.local
                 RI_REDIS_PASSWORD:
                   secretKeyRef:
                     name: redis
@@ -52,7 +52,7 @@ spec:
           homer.service.name: Administration
           homer.item.name: Redis Insight
           homer.item.logo: "https://raw.githubusercontent.com/RedisInsight/RedisInsight/6622d918f254dd8d46c98cf0ec2ea726e5727a9c/resources/logo.svg"
-          traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd,kube-system-cluster-admin-authentication@kubernetescrd
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd,platform-cluster-admin-authentication@kubernetescrd
         hosts:
           - host: redis.{{ .Values.fqdn }}
             paths:

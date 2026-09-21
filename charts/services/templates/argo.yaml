@@ -6,12 +6,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: argo-cd
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: argo-cd
   repo: https://argoproj.github.io/argo-helm
   version: 10.9.1
-  targetNamespace: kube-system
+  targetNamespace: platform
   takeOwnership: true
   serverSide: "true"
   forceConflicts: true
@@ -40,7 +40,7 @@ spec:
           homer.service.rank: "4"
           homer.item.name: argo
           homer.item.logo: "https://raw.githubusercontent.com/argoproj/argo-cd/4471603de2a8f3e7e0bdfbd9d487468b6b20a354/docs/assets/argo.png"
-          traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
         extraTls:
           - hosts:
               - argo.{{ .Values.fqdn }}
@@ -99,24 +99,26 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: argo-cd-applicationset-{{ .Values.applicationsNamespace }}
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: argocd-apps
   repo: https://argoproj.github.io/argo-helm
   version: 2.0.5
-  targetNamespace: kube-system
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:
     projects:
       self-hosted-services-{{ .Values.applicationsNamespace }}:
-        namespace: kube-system
+        namespace: platform
         description: Project for {{ .Values.applicationsNamespace }}
         sourceRepos:
           - '*'
         destinations:
           - server: https://kubernetes.default.svc
             namespace: {{ .Values.applicationsNamespace }}
+          - server: https://kubernetes.default.svc
+            namespace: platform
           - server: https://kubernetes.default.svc
             namespace: kube-system
         clusterResourceWhitelist:
@@ -128,7 +130,7 @@ spec:
         {{- end }}
     applicationsets:
       self-hosted-services-{{ .Values.applicationsNamespace }}:
-        namespace: kube-system
+        namespace: platform
         goTemplate: true
         goTemplateOptions: ["missingkey=error"]
         generators:
@@ -140,7 +142,7 @@ spec:
         template:
           metadata:
             name: self-hosted-services-{{ .Values.applicationsNamespace }}-cd
-            namespace: kube-system
+            namespace: platform
           spec:
             syncPolicy:
               syncOptions:

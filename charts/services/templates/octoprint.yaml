@@ -73,7 +73,7 @@ spec:
         annotations:
           prometheus.io/probe: "false"
           homer.item.excluded: "true"
-          traefik.ingress.kubernetes.io/router.middlewares: kube-system-cluster-admin-authentication@kubernetescrd
+          traefik.ingress.kubernetes.io/router.middlewares: platform-cluster-admin-authentication@kubernetescrd
         hosts:
           - host: octoprint-webcam.{{ .Values.fqdn }}
             paths:

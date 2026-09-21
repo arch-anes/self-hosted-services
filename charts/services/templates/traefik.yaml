@@ -4,7 +4,7 @@
 # kind: Secret
 # metadata:
 #   name: cluster-admin-credentials
-#   namespace: kube-system
+#   namespace: platform
 # type: Opaque
 # stringData:
 #   credentials: "admin:$2y$12$8KtQ4SQb6QpebcgYvMPjwOv3Jz9ojkNq8FVWZmk5q1BW9BoEX2aAy" # admin:admin by default, bcrypted password: https://bcrypt-generator.com/
@@ -14,12 +14,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: traefik
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: traefik
   repo: https://traefik.github.io/charts
   version: 41.6.0
-  targetNamespace: kube-system
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:
@@ -28,7 +28,7 @@ spec:
         kind: Middleware
         metadata:
           name: cluster-admin-authentication
-          namespace: kube-system
+          namespace: platform
         spec:
           basicAuth:
             secret: "cluster-admin-credentials"
@@ -36,7 +36,7 @@ spec:
         kind: Middleware
         metadata:
           name: traefik-websecure
-          namespace: kube-system
+          namespace: platform
         spec:
           headers:
             browserXssFilter: true
@@ -48,7 +48,7 @@ spec:
         kind: Middleware
         metadata:
           name: traefik-redirect-www
-          namespace: kube-system
+          namespace: platform
         spec:
           redirectRegex:
             regex: ^https?://www\.(.*)
@@ -58,7 +58,7 @@ spec:
         kind: Middleware
         metadata:
           name: intranet-allowlist
-          namespace: kube-system
+          namespace: platform
         spec:
           ipAllowList:
             sourceRange:
@@ -68,7 +68,7 @@ spec:
         kind: Middleware
         metadata:
           name: crowdsec
-          namespace: kube-system
+          namespace: platform
         spec:
           plugin:
             crowdsec-bouncer-traefik-plugin:
@@ -139,7 +139,7 @@ spec:
               labelSelector:
                 matchLabels:
                   app.kubernetes.io/name: traefik
-                  app.kubernetes.io/instance: traefik-kube-system
+                  app.kubernetes.io/instance: traefik-platform
     ingressRoute:
       healthcheck:
         enabled: true
@@ -155,8 +155,8 @@ spec:
           homer.item.logo: "https://raw.githubusercontent.com/traefik/traefik/aa8eb1af6eb5457516169315676ec22f968e727d/webui/public/app-logo-128x128.png"
         matchRule: Host(`traefik.{{ .Values.fqdn }}`)
         middlewares:
-          - name: kube-system-intranet-allowlist@kubernetescrd
-          - name: kube-system-cluster-admin-authentication@kubernetescrd
+          - name: platform-intranet-allowlist@kubernetescrd
+          - name: platform-cluster-admin-authentication@kubernetescrd
         entryPoints:
           - web
           - websecure
@@ -201,10 +201,10 @@ spec:
             readTimeout: 0
         http:
           middlewares:
-            - kube-system-traefik-redirect-www@kubernetescrd
-            - kube-system-traefik-websecure@kubernetescrd
+            - platform-traefik-redirect-www@kubernetescrd
+            - platform-traefik-websecure@kubernetescrd
             {{- if (include "app.enabled" (list . "crowdsec")) }}
-            - kube-system-crowdsec@kubernetescrd
+            - platform-crowdsec@kubernetescrd
             {{- end }}
           tls:
             enabled: true

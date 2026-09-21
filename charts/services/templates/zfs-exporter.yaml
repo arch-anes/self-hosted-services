@@ -5,12 +5,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: zfs-exporter
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: zfs-exporter
   repo: https://arch-anes.github.io/charts
   version: 1.0.1
-  targetNamespace: kube-system
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:

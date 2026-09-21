@@ -4,7 +4,7 @@
 # kind: Secret
 # metadata:
 #   name: velero-backup-credentials
-#   namespace: kube-system
+#   namespace: platform
 # type: Opaque
 # stringData:
 #   cloud: |-
@@ -17,7 +17,7 @@
 # kind: Secret
 # metadata:
 #   name: velero-repo-credentials
-#   namespace: kube-system
+#   namespace: platform
 # type: Opaque
 # stringData:
 #   repository-password: "some-kopia-encryption-key"
@@ -36,12 +36,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: velero
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: velero
   repo: https://vmware-tanzu.github.io/helm-charts
   version: 12.2.0
-  targetNamespace: kube-system
+  targetNamespace: platform
   failurePolicy: abort
   serverSide: "true"
   forceConflicts: true
