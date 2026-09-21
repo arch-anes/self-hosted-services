@@ -33,6 +33,8 @@ spec:
         forceConflicts: true
     prometheus-node-exporter:
       hostNetwork: false
+      podAnnotations:
+        linkerd.io/inject: disabled
       prometheus:
         monitor:
           relabelings:
