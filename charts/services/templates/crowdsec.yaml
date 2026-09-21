@@ -4,7 +4,7 @@
 # kind: Secret
 # metadata:
 #   name: crowdsec
-#   namespace: kube-system
+#   namespace: platform
 # type: Opaque
 # stringData:
 #   enroll_key: "somekey" # Obtainable from https://app.crowdsec.net/security-engines
@@ -15,12 +15,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: crowdsec
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: crowdsec
   repo: https://crowdsecurity.github.io/helm-charts
   version: 0.24.2
-  targetNamespace: kube-system
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:
@@ -41,7 +41,7 @@ spec:
       podAnnotations:
         descheduler.alpha.kubernetes.io/evict: "true"
       acquisition:
-        - namespace: kube-system
+        - namespace: platform
           podName: traefik-*
           program: traefik
       env:

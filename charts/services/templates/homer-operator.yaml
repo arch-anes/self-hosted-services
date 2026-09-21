@@ -16,7 +16,7 @@ spec:
     watchedNamespaces:
       - {{ .Values.applicationsNamespace }}
       {{- if .Values.primaryTenant }}
-      - kube-system
+      - platform
       {{- end }}
     replicaCount: {{ include "ha.replicas" . }}
     resources:

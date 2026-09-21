@@ -5,12 +5,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: prometheus-blackbox-exporter
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: prometheus-blackbox-exporter
   repo: https://prometheus-community.github.io/helm-charts
   version: 11.18.0
-  targetNamespace: kube-system
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:
@@ -51,12 +51,12 @@ spec:
         # https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.Probe
         metadata:
           name: ingress-probe
-          namespace: kube-system
+          namespace: platform
         spec:
           jobName: ingress-probe
           interval: 30s
           prober:
-            url: prometheus-blackbox-exporter.kube-system.svc.cluster.local:9115
+            url: prometheus-blackbox-exporter.platform.svc.cluster.local:9115
           module: http_2xx
           targets:
             ingress:

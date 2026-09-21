@@ -4,12 +4,12 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: headlamp
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: headlamp
   repo: https://kubernetes-sigs.github.io/headlamp/
   version: 0.45.0
-  targetNamespace: kube-system
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:
@@ -30,7 +30,7 @@ spec:
         homer.service.rank: "5"
         homer.item.name: "Headlamp"
         homer.item.logo: "https://headlamp.dev/img/logo.svg"
-        traefik.ingress.kubernetes.io/router.middlewares: kube-system-intranet-allowlist@kubernetescrd
+        traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
       hosts:
         - host: headlamp.{{ .Values.fqdn }}
           paths:
@@ -46,7 +46,7 @@ spec:
         kind: Secret
         metadata:
           name: headlamp-token
-          namespace: kube-system
+          namespace: platform
           annotations:
             kubernetes.io/service-account.name: headlamp
         type: kubernetes.io/service-account-token

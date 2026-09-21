@@ -1,0 +1,13 @@
+{{- if .Values.primaryTenant }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform
+{{- end }}
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: "{{ .Values.applicationsNamespace }}"

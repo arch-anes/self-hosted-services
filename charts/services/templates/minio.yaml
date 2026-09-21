@@ -4,19 +4,19 @@ apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: minio-operator
-  namespace: kube-system
+  namespace: platform
 spec:
   chart: operator
   repo: https://operator.min.io
   version: 7.1.1
-  targetNamespace: kube-system
+  targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
   values:
     operator:
       env:
         - name: PROMETHEUS_NAMESPACE
-          value: "kube-system"
+          value: "platform"
       resources:
         requests:
           cpu: {{ include "app.resources.cpu" (list $ "1000m") }}
