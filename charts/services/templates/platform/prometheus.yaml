@@ -83,6 +83,9 @@ spec:
                 send_resolved: false
     {{- end }}
     grafana:
+      plugins:
+        - grafana-clock-panel
+        - pierosavi-imageit-panel
       annotations:
         reloader.stakater.com/auto: "true"
       {{- if or (include "app.enabled" (list . "loki")) (include "app.enabled" (list . "tempo")) }}
