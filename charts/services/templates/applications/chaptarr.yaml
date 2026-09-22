@@ -31,8 +31,6 @@ spec:
                         values:
                           - jellyfin
                   topologyKey: "kubernetes.io/hostname"
-          annotations:
-            backup.velero.io/backup-volumes: multimedia
           containers:
             main:
               env:

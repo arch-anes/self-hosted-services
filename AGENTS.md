@@ -144,6 +144,7 @@ them, except where a scoped guide gives more specific implementation details:
 - **Database:** PostgreSQL, not an embedded database such as SQLite.
 - **Cache and sessions:** Redis.
 - **Object storage:** MinIO through its S3-compatible API.
+- **Multimedia PVCs:** MUST NEVER be backed up by Velero.
 - **SSO:** Authentik, preferably through OAuth/OIDC.
 - **Outbound email:** the shared `smtp` secret, backed by AWS SES by default.
 - **Metrics:** you SHOULD enable metrics when supported.
