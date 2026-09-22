@@ -10,7 +10,7 @@ spec:
   forceConflicts: true
   chart: intel-device-plugins-operator
   repo: https://intel.github.io/helm-charts/
-  version: 0.36.0
+  version: 0.37.0
   targetNamespace: kube-system
 
 ---
@@ -22,7 +22,7 @@ metadata:
 spec:
   chart: intel-device-plugins-gpu
   repo: https://intel.github.io/helm-charts/
-  version: 0.36.0
+  version: 0.37.0
   targetNamespace: kube-system
   serverSide: "true"
   forceConflicts: true
