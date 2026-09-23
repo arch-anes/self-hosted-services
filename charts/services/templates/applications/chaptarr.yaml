@@ -69,7 +69,7 @@ spec:
         memory: {{ include "app.resources.memory" (list $ "500Mi") }}
         cpu: {{ include "app.resources.cpu" (list $ "250m") }}
       limits:
-        memory: 1Gi
+        memory: 2Gi
         cpu: null
     global:
       traefik:
