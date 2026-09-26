@@ -34,6 +34,11 @@
     vpn_netfilter_mode_arg: "{{ '' if prepare_detect_is_openwrt else '--netfilter-mode=off' }}"
     vpn_advertise_route_arg: "{{ '--advertise-routes=' ~ prepare_detect_haproxy_virtual_ip ~ '/32' if prepare_detect_is_openwrt else '' }}"
 
+- name: Configure Tailscale exit node argument
+  ansible.builtin.set_fact:
+    vpn_advertise_exit_node_arg: "--advertise-exit-node"
+  when: tailscale_exit_node | default(false)
+
 - name: Setup Tailscale
   ansible.builtin.import_role:
     name: artis3n.tailscale.machine
@@ -44,4 +49,4 @@
     tailscale_service: "{{ 'tailscale' if prepare_detect_is_openwrt else 'tailscaled' }}"
     tailscale_tags:
       - "ansible"
-    tailscale_args: "--accept-dns=false {{ vpn_netfilter_mode_arg }} {{ vpn_advertise_route_arg }} {{ vpn_login_server_arg }}"
+    tailscale_args: "--accept-dns=false {{ vpn_netfilter_mode_arg }} {{ vpn_advertise_route_arg }} {{ vpn_advertise_exit_node_arg | default('') }} {{ vpn_login_server_arg }}"

@@ -172,6 +172,8 @@ k3s_cluster:
       labels:
         - local=true
         - runner=true
+      # Optional: advertise this host as a Tailscale exit node.
+      # tailscale_exit_node: true
 # Optional
 headscale:
   hosts:
