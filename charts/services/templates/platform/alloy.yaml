@@ -8,7 +8,7 @@ metadata:
 spec:
   chart: alloy
   repo: https://grafana.github.io/helm-charts
-  version: 1.12.1
+  version: 1.13.0
   targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
