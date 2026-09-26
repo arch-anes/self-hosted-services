@@ -546,6 +546,7 @@ spec:
             metricsPort: 10250
             component: k3s-server
             clients:
+              command: ["pushprox-client", "--log.level=warn"]
               port: 10013
               useLocalhost: true
               resources:
@@ -671,6 +672,7 @@ spec:
                       targetLabel: instance
                       action: replace
             proxy:
+              command: ["pushprox-proxy", "--log.level=warn"]
               resources:
                 limits:
                   memory: 64Mi
@@ -693,6 +695,7 @@ spec:
             metricsPort: 2381
             component: kube-etcd
             clients:
+              command: ["pushprox-client", "--log.level=warn"]
               port: 10014
               useLocalhost: true
               nodeSelector:
@@ -720,6 +723,7 @@ spec:
                       targetLabel: instance
                       action: replace
             proxy:
+              command: ["pushprox-proxy", "--log.level=warn"]
               resources:
                 limits:
                   memory: 64Mi
