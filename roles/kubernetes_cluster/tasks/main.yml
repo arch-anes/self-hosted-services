@@ -43,6 +43,8 @@
       kube-apiserver-arg:
         - default-not-ready-toleration-seconds=20
         - default-unreachable-toleration-seconds=20
+      helm-controller-arg:
+        - 'job-resources={"requests":{"cpu":"100m","memory":"100M"},"limits":{"memory":"1G"}}'
 
 - name: Install and deploy k3s
   ansible.builtin.import_role:
