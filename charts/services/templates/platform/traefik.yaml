@@ -105,6 +105,8 @@ spec:
     accessLog:
       enabled: true
       addInternals: true
+      filters:
+        statusCodes: "400-599"
       fields:
         headers:
           defaultMode: keep
