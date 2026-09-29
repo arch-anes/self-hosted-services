@@ -18,7 +18,7 @@ metadata:
 spec:
   chart: llama-cpp
   repo: https://arch-anes.github.io/charts
-  version: 1.2.33
+  version: 1.2.40
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   serverSide: "true"
   forceConflicts: true
