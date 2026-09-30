@@ -143,6 +143,8 @@ applications:
   #   enabled: true
   ipmi_exporter: {}
   #   enabled: true
+  kured: {}
+  #   enabled: true
   jellyfin: {}
   #   enabled: true
   #   gpu_vendor: intel

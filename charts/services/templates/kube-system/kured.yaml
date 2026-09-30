@@ -1,0 +1,37 @@
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "kured")) }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kured
+  namespace: kube-system
+spec:
+  chart: oci://ghcr.io/kubereboot/charts/kured
+  version: 6.1.0
+  targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
+  values:
+    configuration:
+      rebootCommand: >-
+        /bin/sh -c '/sbin/kexec -l /boot/vmlinuz --initrd=/boot/initrd.img --reuse-cmdline && /bin/systemctl kexec'
+      rebootDays:
+        # Monday and Tuesday are excluded to not conflict with the postgresql backup cronjob that runs on those days.
+        - we
+        - th
+        - fr
+        - sa
+        - su
+      # Runs after the velero backup.
+      timeZone: "UTC"
+      startTime: "10:00"
+      endTime: "12:00"
+    resources:
+      requests:
+        cpu: {{ include "app.resources.cpu" (list $ "100m") }}
+        memory: {{ include "app.resources.memory" (list $ "32Mi") }}
+      limits:
+        memory: 64Mi
+    metrics:
+      create: {{ include "metrics.enabled" . | default false }}
+{{- end }}
