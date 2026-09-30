@@ -21,7 +21,7 @@ metadata:
 spec:
   chart: tempo
   repo: https://grafana-community.github.io/helm-charts
-  version: 3.0.0
+  version: 3.1.0
   targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
