@@ -28,4 +28,67 @@ spec:
             {{- end }}
     prometheus:
       enabled: {{ include "metrics.enabled" . | default false }}
+
+# Workaround for the lack of customization in the Helm chart.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicy
+metadata:
+  name: akri
+  annotations:
+    kubernetes.io/description: Set Akri pod log levels and remove CPU limits.
+spec:
+  failurePolicy: Ignore
+  reinvocationPolicy: IfNeeded
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+        scope: Namespaced
+  matchConditions:
+    - name: akri-instance
+      expression: >-
+        has(object.metadata.labels) &&
+        'app.kubernetes.io/instance' in object.metadata.labels &&
+        object.metadata.labels['app.kubernetes.io/instance'] == 'akri'
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >-
+          Object{
+            spec: Object.spec{
+              containers: object.spec.containers.map(container,
+                Object.spec.containers{
+                  name: container.name,
+                  env: [Object.spec.containers.env{
+                    name: "RUST_LOG",
+                    value: "info"
+                  }]
+                })
+            }
+          }
+    - patchType: JSONPatch
+      jsonPatch:
+        expression: >-
+          object.spec.containers
+            .filter(container,
+              has(container.resources) &&
+              has(container.resources.limits) &&
+              'cpu' in container.resources.limits)
+            .map(container, JSONPatch{
+              op: "remove",
+              path: "/spec/containers/" +
+                string(object.spec.containers.indexOf(container)) +
+                "/resources/limits/cpu"
+            })
+
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicyBinding
+metadata:
+  name: akri
+spec:
+  policyName: akri
 {{- end }}
