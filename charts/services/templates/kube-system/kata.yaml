@@ -1,0 +1,23 @@
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "kata")) }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kata-deploy
+  namespace: kube-system
+spec:
+  chart: oci://ghcr.io/kata-containers/kata-deploy-charts/kata-deploy
+  version: "4.2.0"
+  targetNamespace: kube-system
+  serverSide: "true"
+  forceConflicts: true
+  values:
+    deploymentMode: job
+    job:
+      parallelism: 1
+    nodeSelector:
+      kubernetes.io/arch: amd64
+    node-feature-discovery:
+      enabled: false
+    k8sDistribution: k3s
+{{- end }}
