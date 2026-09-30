@@ -79,6 +79,7 @@
           - cmctl
           - k9s
           - krr
+          - kubescape
           - trivy
           - velero
         state: latest
