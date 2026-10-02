@@ -80,6 +80,7 @@ spec:
         memory: {{ include "app.resources.memory" (list $ "512Mi") }}
       limits:
         memory: 2Gi
+        cpu: null
     persistence:
       valheim:
         enabled: true
