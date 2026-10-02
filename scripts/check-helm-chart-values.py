@@ -410,32 +410,29 @@ def prepare_chart(
     final_dir = output_dir / reference.name
     chart_yaml = final_dir / "Chart.yaml"
 
-    if chart_yaml.is_file():
-        match = re.search(
+    match = (
+        re.search(
             r"^version:\s*(.+)$",
             chart_yaml.read_text(encoding="utf-8"),
             re.MULTILINE,
         )
-        if match and match.group(1).strip().strip("\"'") == reference.version:
-            chart_digest, render_digest = _chart_input_digests(final_dir)
-            if _schema_state_is_current(
-                final_dir,
-                reference.version,
-                chart_digest,
-                generator_digest,
-            ):
-                return ChartPreparation(
-                    "cached",
-                    "cached",
-                    chart_digest,
-                    render_digest,
-                )
-            return ChartPreparation(
-                "cached",
-                "update required",
-                chart_digest,
-                render_digest,
-            )
+        if chart_yaml.is_file()
+        else None
+    )
+    if match is not None and match.group(1).strip().strip("\"'") == reference.version:
+        chart_digest, render_digest = _chart_input_digests(final_dir)
+        schema_is_current = _schema_state_is_current(
+            final_dir,
+            reference.version,
+            chart_digest,
+            generator_digest,
+        )
+        return ChartPreparation(
+            "cached",
+            "cached" if schema_is_current else "update required",
+            chart_digest,
+            render_digest,
+        )
 
     if reference.chart.startswith("oci://"):
         command = [
