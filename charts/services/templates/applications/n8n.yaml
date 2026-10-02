@@ -24,6 +24,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    podOptions:
+      defaultAffinity: false
     deployment:
       N8N_DIAGNOSTICS_ENABLED: false
       N8N_VERSION_NOTIFICATIONS_ENABLED: false

@@ -49,6 +49,7 @@ spec:
         memory: 256Mi
         cpu: null
     podOptions:
+      defaultAffinity: false
       nodeSelector:
         # Schedule only on public nodes
         public: "true"

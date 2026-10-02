@@ -23,6 +23,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    podOptions:
+      defaultAffinity: false
     {{- $gpuVendor := .Values.applications.llama_cpp.gpu_vendor }}
     {{- with $gpuVendor }}
     gpu:

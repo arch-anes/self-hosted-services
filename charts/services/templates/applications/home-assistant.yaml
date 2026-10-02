@@ -13,6 +13,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    podOptions:
+      defaultAffinity: false
     configmap:
       init:
         data:

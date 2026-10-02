@@ -100,9 +100,10 @@ backup.velero.io/backup-volumes: "vol1,vol2"
   tenant-isolated data.
 - You MUST use `local-path-ephemeral` for transient data.
 - You MUST NOT use `hostPath` volumes.
-- For TrueCharts workloads on single-node or otherwise isolated nodes, you MUST
-  set `podOptions.defaultAffinity: false`. This prevents the `common` library's
-  automatic PVC pod affinity from leaving pods in `Pending`.
+- Every chart that uses the TrueCharts `common` library MUST set
+  `podOptions.defaultAffinity: false`, including charts hosted in other chart
+  repositories. The library's required PVC pod affinity can leave the first
+  workload pod in `Pending` when no matching pod exists.
 
 ## 4. Application Integration
 

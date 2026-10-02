@@ -26,6 +26,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    podOptions:
+      defaultAffinity: false
     service:
       valheim:
         type: NodePort

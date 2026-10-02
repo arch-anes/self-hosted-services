@@ -13,6 +13,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    podOptions:
+      defaultAffinity: false
     {{- $gpuVendor := .Values.applications.frigate.gpu_vendor }}
     securityContext:
       pod:

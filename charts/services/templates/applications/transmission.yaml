@@ -24,6 +24,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    podOptions:
+      defaultAffinity: false
     {{- include "tunnel.truecharts.image" . | nindent 4 }}
     configmap:
       scripts:

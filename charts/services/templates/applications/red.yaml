@@ -22,6 +22,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    podOptions:
+      defaultAffinity: false
     workload:
       main:
         annotations:

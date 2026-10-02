@@ -89,6 +89,7 @@ spec:
             hosts:
               - speedtest.{{ .Values.fqdn }}
     podOptions:
+      defaultAffinity: false
       nodeSelector:
         # Schedule only on public nodes
         public: "true"
