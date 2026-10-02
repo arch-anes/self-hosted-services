@@ -76,6 +76,7 @@ continue to apply; this root guide takes precedence if instructions conflict.
   `<type>[optional scope]: <description>`.
 - The type MUST be one of `build`, `chore`, `ci`, `docs`, `feat`, `fix`,
   `perf`, `refactor`, `revert`, `style`, or `test`.
+- Every commit MUST include a body that explains why the change is needed.
 - Breaking changes MUST use `!` after the type or scope and include a
   `BREAKING CHANGE:` footer that describes the migration required.
 
