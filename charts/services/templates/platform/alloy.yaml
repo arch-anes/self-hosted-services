@@ -171,6 +171,18 @@ spec:
                 }
             }
 
+            stage.match {
+              selector = "{namespace=\"platform\", container=\"traefik\"} |= \"Blackbox-Exporter/\""
+              action   = "drop"
+              drop_counter_reason = "blackbox_probe"
+            }
+
+            stage.match {
+              selector = "{namespace=\"platform\", container=\"traefik\"} |= \"ping@internal\""
+              action   = "drop"
+              drop_counter_reason = "traefik_internal_ping"
+            }
+
             forward_to = [loki.write.default.receiver]
           }
 
