@@ -103,7 +103,7 @@ metadata:
 spec:
   chart: argocd-apps
   repo: https://argoproj.github.io/argo-helm
-  version: 2.0.5
+  version: 2.0.6
   targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
