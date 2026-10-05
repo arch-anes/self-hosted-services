@@ -10,6 +10,6 @@ spec:
   forceConflicts: true
   chart: reloader
   repo: https://stakater.github.io/stakater-charts
-  version: 2.2.14
+  version: 2.2.18
   targetNamespace: kube-system
 {{- end }}
