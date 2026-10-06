@@ -11,8 +11,13 @@ jobs:
   woodpecker-trigger:
     if: >-
       contains(github.event.issue.title, 'Dependency Dashboard') && github.event.changes.body.from != null && github.event.issue.state == 'open' && github.event.sender.type != 'Bot'
+    concurrency:
+      group: trigger-woodpecker-dashboard-${{ github.event.issue.number }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
+      - name: Wait for dashboard edits to settle
+        run: sleep 60
       - name: Trigger Renovate
         env:
           WOODPECKER_URL: ${{ vars.WOODPECKER_URL }}

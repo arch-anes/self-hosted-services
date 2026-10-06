@@ -241,7 +241,7 @@ The PostgreSQL and Velero recovery procedures, including point-in-time recovery,
 
 ## Configure self-hosted Renovate
 
-Woodpecker runs Renovate on its hourly schedule and when a person edits the body of the open Dependency Dashboard issue. The GitHub Actions job skips edits from the Renovate app, so those edits do not start another Woodpecker run.
+Woodpecker runs Renovate on its hourly schedule and when a person edits the body of the open Dependency Dashboard issue. The GitHub Actions job waits for 60 seconds without another body edit before it starts Woodpecker. A newer body edit cancels the waiting job and restarts the wait. The job skips edits from the Renovate app, so those edits do not start another Woodpecker run.
 
 ### Create and install the GitHub App
 
@@ -260,4 +260,4 @@ Woodpecker runs Renovate on its hourly schedule and when a person edits the body
 1. Add the `WOODPECKER_URL` and `WOODPECKER_REPO_ID` repository variables in GitHub.
 2. Add `WOODPECKER_TOKEN` as a GitHub repository secret. The token must be able to start pipelines in Woodpecker.
 3. Put `.github/workflows/trigger-woodpecker.yml` on the repository's default branch. [GitHub requires this for issue-triggered workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows).
-4. Edit the open Dependency Dashboard issue. The workflow starts a Woodpecker pipeline when the issue body changes.
+4. Edit the open Dependency Dashboard issue. The workflow starts a Woodpecker pipeline after the issue body has stayed unchanged for 60 seconds.
