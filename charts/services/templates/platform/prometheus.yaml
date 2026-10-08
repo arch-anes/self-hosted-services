@@ -20,7 +20,7 @@ metadata:
 spec:
   chart: kube-prometheus-stack
   repo: https://prometheus-community.github.io/helm-charts
-  version: 91.9.0
+  version: 92.2.0
   targetNamespace: platform
   bootstrap: true
   serverSide: "true"
