@@ -152,6 +152,10 @@ applications:
   #   enabled: true
   joal: {}
   #   enabled: true
+  kokoro: {}
+  #   enabled: true
+  litellm: {}
+  #   enabled: true
   llama_cpp:
     # enabled: true
     use_vulkan: false
@@ -193,6 +197,8 @@ applications:
     # enabled: true
     updatePluginsOnStartup: false
   open_webui: {}
+  #   enabled: true
+  opencode: {}
   #   enabled: true
   pgadmin4: {}
   #   enabled: true
