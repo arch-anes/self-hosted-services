@@ -107,7 +107,7 @@ spec:
         annotations:
           homer.service.name: Feed
           homer.item.name: HomeBox
-          homer.item.logo: "https://homebox.software/_astro/lilbox.CmeGTiwj_Z1HYzg2.svg"
+          homer.item.logo: "https://raw.githubusercontent.com/sysadminsmedia/homebox/1fd28822634a3d5935c002d569559ef46530d4a0/docs/public/favicon.svg"
         hosts:
           - host: homebox.{{ .Values.fqdn }}
             paths:
