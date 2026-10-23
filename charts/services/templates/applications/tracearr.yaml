@@ -9,7 +9,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/tracearr
-  version: 7.0.1
+  version: 8.1.0
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   serverSide: "true"
   forceConflicts: true
