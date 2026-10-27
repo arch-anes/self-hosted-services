@@ -63,7 +63,7 @@ spec:
           reloader.stakater.com/auto: "true"
       image:
         repository: pgsty/silo
-        tag: RELEASE.2026-10-18T00-00-00Z
+        tag: RELEASE.2026-10-26T00-00-00Z
       configSecret:
         name: minio
         existingSecret: true
