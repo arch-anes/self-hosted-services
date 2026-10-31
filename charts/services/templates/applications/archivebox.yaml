@@ -35,9 +35,10 @@ spec:
           containers:
             main:
               env:
+                BASE_URL: "https://archive.{{ .Values.fqdn }}"
                 PUBLIC_INDEX: "false"
-                PUBLIC_SNAPSHOTS: "false"
                 PUBLIC_ADD_VIEW: "false"
+                PERMISSIONS: "private"
                 ADMIN_USERNAME:
                   secretKeyRef:
                     name: archivebox
