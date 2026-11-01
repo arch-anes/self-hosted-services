@@ -346,7 +346,7 @@ spec:
           haproxy:
             # renovate: depName="Haproxy"
             gnetId: 12693
-            revision: 14
+            revision: 15
             datasource: Prometheus
           {{- end }}
           {{- if (include "app.enabled" (list . "zfs_exporter")) }}
