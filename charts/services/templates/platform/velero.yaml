@@ -40,7 +40,7 @@ metadata:
 spec:
   chart: velero
   repo: https://vmware-tanzu.github.io/helm-charts
-  version: 12.2.1
+  version: 12.2.2
   targetNamespace: platform
   failurePolicy: abort
   serverSide: "true"
