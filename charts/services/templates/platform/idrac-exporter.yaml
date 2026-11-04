@@ -21,7 +21,8 @@
 #         username: USERNAME
 #         password: PASSWORD
 #     metrics:
-#       all: true
+#       all:
+#         enabled: true
 
 ---
 apiVersion: helm.cattle.io/v1

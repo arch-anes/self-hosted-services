@@ -269,17 +269,17 @@ spec:
           {{- end }}
           {{- if (include "app.enabled" (list . "idrac_exporter")) }}
           bmc:
-            url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/8d5d7e3da3d98f773dbfcc2709f21b1d3045f845/grafana/idrac.json
+            url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/45a1ac9c870176ef30617e1e104b0330b3ea9dcc/grafana/idrac.json
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
           bmc-overview:
-            url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/8d5d7e3da3d98f773dbfcc2709f21b1d3045f845/grafana/idrac_overview.json
+            url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/45a1ac9c870176ef30617e1e104b0330b3ea9dcc/grafana/idrac_overview.json
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
           bmc-status:
-            url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/8d5d7e3da3d98f773dbfcc2709f21b1d3045f845/grafana/status-alternative.json
+            url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/45a1ac9c870176ef30617e1e104b0330b3ea9dcc/grafana/status-alternative.json
             datasource:
               - name: DS_PROMETHEUS
                 value: Prometheus
