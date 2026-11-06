@@ -19,7 +19,7 @@ metadata:
 spec:
   chart: crowdsec
   repo: https://crowdsecurity.github.io/helm-charts
-  version: 0.24.2
+  version: 0.24.3
   targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
