@@ -25,11 +25,11 @@ steps:
     image: ghcr.io/yyewolf/woodpecker-plugins/github-app-token:1.2.4
     settings:
       github_app_id:
-        from_secret: renovate_github_app_id
+        from_secret: archanes_github_app_id
       github_installation_id:
-        from_secret: renovate_github_app_installation_id
+        from_secret: archanes_github_app_installation_id
       github_private_key_pem:
-        from_secret: renovate_github_app_private_key
+        from_secret: archanes_github_app_private_key
       output_file: .github_token
 
   - name: run-renovate

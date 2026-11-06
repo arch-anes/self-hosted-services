@@ -251,9 +251,9 @@ Woodpecker runs Renovate on its hourly schedule and when a person edits the body
 4. Copy the App ID from its settings. Get the installation ID from the installation settings page or `GET /repos/{owner}/{repo}/installation`.
 5. Create a private key for the app. Keep the PEM file private.
 6. Add these repository secrets in Woodpecker and scope them to `ghcr.io/yyewolf/woodpecker-plugins/github-app-token` plugin:
-   - `renovate_github_app_id`: the App ID
-   - `renovate_github_app_installation_id`: the installation ID
-   - `renovate_github_app_private_key`: the PEM private key
+   - `archanes_github_app_id`: the App ID
+   - `archanes_github_app_installation_id`: the installation ID
+   - `archanes_github_app_private_key`: the PEM private key
 
 ### Configure the GitHub issue trigger
 
