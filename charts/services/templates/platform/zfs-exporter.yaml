@@ -9,7 +9,7 @@ metadata:
 spec:
   chart: zfs-exporter
   repo: https://arch-anes.github.io/charts
-  version: 1.0.2
+  version: 1.0.3
   targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
