@@ -13,6 +13,9 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    image:
+      repository: public.ecr.aws/docker/library/odoo
+      tag: 19.0@sha256:dd9013e669caaa23d26765dc55814655eaeecca7cfc2c265dbabae913bce22fd
     podOptions:
       defaultAffinity: false
     workload:
