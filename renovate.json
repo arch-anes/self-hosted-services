@@ -21,7 +21,7 @@
         "/charts/.+\\.tpl$/"
       ],
       "matchStrings": [
-        "repository:\\s*(?<depName>[^\\s]+)\\s*\\n\\s*tag:\\s*(?<currentValue>[^\\s]+)"
+        "repository:\\s*(?<depName>[^\\s]+)\\s*\\n\\s*tag:\\s*(?<currentValue>[^\\s@]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"
       ],
       "datasourceTemplate": "docker"
     },
@@ -199,6 +199,17 @@
       ],
       "allowedVersions": "!/^202[0-9]\\./",
       "versioning": "semver"
+    },
+    {
+      "description": "Pin Odoo to the 19.0 rolling tag and only refresh its digest",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "public.ecr.aws/docker/library/odoo"
+      ],
+      "allowedVersions": "/^19\\.0$/",
+      "pinDigests": true
     },
     {
       "automerge": true,
