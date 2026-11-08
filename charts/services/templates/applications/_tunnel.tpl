@@ -5,7 +5,8 @@
 
 {{- define "tunnel.env.map" -}}
 SOCKS5_ADDR: gluetun.{{ .Values.applicationsNamespace }}.svc.cluster.local
-SOCKS5_UDP_MODE: tcp
+SOCKS5_UDP_ADDR: gluetun.{{ .Values.applicationsNamespace }}.svc.cluster.local
+SOCKS5_UDP_MODE: udp
 IPV4_INCLUDED_ROUTES: 0.0.0.0/0
 IPV4_EXCLUDED_ROUTES: |-
   10.42.0.0/16

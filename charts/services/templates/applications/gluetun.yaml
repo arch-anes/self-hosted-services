@@ -36,6 +36,9 @@ spec:
             - protocol: TCP
               name: socks5-tcp
               port: 1080
+            - protocol: UDP
+              name: socks5-udp
+              port: 1080
           selector:
             app: gluetun
       - kind: Deployment
@@ -92,9 +95,7 @@ spec:
                           name: gluetun
                           key: server_countries
                 - name: socks5
-                  image: httptoolkit/docker-socks-tunnel:v1.2.1
-                  args:
-                    - -q
+                  image: ghcr.io/heiher/hev-socks5-server:main
                   ports:
                     - name: socks5
                       containerPort: 1080
