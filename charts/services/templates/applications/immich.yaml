@@ -119,7 +119,7 @@ spec:
                   memory: {{ include "app.resources.memory" (list $ "1Gi") }}
                   cpu: {{ include "app.resources.cpu" (list $ "250m") }}
                 limits:
-                  cpu: null
+                  cpu: 0
                   memory: 4Gi
                   {{- include "gpu.device" (list . "Immich" .Values.applications.immich.gpu_vendor) | nindent 18 }}
       machinelearning:
@@ -136,7 +136,7 @@ spec:
                   memory: {{ include "app.resources.memory" (list $ "1Gi") }}
                   cpu: {{ include "app.resources.cpu" (list $ "250m") }}
                 limits:
-                  cpu: null
+                  cpu: 0
                   memory: 15Gi
                   {{- include "gpu.device" (list . "Immich's machine learning" $mlGpuVendor) | nindent 18 }}
     service:
@@ -159,7 +159,7 @@ spec:
         memory: {{ include "app.resources.memory" (list $ "128Mi") }}
         cpu: {{ include "app.resources.cpu" (list $ "1000m") }}
       limits:
-        cpu: null
+        cpu: 0
         memory: 2Gi
     global:
       traefik:

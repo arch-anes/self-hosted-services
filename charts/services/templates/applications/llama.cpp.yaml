@@ -73,8 +73,8 @@ spec:
                   memory: {{ include "app.resources.memory" (list $ "1Gi") }}
                   cpu: {{ include "app.resources.cpu" (list $ "1000m") }}
                 limits:
-                  cpu: null
-                  memory: null
+                  cpu: 0
+                  memory: 0
                   {{- include "gpu.device" (list . "llama.cpp" $gpuVendor .Values.applications.llama_cpp.gpu_count) | nindent 18 }}
           tolerations:
             - key: "dedicated"
@@ -107,8 +107,8 @@ spec:
                   memory: {{ include "app.resources.memory" (list $ "128Mi") }}
                   cpu: {{ include "app.resources.cpu" (list $ "100m") }}
                 limits:
-                  cpu: null
-                  memory: null
+                  cpu: 0
+                  memory: 0
                   {{- include "gpu.device" (list . "llama.cpp embeddings" $embeddingsGpuVendor .Values.applications.llama_cpp.embeddings.gpu_count) | nindent 18 }}
           tolerations:
             - key: "dedicated"

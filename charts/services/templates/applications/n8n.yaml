@@ -75,7 +75,7 @@ spec:
         cpu: {{ include "app.resources.cpu" (list $ "500m") }}
       limits:
         memory: 1Gi
-        cpu: null
+        cpu: 0
     global:
       traefik:
         commonMiddlewares: []

@@ -25,6 +25,7 @@ spec:
                 - --collector.dataset-snapshot
     resources:
       limits:
+        cpu: 0
         memory: 128Mi
       requests:
         cpu: {{ include "app.resources.cpu" (list $ "50m") }}
