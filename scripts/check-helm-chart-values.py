@@ -4,7 +4,8 @@
 The services chart is rendered and its Kubernetes objects are validated before
 its HelmChart resources independently pass through this iterative pipeline:
 
-1. Prepare its chart package and generated override schema.
+1. Prepare its chart package and override schema. A chart that only references
+   an unpacked library schema uses that schema instead of generating a copy.
 2. Validate its ``spec.values`` against that override schema.
 3. Render the chart with those exact values and offline CRD capabilities.
 4. Validate the rendered Kubernetes objects with Kubeconform.
@@ -31,6 +32,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
+from urllib.parse import urlparse
 
 import yaml
 
@@ -45,7 +47,8 @@ RENDER_CACHE_VERSION = 2
 VALUE_CACHE_VERSION = 1
 CRD_CACHE_VERSION = 1
 # Increment this when this script changes how it derives schemas.
-SCHEMA_STATE_VERSION = 1
+SCHEMA_STATE_VERSION = 2
+PURE_SCHEMA_REFERENCE_KEYS = {"$schema", "$id", "$ref", "$comment", "title", "description"}
 GENERATED_SCHEMA_NAMES = {
     "values.schema.json",
     VALUES_OVERRIDE_SCHEMA_NAME,
@@ -326,12 +329,12 @@ def _schema_output_paths(chart_dir: Path) -> set[Path]:
 
 
 def _schema_output_digests(chart_dir: Path) -> dict[str, str]:
-    """Return the relative path and digest of every generated schema."""
+    """Return the relative path and digest of every prepared schema."""
     output_paths = _schema_output_paths(chart_dir)
     missing = [path for path in output_paths if not path.is_file()]
     if missing:
         names = ", ".join(sorted(path.relative_to(chart_dir).as_posix() for path in missing))
-        raise RuntimeError(f"generated schema files are missing: {names}")
+        raise RuntimeError(f"schema files are missing: {names}")
     return {path.relative_to(chart_dir).as_posix(): _sha256_file(path) for path in sorted(output_paths)}
 
 
@@ -397,6 +400,78 @@ def refresh_schema(chart_dir: Path) -> None:
         raise RuntimeError(f"schema generation failed for {chart_dir.name}: {diagnostic}") from exc
 
 
+def _schema_state_version(chart_dir: Path) -> int | None:
+    """Return the saved schema state version when the file is readable."""
+    try:
+        state = json.loads((chart_dir / SCHEMA_STATE_NAME).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if isinstance(state, dict) and isinstance(state.get("version"), int):
+        return state["version"]
+    return None
+
+
+def _uses_truecharts_common(chart_dir: Path) -> bool:
+    """Return whether a chart bundles the TrueCharts common library."""
+    chart_file = chart_dir / "charts" / "common" / "Chart.yaml"
+    try:
+        chart = yaml.safe_load(chart_file.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError):
+        return False
+    if not isinstance(chart, dict) or chart.get("name") != "common" or chart.get("type") != "library":
+        return False
+    annotations = chart.get("annotations")
+    if not isinstance(annotations, dict):
+        return False
+    return annotations.get("trueforge.org/train") == "library" or annotations.get("truecharts.org/train") == "library"
+
+
+def _matching_dependency_schema(chart_dir: Path, name: str, version: str) -> Path | None:
+    """Return the values schema of one matching local library dependency."""
+    charts_dir = chart_dir / "charts"
+    if not charts_dir.is_dir():
+        return None
+
+    for chart_file in sorted(charts_dir.glob("*/Chart.yaml")):
+        try:
+            chart = yaml.safe_load(chart_file.read_text(encoding="utf-8"))
+        except (OSError, yaml.YAMLError):
+            continue
+        if not isinstance(chart, dict) or chart.get("name") != name or chart.get("type") != "library":
+            continue
+        if str(chart.get("version")) != version:
+            continue
+        schema_path = chart_file.parent / "values.schema.json"
+        if schema_path.is_file():
+            return schema_path
+    return None
+
+
+def _referenced_chart_schema(chart_dir: Path) -> Path | None:
+    """Return the local library schema delegated by a chart's pure schema reference.
+
+    TrueCharts app charts use a small ``values.schema.json`` that only references
+    the common library schema. The common dependency ships that schema, so the
+    library definition can replace a generated copy of the same values scope.
+    """
+    schema_path = chart_dir / "values.schema.json"
+    try:
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(schema, dict) or set(schema) - PURE_SCHEMA_REFERENCE_KEYS:
+        return None
+
+    reference = schema.get("$ref")
+    if not isinstance(reference, str):
+        return None
+    referenced_path = Path(urlparse(reference).path)
+    version = referenced_path.name.removesuffix(".schema.json")
+    if not version or version == referenced_path.name or not referenced_path.parent.name:
+        return None
+    return _matching_dependency_schema(chart_dir, referenced_path.parent.name, version)
+
+
 def prepare_chart(
     reference: ChartReference,
     output_dir: Path,
@@ -404,8 +479,9 @@ def prepare_chart(
 ) -> ChartPreparation:
     """Prepare one chart and report whether its schemas need an update.
 
-    A chart is current only when its version, source digest, generator digest,
-    generated paths, and generated file digests match the saved state.
+    A chart is reused only when its version and schema state format are
+    current. Older state can refer to schemas this script overwrote in place,
+    so the chart is pulled again to recover any upstream schema files.
     """
     final_dir = output_dir / reference.name
     chart_yaml = final_dir / "Chart.yaml"
@@ -419,7 +495,13 @@ def prepare_chart(
         if chart_yaml.is_file()
         else None
     )
-    if match is not None and match.group(1).strip().strip("\"'") == reference.version:
+    version_matches = match is not None and match.group(1).strip().strip("\"'") == reference.version
+    # Older state can describe generated copies of upstream schemas. TrueCharts
+    # charts are pulled again so the bundled common library schema is restored.
+    reuse_cached = version_matches and (
+        _schema_state_version(final_dir) == SCHEMA_STATE_VERSION or not _uses_truecharts_common(final_dir)
+    )
+    if reuse_cached:
         chart_digest, render_digest = _chart_input_digests(final_dir)
         schema_is_current = _schema_state_is_current(
             final_dir,
@@ -569,25 +651,190 @@ def _allows_null(schema: JsonSchema) -> bool:
     return False
 
 
-def _nullable(schema: JsonSchema) -> JsonSchema:
-    """Return the schema with support for a null Helm map override."""
+SchemaPointer = tuple[str, ...]
+
+
+def _escape_pointer_token(token: str) -> str:
+    """Return one JSON Pointer token with its escapes applied."""
+    return token.replace("~", "~0").replace("/", "~1")
+
+
+def _unescape_pointer_token(token: str) -> str:
+    """Return one JSON Pointer token with its escapes removed."""
+    return token.replace("~1", "/").replace("~0", "~")
+
+
+def _pointer_string(tokens: SchemaPointer) -> str:
+    """Return a local JSON Schema reference for one token sequence."""
+    if not tokens:
+        return "#"
+    return "#/" + "/".join(_escape_pointer_token(token) for token in tokens)
+
+
+def _rewrite_local_ref(reference: str, wrappers: dict[SchemaPointer, SchemaPointer]) -> str:
+    """Rebase one local reference after nullable schema wrappers moved its target."""
+    if reference == "#" or not reference.startswith("#/"):
+        return reference
+
+    tokens = tuple(_unescape_pointer_token(token) for token in reference[2:].split("/"))
+    source = max(
+        (candidate for candidate in wrappers if tokens[: len(candidate)] == candidate),
+        key=len,
+        default=None,
+    )
+    if source is None:
+        return reference
+    return _pointer_string((*wrappers[source], *tokens[len(source) :]))
+
+
+def _nullable(
+    schema: JsonSchema,
+    source: SchemaPointer,
+    target: SchemaPointer,
+    wrappers: dict[SchemaPointer, SchemaPointer],
+) -> JsonSchema:
+    """Return the schema with support for a null Helm map override.
+
+    Wrapping moves the original schema below an ``anyOf`` branch. Wrapper
+    targets already collected for its descendants must move with it so local
+    references into the original schema keep resolving after conversion.
+    """
     if _allows_null(schema):
         return schema
+
+    for key, value in wrappers.items():
+        if value[: len(target)] == target:
+            wrappers[key] = (*value[: len(target)], "anyOf", "0", *value[len(target) :])
+    wrappers[source] = (*target, "anyOf", "0")
     return {"anyOf": [schema, {"type": "null"}]}
 
 
-def _convert_schema(value: object) -> object:
+def _convert_schema(
+    value: object,
+    source: SchemaPointer,
+    target: SchemaPointer,
+    wrappers: dict[SchemaPointer, SchemaPointer],
+    references: list[tuple[dict[str, object], str]],
+) -> object:
     """Convert a child value only when it is a JSON Schema."""
     if isinstance(value, (bool, dict)):
-        return _values_override_schema(value)
+        return _override_schema(value, source, target, wrappers, references)
     return value
 
 
-def _convert_property_schema(value: object) -> object:
+def _convert_property_schema(
+    value: object,
+    source: SchemaPointer,
+    target: SchemaPointer,
+    wrappers: dict[SchemaPointer, SchemaPointer],
+    references: list[tuple[dict[str, object], str]],
+) -> object:
     """Convert a property schema and permit a null map override."""
-    converted = _convert_schema(value)
+    converted = _convert_schema(value, source, target, wrappers, references)
     if isinstance(converted, (bool, dict)):
-        return _nullable(converted)
+        return _nullable(converted, source, target, wrappers)
+    return converted
+
+
+def _override_schema(
+    schema: JsonSchema,
+    source: SchemaPointer,
+    target: SchemaPointer,
+    wrappers: dict[SchemaPointer, SchemaPointer],
+    references: list[tuple[dict[str, object], str]],
+) -> JsonSchema:
+    """Convert one full-values schema node into an override schema node."""
+    if isinstance(schema, bool):
+        return schema
+
+    converted = schema.copy()
+    reference = converted.get("$ref")
+    if isinstance(reference, str):
+        references.append((converted, reference))
+
+    for keyword in ("properties", "patternProperties"):
+        schemas = converted.get(keyword)
+        if isinstance(schemas, dict):
+            converted[keyword] = {
+                name: _convert_property_schema(
+                    child,
+                    (*source, keyword, name),
+                    (*target, keyword, name),
+                    wrappers,
+                    references,
+                )
+                for name, child in schemas.items()
+            }
+
+    for keyword in (*SCHEMA_MAP_KEYWORDS, "dependencies"):
+        schemas = converted.get(keyword)
+        if isinstance(schemas, dict):
+            converted[keyword] = {
+                name: _convert_schema(
+                    child,
+                    (*source, keyword, name),
+                    (*target, keyword, name),
+                    wrappers,
+                    references,
+                )
+                for name, child in schemas.items()
+            }
+
+    for keyword in SCHEMA_LIST_KEYWORDS:
+        schemas = converted.get(keyword)
+        if isinstance(schemas, list):
+            converted[keyword] = [
+                _convert_schema(
+                    child,
+                    (*source, keyword, str(index)),
+                    (*target, keyword, str(index)),
+                    wrappers,
+                    references,
+                )
+                for index, child in enumerate(schemas)
+            ]
+
+    for keyword in SCHEMA_VALUE_KEYWORDS:
+        if keyword in converted:
+            converted[keyword] = _convert_schema(
+                converted[keyword],
+                (*source, keyword),
+                (*target, keyword),
+                wrappers,
+                references,
+            )
+
+    if "items" in converted:
+        items = converted["items"]
+        if isinstance(items, list):
+            converted["items"] = [
+                _convert_schema(
+                    child,
+                    (*source, "items", str(index)),
+                    (*target, "items", str(index)),
+                    wrappers,
+                    references,
+                )
+                for index, child in enumerate(items)
+            ]
+        else:
+            converted["items"] = _convert_schema(
+                items,
+                (*source, "items"),
+                (*target, "items"),
+                wrappers,
+                references,
+            )
+
+    additional_properties = converted.get("additionalProperties")
+    if isinstance(additional_properties, dict):
+        converted["additionalProperties"] = _convert_property_schema(
+            additional_properties,
+            (*source, "additionalProperties"),
+            (*target, "additionalProperties"),
+            wrappers,
+            references,
+        )
     return converted
 
 
@@ -600,39 +847,17 @@ def _values_override_schema(schema: JsonSchema) -> JsonSchema:
 
     This function permits null for map members and keeps all other constraints.
     It does not permit null array elements because Helm replaces whole arrays.
+    Local references are rebased because upstream schemas can refer to a schema
+    below a property that this conversion wraps in a null alternative.
     """
     if isinstance(schema, bool):
         return schema
 
-    converted = schema.copy()
-    for keyword in ("properties", "patternProperties"):
-        schemas = converted.get(keyword)
-        if isinstance(schemas, dict):
-            converted[keyword] = {name: _convert_property_schema(child) for name, child in schemas.items()}
-
-    for keyword in (*SCHEMA_MAP_KEYWORDS, "dependencies"):
-        schemas = converted.get(keyword)
-        if isinstance(schemas, dict):
-            converted[keyword] = {name: _convert_schema(child) for name, child in schemas.items()}
-
-    for keyword in SCHEMA_LIST_KEYWORDS:
-        schemas = converted.get(keyword)
-        if isinstance(schemas, list):
-            converted[keyword] = [_convert_schema(child) for child in schemas]
-
-    for keyword in SCHEMA_VALUE_KEYWORDS:
-        if keyword in converted:
-            converted[keyword] = _convert_schema(converted[keyword])
-
-    if "items" in converted:
-        items = converted["items"]
-        converted["items"] = (
-            [_convert_schema(child) for child in items] if isinstance(items, list) else _convert_schema(items)
-        )
-
-    additional_properties = converted.get("additionalProperties")
-    if isinstance(additional_properties, dict):
-        converted["additionalProperties"] = _convert_property_schema(additional_properties)
+    wrappers: dict[SchemaPointer, SchemaPointer] = {}
+    references: list[tuple[dict[str, object], str]] = []
+    converted = _override_schema(schema, (), (), wrappers, references)
+    for container, reference in references:
+        container["$ref"] = _rewrite_local_ref(reference, wrappers)
     return converted
 
 
@@ -649,7 +874,7 @@ def _write_schema_state(
     chart_version: str,
     generator_digest: str,
 ) -> None:
-    """Record the inputs and outputs of successful schema generation."""
+    """Record the inputs and outputs of successful schema preparation."""
     _write_json(
         chart_dir / SCHEMA_STATE_NAME,
         {
@@ -666,18 +891,19 @@ def generate_helmchart_schemas(
     reference: ChartReference,
     chart_dir: Path,
     generator_digest: str,
+    values_schema_path: Path | None = None,
 ) -> None:
-    """Write override and HelmChart schemas beside one full-values schema."""
-    values_schema_path = chart_dir / "values.schema.json"
-    if not values_schema_path.is_file():
-        raise RuntimeError(f"generated schema is missing for {reference.name}")
+    """Write override and HelmChart schemas from one full-values schema."""
+    full_schema_path = values_schema_path or chart_dir / "values.schema.json"
+    if not full_schema_path.is_file():
+        raise RuntimeError(f"full-values schema is missing for {reference.name}")
 
     try:
-        values_schema = json.loads(values_schema_path.read_text(encoding="utf-8"))
+        values_schema = json.loads(full_schema_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        raise RuntimeError(f"cannot read generated schema for {reference.name}: {exc}") from exc
+        raise RuntimeError(f"cannot read full-values schema for {reference.name}: {exc}") from exc
     if not isinstance(values_schema, (bool, dict)):
-        raise RuntimeError(f"generated schema for {reference.name} is not a JSON Schema object")
+        raise RuntimeError(f"full-values schema for {reference.name} is not a JSON Schema object")
 
     _write_json(
         chart_dir / VALUES_OVERRIDE_SCHEMA_NAME,
@@ -1229,10 +1455,15 @@ def update_chart_schema(
     output_dir: Path,
     generator_digest: str,
 ) -> Path:
-    """Regenerate one chart's schemas and return its resource schema."""
+    """Prepare one chart's schema files and return its resource schema."""
     chart_dir = output_dir / reference.name
-    refresh_schema(chart_dir)
-    generate_helmchart_schemas(reference, chart_dir, generator_digest)
+    library_schema = _referenced_chart_schema(chart_dir)
+    if library_schema is None:
+        refresh_schema(chart_dir)
+        full_schema = chart_dir / "values.schema.json"
+    else:
+        full_schema = library_schema
+    generate_helmchart_schemas(reference, chart_dir, generator_digest, full_schema)
     return chart_schema_path(chart_dir, reference)
 
 
