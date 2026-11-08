@@ -538,7 +538,7 @@ spec:
         spec:
           chart: rancher-pushprox
           repo: https://arch-anes.github.io/charts
-          version: 0.1.11
+          version: 0.1.12
           targetNamespace: kube-system
           serverSide: "true"
           forceConflicts: true
@@ -687,7 +687,7 @@ spec:
         spec:
           chart: rancher-pushprox
           repo: https://arch-anes.github.io/charts
-          version: 0.1.11
+          version: 0.1.12
           targetNamespace: kube-system
           serverSide: "true"
           forceConflicts: true
