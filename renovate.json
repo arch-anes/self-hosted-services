@@ -126,6 +126,35 @@
       "commitMessageTopic": "Helm release {{depName}}",
       "matchManagers": [
         "custom.regex"
+      ],
+      "matchDatasources": [
+        "helm"
+      ]
+    },
+    {
+      "description": "OCI Helm chart commit messages",
+      "commitMessageTopic": "Helm release {{depName}}",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchJsonata": [
+        "versioning = 'helm'"
+      ]
+    },
+    {
+      "description": "Docker release commit messages",
+      "commitMessageTopic": "Docker release {{depName}}",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchJsonata": [
+        "versioning != 'helm'"
       ]
     },
     {
