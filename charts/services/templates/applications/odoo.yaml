@@ -15,7 +15,7 @@ spec:
   values:
     image:
       repository: public.ecr.aws/docker/library/odoo
-      tag: 19.0@sha256:dd9013e669caaa23d26765dc55814655eaeecca7cfc2c265dbabae913bce22fd
+      tag: 19.0@sha256:5e755c725b3c43cf0be16d579904e1418300db3a2c44952f928eaddbcb0cc16d
     podOptions:
       defaultAffinity: false
     workload:
