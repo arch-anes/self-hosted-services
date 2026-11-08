@@ -7,7 +7,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/octoprint
-  version: 17.6.0
+  version: 18.1.2
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   serverSide: "true"
   forceConflicts: true
@@ -16,7 +16,7 @@ spec:
       nodeSelector:
         # TrueCharts auto-injects an amd64 nodeSelector by default.
         # Nullifying it here allows the pod to schedule on other architectures (e.g. arm64).
-        kubernetes.io/arch: null
+        kubernetes.io/arch: ""
       defaultAffinity: false
     workload:
       main:
