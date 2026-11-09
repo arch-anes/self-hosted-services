@@ -8,7 +8,7 @@ metadata:
   namespace: "{{ .Values.applicationsNamespace }}"
 spec:
   chart: oci://oci.trueforge.org/truecharts/radarr
-  version: 29.1.2
+  version: 29.1.3
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   serverSide: "true"
   forceConflicts: true
