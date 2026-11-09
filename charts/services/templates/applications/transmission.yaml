@@ -55,8 +55,13 @@ spec:
                 activity_sec=$(date -d "$activity" +%s 2>/dev/null) || continue
                 age=$(( NOW - activity_sec ))
                 [ "$age" -ge "$THRESHOLD_STUCK_SECONDS" ] || continue
-                echo "Removing stuck torrent '$name' at $percent% (no activity for $((age/60)) minutes)"
-                tr -t "$id" --remove-and-delete
+                if awk -v p="$percent" 'BEGIN { exit !(p == 0) }'; then
+                  echo "Removing never-started torrent '$name' (no activity for $((age/60)) minutes)"
+                  tr -t "$id" --remove-and-delete
+                else
+                  echo "Labeling stuck torrent '$name' at $percent% as stalled (no activity for $((age/60)) minutes)"
+                  tr -t "$id" --labels stalled
+                fi
               done
     workload:
       main:
