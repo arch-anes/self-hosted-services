@@ -149,7 +149,8 @@ them, except where a scoped guide gives more specific implementation details:
 - **SSO:** Authentik, preferably through OAuth/OIDC.
 - **Outbound email:** the shared `smtp` secret, backed by AWS SES by default.
 - **Metrics:** you SHOULD enable metrics when supported.
-- **VPN routing:** route all pod egress through the central `gluetun` service.
+- **VPN routing:** apps that need VPN egress MUST route it through the central
+  `gluetun` service with the tunnel helper.
 
 ## 5. Validation
 
