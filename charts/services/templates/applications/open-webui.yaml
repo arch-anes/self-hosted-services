@@ -17,6 +17,9 @@ spec:
   values:
     annotations:
       reloader.stakater.com/auto: "true"
+    podLabels:
+      networking.arch-anes.io/egress.ai: "true"
+      networking.arch-anes.io/egress.db: "true"
     pipelines:
       enabled: false
     ollama:

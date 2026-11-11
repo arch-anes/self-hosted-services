@@ -195,4 +195,14 @@ The following annotations are optional:
   repository root. This local, non-mutating validation does not require
   explicit permission under the root guide.
 
+## 10. Label-Driven Egress Isolation
+
+- Network policies live in [`templates/applications/networkpolicies.yaml`](templates/applications/networkpolicies.yaml).
+- Opt in with capability labels; unlabelled pods stay unrestricted and labels combine:
+  - `networking.arch-anes.io/egress.ai: "true"` — same-namespace `ai` peers and the internet.
+  - `networking.arch-anes.io/egress.db: "true"` — PostgreSQL in the same namespace.
+- Label a service `networking.arch-anes.io/egress-service.ai: "true"` to let `ai` pods reach it; this does not isolate the service.
+- Select by label, never by pod name. Add a capability label and policy for new groups.
+- Workloads that execute model output or user-supplied code SHOULD opt in.
+
 [cpu-limits]: https://home.robusta.dev/blog/stop-using-cpu-limits

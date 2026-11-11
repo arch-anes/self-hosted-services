@@ -1,0 +1,85 @@
+{{- define "netpol.dns-egress" -}}
+- to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+  ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+{{- end }}
+{{- define "netpol.internet-egress" -}}
+- to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+        except:
+          {{- include "ip.private_ipv4_ranges" . | nindent 10 }}
+          - 169.254.0.0/16
+          - 224.0.0.0/4
+          - 240.0.0.0/4
+    - ipBlock:
+        cidr: 2000::/3
+{{- end }}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: networking-egress-ai
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  podSelector:
+    matchLabels:
+      networking.arch-anes.io/egress.ai: "true"
+  policyTypes:
+    - Egress
+  egress:
+    {{- include "netpol.dns-egress" . | nindent 4 }}
+    {{- include "netpol.internet-egress" . | nindent 4 }}
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: "{{ .Values.applicationsNamespace }}"
+          podSelector:
+            matchLabels:
+              networking.arch-anes.io/egress.ai: "true"
+    - to:
+        - podSelector:
+            matchLabels:
+              networking.arch-anes.io/egress-service.ai: "true"
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: platform
+          podSelector:
+            matchLabels:
+              networking.arch-anes.io/egress-service.ai: "true"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: networking-egress-db
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  podSelector:
+    matchLabels:
+      networking.arch-anes.io/egress.db: "true"
+  policyTypes:
+    - Egress
+  egress:
+    {{- include "netpol.dns-egress" . | nindent 4 }}
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: "{{ .Values.applicationsNamespace }}"
+          podSelector:
+            matchExpressions:
+              - key: postgres-operator.crunchydata.com/patroni
+                operator: Exists
+      ports:
+        - protocol: TCP
+          port: 5432

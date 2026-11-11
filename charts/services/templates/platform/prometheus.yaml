@@ -83,6 +83,8 @@ spec:
                 send_resolved: false
     {{- end }}
     grafana:
+      podLabels:
+        networking.arch-anes.io/egress-service.ai: "true"
       plugins:
         - grafana-clock-panel
         - pierosavi-imageit-panel
