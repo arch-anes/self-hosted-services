@@ -44,6 +44,8 @@ spec:
           existingSecretKeys:
             username: username
             password: password
+      garmin:
+        enabled: {{ .Values.applications.sparkyfitness.garmin.enabled }}
     postgresql:
       enabled: false
     externalDatabase:

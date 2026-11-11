@@ -223,8 +223,10 @@ applications:
   #   enabled: true
   sonarr: {}
   #   enabled: true
-  sparkyfitness: {}
-  #   enabled: true
+  sparkyfitness:
+    # enabled: true
+    garmin:
+      enabled: true
   speedtest_tracker:
     # enabled: true
     dashboard:
