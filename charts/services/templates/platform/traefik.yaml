@@ -18,7 +18,7 @@ metadata:
 spec:
   chart: traefik
   repo: https://traefik.github.io/charts
-  version: 42.3.1
+  version: 42.4.0
   targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
