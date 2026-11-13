@@ -252,6 +252,27 @@
         "docker",
         "github-releases"
       ]
+    },
+    {
+      "description": "Group major updates in the Dependency Dashboard",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardCategory": "Major updates"
+    },
+    {
+      "description": "Group minor updates in the Dependency Dashboard",
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "dependencyDashboardCategory": "Minor updates"
+    },
+    {
+      "description": "Group patch updates in the Dependency Dashboard",
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "dependencyDashboardCategory": "Patch updates"
     }
   ],
   "customDatasources": {
