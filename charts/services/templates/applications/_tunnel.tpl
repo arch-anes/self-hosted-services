@@ -1,5 +1,5 @@
 {{- define "tunnel.image.repository" -}}ghcr.io/heiher/hev-socks5-tunnel{{- end -}}
-{{- define "tunnel.image.tag" -}}2.19.3{{- end -}}
+{{- define "tunnel.image.tag" -}}2.20.0{{- end -}}
 {{- define "tunnel.image.ref" -}}{{ printf "%s:%s" (include "tunnel.image.repository" .) (include "tunnel.image.tag" .) }}{{- end -}}
 {{- define "tunnel.image.pullPolicy" -}}IfNotPresent{{- end -}}
 
