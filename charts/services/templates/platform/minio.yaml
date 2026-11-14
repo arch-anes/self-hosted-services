@@ -97,7 +97,6 @@ spec:
         {{- end }}
         {{- if and .Values.primaryTenant (include "app.enabled" (list . "loki")) }}
         - name: loki-chunks
-        - name: loki-ruler
         {{- end }}
         {{- if and .Values.primaryTenant (include "app.enabled" (list . "tempo")) }}
         - name: tempo

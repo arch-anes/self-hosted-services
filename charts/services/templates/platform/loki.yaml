@@ -80,6 +80,8 @@ spec:
       compactor:
         retention_enabled: true
         delete_request_store: s3
+    ruler:
+      enabled: false
     singleBinary:
       replicas: 1
       extraEnv:
