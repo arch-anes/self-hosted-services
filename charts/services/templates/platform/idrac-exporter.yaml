@@ -1,5 +1,5 @@
 {{- if and .Values.primaryTenant (include "app.enabled" (list . "idrac_exporter")) }}
-{{- include "app.require" (list . "iDRAC Exporter" "prometheus" "Prometheus") -}}
+{{- include "app.require" (list . "iDRAC Exporter" "victoria_metrics" "VictoriaMetrics") -}}
 
 # ---
 # apiVersion: v1

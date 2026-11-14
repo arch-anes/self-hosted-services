@@ -1,0 +1,106 @@
+suite: victoria metrics high availability
+templates:
+  - platform/victoria-metrics.yaml
+  - platform/alloy.yaml
+  - platform/tempo.yaml
+set:
+  applications:
+    victoria_metrics:
+      enabled: true
+tests:
+  - it: uses VMSingle when high availability is disabled
+    template: platform/victoria-metrics.yaml
+    set:
+      highAvailability: false
+    documentSelector:
+      path: metadata.name
+      value: prometheus
+    asserts:
+      - equal:
+          path: spec.values.vmsingle.enabled
+          value: true
+      - equal:
+          path: spec.values.vmcluster.enabled
+          value: false
+      - equal:
+          path: spec.values.vmsingle.spec.replicaCount
+          value: 1
+
+  - it: uses a replicated VMCluster when high availability is enabled
+    template: platform/victoria-metrics.yaml
+    set:
+      highAvailability: true
+    documentSelector:
+      path: metadata.name
+      value: prometheus
+    asserts:
+      - equal:
+          path: spec.values.vmsingle.enabled
+          value: false
+      - equal:
+          path: spec.values.vmcluster.enabled
+          value: true
+      - equal:
+          path: spec.values.vmcluster.spec.replicationFactor
+          value: 2
+      - equal:
+          path: spec.values.vmcluster.spec.vmstorage.replicaCount
+          value: 3
+      - equal:
+          path: spec.values.vmcluster.spec.vmselect.replicaCount
+          value: 3
+      - equal:
+          path: spec.values.vmcluster.spec.vminsert.replicaCount
+          value: 3
+      - equal:
+          path: spec.values.vmcluster.spec.vmselect.extraArgs
+          value:
+            dedup.minScrapeInterval: 1ms
+
+  - it: sends Alloy metrics to VMSingle when high availability is disabled
+    template: platform/alloy.yaml
+    set:
+      highAvailability: false
+    documentSelector:
+      path: metadata.name
+      value: alloy
+    asserts:
+      - matchRegex:
+          path: spec.values.alloy.configMap.content
+          pattern: 'http://vmsingle-prometheus:8428/api/v1/write'
+
+  - it: sends Alloy metrics to vminsert when high availability is enabled
+    template: platform/alloy.yaml
+    set:
+      highAvailability: true
+    documentSelector:
+      path: metadata.name
+      value: alloy
+    asserts:
+      - matchRegex:
+          path: spec.values.alloy.configMap.content
+          pattern: 'http://vminsert-prometheus:8480/insert/0/prometheus/api/v1/write'
+
+  - it: sends Tempo metrics to VMSingle when high availability is disabled
+    template: platform/tempo.yaml
+    set:
+      highAvailability: false
+    documentSelector:
+      path: metadata.name
+      value: tempo
+    asserts:
+      - equal:
+          path: spec.values.tempo.metricsGenerator.remoteWriteUrl
+          value: http://vmsingle-prometheus:8428/api/v1/write
+
+  - it: sends Tempo metrics to vminsert when high availability is enabled
+    template: platform/tempo.yaml
+    set:
+      highAvailability: true
+    documentSelector:
+      path: metadata.name
+      value: tempo
+    asserts:
+      - equal:
+          path: spec.values.tempo.metricsGenerator.remoteWriteUrl
+          value: http://vminsert-prometheus:8480/insert/0/prometheus/api/v1/write

@@ -84,7 +84,7 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
-        "/prometheus\\.yaml$/"
+        "/victoria-metrics\\.yaml$/"
       ],
       "matchStrings": [
         "#\\s+renovate:\\s+depName=\"(?<depName>[^\"]+)\"\\n\\s+gnetId:\\s+(?<gnetId>\\d+)\\n\\s+revision:\\s+(?<currentValue>\\d+)"
@@ -164,7 +164,7 @@
         "custom.grafana-dashboards"
       ],
       "matchFileNames": [
-        "charts/services/templates/prometheus.yaml"
+        "charts/services/templates/platform/victoria-metrics.yaml"
       ]
     },
     {

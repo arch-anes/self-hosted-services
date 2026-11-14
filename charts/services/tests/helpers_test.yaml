@@ -66,12 +66,12 @@ tests:
           path: data\.app_enabled_bar
           value: ""
 
-  # ----- metrics helpers (wrap app.enabled for "prometheus") -----
-  - it: metrics.enabled returns "true" when prometheus explicitly enabled
+  # ----- metrics helpers (wrap app.enabled for "victoria_metrics") -----
+  - it: metrics.enabled returns "true" when victoria_metrics explicitly enabled
     set:
       enableAllApplicationsByDefault: false
       applications:
-        prometheus:
+        victoria_metrics:
           enabled: true
     asserts:
       - equal:
@@ -81,11 +81,11 @@ tests:
           path: data\.metrics_enabled_value
           value: "true"
 
-  - it: metrics.enabled returns empty when prometheus is disabled
+  - it: metrics.enabled returns empty when victoria_metrics is disabled
     set:
       enableAllApplicationsByDefault: false
       applications:
-        prometheus:
+        victoria_metrics:
           enabled: false
     asserts:
       - equal:
@@ -95,7 +95,7 @@ tests:
           path: data\.metrics_enabled_value
           value: "false"
 
-  - it: metrics.enabled returns "true" when global default is true (prometheus implicit)
+  - it: metrics.enabled returns "true" when global default is true (victoria_metrics implicit)
     set:
       enableAllApplicationsByDefault: true
     asserts:

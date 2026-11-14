@@ -1,5 +1,5 @@
 {{- if and .Values.primaryTenant (include "app.enabled" (list . "tempo")) }}
-{{- include "app.require" (list . "Tempo" "prometheus" "Prometheus") -}}
+{{- include "app.require" (list . "Tempo" "victoria_metrics" "VictoriaMetrics") -}}
 {{- include "app.require" (list . "Tempo" "minio" "MinIO") -}}
 # ---
 # apiVersion: v1
@@ -65,7 +65,7 @@ spec:
           memory: 4Gi
       metricsGenerator:
         enabled: true
-        remoteWriteUrl: "http://prometheus-kube-prometheus-prometheus:9090/api/v1/write"
+        remoteWriteUrl: "{{ include "metrics.write_url" . }}"
       overrides:
         defaults:
           metrics_generator:

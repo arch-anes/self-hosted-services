@@ -15,7 +15,7 @@
 {{- end -}}
 
 {{- define "metrics.enabled" -}}
-  {{- include "app.enabled" (list . "prometheus") -}}
+  {{- include "app.enabled" (list . "victoria_metrics") -}}
 {{- end -}}
 
 {{- define "ldap.base_dn" -}}
@@ -52,6 +52,14 @@
 3
   {{- else -}}
 1
+  {{- end -}}
+{{- end -}}
+
+{{- define "metrics.write_url" -}}
+  {{- if .Values.highAvailability -}}
+    http://vminsert-prometheus:8480/insert/0/prometheus/api/v1/write
+  {{- else -}}
+    http://vmsingle-prometheus:8428/api/v1/write
   {{- end -}}
 {{- end -}}
 

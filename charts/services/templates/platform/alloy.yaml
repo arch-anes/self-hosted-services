@@ -43,7 +43,7 @@ spec:
               {{- if (include "app.enabled" (list . "tempo")) }}
               traces = [otelcol.exporter.otlp.default.input]
               {{- end }}
-              {{- if (include "app.enabled" (list . "prometheus")) }}
+              {{- if (include "app.enabled" (list . "victoria_metrics")) }}
               metrics = [otelcol.exporter.prometheus.default.input]
               {{- end }}
               {{- if (include "app.enabled" (list . "loki")) }}
@@ -51,10 +51,10 @@ spec:
               {{- end }}
             }
           }
-          {{- if (include "app.enabled" (list . "prometheus")) }}
+          {{- if (include "app.enabled" (list . "victoria_metrics")) }}
           prometheus.remote_write "default" {
             endpoint {
-              url = "http://prometheus-operated:9090/api/v1/write"
+              url = "{{ include "metrics.write_url" . }}"
             }
           }
 

@@ -45,7 +45,7 @@ VALUES_OVERRIDE_SCHEMA_NAME = "values.override.schema.json"
 SCHEMA_STATE_NAME = ".helm-schema-state.json"
 RENDER_CACHE_VERSION = 2
 VALUE_CACHE_VERSION = 1
-CRD_CACHE_VERSION = 1
+CRD_CACHE_VERSION = 3
 # Increment this when this script changes how it derives schemas.
 SCHEMA_STATE_VERSION = 2
 PURE_SCHEMA_REFERENCE_KEYS = {"$schema", "$id", "$ref", "$comment", "title", "description"}
@@ -1043,12 +1043,51 @@ def _crd_files(chart_dir: Path) -> Iterable[Path]:
         if not path.is_file() or path.suffix not in {".yaml", ".yml"}:
             continue
         parts = path.relative_to(chart_dir).parts
-        is_chart_crd = parts[0] == "crds" or any(
-            part == "crds" and (index == 1 or index >= 2 and parts[index - 2] == "charts")
-            for index, part in enumerate(parts)
-        )
-        if is_chart_crd:
+        if "crds" in parts:
             yield path
+
+
+def _templated_crd_documents(path: Path) -> Iterable[object]:
+    """Render one templated CRD file that is not valid YAML on its own.
+
+    Some charts keep CRDs in templates instead of the chart's ``crds``
+    directory. Rendering only that file lets capability checks see those CRDs
+    without evaluating the chart's other templates.
+    """
+    chart_dirs = [parent for parent in path.parents if (parent / "Chart.yaml").is_file()]
+    if not chart_dirs:
+        return
+    # Use the outermost chart so dependency values from the parent chart are
+    # available when Helm renders the selected template.
+    chart_dir = chart_dirs[-1]
+
+    try:
+        result = subprocess.run(
+            [
+                "helm",
+                "template",
+                "crd-capabilities",
+                str(chart_dir),
+                "--show-only",
+                path.relative_to(chart_dir).as_posix(),
+                "--include-crds",
+                "--skip-schema-validation",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+            stdin=subprocess.DEVNULL,
+            timeout=COMMAND_TIMEOUT_SECONDS,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return
+    if result.returncode:
+        return
+
+    try:
+        yield from yaml.load_all(result.stdout, Loader=HelmYamlLoader)
+    except yaml.YAMLError:
+        return
 
 
 def _crd_documents(chart_dirs: Iterable[Path]) -> Iterable[object]:
@@ -1056,9 +1095,14 @@ def _crd_documents(chart_dirs: Iterable[Path]) -> Iterable[object]:
     for chart_dir in chart_dirs:
         for path in _crd_files(chart_dir):
             try:
-                yield from yaml.load_all(path.read_text(encoding="utf-8"), Loader=HelmYamlLoader)
-            except (OSError, yaml.YAMLError):
+                content = path.read_text(encoding="utf-8")
+            except OSError:
                 continue
+            try:
+                yield from yaml.load_all(content, Loader=HelmYamlLoader)
+            except yaml.YAMLError:
+                if "{{" in content:
+                    yield from _templated_crd_documents(path)
 
         for archive_path in chart_dir.rglob("*.tgz"):
             try:

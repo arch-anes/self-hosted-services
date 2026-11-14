@@ -162,7 +162,7 @@ The following annotations are optional:
 ## 7. Observability
 
 - You MUST add Grafana dashboards for application metrics to
-  `templates/prometheus.yaml`.
+  `templates/platform/victoria-metrics.yaml`.
 - In a `ServiceMonitor`, you SHOULD relabel `instance` to the stable
   `__meta_kubernetes_pod_name` value. This avoids time-series churn when pods
   restart.

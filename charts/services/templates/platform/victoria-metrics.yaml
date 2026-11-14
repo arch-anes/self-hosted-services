@@ -1,4 +1,4 @@
-{{- if and .Values.primaryTenant (include "app.enabled" (list . "prometheus")) }}
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "victoria_metrics")) }}
 # ---
 # apiVersion: v1
 # kind: Secret
@@ -12,55 +12,135 @@
 #   grafana-gotify-token: "sometoken"
 
 ---
+# Keep Prometheus Operator CRDs available for the ServiceMonitor, PodMonitor,
+# PrometheusRule, Probe, and ScrapeConfig objects defined by the other charts.
+# The VictoriaMetrics Operator converts them to its own resources.
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: prometheus-operator-crds
+  namespace: platform
+spec:
+  chart: prometheus-operator-crds
+  repo: https://prometheus-community.github.io/helm-charts
+  version: 33.0.2
+  targetNamespace: platform
+  # The CRDs already exist from kube-prometheus-stack's crds/ directory, which
+  # did not record Helm ownership. Adopt them instead of failing the install.
+  takeOwnership: true
+  serverSide: "true"
+  forceConflicts: true
+
+---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: prometheus
   namespace: platform
 spec:
-  chart: kube-prometheus-stack
-  repo: https://prometheus-community.github.io/helm-charts
-  version: 93.2.2
+  chart: victoria-metrics-k8s-stack
+  repo: https://victoriametrics.github.io/helm-charts
+  version: 0.98.1
   targetNamespace: platform
   bootstrap: true
   serverSide: "true"
   forceConflicts: true
   values:
-    crds:
-      enabled: true
-      upgradeJob:
-        enabled: true
-        forceConflicts: true
+    # Keep the release name (`prometheus`) and the derived resource names
+    # (vmsingle-prometheus, vmagent-prometheus, vmalert-prometheus, ...) so the
+    # migration reuses the existing Grafana PVC and the metrics integrations
+    # that reference the vmagent service account.
+    nameOverride: prometheus
+    # Prometheus-compatible datasource with a stable UID so existing dashboards
+    # and Tempo's traces-to-metrics links keep working after the migration.
+    defaultDatasources:
+      victoriametrics:
+        datasources:
+          - name: VictoriaMetrics
+            type: prometheus
+            access: proxy
+            uid: prometheus
+            isDefault: true
+    # The k3s control-plane components are scraped through PushProx, so the
+    # built-in scrapes are disabled below. Re-enable the dashboards and rules
+    # that the chart gates on those component flags.
+    defaultDashboards:
+      dashboards:
+        kubelet:
+          enabled: true
+        controller-manager:
+          enabled: true
+        scheduler:
+          enabled: true
+        proxy:
+          enabled: true
+        etcd:
+          enabled: true
+      sources:
+        kubernetes-system-api-server:
+          enabled: true
+        etcd:
+          enabled: true
+    defaultRules:
+      sources:
+        etcd:
+          enabled: true
+      groups:
+        kube-apiserver-burnrate.rules:
+          enabled: true
+        kube-apiserver-histogram.rules:
+          enabled: true
+        kube-apiserver-slos:
+          enabled: true
+        kube-scheduler.rules:
+          enabled: true
+        kubelet.rules:
+          enabled: true
+        kubernetes-system-apiserver:
+          enabled: true
+        kubernetes-system-controller-manager:
+          enabled: true
+        kubernetes-system-kubelet:
+          enabled: true
+        kubernetes-system-scheduler:
+          enabled: true
+        etcd:
+          enabled: true
     prometheus-node-exporter:
       hostNetwork: false
-      prometheus:
-        monitor:
-          relabelings:
-            - sourceLabels:
-                - __meta_kubernetes_pod_node_name
-              targetLabel: instance
-              action: replace
-            - sourceLabels:
-                - __meta_kubernetes_pod_node_name
-              separator: ;
-              regex: ^(.*)$
-              targetLabel: nodename
-              replacement: $1
-              action: replace
-          attachMetadata:
-            node: true
+      vmScrape:
+        spec:
+          endpoints:
+            - port: metrics
+              metricRelabelConfigs:
+                - action: drop
+                  source_labels: [mountpoint]
+                  regex: "/var/lib/kubelet/pods.+"
+              relabelConfigs:
+                - sourceLabels:
+                    - __meta_kubernetes_pod_node_name
+                  targetLabel: instance
+                  action: replace
+                - sourceLabels:
+                    - __meta_kubernetes_pod_node_name
+                  targetLabel: node
+                  action: replace
+                - sourceLabels:
+                    - __meta_kubernetes_pod_node_name
+                  separator: ;
+                  regex: ^(.*)$
+                  targetLabel: nodename
+                  replacement: $1
+                  action: replace
       resources:
         limits:
           memory: 64Mi
         requests:
           memory: {{ include "app.resources.memory" (list $ "16Mi") }}
           cpu: {{ include "app.resources.cpu" (list $ "100m") }}
-    defaultRules:
-      rules:
-        windows: false
     {{- if (include "app.enabled" (list . "gotify")) }}
     alertmanager:
-      alertmanagerSpec:
+      spec:
         retention: 336h # 2 weeks
       config:
         global:
@@ -81,6 +161,10 @@ spec:
             webhook_configs:
               - url: "http://alertmanager-gotify-bridge.platform.svc.cluster.local:8080/gotify_webhook"
                 send_resolved: false
+    {{- else }}
+    alertmanager:
+      spec:
+        retention: 336h # 2 weeks
     {{- end }}
     grafana:
       podLabels:
@@ -146,6 +230,8 @@ spec:
               editable: true
               options:
                 path: /var/lib/grafana/dashboards/default
+      # The VictoriaMetrics chart sync-job already provides node-exporter-full,
+      # the kubernetes-views dashboards, and the VictoriaMetrics dashboards.
       dashboards:
         default:
           cert-manager:
@@ -154,81 +240,51 @@ spec:
             revision: 1
             datasource:
               - name: DS_PROMETHEUS
-                value: Prometheus
+                value: VictoriaMetrics
           traefik:
             # renovate: depName="Traefik"
             gnetId: 17347
             revision: 9
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           blackbox-exporter:
             # renovate: depName="Blackbox Exporter"
             gnetId: 21275
             revision: 1
             datasource:
               - name: DS_PROMETHEUS
-                value: Prometheus
-          node-exporter-full:
-            # renovate: depName="Node Exporter Full"
-            gnetId: 1860
-            revision: 46
-            datasource: Prometheus
-          kubernetes-views-global:
-            # renovate: depName="Kubernetes Views Global"
-            gnetId: 15757
-            revision: 43
-            datasource: Prometheus
-          kubernetes-views-nodes:
-            # renovate: depName="Kubernetes Views Nodes"
-            gnetId: 15759
-            revision: 40
-            datasource: Prometheus
-          kubernetes-views-namespaces:
-            # renovate: depName="Kubernetes Views Namespaces"
-            gnetId: 15758
-            revision: 46
-            datasource: Prometheus
-          kubernetes-views-pods:
-            # renovate: depName="Kubernetes Views Pods"
-            gnetId: 15760
-            revision: 41
-            datasource: Prometheus
-          prometheus:
-            # renovate: depName="Prometheus"
-            gnetId: 19105
-            revision: 9
-            datasource: Prometheus
+                value: VictoriaMetrics
           oom:
             # renovate: depName="Oom"
             gnetId: 16718
             revision: 1
             datasource:
               - name: DS_PROMETHEUS
-                value: Prometheus
+                value: VictoriaMetrics
           unpackerr:
             # renovate: depName="Unpackerr"
             gnetId: 18817
             revision: 1
             datasource:
               - name: DS_PROMETHEUS
-                value: Prometheus
+                value: VictoriaMetrics
           {{- if (include "app.enabled" (list . "argo")) }}
           argo-cd:
             # renovate: depName="Argo Cd"
             gnetId: 14584
             revision: 1
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           {{- end }}
           {{- if or (include "app.enabled" (list . "prowlarr")) (include "app.enabled" (list . "radarr")) (include "app.enabled" (list . "sonarr")) }}
           arr:
             url: https://raw.githubusercontent.com/onedr0p/exportarr/3cd394508cf9456f8df4ce4a5d1adc33bb51da2b/examples/grafana/dashboard2.json
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           {{- end }}
           {{- if (include "app.enabled" (list . "authentik")) }}
           authentik:
             # renovate: depName="Authentik"
             gnetId: 14837
             revision: 2
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           {{- end }}
           {{- if (include "app.enabled" (list . "crowdsec")) }}
           crowdsec:
@@ -237,7 +293,7 @@ spec:
             revision: 1
             datasource:
               - name: DS_PROMETHEUS
-                value: Prometheus
+                value: VictoriaMetrics
               - name: DS_LOKI
                 value: Loki
           {{- end }}
@@ -248,43 +304,43 @@ spec:
             revision: 5
             datasource:
               - name: DS_PROMETHEUS
-                value: Prometheus
+                value: VictoriaMetrics
               - name: DS_LOKI
                 value: Loki
           {{- end }}
           {{- if (include "app.enabled" (list . "postgresql")) }}
           pgbackrest:
             url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/6b9bb005f171690d228bf49ca19f8f4caff95451/kustomize/monitoring/grafana/dashboards/pgbackrest.json
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           postgresql-pod-details:
             url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/6b9bb005f171690d228bf49ca19f8f4caff95451/kustomize/monitoring/grafana/dashboards/pod_details.json
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           postgresql-details:
             url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/6b9bb005f171690d228bf49ca19f8f4caff95451/kustomize/monitoring/grafana/dashboards/postgresql_details.json
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           postgresql-service-health:
             url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/6b9bb005f171690d228bf49ca19f8f4caff95451/kustomize/monitoring/grafana/dashboards/postgresql_service_health.json
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           postgresql-query-statistics:
             url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/6b9bb005f171690d228bf49ca19f8f4caff95451/kustomize/monitoring/grafana/dashboards/query_statistics.json
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           {{- end }}
           {{- if (include "app.enabled" (list . "idrac_exporter")) }}
           bmc:
             url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/45a1ac9c870176ef30617e1e104b0330b3ea9dcc/grafana/idrac.json
             datasource:
               - name: DS_PROMETHEUS
-                value: Prometheus
+                value: VictoriaMetrics
           bmc-overview:
             url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/45a1ac9c870176ef30617e1e104b0330b3ea9dcc/grafana/idrac_overview.json
             datasource:
               - name: DS_PROMETHEUS
-                value: Prometheus
+                value: VictoriaMetrics
           bmc-status:
             url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/45a1ac9c870176ef30617e1e104b0330b3ea9dcc/grafana/status-alternative.json
             datasource:
               - name: DS_PROMETHEUS
-                value: Prometheus
+                value: VictoriaMetrics
           {{- end }}
           {{- if (include "app.enabled" (list . "ipmi_exporter")) }}
           ipmi:
@@ -293,7 +349,7 @@ spec:
             revision: 2
             datasource:
               - name: DS_PROMETHEUS
-                value: Prometheus
+                value: VictoriaMetrics
           {{- end }}
           {{- if (include "app.enabled" (list . "minio")) }}
           minio:
@@ -302,7 +358,7 @@ spec:
             revision: 26
             datasource:
               - name: DS_PROMETHEUS
-                value: Prometheus
+                value: VictoriaMetrics
           {{- end }}
           {{- if (include "app.enabled" (list . "node_problem_detector")) }}
           node-problem-detector:
@@ -311,7 +367,7 @@ spec:
             revision: 1
             datasource:
               - name: DS_PROMETHEUS
-                value: Prometheus
+                value: VictoriaMetrics
           {{- end }}
           {{- if (include "app.enabled" (list . "redis")) }}
           redis:
@@ -320,12 +376,12 @@ spec:
             revision: 6
             datasource:
               - name: DS_PROM
-                value: Prometheus
+                value: VictoriaMetrics
           redis-quickstart:
             # renovate: depName="Redis Quickstart"
             gnetId: 14091
             revision: 1
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           {{- end }}
           {{- if (include "app.enabled" (list . "velero")) }}
           velero:
@@ -333,7 +389,7 @@ spec:
             # gnetId: 23838
             gnetId: 15469
             revision: 1
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           {{- end }}
           {{- if (include "app.enabled" (list . "speedtest_tracker")) }}
           speedtest_tracker:
@@ -342,28 +398,28 @@ spec:
             revision: 5
             datasource:
               - name: DS_PROMETHEUS
-                value: Prometheus
+                value: VictoriaMetrics
           {{- end }}
           {{- if .Values.behindTcpProxy }}
           haproxy:
             # renovate: depName="Haproxy"
             gnetId: 12693
             revision: 15
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           {{- end }}
           {{- if (include "app.enabled" (list . "zfs_exporter")) }}
           zfs-pool-overview:
             url: https://raw.githubusercontent.com/d-uzlov/k8s-homelab/master/metrics/zfs-exporter/dashboards/zfs-pool-overview.json
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           zfs-pool-datasets:
             url: https://raw.githubusercontent.com/d-uzlov/k8s-homelab/master/metrics/zfs-exporter/dashboards/zfs-pool-datasets.json
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           zfs-dataset-details:
             url: https://raw.githubusercontent.com/d-uzlov/k8s-homelab/master/metrics/zfs-exporter/dashboards/zfs-dataset-details.json
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           zfs-arc-stats:
             url: https://raw.githubusercontent.com/d-uzlov/k8s-homelab/master/metrics/zfs-exporter/dashboards/zfs-arc-stats.json
-            datasource: Prometheus
+            datasource: VictoriaMetrics
           {{- end }}
       prune: true
       sidecar:
@@ -415,25 +471,20 @@ spec:
         requests:
           memory: {{ include "app.resources.memory" (list $ "1Gi") }}
           cpu: {{ include "app.resources.cpu" (list $ "2000m") }}
-    prometheus:
-      prometheusSpec:
-        enableAdminAPI: true
-        enableRemoteWriteReceiver: true
-        podMonitorSelectorNilUsesHelmValues: false
-        serviceMonitorSelectorNilUsesHelmValues: false
-        probeSelectorNilUsesHelmValues: false
-        scrapeConfigSelectorNilUsesHelmValues: false
-        ruleSelectorNilUsesHelmValues: false
-        replicas: 1
-        retention: 365d
-        podAntiAffinity: hard
-        storageSpec:
-          volumeClaimTemplate:
-            spec:
-              accessModes: ["ReadWriteOnce"]
-              resources:
-                requests:
-                  storage: 50Gi
+    # VMSingle cannot run in HA mode, so it is only used when high availability
+    # is disabled. With HA enabled, the chart deploys a replicated VMCluster
+    # instead, and the datasource/remote-write URLs switch automatically.
+    vmsingle:
+      enabled: {{ not .Values.highAvailability }}
+      spec:
+        retentionPeriod: 365d
+        replicaCount: 1
+        storage:
+          accessModes: ["ReadWriteOnce"]
+          storageClassName: local-path-persistent-namespaced
+          resources:
+            requests:
+              storage: 50Gi
         nodeSelector:
           # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
           kubernetes.io/arch: amd64
@@ -443,6 +494,97 @@ spec:
           requests:
             cpu: {{ include "app.resources.cpu" (list $ "500m") }}
             memory: {{ include "app.resources.memory" (list $ "1Gi") }}
+    vmcluster:
+      enabled: {{ include "ha.enabled" . | default false }}
+      spec:
+        retentionPeriod: 365d
+        # Store each sample on two vmstorage replicas so one node can fail
+        # without losing data. vmselect deduplicates the replicas on read.
+        replicationFactor: 2
+        vmstorage:
+          replicaCount: {{ include "ha.replicas" . }}
+          storageDataPath: /vm-data
+          storage:
+            volumeClaimTemplate:
+              spec:
+                accessModes: ["ReadWriteOnce"]
+                storageClassName: local-path-persistent-namespaced
+                resources:
+                  requests:
+                    storage: 50Gi
+          nodeSelector:
+            # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
+            kubernetes.io/arch: amd64
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - topologyKey: kubernetes.io/hostname
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: vmstorage
+          resources:
+            limits:
+              memory: 5Gi
+            requests:
+              cpu: {{ include "app.resources.cpu" (list $ "500m") }}
+              memory: {{ include "app.resources.memory" (list $ "1Gi") }}
+        vmselect:
+          replicaCount: {{ include "ha.replicas" . }}
+          cacheMountPath: /select-cache
+          extraArgs:
+            # Collapse the copies written by replicationFactor on read.
+            dedup.minScrapeInterval: 1ms
+          storage:
+            volumeClaimTemplate:
+              spec:
+                accessModes: ["ReadWriteOnce"]
+                storageClassName: local-path-persistent-namespaced
+                resources:
+                  requests:
+                    storage: 2Gi
+          nodeSelector:
+            # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
+            kubernetes.io/arch: amd64
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - topologyKey: kubernetes.io/hostname
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: vmselect
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              cpu: {{ include "app.resources.cpu" (list $ "200m") }}
+              memory: {{ include "app.resources.memory" (list $ "512Mi") }}
+        vminsert:
+          replicaCount: {{ include "ha.replicas" . }}
+          nodeSelector:
+            # Schedule onto amd64 to specifically avoid raspberry pi to not wear the SD card
+            kubernetes.io/arch: amd64
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - topologyKey: kubernetes.io/hostname
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: vminsert
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: {{ include "app.resources.cpu" (list $ "200m") }}
+              memory: {{ include "app.resources.memory" (list $ "256Mi") }}
+    vmagent:
+      spec:
+        scrapeInterval: 30s
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            cpu: {{ include "app.resources.cpu" (list $ "200m") }}
+            memory: {{ include "app.resources.memory" (list $ "256Mi") }}
         {{- if (include "app.enabled" (list . "ipmi_exporter")) }}
         secrets:
           - ipmi-exporter
@@ -450,37 +592,18 @@ spec:
     ## k3s only ##
     # Avoid duplicated metrics in k3s: https://tinyurl.com/mrhjre9n
     kubelet:
-      jobNameOverride: k3s-server
-      serviceMonitor:
-        enabled: false
+      enabled: false
     kubeApiServer:
-      jobNameOverride: k3s-server
-      serviceMonitor:
-        enabled: false
+      enabled: false
     kubeControllerManager:
-      jobNameOverride: k3s-server
-      service:
-        enabled: false
-      serviceMonitor:
-        enabled: false
+      enabled: false
     kubeScheduler:
-      jobNameOverride: k3s-server
-      service:
-        enabled: false
-      serviceMonitor:
-        enabled: false
+      enabled: false
     kubeProxy:
-      jobNameOverride: k3s-server
-      service:
-        enabled: false
-      serviceMonitor:
-        enabled: false
+      enabled: false
     kubeEtcd:
-      service:
-        enabled: false
-      serviceMonitor:
-        enabled: false
-    extraManifests:
+      enabled: false
+    extraObjects:
       {{- if (include "app.enabled" (list . "gotify")) }}
       - apiVersion: apps/v1
         kind: Deployment

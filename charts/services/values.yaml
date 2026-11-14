@@ -211,8 +211,6 @@ applications:
         bucket: "some-bucket"
         endpoint: "some-endpoint"
         region: "some-region"
-  prometheus: {}
-  #   enabled: true
   prowlarr: {}
   #   enabled: true
   radarr: {}
@@ -264,6 +262,8 @@ applications:
           s3ForcePathStyle: true # if using an S3-compatible service
           region: <some_region>
           s3Url: https://<some_endpoint> # if using an S3-compatible service
+  victoria_metrics: {}
+  #   enabled: true
   wakapi: {}
   #   enabled: true
   woodpecker: {}
