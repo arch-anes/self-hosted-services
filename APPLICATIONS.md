@@ -70,7 +70,7 @@ highAvailability: false  # Set to false to use 1 replica instead of 3
   Ansible controller. The inventory name is derived from the inventory file
   basename with a trailing `.yml` or `.yaml` removed.
 - **Velero:** Create an S3-compatible backup bucket and access key, then configure the [Velero secrets](charts/services/templates/velero.yaml) with those credentials and an encryption key.
-- **Prometheus and Grafana:** Configure the [Prometheus secret](charts/services/templates/prometheus.yaml) with Grafana admin credentials.
+- **VictoriaMetrics and Grafana:** Configure the [VictoriaMetrics secret](charts/services/templates/platform/victoria-metrics.yaml) with Grafana admin credentials.
 - **Loki and Tempo:** Configure their [Loki](charts/services/templates/loki.yaml) and [Tempo](charts/services/templates/tempo.yaml) secrets with MinIO credentials.
 - **iDRAC Exporter and IPMI Exporter:** Configure the [iDRAC](charts/services/templates/idrac-exporter.yaml) and [IPMI](charts/services/templates/ipmi-exporter.yaml) secrets with credentials and target hosts.
 - **llama.cpp:** Configure the [Hugging Face secret](charts/services/templates/llama.cpp.yaml) with an access token for faster model downloads.

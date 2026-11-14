@@ -15,7 +15,7 @@ tests:
     documentIndex: 2
     set:
       applications:
-        prometheus:
+        victoria_metrics:
           enabled: false
     asserts:
       - equal:
@@ -39,7 +39,7 @@ tests:
     documentIndex: 2
     set:
       applications:
-        prometheus:
+        victoria_metrics:
           enabled: true
     asserts:
       - equal:

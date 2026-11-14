@@ -60,15 +60,15 @@ spec:
           name: prometheus-pgo-metrics
         subjects:
           - kind: ServiceAccount
-            name: prometheus-kube-prometheus-prometheus
+            name: vmagent-prometheus
             namespace: platform
       - apiVersion: v1
         kind: Secret
         metadata:
-          name: prometheus-pgo-metrics-token
+          name: vmagent-pgo-metrics-token
           namespace: platform
           annotations:
-            kubernetes.io/service-account.name: prometheus-kube-prometheus-prometheus
+            kubernetes.io/service-account.name: vmagent-prometheus
         type: kubernetes.io/service-account-token
       - apiVersion: monitoring.coreos.com/v1
         kind: PrometheusRule
@@ -299,7 +299,7 @@ spec:
               authorization:
                 type: Bearer
                 credentials:
-                  name: prometheus-pgo-metrics-token
+                  name: vmagent-pgo-metrics-token
                   key: token
       - apiVersion: monitoring.coreos.com/v1
         kind: PodMonitor

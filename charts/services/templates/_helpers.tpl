@@ -15,7 +15,7 @@
 {{- end -}}
 
 {{- define "metrics.enabled" -}}
-  {{- include "app.enabled" (list . "prometheus") -}}
+  {{- include "app.enabled" (list . "victoria_metrics") -}}
 {{- end -}}
 
 {{- define "ldap.base_dn" -}}
@@ -52,6 +52,23 @@
 3
   {{- else -}}
 1
+  {{- end -}}
+{{- end -}}
+
+{{- define "metrics.write_service" -}}
+victoriametrics-write
+{{- end -}}
+
+{{- define "metrics.write_port" -}}
+8428
+{{- end -}}
+
+{{- define "metrics.write_url" -}}
+  {{- $endpoint := printf "%s.platform.svc.cluster.local:%s" (include "metrics.write_service" .) (include "metrics.write_port" .) -}}
+  {{- if .Values.highAvailability -}}
+    http://{{ $endpoint }}/insert/0/prometheus/api/v1/write
+  {{- else -}}
+    http://{{ $endpoint }}/api/v1/write
   {{- end -}}
 {{- end -}}
 

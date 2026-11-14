@@ -1,5 +1,5 @@
 {{- if and .Values.primaryTenant (include "app.enabled" (list . "blackbox_exporter")) }}
-{{- include "app.require" (list . "Blackbox Exporter" "prometheus" "Prometheus") -}}
+{{- include "app.require" (list . "Blackbox Exporter" "victoria_metrics" "VictoriaMetrics") -}}
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
