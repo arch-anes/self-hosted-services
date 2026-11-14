@@ -51,6 +51,8 @@ spec:
         replication_factor: 1
       server:
         http_listen_port: 3100
+      analytics:
+        reporting_enabled: false
       storage:
         use_thanos_objstore: true
         bucketNames:
