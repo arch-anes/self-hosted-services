@@ -4,7 +4,6 @@ when:
   - event: push
     branch:
       - main
-      - dev
 
 steps:
   - name: Restore Helm chart cache
