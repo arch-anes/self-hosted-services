@@ -221,6 +221,8 @@ applications:
   #   enabled: true
   searxng: {}
   #   enabled: true
+  smartctl_exporter: {}
+  #   enabled: true
   sonarr: {}
   #   enabled: true
   sparkyfitness:

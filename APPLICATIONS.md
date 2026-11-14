@@ -15,7 +15,7 @@ This page is the operational reference. It lists the included applications and o
 | Monitoring and notifications | Gotify, Miniflux, Speedtest Tracker, Epic Games Free Games, Wakapi |
 | Operations | NetBox, Homebox, Odoo, PostgreSQL, pgAdmin4, Redis, Redis Insight, Headlamp, Homer Operator |
 | Hardware and gaming | OctoPrint, Obico, RED Discord Bot, Minecraft Bedrock, Akri, Intel GPU, NVIDIA GPU, AMD GPU |
-| Backups and observability | Velero, Prometheus, Grafana, Blackbox Exporter, Loki, Tempo, Alloy, Node Problem Detector, iDRAC Exporter, IPMI Exporter |
+| Backups and observability | Velero, Prometheus, Grafana, Blackbox Exporter, Loki, Tempo, Alloy, Node Problem Detector, S.M.A.R.T. Exporter, iDRAC Exporter, IPMI Exporter |
 | AI and email | llama.cpp, Open WebUI, Stalwart |
 
 ## High availability

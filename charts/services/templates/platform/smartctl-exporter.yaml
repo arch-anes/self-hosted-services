@@ -1,0 +1,32 @@
+{{- if and .Values.primaryTenant (include "app.enabled" (list . "smartctl_exporter")) }}
+{{- include "app.require" (list . "S.M.A.R.T. Exporter" "prometheus" "Prometheus") -}}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: smartctl-exporter
+  namespace: platform
+spec:
+  chart: prometheus-smartctl-exporter
+  repo: https://prometheus-community.github.io/helm-charts
+  version: 0.19.2
+  targetNamespace: platform
+  serverSide: "true"
+  forceConflicts: true
+  values:
+    serviceMonitor:
+      enabled: {{ include "metrics.enabled" . | default false }}
+      relabelings:
+        - sourceLabels:
+            - __meta_kubernetes_pod_node_name
+          targetLabel: instance
+          action: replace
+    prometheusRules:
+      enabled: true
+    resources:
+      limits:
+        memory: 128Mi
+      requests:
+        cpu: {{ include "app.resources.cpu" (list $ "10m") }}
+        memory: {{ include "app.resources.memory" (list $ "32Mi") }}
+{{- end }}

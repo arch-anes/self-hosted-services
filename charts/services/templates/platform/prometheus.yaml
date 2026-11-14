@@ -344,6 +344,15 @@ spec:
               - name: DS_PROMETHEUS
                 value: Prometheus
           {{- end }}
+          {{- if (include "app.enabled" (list . "smartctl_exporter")) }}
+          smartctl-exporter:
+            # renovate: depName="SMARTctl Exporter Dashboard"
+            gnetId: 22604
+            revision: 4
+            datasource:
+              - name: DS_PROMETHEUS
+                value: Prometheus
+          {{- end }}
           {{- if .Values.behindTcpProxy }}
           haproxy:
             # renovate: depName="Haproxy"
