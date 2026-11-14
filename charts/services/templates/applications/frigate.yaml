@@ -23,6 +23,7 @@ spec:
           - 46
           - 109
           - 110
+          - 993
     workload:
       main:
         podSpec:
