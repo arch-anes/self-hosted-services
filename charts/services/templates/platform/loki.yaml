@@ -80,6 +80,9 @@ spec:
         retention_period: 8760h # 1 year
         ingestion_rate_mb: 64          # MB/sec per tenant
         ingestion_burst_size_mb: 128   # MB burst per tenant
+      compactor:
+        retention_enabled: true
+        delete_request_store: s3
     singleBinary:
       replicas: 1
       extraEnv:
