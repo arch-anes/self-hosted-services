@@ -40,9 +40,6 @@
       kube-controller-manager-arg:
         - node-monitor-period=4s
         - node-monitor-grace-period=16s
-      kube-apiserver-arg:
-        - default-not-ready-toleration-seconds=20
-        - default-unreachable-toleration-seconds=20
       helm-controller-arg:
         - 'job-resources={"requests":{"cpu":"100m","memory":"100M"},"limits":{"memory":"1G"}}'
 
