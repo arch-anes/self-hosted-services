@@ -39,12 +39,6 @@ spec:
             secretKeyRef:
               name: loki
               key: secretKey
-        - name: AWS_REQUEST_CHECKSUM_CALCULATION
-          value: WHEN_REQUIRED
-        - name: AWS_RESPONSE_CHECKSUM_VALIDATION
-          value: WHEN_REQUIRED
-        - name: AWS_S3_USE_PATH_STYLE_ENDPOINT
-          value: "true"
     lokiCanary:
       enabled: false
     test:
@@ -58,15 +52,18 @@ spec:
       server:
         http_listen_port: 3100
       storage:
-        type: s3
+        use_thanos_objstore: true
         bucketNames:
           chunks: loki-chunks
           ruler: loki-ruler
-        s3:
-          endpoint: http://minio.{{ .Values.applicationsNamespace }}.svc.cluster.local
-          region: us-east-1
-          s3ForcePathStyle: true
-          insecure: true
+        # https://grafana.com/docs/loki/latest/configure/#thanos_object_store_config
+        object_store:
+          type: s3
+          s3:
+            endpoint: minio.{{ .Values.applicationsNamespace }}.svc.cluster.local
+            region: us-east-1
+            insecure: true
+            bucket_lookup_type: path
       schemaConfig:
         configs:
           - from: 2025-01-01
