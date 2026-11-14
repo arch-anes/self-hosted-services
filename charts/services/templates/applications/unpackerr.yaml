@@ -1,4 +1,14 @@
 {{- if (include "app.enabled" (list . "unpackerr")) }}
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: unpackerr
+#   namespace: "{{ .Values.applicationsNamespace }}"
+# type: Opaque
+# stringData:
+#   ui_password: "admin:somepass"
+
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -49,34 +59,104 @@ spec:
                     key: radarr_api_key
                     expandObjectName: false
                 {{- end }}
+                {{- if .Values.applications.unpackerr.dashboard.enabled }}
+                UN_WEBSERVER_UI_PASSWORD:
+                  secretKeyRef:
+                    name: unpackerr
+                    key: ui_password
+                    expandObjectName: false
+                {{- end }}
                 {{- if (include "metrics.enabled" .) }}
                 UN_WEBSERVER_METRICS: "true"
+                UN_WEBSERVER_API_KEYS_0_NAME: prometheus
+                UN_WEBSERVER_API_KEYS_0_KEY:
+                  secretKeyRef:
+                    name: unpackerr-metrics
+                    key: api_key
+                    expandObjectName: false
+                UN_WEBSERVER_API_KEYS_0_ROLES_0: metrics
+                UN_WEBSERVER_ROLES_metrics_PERMISSIONS_0: system:metrics:read
                 {{- end }}
     service:
       main:
-        enabled: {{ include "metrics.enabled" . | default false }}
+        enabled: {{ or .Values.applications.unpackerr.dashboard.enabled (eq (include "metrics.enabled" .) "true") }}
         ports:
           main:
             enabled: true
             port: 5656
-    metrics:
+    global:
+      traefik:
+        commonMiddlewares: []
+    ingress:
       main:
-        enabled: {{ include "metrics.enabled" . | default false }}
-        endpoints:
-          - port: main
-            path: /metrics
-            relabelings:
-              - action: replace
-                # Stable “instance” = app.kubernetes.io/instance
-                sourceLabels: [__meta_kubernetes_namespace, __meta_kubernetes_pod_label_app_kubernetes_io_instance]
-                separator: ":"
-                replacement: "$1$2"
-                targetLabel: instance
-              - action: labeldrop
-                regex: pod
-            metricRelabelings:
-              - action: labeldrop
-                regex: pod
+        enabled: {{ .Values.applications.unpackerr.dashboard.enabled }}
+        annotations:
+          homer.service.name: Arr
+          homer.item.name: Unpackerr
+          homer.item.logo: "https://unpackerr.zip/img/icon.png"
+        hosts:
+          - host: unpackerr.{{ .Values.fqdn }}
+            paths:
+              - path: /
+        tls:
+          - secretName: "{{ .Values.fqdn }}-tls"
+            hosts:
+              - unpackerr.{{ .Values.fqdn }}
+    {{- if (include "metrics.enabled" .) }}
+    extraTpl:
+      - apiVersion: external-secrets.io/v1
+        kind: ExternalSecret
+        metadata:
+          name: unpackerr-metrics
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          refreshPolicy: CreatedOnce
+          target:
+            name: unpackerr-metrics
+            creationPolicy: Owner
+            deletionPolicy: Retain
+          dataFrom:
+            - sourceRef:
+                generatorRef:
+                  apiVersion: generators.external-secrets.io/v1alpha1
+                  kind: ClusterGenerator
+                  name: huge-alphanumerical-password-generator
+              rewrite:
+                - transform:
+                    template: api_key
+      - apiVersion: monitoring.coreos.com/v1
+        kind: ServiceMonitor
+        metadata:
+          name: unpackerr
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          jobLabel: app.kubernetes.io/name
+          selector:
+            matchLabels:
+              service.name: main
+              app.kubernetes.io/name: unpackerr
+              app.kubernetes.io/instance: unpackerr
+          endpoints:
+            - port: main
+              path: /metrics
+              authorization:
+                type: Bearer
+                credentials:
+                  name: unpackerr-metrics
+                  key: api_key
+              relabelings:
+                - action: replace
+                  # Stable “instance” = app.kubernetes.io/instance
+                  sourceLabels: [__meta_kubernetes_namespace, __meta_kubernetes_pod_label_app_kubernetes_io_instance]
+                  separator: ":"
+                  replacement: "$1$2"
+                  targetLabel: instance
+                - action: labeldrop
+                  regex: pod
+              metricRelabelings:
+                - action: labeldrop
+                  regex: pod
+    {{- end }}
     resources:
       requests:
         memory: {{ include "app.resources.memory" (list $ "100Mi") }}
