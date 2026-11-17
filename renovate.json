@@ -178,10 +178,12 @@
       "groupName": "Grafana dashboards Kubernetes Views"
     },
     {
+      "description": "TrueCharts chart changelog links",
       "matchJsonata": [
         "registryUrl = 'https://oci.trueforge.org'"
       ],
-      "changelogUrl": "https://trueforge.org/truetech/truecharts/charts/stable/{{depName}}/changelog/"
+      "changelogUrl": "https://github.com/trueforge-org/truecharts/commits/master/charts/stable/{{depName}}",
+      "commitMessageExtra": "from {{currentVersion}} -> {{newVersion}} ([changelog](https://github.com/trueforge-org/truecharts/commits/master/charts/stable/{{depName}}))"
     },
     {
       "matchPackageNames": [
