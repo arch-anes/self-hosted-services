@@ -62,6 +62,11 @@ spec:
                     name: arr
                     key: radarr_api_key
                     expandObjectName: false
+              resources:
+                requests:
+                  memory: 32Mi
+                limits:
+                  memory: 128Mi
     resources:
       requests:
         memory: {{ include "app.resources.memory" (list $ "500Mi") }}

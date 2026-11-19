@@ -66,6 +66,12 @@ spec:
                     name: arr
                     key: chaptarr_api_key
                     expandObjectName: false
+              resources:
+                # exportarr's working set has grown to ~430Mi; cap it separately from the app.
+                requests:
+                  memory: 64Mi
+                limits:
+                  memory: 512Mi
     resources:
       requests:
         memory: {{ include "app.resources.memory" (list $ "1000Mi") }}

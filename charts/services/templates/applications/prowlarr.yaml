@@ -65,6 +65,11 @@ spec:
                     name: arr
                     key: prowlarr_api_key
                     expandObjectName: false
+              resources:
+                requests:
+                  memory: 16Mi
+                limits:
+                  memory: 128Mi
     resources:
       requests:
         memory: {{ include "app.resources.memory" (list $ "256Mi") }}

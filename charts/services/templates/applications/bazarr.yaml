@@ -92,6 +92,11 @@ spec:
                     name: arr
                     key: bazarr_api_key
                     expandObjectName: false
+              resources:
+                requests:
+                  memory: 24Mi
+                limits:
+                  memory: 128Mi
     resources:
       requests:
         memory: {{ include "app.resources.memory" (list $ "1Gi") }}
