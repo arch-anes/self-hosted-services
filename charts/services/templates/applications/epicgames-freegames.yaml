@@ -23,6 +23,9 @@ metadata:
   annotations:
     prometheus.io/probe: "false"
     homer.item.excluded: "true"
+    {{- if .Values.applications.epicgames_freegames.private }}
+    traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+    {{- end }}
 spec:
   tls:
     - hosts:

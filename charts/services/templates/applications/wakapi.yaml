@@ -94,6 +94,9 @@ spec:
       main:
         enabled: true
         annotations:
+          {{- if .Values.applications.wakapi.private }}
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+          {{- end }}
           homer.service.name: Monitoring
           homer.item.logo: "https://raw.githubusercontent.com/muety/wakapi/b3924c41191cdbad2fefdd22c8cf3308bb59616a/static/assets/images/logo.svg"
         hosts:

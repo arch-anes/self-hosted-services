@@ -86,6 +86,9 @@ spec:
       main:
         enabled: true
         annotations:
+          {{- if .Values.applications.chaptarr.private }}
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+          {{- end }}
           homer.service.name: Arr
           homer.item.name: Chaptarr
           homer.item.logo: "https://raw.githubusercontent.com/Chaptarr/chaptarr/develop/Logo/chaptarr.png"

@@ -106,6 +106,9 @@ spec:
     ingress:
       enabled: true
       annotations:
+        {{- if .Values.applications.sparkyfitness.private }}
+        traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+        {{- end }}
         homer.service.name: "Monitoring"
         homer.item.name: "SparkyFitness"
         homer.item.logo: "https://codewithcj.github.io/SparkyFitness/logo.png"

@@ -76,6 +76,9 @@ spec:
       main:
         enabled: {{ .Values.applications.speedtest_tracker.dashboard.enabled }}
         annotations:
+          {{- if .Values.applications.speedtest_tracker.private }}
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+          {{- end }}
           homer.service.name: Monitoring
           homer.item.name: "Speedtest Tracker"
           homer.item.type: SpeedtestTracker

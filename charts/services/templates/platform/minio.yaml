@@ -132,6 +132,9 @@ spec:
       api:
         enabled: true
         annotations:
+          {{- if .Values.applications.minio.private }}
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+          {{- end }}
           prometheus.io/probe: "false"
           homer.item.excluded: "true"
         tls:
@@ -144,6 +147,9 @@ spec:
       console:
         enabled: true
         annotations:
+          {{- if .Values.applications.minio.private }}
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+          {{- end }}
           homer.service.name: Media
           homer.item.name: MinIO
           homer.item.logo: "https://cdn.prod.website-files.com/681c8426519d8db8f867c1e8/68656cb290ee4fa91989c2dc_Brand-Logo%20%E2%9C%85.svg"

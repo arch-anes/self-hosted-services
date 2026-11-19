@@ -32,6 +32,10 @@ This guide applies to the `charts/services` subtree. Follow the repository-wide
   enabled: {{ include "metrics.enabled" . | default false }}
   ```
 
+- Application-specific values MUST be declared under `applications.<app>` in
+  [`values.yaml`](values.yaml) with their defaults and read directly in
+  templates, for example `.Values.applications.<app>.private`. You MUST NOT add
+  generic inclusion helpers solely to expose per-application values.
 - Follow [`templates/nextcloud.yaml`](templates/nextcloud.yaml) as the reference
   for application gating and dependency declarations.
 - You MUST declare GPU resources through `gpu.device`. Follow
@@ -151,6 +155,13 @@ Ingress MUST have:
 
 An Ingress intentionally hidden from the dashboard MUST instead include
 `homer.item.excluded: "true"` to prevent clutter.
+
+Intranet-only access is controlled per application with
+`applications.<app>.private`. Every Ingress-exposed application MUST declare
+this value in [`values.yaml`](values.yaml), and its Ingress MUST read it
+directly. Set it to `true` when the application exposes potentially dangerous
+capabilities, such as cluster or infrastructure control. Keep admin and system
+endpoints protected regardless.
 
 The following annotations are optional:
 

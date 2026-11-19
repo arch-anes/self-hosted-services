@@ -30,7 +30,9 @@ spec:
         homer.service.rank: "5"
         homer.item.name: "Headlamp"
         homer.item.logo: "https://headlamp.dev/img/logo.svg"
+        {{- if .Values.applications.headlamp.private }}
         traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+        {{- end }}
       hosts:
         - host: headlamp.{{ .Values.fqdn }}
           paths:

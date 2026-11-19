@@ -70,6 +70,9 @@ spec:
       main:
         enabled: true
         annotations:
+          {{- if .Values.applications.miniflux.private }}
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+          {{- end }}
           homer.service.name: Feed
           homer.service.icon: "fas fa-rss"
           homer.service.rank: "2"

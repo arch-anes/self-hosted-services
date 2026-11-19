@@ -183,6 +183,9 @@ spec:
     ingress:
       enabled: true
       annotations:
+        {{- if .Values.applications.nextcloud.private }}
+        traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+        {{- end }}
         homer.service.name: Media
         homer.item.rank: "2"
         homer.item.logo: "https://github.com/nextcloud/server/raw/0450e47f8dda26d19a0a252ddd5a117fddfa6885/core/img/logo/logo.png"

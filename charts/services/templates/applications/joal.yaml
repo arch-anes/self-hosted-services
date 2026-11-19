@@ -86,6 +86,9 @@ spec:
             prometheus.io/probe: "false"
             homer.service.name: Media
             homer.item.logo: "https://raw.githubusercontent.com/anthonyraymond/joal/cad5df11990d4304476d574484003ccbcdd0b700/src/main/resources/public/favicon.ico"
+            {{- if .Values.applications.joal.private }}
+            traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+            {{- end }}
         spec:
           tls:
             - hosts:

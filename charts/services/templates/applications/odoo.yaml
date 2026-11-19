@@ -143,6 +143,9 @@ spec:
       main:
         enabled: true
         annotations:
+          {{- if .Values.applications.odoo.private }}
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+          {{- end }}
           homer.service.name: Administration
           homer.item.logo: "https://odoocdn.com/openerp_website/static/src/img/assets/svg/odoo_logo.svg"
         hosts:
@@ -156,6 +159,9 @@ spec:
       websocket:
         enabled: true
         annotations:
+          {{- if .Values.applications.odoo.private }}
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+          {{- end }}
           prometheus.io/probe: "false"
           homer.item.excluded: "true"
         hosts:

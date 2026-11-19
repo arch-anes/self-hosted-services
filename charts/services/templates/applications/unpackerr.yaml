@@ -91,6 +91,9 @@ spec:
       main:
         enabled: {{ .Values.applications.unpackerr.dashboard.enabled }}
         annotations:
+          {{- if .Values.applications.unpackerr.private }}
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+          {{- end }}
           homer.service.name: Arr
           homer.item.name: Unpackerr
           homer.item.logo: "https://unpackerr.zip/img/icon.png"
