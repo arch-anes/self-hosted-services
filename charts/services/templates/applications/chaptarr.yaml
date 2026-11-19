@@ -68,10 +68,10 @@ spec:
                     expandObjectName: false
     resources:
       requests:
-        memory: {{ include "app.resources.memory" (list $ "500Mi") }}
+        memory: {{ include "app.resources.memory" (list $ "1000Mi") }}
         cpu: {{ include "app.resources.cpu" (list $ "250m") }}
       limits:
-        memory: 2Gi
+        memory: 4Gi
         cpu: 0
     global:
       traefik:
