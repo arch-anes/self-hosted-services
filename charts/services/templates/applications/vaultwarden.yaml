@@ -96,6 +96,9 @@ spec:
       main:
         enabled: true
         annotations:
+        {{- if .Values.applications.vaultwarden.private }}
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+        {{- end }}
           homer.service.name: Administration
           homer.item.name: Vaultwarden
           homer.item.logo: "https://raw.githubusercontent.com/dani-garcia/vaultwarden/22f5e0496cca369af378c4f6379a0260b521fcbb/resources/vaultwarden-icon.svg"

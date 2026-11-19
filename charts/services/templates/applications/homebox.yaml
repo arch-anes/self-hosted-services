@@ -105,6 +105,9 @@ spec:
       main:
         enabled: true
         annotations:
+        {{- if .Values.applications.homebox.private }}
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+        {{- end }}
           homer.service.name: Feed
           homer.item.name: HomeBox
           homer.item.logo: "https://raw.githubusercontent.com/sysadminsmedia/homebox/1fd28822634a3d5935c002d569559ef46530d4a0/docs/public/favicon.svg"

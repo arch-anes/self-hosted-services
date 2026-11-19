@@ -62,6 +62,9 @@ spec:
       main:
         enabled: true
         annotations:
+        {{- if .Values.applications.jellyfin.private }}
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+        {{- end }}
           homer.service.name: Media
           homer.service.icon: "fas fa-video"
           homer.service.rank: "1"

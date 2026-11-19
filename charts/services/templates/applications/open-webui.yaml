@@ -103,6 +103,9 @@ spec:
     ingress:
       enabled: true
       annotations:
+      {{- if .Values.applications.open_webui.private }}
+        traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+      {{- end }}
         homer.service.name: Automation
         homer.item.logo: "https://openwebui.com/favicon.png"
       host: chat.{{ .Values.fqdn }}

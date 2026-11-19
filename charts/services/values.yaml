@@ -84,10 +84,12 @@ applications:
   #   enabled: true
   amd_gpu: {}
   #   enabled: true
-  archivebox: {}
-  #   enabled: true
+  archivebox:
+    # enabled: true
+    private: false
   argo:
     # enabled: true
+    private: true
     # The git repository out of which to continuously deploy
     gitRepo: https://github.com/arch-anes/self-hosted-services.git
     targetRevision: HEAD
@@ -96,24 +98,29 @@ applications:
         schedule: "0 12 * * *"
         duration: "12h"
         manualSync: true
-  authentik: {}
-  #   enabled: true
-  bazarr: {}
-  #   enabled: true
+  authentik:
+    # enabled: true
+    private: false
+  bazarr:
+    # enabled: true
+    private: false
   blackbox_exporter: {}
   #   enabled: true
-  chaptarr: {}
-  #   enabled: true
+  chaptarr:
+    # enabled: true
+    private: false
   crowdsec: {}
   #   enabled: true
   ddclient: {}
   #   enabled: true
   descheduler: {}
   #   enabled: true
-  epicgames_freegames: {}
-  #   enabled: true
-  filebrowser: {}
-  #   enabled: true
+  epicgames_freegames:
+    # enabled: true
+    private: false
+  filebrowser:
+    # enabled: true
+    private: false
   flaresolverr: {}
   #   enabled: true
   frigate:
@@ -122,36 +129,45 @@ applications:
     private: true
   gluetun: {}
   #   enabled: true
-  gotify: {}
-  #   enabled: true
-  headlamp: {}
-  #   enabled: true
-  home_assistant: {}
-  #   enabled: true
-  homebox: {}
-  #   enabled: true
-  homer_operator: {}
-  #   enabled: true
+  gotify:
+    # enabled: true
+    private: false
+  headlamp:
+    # enabled: true
+    private: true
+  home_assistant:
+    # enabled: true
+    private: false
+  homebox:
+    # enabled: true
+    private: false
+  homer_operator:
+    # enabled: true
+    private: false
   idrac_exporter: {}
   #   enabled: true
-  immich: {}
-  #   enabled: true
-  #   gpu_vendor: nvidia
-  #   machine_learning:
-  #     gpu_vendor: nvidia
+  immich:
+    # enabled: true
+    private: false
+    # gpu_vendor: nvidia
+    # machine_learning:
+    #   gpu_vendor: nvidia
   intel_gpu: {}
   #   enabled: true
   ipmi_exporter: {}
   #   enabled: true
   kured: {}
   #   enabled: true
-  jellyfin: {}
-  #   enabled: true
-  #   gpu_vendor: intel
-  jellyseerr: {}
-  #   enabled: true
-  joal: {}
-  #   enabled: true
+  jellyfin:
+    # enabled: true
+    private: false
+    # gpu_vendor: intel
+  jellyseerr:
+    # enabled: true
+    private: false
+  joal:
+    # enabled: true
+    private: false
   llama_cpp:
     # enabled: true
     use_vulkan: false
@@ -167,35 +183,45 @@ applications:
   #   enabled: true
   minecraft_bedrock: {}
   #   enabled: true
-  miniflux: {}
-  #   enabled: true
-  minio: {}
-  #   enabled: true
+  miniflux:
+    # enabled: true
+    private: false
+  minio:
+    # enabled: true
+    private: false
   mosquitto: {}
   #   enabled: true
-  n8n: {}
-  #   enabled: true
-  netbox: {}
-  #   enabled: true
-  nextcloud: {}
-  #   enabled: true
+  n8n:
+    # enabled: true
+    private: false
+  netbox:
+    # enabled: true
+    private: false
+  nextcloud:
+    # enabled: true
+    private: false
   node_problem_detector: {}
   #   enabled: true
   nvidia_gpu: {}
   #   enabled: true
-  obico: {}
-  #   enabled: true
+  obico:
+    # enabled: true
+    private: false
   octoprint:
     # enabled: true
+    private: false
     devices: []
     #   - "akri.sh/akri-udev-abcdefgh"
   odoo:
     # enabled: true
+    private: false
     updatePluginsOnStartup: false
-  open_webui: {}
-  #   enabled: true
-  pgadmin4: {}
-  #   enabled: true
+  open_webui:
+    # enabled: true
+    private: false
+  pgadmin4:
+    # enabled: true
+    private: true
   postgresql:
     # enabled: true
     additionalUsers:
@@ -207,51 +233,65 @@ applications:
         bucket: "some-bucket"
         endpoint: "some-endpoint"
         region: "some-region"
-  prometheus: {}
-  #   enabled: true
-  prowlarr: {}
-  #   enabled: true
-  radarr: {}
-  #   enabled: true
+  prometheus:
+    # enabled: true
+    private: true
+  prowlarr:
+    # enabled: true
+    private: false
+  radarr:
+    # enabled: true
+    private: false
   red: {}
   #   enabled: true
   redis: {}
   #   enabled: true
-  redis_insight: {}
-  #   enabled: true
-  searxng: {}
-  #   enabled: true
+  redis_insight:
+    # enabled: true
+    private: true
+  searxng:
+    # enabled: true
+    private: true
   smartctl_exporter: {}
   #   enabled: true
-  sonarr: {}
-  #   enabled: true
+  sonarr:
+    # enabled: true
+    private: false
   sparkyfitness:
     # enabled: true
+    private: false
     garmin:
       enabled: true
   speedtest_tracker:
     # enabled: true
+    private: false
     dashboard:
       enabled: true
-  stalwart: {}
-  #   enabled: true
-  tdarr: {}
-  #   enabled: true
-  #   gpu_vendor: amd
+  stalwart:
+    # enabled: true
+    private: false
+  tdarr:
+    # enabled: true
+    private: false
+    # gpu_vendor: amd
   tempo: {}
   #   enabled: true
-  tracearr: {}
-  #   enabled: true
-  transmission: {}
-  #   enabled: true
+  tracearr:
+    # enabled: true
+    private: false
+  transmission:
+    # enabled: true
+    private: false
   unpackerr:
     # enabled: true
+    private: false
     dashboard:
       enabled: true
   valheim: {}
   #   enabled: true
-  vaultwarden: {}
-  #   enabled: true
+  vaultwarden:
+    # enabled: true
+    private: false
   velero:
     # enabled: true
     remoteBackupLocations:
@@ -264,9 +304,11 @@ applications:
           s3ForcePathStyle: true # if using an S3-compatible service
           region: <some_region>
           s3Url: https://<some_endpoint> # if using an S3-compatible service
-  wakapi: {}
-  #   enabled: true
-  woodpecker: {}
-  #   enabled: true
+  wakapi:
+    # enabled: true
+    private: false
+  woodpecker:
+    # enabled: true
+    private: false
   zfs_exporter: {}
   #   enabled: true

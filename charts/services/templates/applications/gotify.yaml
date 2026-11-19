@@ -67,6 +67,9 @@ spec:
       main:
         enabled: true
         annotations:
+        {{- if .Values.applications.gotify.private }}
+          traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
+        {{- end }}
           homer.service.name: Feed
           homer.item.logo: "https://raw.githubusercontent.com/gotify/logo/87aef9091f51644eaccf78e7b67f8ce94271efeb/gotify-logo.png"
         hosts:
