@@ -209,6 +209,8 @@ spec:
                   sub_mode: user_username
                   redirect_uris: 
                     - matching_mode: strict
+                      url: "https://ha.{{ .Values.fqdn }}/auth/oidc/callback"
+                    - matching_mode: strict
                       url: "https://ha.{{ .Values.fqdn }}/auth/openid/callback"
                     - matching_mode: strict
                       url: "https://ha.{{ .Values.fqdn }}/auth_callback"
