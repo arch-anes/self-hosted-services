@@ -83,6 +83,10 @@ spec:
               db_url: !env_var DATABASE_URL
           {{- if (include "app.enabled" (list . "authentik")) }}
           openid.default: |-
+            auth_oidc:
+              client_id: !env_var OIDC_CLIENT_ID
+              client_secret: !env_var OIDC_CLIENT_SECRET
+              discovery_url: !env_var OIDC_DISCOVERY_URL
             openid:
               client_id: !env_var OIDC_CLIENT_ID
               client_secret: !env_var OIDC_CLIENT_SECRET
