@@ -36,6 +36,16 @@ spec:
             - protocol: TCP
               name: socks5-tcp
               port: 1080
+          selector:
+            app: gluetun
+      - kind: Service
+        apiVersion: v1
+        metadata:
+          name: gluetun-udp
+          namespace: "{{ .Values.applicationsNamespace }}"
+        spec:
+          clusterIP: None
+          ports:
             - protocol: UDP
               name: socks5-udp
               port: 1080
