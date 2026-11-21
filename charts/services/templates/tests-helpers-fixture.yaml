@@ -25,6 +25,8 @@ data:
   ha_replicas: {{ include "ha.replicas" . | quote }}
   ip_local_proxy_ranges_string: {{ include "ip.local_proxy_ranges.string" . | quote }}
   ip_proxy_ranges_count: {{ include "ip.proxy_ranges" . | fromYamlArray | len | quote }}
+  ip_forwarded_ranges_count: {{ include "ip.forwarded_ranges" . | fromYamlArray | len | quote }}
+  ip_tcp_proxy_ranges_count: {{ include "ip.tcp_proxy_ranges" . | fromYamlArray | len | quote }}
   ip_private_ranges_count: {{ include "ip.private_ranges" . | fromYamlArray | len | quote }}
   ip_private_ipv4_ranges_count: {{ include "ip.private_ipv4_ranges" . | fromYamlArray | len | quote }}
   ip_private_ipv6_ranges_count: {{ include "ip.private_ipv6_ranges" . | fromYamlArray | len | quote }}

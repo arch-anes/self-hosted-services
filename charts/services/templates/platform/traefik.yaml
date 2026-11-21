@@ -82,7 +82,7 @@ spec:
               updateMaxFailure: 10
               redisCacheEnabled: false
               forwardedHeadersTrustedIPs:
-                {{- include "ip.proxy_ranges" . | nindent 16 }}
+                {{- include "ip.forwarded_ranges" . | nindent 16 }}
               clientTrustedIPs:
                 {{- include "ip.private_ranges" . | nindent 16 }}
     experimental:
@@ -182,19 +182,19 @@ spec:
         {{- if .Values.behindTcpProxy }}
         proxyProtocol:
           trustedIPs:
-            {{- include "ip.proxy_ranges" . | nindent 12 }}
+            {{- include "ip.tcp_proxy_ranges" . | nindent 12 }}
         forwardedHeaders:
           trustedIPs:
-            {{- include "ip.proxy_ranges" . | nindent 12 }}
+            {{- include "ip.forwarded_ranges" . | nindent 12 }}
         {{- end }}
       websecure:
         {{- if .Values.behindTcpProxy }}
         proxyProtocol:
           trustedIPs:
-            {{- include "ip.proxy_ranges" . | nindent 12 }}
+            {{- include "ip.tcp_proxy_ranges" . | nindent 12 }}
         forwardedHeaders:
           trustedIPs:
-            {{- include "ip.proxy_ranges" . | nindent 12 }}
+            {{- include "ip.forwarded_ranges" . | nindent 12 }}
         {{- end }}
         transport:
           respondingTimeouts:
@@ -215,7 +215,7 @@ spec:
         {{- if $.Values.behindTcpProxy }}
         proxyProtocol:
           trustedIPs:
-            {{- include "ip.proxy_ranges" $ | nindent 12 }}
+            {{- include "ip.tcp_proxy_ranges" $ | nindent 12 }}
         {{- end }}
         port: {{ $port }}
         expose:

@@ -283,7 +283,7 @@ tests:
           path: data\.ip_local_proxy_ranges_string
           value: "10.0.0.0/8"
 
-  # ----- ip.proxy_ranges (local + cloudflare) -----
+  # ----- ip.proxy_ranges (local + cloudflare for app-level trusted proxies) -----
   - it: ip.proxy_ranges concatenates local + cloudflare ranges
     set:
       localIpv4Ranges:
@@ -296,8 +296,29 @@ tests:
           path: data\.ip_proxy_ranges_count
           value: "3"
 
-  # ----- ip.private_ranges (local + tailscale) -----
-  - it: ip.private_ranges concatenates local + tailscale ranges
+  # ----- ip.forwarded_ranges (tcp proxy + cloudflare) -----
+  - it: ip.forwarded_ranges concatenates tcp proxy + cloudflare ranges
+    set:
+      tcpProxyIp: 192.168.1.1
+      cloudFlareIpRanges:
+        - 1.1.1.1/32
+        - 2.2.2.2/32
+    asserts:
+      - equal:
+          path: data\.ip_forwarded_ranges_count
+          value: "3"
+
+  # ----- ip.tcp_proxy_ranges (tcp proxy only) -----
+  - it: ip.tcp_proxy_ranges contains only the tcp proxy
+    set:
+      tcpProxyIp: 192.168.1.1
+    asserts:
+      - equal:
+          path: data\.ip_tcp_proxy_ranges_count
+          value: "1"
+
+  # ----- ip.private_ranges (local only; Tailscale is not ingress-trusted) -----
+  - it: ip.private_ranges contains only local ranges
     set:
       localIpv4Ranges:
         - 10.0.0.0/8
@@ -307,7 +328,7 @@ tests:
     asserts:
       - equal:
           path: data\.ip_private_ranges_count
-          value: "2"
+          value: "1"
       - equal:
           path: data\.ip_private_ipv4_ranges_count
           value: "2"

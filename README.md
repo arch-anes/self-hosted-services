@@ -106,6 +106,13 @@ Use NextDNS to resolve your domain to the internal HAProxy virtual IP while remo
 1. In [NextDNS](https://nextdns.io), add a rewrite under **Settings > Rewrites** for `*.example.org` that returns the HAProxy virtual IP, for example `192.168.1.2`.
 2. In the Tailscale admin console under **DNS**, add the IPv6 resolver address from NextDNS as a global nameserver and enable **Override local DNS**.
 
+The ingress allowlist only trusts the local IP ranges. Tailscale CGNAT/ULA
+ranges are not added to the allowlist; the subnet router must NAT remote
+traffic to its local LAN address. If your subnet router does not NAT, add only
+the specific tailnet prefix to `localIpv4Ranges`/`localIpv6Ranges` and enforce
+a Tailscale ACL for the ingress. Do not add the global `100.64.0.0/10` or
+`fd7a:115c:a1e0::/48` ranges.
+
 ## Create an inventory
 
 Create an inventory file such as `inventory.yml` and adapt this example to your hosts:

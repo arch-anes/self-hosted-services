@@ -162,15 +162,15 @@ spec:
           submissions:
             proxy:
               trusted-networks:
-                {{- include "ip.proxy_ranges" . | nindent 16 }}
+                {{- include "ip.private_ranges" . | nindent 16 }}
           imaptls:
             proxy:
               trusted-networks:
-                {{- include "ip.proxy_ranges" . | nindent 16 }}
+                {{- include "ip.private_ranges" . | nindent 16 }}
           smtp:
             proxy:
               trusted-networks:
-                {{- include "ip.proxy_ranges" . | nindent 16 }}
+                {{- include "ip.private_ranges" . | nindent 16 }}
             tls:
               implicit: true
           submission: null

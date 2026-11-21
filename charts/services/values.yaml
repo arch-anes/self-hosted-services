@@ -18,9 +18,10 @@ fqdn: example.org
 
 # Enable proxy protocol and trusted headers when behind a TCP proxy (e.g., HAProxy)
 behindTcpProxy: true
+# Only this TCP proxy may send PROXY protocol or trusted forwarded headers.
 tcpProxyIp: 192.168.1.1
 
-# Local IPv4 ranges
+# Local IPv4 ranges trusted by the ingress allowlist and local proxy paths.
 localIpv4Ranges:
   - 10.0.0.0/8
   - 172.16.0.0/12
@@ -29,15 +30,18 @@ localIpv4Ranges:
 # Local IPv6 ranges
 localIpv6Ranges: []
 
-# Tailscale IPv4 ranges
+# Tailscale IPv4 ranges used only for network-policy egress exclusions.
+# They are not added to the ingress allowlist; Tailscale clients must reach
+# the ingress through the subnet router's NATed LAN address.
 tailscaleIpv4Ranges:
   - 100.64.0.0/10
 
-# Tailscale IPv6 ranges
+# Tailscale IPv6 ranges used only for network-policy egress exclusions.
 tailscaleIpv6Ranges:
   - fd7a:115c:a1e0::/48
 
-# Cloudflare IP ranges
+# Cloudflare IP ranges trusted for forwarded headers. They are not trusted
+# for PROXY protocol or the ingress allowlist.
 cloudFlareIpRanges:
   # https://www.cloudflare.com/ips-v4
   - 173.245.48.0/20

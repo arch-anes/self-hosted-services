@@ -36,12 +36,21 @@
   {{- concat .Values.localIpv4Ranges .Values.localIpv6Ranges .Values.cloudFlareIpRanges | toYaml }}
 {{- end -}}
 
+{{- define "ip.tcp_proxy_ranges" -}}
+  - {{ required "tcpProxyIp is required when behindTcpProxy is true" .Values.tcpProxyIp }}
+{{- end -}}
+
+{{- define "ip.forwarded_ranges" -}}
+  {{- $proxy := required "tcpProxyIp is required when behindTcpProxy is true" .Values.tcpProxyIp -}}
+  {{- concat (list $proxy) .Values.cloudFlareIpRanges | toYaml }}
+{{- end -}}
+
 {{- define "ip.local_proxy_ranges.string" -}}
   {{- concat .Values.localIpv4Ranges .Values.localIpv6Ranges | join "," }}
 {{- end -}}
 
 {{- define "ip.private_ranges" -}}
-  {{- concat .Values.localIpv4Ranges .Values.localIpv6Ranges .Values.tailscaleIpv4Ranges .Values.tailscaleIpv6Ranges | toYaml }}
+  {{- concat .Values.localIpv4Ranges .Values.localIpv6Ranges | toYaml }}
 {{- end -}}
 
 {{- define "ip.private_ipv4_ranges" -}}
