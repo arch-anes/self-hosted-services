@@ -14,6 +14,9 @@ data:
   app_enabled_foo: {{ include "app.enabled" (list . "foo") | quote }}
   app_enabled_bar: {{ include "app.enabled" (list . "bar") | quote }}
   app_enabled_foo_value: {{ include "app.enabled" (list . "foo") | default false | quote }}
+  app_private_foo: {{ include "app.private" (list . "foo") | quote }}
+  app_private_bar: {{ include "app.private" (list . "bar") | quote }}
+  app_private_foo_value: {{ include "app.private" (list . "foo") | default false | quote }}
   metrics_enabled: {{ include "metrics.enabled" . | quote }}
   metrics_enabled_value: {{ include "metrics.enabled" . | default false | quote }}
   ldap_base_dn: {{ include "ldap.base_dn" . | quote }}

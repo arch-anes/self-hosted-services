@@ -66,6 +66,10 @@ cloudFlareIpRanges:
 
 enableAllApplicationsByDefault: true
 
+# Make every application intranet-only by default. Set an application-specific
+# private value to false to expose that application publicly.
+makeAllApplicationsPrivateByDefault: false
+
 # Global high availability configuration
 # Set to false to use 1 replica instead of 3 for services that support HA
 highAvailability: true
@@ -84,9 +88,9 @@ applications:
   #   enabled: true
   amd_gpu: {}
   #   enabled: true
-  archivebox:
-    # enabled: true
-    private: false
+  archivebox: {}
+  #   enabled: true
+  #   private: false
   argo:
     # enabled: true
     private: true
@@ -98,29 +102,29 @@ applications:
         schedule: "0 12 * * *"
         duration: "12h"
         manualSync: true
-  authentik:
-    # enabled: true
-    private: false
-  bazarr:
-    # enabled: true
-    private: false
+  authentik: {}
+  #   enabled: true
+  #   private: false
+  bazarr: {}
+  #   enabled: true
+  #   private: false
   blackbox_exporter: {}
   #   enabled: true
-  chaptarr:
-    # enabled: true
-    private: false
+  chaptarr: {}
+  #   enabled: true
+  #   private: false
   crowdsec: {}
   #   enabled: true
   ddclient: {}
   #   enabled: true
   descheduler: {}
   #   enabled: true
-  epicgames_freegames:
-    # enabled: true
-    private: false
-  filebrowser:
-    # enabled: true
-    private: false
+  epicgames_freegames: {}
+  #   enabled: true
+  #   private: false
+  filebrowser: {}
+  #   enabled: true
+  #   private: false
   flaresolverr: {}
   #   enabled: true
   frigate:
@@ -129,45 +133,45 @@ applications:
     private: true
   gluetun: {}
   #   enabled: true
-  gotify:
-    # enabled: true
-    private: false
+  gotify: {}
+  #   enabled: true
+  #   private: false
   headlamp:
     # enabled: true
     private: true
-  home_assistant:
-    # enabled: true
-    private: false
-  homebox:
-    # enabled: true
-    private: false
-  homer_operator:
-    # enabled: true
-    private: false
+  home_assistant: {}
+  #   enabled: true
+  #   private: false
+  homebox: {}
+  #   enabled: true
+  #   private: false
+  homer_operator: {}
+  #   enabled: true
+  #   private: false
   idrac_exporter: {}
   #   enabled: true
-  immich:
-    # enabled: true
-    private: false
-    # gpu_vendor: nvidia
-    # machine_learning:
-    #   gpu_vendor: nvidia
+  immich: {}
+  #   enabled: true
+  #   private: false
+  #   gpu_vendor: nvidia
+  #   machine_learning:
+  #     gpu_vendor: nvidia
   intel_gpu: {}
   #   enabled: true
   ipmi_exporter: {}
   #   enabled: true
   kured: {}
   #   enabled: true
-  jellyfin:
-    # enabled: true
-    private: false
-    # gpu_vendor: intel
-  jellyseerr:
-    # enabled: true
-    private: false
-  joal:
-    # enabled: true
-    private: false
+  jellyfin: {}
+  #   enabled: true
+  #   private: false
+  #   gpu_vendor: intel
+  jellyseerr: {}
+  #   enabled: true
+  #   private: false
+  joal: {}
+  #   enabled: true
+  #   private: false
   llama_cpp:
     # enabled: true
     use_vulkan: false
@@ -183,42 +187,42 @@ applications:
   #   enabled: true
   minecraft_bedrock: {}
   #   enabled: true
-  miniflux:
-    # enabled: true
-    private: false
-  minio:
-    # enabled: true
-    private: false
+  miniflux: {}
+  #   enabled: true
+  #   private: false
+  minio: {}
+  #   enabled: true
+  #   private: false
   mosquitto: {}
   #   enabled: true
-  n8n:
-    # enabled: true
-    private: false
-  netbox:
-    # enabled: true
-    private: false
-  nextcloud:
-    # enabled: true
-    private: false
+  n8n: {}
+  #   enabled: true
+  #   private: false
+  netbox: {}
+  #   enabled: true
+  #   private: false
+  nextcloud: {}
+  #   enabled: true
+  #   private: false
   node_problem_detector: {}
   #   enabled: true
   nvidia_gpu: {}
   #   enabled: true
-  obico:
-    # enabled: true
-    private: false
+  obico: {}
+  #   enabled: true
+  #   private: false
   octoprint:
     # enabled: true
-    private: false
+    # private: false
     devices: []
     #   - "akri.sh/akri-udev-abcdefgh"
   odoo:
     # enabled: true
-    private: false
+    # private: false
     updatePluginsOnStartup: false
-  open_webui:
-    # enabled: true
-    private: false
+  open_webui: {}
+  #   enabled: true
+  #   private: false
   pgadmin4:
     # enabled: true
     private: true
@@ -236,12 +240,12 @@ applications:
   prometheus:
     # enabled: true
     private: true
-  prowlarr:
-    # enabled: true
-    private: false
-  radarr:
-    # enabled: true
-    private: false
+  prowlarr: {}
+  #   enabled: true
+  #   private: false
+  radarr: {}
+  #   enabled: true
+  #   private: false
   red: {}
   #   enabled: true
   redis: {}
@@ -254,44 +258,44 @@ applications:
     private: true
   smartctl_exporter: {}
   #   enabled: true
-  sonarr:
-    # enabled: true
-    private: false
+  sonarr: {}
+  #   enabled: true
+  #   private: false
   sparkyfitness:
     # enabled: true
-    private: false
+    # private: false
     garmin:
       enabled: true
   speedtest_tracker:
     # enabled: true
-    private: false
+    # private: false
     dashboard:
       enabled: true
-  stalwart:
-    # enabled: true
-    private: false
-  tdarr:
-    # enabled: true
-    private: false
-    # gpu_vendor: amd
+  stalwart: {}
+  #   enabled: true
+  #   private: false
+  tdarr: {}
+  #   enabled: true
+  #   private: false
+  #   gpu_vendor: amd
   tempo: {}
   #   enabled: true
-  tracearr:
-    # enabled: true
-    private: false
-  transmission:
-    # enabled: true
-    private: false
+  tracearr: {}
+  #   enabled: true
+  #   private: false
+  transmission: {}
+  #   enabled: true
+  #   private: false
   unpackerr:
     # enabled: true
-    private: false
+    # private: false
     dashboard:
       enabled: true
   valheim: {}
   #   enabled: true
-  vaultwarden:
-    # enabled: true
-    private: false
+  vaultwarden: {}
+  #   enabled: true
+  #   private: false
   velero:
     # enabled: true
     remoteBackupLocations:
@@ -304,11 +308,11 @@ applications:
           s3ForcePathStyle: true # if using an S3-compatible service
           region: <some_region>
           s3Url: https://<some_endpoint> # if using an S3-compatible service
-  wakapi:
-    # enabled: true
-    private: false
-  woodpecker:
-    # enabled: true
-    private: false
+  wakapi: {}
+  #   enabled: true
+  #   private: false
+  woodpecker: {}
+  #   enabled: true
+  #   private: false
   zfs_exporter: {}
   #   enabled: true

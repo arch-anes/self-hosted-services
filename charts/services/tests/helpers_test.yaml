@@ -66,6 +66,94 @@ tests:
           path: data\.app_enabled_bar
           value: ""
 
+  - it: app.enabled uses the global default when an app has no values
+    set:
+      enableAllApplicationsByDefault: true
+      applications:
+        foo: null
+    asserts:
+      - equal:
+          path: data\.app_enabled_foo
+          value: "true"
+
+  # ----- app.private -----
+  - it: app.private returns "true" when global default is true
+    set:
+      makeAllApplicationsPrivateByDefault: true
+    asserts:
+      - equal:
+          path: data\.app_private_foo
+          value: "true"
+      - equal:
+          path: data\.app_private_foo_value
+          value: "true"
+
+  - it: app.private returns empty when global default is false and app is unset
+    set:
+      makeAllApplicationsPrivateByDefault: false
+    asserts:
+      - equal:
+          path: data\.app_private_foo
+          value: ""
+      - equal:
+          path: data\.app_private_foo_value
+          value: "false"
+
+  - it: app.private defaults to public when the global flag is unset
+    set:
+      makeAllApplicationsPrivateByDefault: null
+    asserts:
+      - equal:
+          path: data\.app_private_foo
+          value: ""
+
+  - it: app.private returns "true" when app explicitly private
+    set:
+      makeAllApplicationsPrivateByDefault: false
+      applications:
+        foo:
+          private: true
+    asserts:
+      - equal:
+          path: data\.app_private_foo
+          value: "true"
+
+  - it: app.private returns empty when app explicitly public even if global default is true
+    set:
+      makeAllApplicationsPrivateByDefault: true
+      applications:
+        foo:
+          private: false
+    asserts:
+      - equal:
+          path: data\.app_private_foo
+          value: ""
+
+  - it: app.private reads each app independently
+    set:
+      makeAllApplicationsPrivateByDefault: true
+      applications:
+        foo:
+          private: false
+        bar: {}
+    asserts:
+      - equal:
+          path: data\.app_private_foo
+          value: ""
+      - equal:
+          path: data\.app_private_bar
+          value: "true"
+
+  - it: app.private uses the global default when an app has no values
+    set:
+      makeAllApplicationsPrivateByDefault: true
+      applications:
+        foo: null
+    asserts:
+      - equal:
+          path: data\.app_private_foo
+          value: "true"
+
   # ----- metrics helpers (wrap app.enabled for "prometheus") -----
   - it: metrics.enabled returns "true" when prometheus explicitly enabled
     set:

@@ -400,7 +400,7 @@ spec:
           homer.service.name: Monitoring
           homer.item.name: Grafana
           homer.item.logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Grafana_logo.svg/1920px-Grafana_logo.svg.png"
-          {{- if .Values.applications.prometheus.private }}
+          {{- if include "app.private" (list . "prometheus") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
         hosts:

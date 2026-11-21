@@ -83,7 +83,7 @@ spec:
       main:
         enabled: true
         annotations:
-          {{- if .Values.applications.n8n.private }}
+          {{- if include "app.private" (list . "n8n") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           homer.service.name: Automation

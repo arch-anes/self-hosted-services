@@ -40,7 +40,7 @@ spec:
       main:
         enabled: true
         annotations:
-          {{- if .Values.applications.filebrowser.private }}
+          {{- if include "app.private" (list . "filebrowser") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           homer.service.name: Media

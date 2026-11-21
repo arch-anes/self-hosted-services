@@ -55,7 +55,7 @@ spec:
         homer.service.name: Administration
         homer.item.name: pgAdmin4
         homer.item.logo: "https://www.pgadmin.org/static/docs/pgadmin4-dev/docs/en_US/_build/html/_images/logo-right-128.png"
-        {{- if .Values.applications.pgadmin4.private }}
+        {{- if include "app.private" (list . "pgadmin4") }}
         traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
         {{- end }}
       hosts:

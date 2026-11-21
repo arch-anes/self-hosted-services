@@ -67,7 +67,7 @@ spec:
       main:
         enabled: true
         annotations:
-          {{- if .Values.applications.gotify.private }}
+          {{- if include "app.private" (list . "gotify") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           homer.service.name: Feed

@@ -397,7 +397,7 @@ spec:
     ingress:
       enabled: true
       annotations:
-        {{- if .Values.applications.stalwart.private }}
+        {{- if include "app.private" (list . "stalwart") }}
         traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
         {{- end }}
         prometheus.io/probe: "false"

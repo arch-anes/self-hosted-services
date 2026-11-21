@@ -81,7 +81,7 @@ spec:
       main:
         enabled: true
         annotations:
-          {{- if .Values.applications.sonarr.private }}
+          {{- if include "app.private" (list . "sonarr") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           homer.service.name: Arr

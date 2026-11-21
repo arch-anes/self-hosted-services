@@ -132,7 +132,7 @@ spec:
       api:
         enabled: true
         annotations:
-          {{- if .Values.applications.minio.private }}
+          {{- if include "app.private" (list . "minio") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           prometheus.io/probe: "false"
@@ -147,7 +147,7 @@ spec:
       console:
         enabled: true
         annotations:
-          {{- if .Values.applications.minio.private }}
+          {{- if include "app.private" (list . "minio") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           homer.service.name: Media

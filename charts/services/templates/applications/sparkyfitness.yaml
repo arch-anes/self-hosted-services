@@ -106,7 +106,7 @@ spec:
     ingress:
       enabled: true
       annotations:
-        {{- if .Values.applications.sparkyfitness.private }}
+        {{- if include "app.private" (list . "sparkyfitness") }}
         traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
         {{- end }}
         homer.service.name: "Monitoring"

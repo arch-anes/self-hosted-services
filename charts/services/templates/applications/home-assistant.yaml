@@ -154,7 +154,7 @@ spec:
       main:
         enabled: true
         annotations:
-          {{- if .Values.applications.home_assistant.private }}
+          {{- if include "app.private" (list . "home_assistant") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           homer.service.name: Automation
