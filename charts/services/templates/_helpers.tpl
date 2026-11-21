@@ -50,15 +50,15 @@
 {{- end -}}
 
 {{- define "ip.private_ranges" -}}
-  {{- concat .Values.localIpv4Ranges .Values.localIpv6Ranges .Values.tailscaleIpv4Ranges .Values.tailscaleIpv6Ranges | toYaml }}
+  {{- concat .Values.localIpv4Ranges .Values.localIpv6Ranges | toYaml }}
 {{- end -}}
 
 {{- define "ip.private_ipv4_ranges" -}}
-  {{- concat .Values.localIpv4Ranges .Values.tailscaleIpv4Ranges | toYaml }}
+  {{- .Values.localIpv4Ranges | toYaml }}
 {{- end -}}
 
 {{- define "ip.private_ipv6_ranges" -}}
-  {{- concat .Values.localIpv6Ranges .Values.tailscaleIpv6Ranges | toYaml }}
+  {{- .Values.localIpv6Ranges | toYaml }}
 {{- end -}}
 
 {{- define "ha.enabled" -}}

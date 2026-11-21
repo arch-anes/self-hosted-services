@@ -323,40 +323,34 @@ tests:
           path: data\.ip_private_proxy_ranges_count
           value: "1"
 
-  # ----- ip.private_ranges (local + tailscale) -----
-  - it: ip.private_ranges contains local and tailscale ranges
+  # ----- ip.private_ranges (local only) -----
+  - it: ip.private_ranges contains only local ranges
     set:
       localIpv4Ranges:
         - 10.0.0.0/8
-      tailscaleIpv4Ranges:
-        - 100.64.0.0/10
-      tailscaleIpv6Ranges: []
     asserts:
       - equal:
           path: data\.ip_private_ranges_count
-          value: "2"
+          value: "1"
       - equal:
           path: data\.ip_private_ipv4_ranges_count
-          value: "2"
+          value: "1"
       - equal:
           path: data\.ip_private_ipv6_ranges_count
           value: "0"
 
-  - it: ip.private_ipv6_ranges contains local and tailscale IPv6 ranges
+  - it: ip.private_ipv6_ranges contains local IPv6 ranges
     set:
       localIpv4Ranges: []
       localIpv6Ranges:
         - fd00::/8
-      tailscaleIpv4Ranges: []
-      tailscaleIpv6Ranges:
-        - fd7a:115c:a1e0::/48
     asserts:
       - equal:
           path: data\.ip_private_ipv4_ranges_count
           value: "0"
       - equal:
           path: data\.ip_private_ipv6_ranges_count
-          value: "2"
+          value: "1"
 
 ---
 suite: app.require helper (template failure cases)

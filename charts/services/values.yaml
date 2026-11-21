@@ -30,14 +30,6 @@ localIpv4Ranges:
 # Local IPv6 ranges
 localIpv6Ranges: []
 
-# Tailscale IPv4 ranges
-tailscaleIpv4Ranges:
-  - 100.64.0.0/10
-
-# Tailscale IPv6 ranges
-tailscaleIpv6Ranges:
-  - fd7a:115c:a1e0::/48
-
 # Cloudflare IP ranges
 cloudFlareIpRanges:
   # https://www.cloudflare.com/ips-v4

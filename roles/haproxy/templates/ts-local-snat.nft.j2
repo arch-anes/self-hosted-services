@@ -1,0 +1,6 @@
+table ip ts-local-snat {
+    chain input {
+        type nat hook input priority srcnat; policy accept;
+        ip saddr 100.64.0.0/10 ip daddr {{ prepare_detect_haproxy_virtual_ip }} tcp dport { 80, 443 } counter snat to {{ prepare_detect_router_lan_ip }}
+    }
+}

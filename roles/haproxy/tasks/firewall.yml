@@ -15,3 +15,23 @@
       target: ACCEPT
     autocommit: true
   notify: Restart firewall
+
+- name: Install Tailscale local-input SNAT rules
+  ansible.builtin.template:
+    src: ts-local-snat.nft.j2
+    dest: /etc/ts-local-snat.nft
+    mode: '0644'
+  notify: Restart firewall
+
+- name: Configure Tailscale local-input SNAT include
+  community.openwrt.uci:
+    command: section
+    config: firewall
+    name: tailscale_local_snat
+    type: include
+    value:
+      type: nftables
+      path: /etc/ts-local-snat.nft
+      position: ruleset
+    autocommit: true
+  notify: Restart firewall
