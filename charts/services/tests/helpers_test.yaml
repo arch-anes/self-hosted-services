@@ -283,21 +283,48 @@ tests:
           path: data\.ip_local_proxy_ranges_string
           value: "10.0.0.0/8"
 
-  # ----- ip.proxy_ranges (local + cloudflare) -----
-  - it: ip.proxy_ranges concatenates local + cloudflare ranges
+  # ----- ip.public_proxy_ranges (cloudflare, plus tcp proxy /32 when enabled) -----
+  - it: ip.public_proxy_ranges excludes tcp proxy when behindTcpProxy is false
     set:
-      localIpv4Ranges:
-        - 10.0.0.0/8
+      behindTcpProxy: false
       cloudFlareIpRanges:
         - 1.1.1.1/32
         - 2.2.2.2/32
     asserts:
       - equal:
-          path: data\.ip_proxy_ranges_count
+          path: data\.ip_public_proxy_ranges_count
+          value: "2"
+      - equal:
+          path: data\.ip_public_proxy_ranges_string
+          value: "1.1.1.1/32,2.2.2.2/32"
+
+  - it: ip.public_proxy_ranges appends the tcp proxy as a /32 when behindTcpProxy is true
+    set:
+      behindTcpProxy: true
+      tcpProxyIp: 192.168.1.2
+      cloudFlareIpRanges:
+        - 1.1.1.1/32
+        - 2.2.2.2/32
+    asserts:
+      - equal:
+          path: data\.ip_public_proxy_ranges_count
           value: "3"
+      - equal:
+          path: data\.ip_public_proxy_ranges_string
+          value: "1.1.1.1/32,2.2.2.2/32,192.168.1.2/32"
+
+  # ----- ip.private_proxy_ranges (local only) -----
+  - it: ip.private_proxy_ranges contains only local ranges
+    set:
+      localIpv4Ranges:
+        - 10.0.0.0/8
+    asserts:
+      - equal:
+          path: data\.ip_private_proxy_ranges_count
+          value: "1"
 
   # ----- ip.private_ranges (local + tailscale) -----
-  - it: ip.private_ranges concatenates local + tailscale ranges
+  - it: ip.private_ranges contains local and tailscale ranges
     set:
       localIpv4Ranges:
         - 10.0.0.0/8
@@ -315,7 +342,7 @@ tests:
           path: data\.ip_private_ipv6_ranges_count
           value: "0"
 
-  - it: ip.private_ipv6_ranges contains local and Tailscale IPv6 ranges
+  - it: ip.private_ipv6_ranges contains local and tailscale IPv6 ranges
     set:
       localIpv4Ranges: []
       localIpv6Ranges:

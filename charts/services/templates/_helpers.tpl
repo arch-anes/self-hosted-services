@@ -32,8 +32,17 @@
   {{- printf "dc=%s" (join ",dc=" (splitList "." $d)) -}}
 {{- end -}}
 
-{{- define "ip.proxy_ranges" -}}
-  {{- concat .Values.localIpv4Ranges .Values.localIpv6Ranges .Values.cloudFlareIpRanges | toYaml }}
+{{- define "ip.public_proxy_ranges" -}}
+  {{- $ranges := .Values.cloudFlareIpRanges -}}
+  {{- if .Values.behindTcpProxy -}}
+    {{- $proxy := required "tcpProxyIp is required when behindTcpProxy is true" .Values.tcpProxyIp -}}
+    {{- $ranges = concat $ranges (list (printf "%s/32" $proxy)) -}}
+  {{- end -}}
+  {{- $ranges | toYaml }}
+{{- end -}}
+
+{{- define "ip.private_proxy_ranges" -}}
+  {{- concat .Values.localIpv4Ranges .Values.localIpv6Ranges | toYaml }}
 {{- end -}}
 
 {{- define "ip.local_proxy_ranges.string" -}}

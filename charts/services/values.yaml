@@ -18,7 +18,8 @@ fqdn: example.org
 
 # Enable proxy protocol and trusted headers when behind a TCP proxy (e.g., HAProxy)
 behindTcpProxy: true
-tcpProxyIp: 192.168.1.1
+# IPv4 address of the TCP proxy.
+tcpProxyIp: 192.168.1.2
 
 # Local IPv4 ranges
 localIpv4Ranges:
