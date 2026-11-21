@@ -70,7 +70,7 @@ spec:
       main:
         enabled: true
         annotations:
-          {{- if .Values.applications.miniflux.private }}
+          {{- if include "app.private" (list . "miniflux") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           homer.service.name: Feed

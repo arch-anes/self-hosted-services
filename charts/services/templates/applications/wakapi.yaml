@@ -94,7 +94,7 @@ spec:
       main:
         enabled: true
         annotations:
-          {{- if .Values.applications.wakapi.private }}
+          {{- if include "app.private" (list . "wakapi") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           homer.service.name: Monitoring

@@ -62,7 +62,7 @@ spec:
       main:
         enabled: true
         annotations:
-          {{- if .Values.applications.jellyfin.private }}
+          {{- if include "app.private" (list . "jellyfin") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           homer.service.name: Media

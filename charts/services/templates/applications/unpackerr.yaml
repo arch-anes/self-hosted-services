@@ -91,7 +91,7 @@ spec:
       main:
         enabled: {{ .Values.applications.unpackerr.dashboard.enabled }}
         annotations:
-          {{- if .Values.applications.unpackerr.private }}
+          {{- if include "app.private" (list . "unpackerr") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           homer.service.name: Arr

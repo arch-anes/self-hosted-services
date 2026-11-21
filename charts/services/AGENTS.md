@@ -34,8 +34,10 @@ This guide applies to the `charts/services` subtree. Follow the repository-wide
 
 - Application-specific values MUST be declared under `applications.<app>` in
   [`values.yaml`](values.yaml) with their defaults and read directly in
-  templates, for example `.Values.applications.<app>.private`. You MUST NOT add
-  generic inclusion helpers solely to expose per-application values.
+  templates, for example `.Values.applications.<app>.gpu_vendor`. You MUST NOT
+  add generic inclusion helpers solely to expose per-application values. The
+  `private` value is the exception: resolve it through the `app.private` helper
+  so `makeAllApplicationsPrivateByDefault` applies.
 - Follow [`templates/nextcloud.yaml`](templates/nextcloud.yaml) as the reference
   for application gating and dependency declarations.
 - You MUST declare GPU resources through `gpu.device`. Follow
@@ -157,11 +159,12 @@ An Ingress intentionally hidden from the dashboard MUST instead include
 `homer.item.excluded: "true"` to prevent clutter.
 
 Intranet-only access is controlled per application with
-`applications.<app>.private`. Every Ingress-exposed application MUST declare
-this value in [`values.yaml`](values.yaml), and its Ingress MUST read it
-directly. Set it to `true` when the application exposes potentially dangerous
-capabilities, such as cluster or infrastructure control. Keep admin and system
-endpoints protected regardless.
+`applications.<app>.private`. When unset, it defaults to
+`makeAllApplicationsPrivateByDefault`. Every Ingress MUST resolve privacy
+through the `app.private` helper. Set `private: true` when the application
+exposes potentially dangerous capabilities, such as cluster or infrastructure
+control. Set `private: false` only to expose an application publicly when the
+global default is true. Keep admin and system endpoints protected regardless.
 
 The following annotations are optional:
 

@@ -1,7 +1,16 @@
 {{- define "app.enabled" -}}
   {{- $scope := index . 0 -}}
   {{- $app := index . 1 -}}
-  {{- dig $app "enabled" $scope.Values.enableAllApplicationsByDefault $scope.Values.applications | ternary "true" "" -}}
+  {{- $appValues := default (dict) (index $scope.Values.applications $app) -}}
+  {{- dig "enabled" $scope.Values.enableAllApplicationsByDefault $appValues | ternary "true" "" -}}
+{{- end -}}
+
+{{- define "app.private" -}}
+  {{- $scope := index . 0 -}}
+  {{- $app := index . 1 -}}
+  {{- $appValues := default (dict) (index $scope.Values.applications $app) -}}
+  {{- $privateDefault := $scope.Values.makeAllApplicationsPrivateByDefault | default false -}}
+  {{- dig "private" $privateDefault $appValues | ternary "true" "" -}}
 {{- end -}}
 
 {{- define "app.require" -}}

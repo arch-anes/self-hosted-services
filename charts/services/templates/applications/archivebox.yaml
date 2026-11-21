@@ -63,7 +63,7 @@ spec:
       main:
         enabled: true
         annotations:
-          {{- if .Values.applications.archivebox.private }}
+          {{- if include "app.private" (list . "archivebox") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           homer.service.name: Feed

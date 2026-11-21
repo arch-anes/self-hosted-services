@@ -23,7 +23,7 @@ metadata:
   annotations:
     prometheus.io/probe: "false"
     homer.item.excluded: "true"
-    {{- if .Values.applications.epicgames_freegames.private }}
+    {{- if include "app.private" (list . "epicgames_freegames") }}
     traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
     {{- end }}
 spec:

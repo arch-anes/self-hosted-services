@@ -54,7 +54,7 @@ spec:
       main:
         enabled: true
         annotations:
-          {{- if .Values.applications.tdarr.private }}
+          {{- if include "app.private" (list . "tdarr") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           homer.service.name: Arr

@@ -98,7 +98,7 @@ spec:
       main:
         enabled: true
         annotations:
-          {{- if .Values.applications.transmission.private }}
+          {{- if include "app.private" (list . "transmission") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           homer.service.name: Media

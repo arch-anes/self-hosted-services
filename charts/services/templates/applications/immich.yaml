@@ -168,7 +168,7 @@ spec:
       main:
         enabled: true
         annotations:
-          {{- if .Values.applications.immich.private }}
+          {{- if include "app.private" (list . "immich") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
           {{- end }}
           homer.service.name: Media
