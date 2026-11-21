@@ -33,7 +33,7 @@ metadata:
 spec:
   chart: idrac-exporter
   repo: https://mrlhansen.github.io/idrac_exporter
-  version: 3.0.0
+  version: 3.1.0
   targetNamespace: platform
   serverSide: "true"
   forceConflicts: true
