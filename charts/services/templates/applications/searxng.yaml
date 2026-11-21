@@ -52,7 +52,7 @@ spec:
         data:
           limiter.toml: |-
             [botdetection]
-            trusted_proxies = {{ include "ip.proxy_ranges" . | fromYamlArray | toPrettyJson | indent 14 | trim }}
+            trusted_proxies = {{ concat (include "ip.private_proxy_ranges" . | fromYamlArray) (include "ip.public_proxy_ranges" . | fromYamlArray) | toPrettyJson | indent 14 | trim }}
             [botdetection.ip_lists]
             pass_ip = {{ include "ip.private_ranges" . | fromYamlArray | toPrettyJson | indent 14 | trim }}
     securityContext:
