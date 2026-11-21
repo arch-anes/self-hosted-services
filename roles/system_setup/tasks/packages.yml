@@ -27,19 +27,31 @@
 - name: Install OpenWrt packages
   become: true
   when: prepare_detect_is_openwrt
+  vars:
+    system_setup_openwrt_packages:
+      - diffutils
+      - ethtool
+      - fish
+      - haproxy
+      - htop
+      - ip6tables-nft
+      - luci-app-sqm
+      - nnn
+      - procps-ng-pkill
+      - tailscale
+      - tmux
+      - vim
   block:
-    - name: Install common packages
+    - name: Install common packages with apk
+      community.general.apk:
+        name: "{{ system_setup_openwrt_packages }}"
+        state: present
+        update_cache: true
+      when: prepare_detect_package_manager == 'apk'
+
+    - name: Install common packages with opkg
       community.general.opkg:
-        name:
-          - diffutils
-          - ethtool
-          - fish
-          - haproxy
-          - htop
-          - ip6tables-nft
-          - luci-app-sqm
-          - nnn
-          - procps-ng-pkill
-          - tailscale
-          - tmux
-          - vim
+        name: "{{ system_setup_openwrt_packages }}"
+        state: present
+        update_cache: true
+      when: prepare_detect_package_manager == 'opkg'

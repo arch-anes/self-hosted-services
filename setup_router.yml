@@ -7,9 +7,19 @@
   gather_facts: false
   pre_tasks:
     - name: Install Python on OpenWrt
-      ansible.builtin.raw: opkg update && opkg install python3
+      ansible.builtin.raw: |
+        if command -v apk >/dev/null 2>&1; then
+          apk update
+          apk add python3
+        elif command -v opkg >/dev/null 2>&1; then
+          opkg update
+          opkg install python3
+        else
+          echo "Neither apk nor opkg is available on this host" >&2
+          exit 1
+        fi
       register: install_python
-      changed_when: "'Installing' in install_python.stdout"
+      changed_when: "'Installing' in install_python.stdout or 'Upgrading' in install_python.stdout"
   roles:
     - name: Global handlers
       role: common

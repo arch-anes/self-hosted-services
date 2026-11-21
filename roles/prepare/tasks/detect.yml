@@ -10,6 +10,35 @@
     prepare_detect_is_raspberry_pi: "{{ 'raspi' in ansible_facts['kernel'] }}"
     prepare_detect_is_openwrt: "{{ ansible_facts['distribution'] == 'OpenWrt' }}"
 
+- name: Detect OpenWrt package manager
+  when: prepare_detect_is_openwrt
+  block:
+    - name: Check for OpenWrt package manager binaries
+      ansible.builtin.stat:
+        path: "{{ item.path }}"
+      loop:
+        - { name: apk, path: /usr/bin/apk }
+        - { name: opkg, path: /usr/bin/opkg }
+      register: prepare_detect_package_manager_binaries
+
+    - name: Set OpenWrt package manager
+      ansible.builtin.set_fact:
+        prepare_detect_package_manager: >-
+          {{
+            prepare_detect_package_manager_binaries.results
+            | selectattr('stat.exists')
+            | map(attribute='item.name')
+            | first
+            | default('')
+          }}
+
+    - name: Require a supported OpenWrt package manager
+      ansible.builtin.assert:
+        that:
+          - prepare_detect_package_manager in ['apk', 'opkg']
+        fail_msg: >-
+          Neither apk nor opkg was found on {{ inventory_hostname }}.
+
 - name: Detect router network facts
   when: prepare_detect_is_openwrt
   block:
