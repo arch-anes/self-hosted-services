@@ -83,6 +83,8 @@ spec:
       nodeSelector:
         kubernetes.io/arch: amd64
     server:
+      podLabels:
+        networking.arch-anes.io/private: {{ include "app.private" (list . "authentik") | default "false" | quote }}
       replicas: {{ include "ha.replicas" . }}
       resources:
         requests:
@@ -92,6 +94,7 @@ spec:
           memory: 2Gi
       ingress:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "authentik") | quote }}
         annotations:
           {{- if include "app.private" (list . "authentik") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
@@ -759,6 +762,7 @@ spec:
             homer.item.excluded: "true"
             traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
         spec:
+          ingressClassName: traefik
           tls:
             - hosts:
                 - auth.{{ .Values.fqdn }}
@@ -780,6 +784,8 @@ spec:
         metadata:
           name: authentik
           namespace: "{{ .Values.applicationsNamespace }}"
+          labels:
+            networking.arch-anes.io/public: "true"
         spec:
           forwardAuth:
             address: http://ak-outpost-authentik-embedded-outpost.{{ .Values.applicationsNamespace }}.svc.cluster.local:9000/outpost.goauthentik.io/auth/traefik

@@ -18,8 +18,14 @@ fqdn: example.org
 
 # Enable proxy protocol and trusted headers when behind a TCP proxy (e.g., HAProxy)
 behindTcpProxy: true
-# IPv4 address of the TCP proxy.
+# IPv4 address of the public TCP proxy.
 tcpProxyIp: 192.168.1.2
+
+# Cluster network ranges used by the public Traefik egress policy. These are
+# the k3s defaults; change them if the cluster uses different CIDRs.
+clusterPodCidr: 10.42.0.0/16
+clusterServiceCidr: 10.43.0.0/16
+kubernetesServiceIp: 10.43.0.1
 
 # Local IPv4 ranges
 localIpv4Ranges:

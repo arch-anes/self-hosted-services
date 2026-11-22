@@ -12,6 +12,9 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    global:
+      labels:
+        networking.arch-anes.io/private: {{ include "app.private" (list . "mosquitto") | default "false" | quote }}
     podOptions:
       defaultAffinity: false
     workload:
@@ -39,6 +42,8 @@ spec:
         metadata:
           name: mosquitto-plain
           namespace: "{{ .Values.applicationsNamespace }}"
+          labels:
+            networking.arch-anes.io/public: {{ if include "app.private" (list . "mosquitto") }}"false"{{ else }}"true"{{ end }}
         spec:
           entryPoints:
             - mqtt
@@ -52,6 +57,8 @@ spec:
         metadata:
           name: mosquitto-secure
           namespace: "{{ .Values.applicationsNamespace }}"
+          labels:
+            networking.arch-anes.io/public: {{ if include "app.private" (list . "mosquitto") }}"false"{{ else }}"true"{{ end }}
         spec:
           entryPoints:
             - mqtts

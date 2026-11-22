@@ -50,9 +50,22 @@
       ansible.builtin.set_fact:
         prepare_detect_router_lan_ip: "{{ lan_ip | default(ansible_facts['br_lan']['ipv4']['address']) }}"
 
-    - name: Deduce HAProxy virtual IP
+    - name: Deduce public HAProxy virtual IP
       ansible.builtin.set_fact:
         prepare_detect_haproxy_virtual_ip: "{{ haproxy.virtual_ip | default(prepare_detect_router_lan_ip | ansible.utils.ipmath(1)) }}"
+
+    - name: Deduce private HAProxy virtual IP
+      ansible.builtin.set_fact:
+        prepare_detect_haproxy_private_ip: "{{ haproxy.private_virtual_ip | default(prepare_detect_haproxy_virtual_ip | ansible.utils.ipmath(1)) }}"
+
+    - name: Require distinct HAProxy virtual IPs
+      ansible.builtin.assert:
+        that:
+          - prepare_detect_haproxy_virtual_ip != prepare_detect_haproxy_private_ip
+        fail_msg: >-
+          The public and private HAProxy virtual IPs must be different
+          ({{ prepare_detect_haproxy_virtual_ip }} and
+          {{ prepare_detect_haproxy_private_ip }}).
 
 - name: Determine CPU architecture
   ansible.builtin.set_fact:

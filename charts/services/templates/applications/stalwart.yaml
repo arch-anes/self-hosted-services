@@ -121,7 +121,10 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    fullnameOverride: stalwart
     replicaCount: 1
+    podLabels:
+      networking.arch-anes.io/private: {{ include "app.private" (list . "stalwart") | default "false" | quote }}
     certificate:
       secretName: "{{ .Values.fqdn }}-tls"
       certmanager:
@@ -396,6 +399,7 @@ spec:
           enabled: {{ include "metrics.enabled" . | default false }}
     ingress:
       enabled: true
+      className: {{ include "app.ingressClass" (list . "stalwart") | quote }}
       annotations:
         {{- if include "app.private" (list . "stalwart") }}
         traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
@@ -421,7 +425,7 @@ spec:
           hosts:
             - {{ .Values.fqdn }}
     traefik:
-      enabled: true
+      enabled: false
       ports:
         submissions:
           match: HostSNI(`mail.{{ .Values.fqdn }}`)
@@ -464,4 +468,67 @@ spec:
       storageClass: local-path-persistent-namespaced
       accessMode: ReadWriteOnce
       size: 10Gi
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: stalwart-smtps
+  namespace: "{{ .Values.applicationsNamespace }}"
+  labels:
+    networking.arch-anes.io/public: {{ if include "app.private" (list . "stalwart") }}"false"{{ else }}"true"{{ end }}
+spec:
+  entryPoints:
+    - smtp
+  routes:
+    - match: HostSNI(`mail.{{ .Values.fqdn }}`)
+      services:
+        - name: stalwart
+          port: submissions
+          proxyProtocol:
+            version: 2
+  tls:
+    passthrough: true
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: stalwart-imaps
+  namespace: "{{ .Values.applicationsNamespace }}"
+  labels:
+    networking.arch-anes.io/public: {{ if include "app.private" (list . "stalwart") }}"false"{{ else }}"true"{{ end }}
+spec:
+  entryPoints:
+    - imap
+  routes:
+    - match: HostSNI(`mail.{{ .Values.fqdn }}`)
+      services:
+        - name: stalwart
+          port: imaptls
+          proxyProtocol:
+            version: 2
+  tls:
+    passthrough: true
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: stalwart-mx
+  namespace: "{{ .Values.applicationsNamespace }}"
+  labels:
+    networking.arch-anes.io/public: {{ if include "app.private" (list . "stalwart") }}"false"{{ else }}"true"{{ end }}
+spec:
+  entryPoints:
+    - mx
+  routes:
+    - match: HostSNI(`mail.{{ .Values.fqdn }}`)
+      services:
+        - name: stalwart
+          port: smtp
+          proxyProtocol:
+            version: 2
+  tls:
+    passthrough: true
 {{- end }}

@@ -101,10 +101,12 @@ Tailscale provides remote access to hosts without exposing static ports.
 
 ### Intranet access through Tailscale
 
-Use NextDNS to resolve your domain to the internal HAProxy virtual IP while remote devices are on Tailscale.
+Use NextDNS to resolve your domain to the private HAProxy virtual IP while remote devices are on Tailscale.
 
-1. In [NextDNS](https://nextdns.io), add a rewrite under **Settings > Rewrites** for `*.example.org` that returns the HAProxy virtual IP, for example `192.168.1.2`.
+1. In [NextDNS](https://nextdns.io), add a rewrite under **Settings > Rewrites** for `*.example.org` that returns the private HAProxy virtual IP, for example `192.168.1.3`.
 2. In the Tailscale admin console under **DNS**, add the IPv6 resolver address from NextDNS as a global nameserver and enable **Override local DNS**.
+
+The public HAProxy virtual IP (`192.168.1.2` by default) is for WAN traffic only. The private HAProxy virtual IP (`192.168.1.3` by default) is for LAN and Tailscale traffic and is never forwarded from the WAN.
 
 ## Create an inventory
 
@@ -185,7 +187,8 @@ routers:
       # wan_interface: "eth1" # Optional, will be auto-detected if not set
       # lan_ip: "192.168.1.1" # Optional, will be auto-detected from br_lan interface if not set
       haproxy:
-        # virtual_ip: 192.168.1.2 # Optional, will be deduced from lan_ip if not set
+        # virtual_ip: 192.168.1.2 # Optional public VIP, deduced from lan_ip if not set
+        # private_virtual_ip: 192.168.1.3 # Optional private VIP, deduced from the public VIP if not set
         servers:
           s1: 192.168.1.11
           s2: 192.168.1.12
@@ -206,7 +209,32 @@ On an OpenWrt-capable router, such as the GL-MT6000, HAProxy can distribute inbo
 ansible-playbook setup_router.yml -i inventory.yml
 ```
 
-All inbound HTTP(S) traffic then passes through HAProxy on gateway ports 9080 and 9443. To skip this setup, set `chartValuesOverrides.behindTcpProxy` to `false`.
+All inbound HTTP(S) traffic then passes through HAProxy on the public virtual IP on ports 80 and 443. The router also creates a second, private virtual IP for LAN and Tailscale clients. To skip this setup, set `chartValuesOverrides.behindTcpProxy` to `false`.
+
+### Public and private traffic paths
+
+The chart runs two Traefik releases:
+
+```text
+WAN / Cloudflare
+  -> public HAProxy (192.168.1.2)
+  -> traefik-public (public applications only)
+
+LAN / Tailscale
+  -> private HAProxy (192.168.1.3)
+  -> traefik (public and private applications)
+```
+
+- Public applications use the `traefik-public` ingress class (`applications.<app>.private: false`).
+- Private applications use the default `traefik` ingress class (`applications.<app>.private: true`).
+- `traefik-public` watches only the `traefik-public` ingress class and public Traefik CRD objects in the application namespace. It has no platform routes and cannot read platform secrets. Traefik's Kubernetes providers require a Secret informer, so the public release can still list application-namespace secrets; moving public applications to a dedicated namespace is the follow-up needed to isolate those secrets as well.
+- `traefik` is the default ingress class. It watches all ingress classes so LAN and Tailscale clients can reach both public and private applications.
+- A NetworkPolicy restricts `traefik-public` egress to public application pods, DNS, the Kubernetes API, CrowdSec/Tempo, and the public internet. Private application pods are not reachable from the public proxy.
+- Platform applications such as Headlamp, Argo CD, and Grafana are private-only. The public release watches the application namespace only, so it cannot serve platform routes.
+- The Traefik dashboard remains on the private release and is reachable only from LAN or Tailscale.
+- Public applications must not depend on private-only admin routes. For example, the Authentik and Vaultwarden `/admin` ingresses are pinned to the private `traefik` class even when the main application is public.
+
+To make private the default for every application, set `makeAllApplicationsPrivateByDefault: true` and opt individual applications back into public access with `private: false`.
 
 ### QoS (optional)
 

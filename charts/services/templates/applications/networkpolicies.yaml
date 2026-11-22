@@ -83,3 +83,178 @@ spec:
       ports:
         - protocol: TCP
           port: 5432
+
+{{- if .Values.primaryTenant }}
+---
+# The public ingress proxy may reach public application pods, the Kubernetes
+# API, DNS, and the internet, but never private application pods.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: traefik-public-egress
+  namespace: platform
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: traefik
+      app.kubernetes.io/instance: traefik-public-platform
+  policyTypes:
+    - Egress
+  egress:
+    {{- include "netpol.dns-egress" . | nindent 4 }}
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: "{{ .Values.applicationsNamespace }}"
+          podSelector:
+            matchLabels:
+              networking.arch-anes.io/private: "false"
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: platform
+          podSelector:
+            matchLabels:
+              networking.arch-anes.io/private: "false"
+        {{- if eq (include "app.private" (list . "sparkyfitness")) "" }}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: "{{ .Values.applicationsNamespace }}"
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/component: frontend
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: "{{ .Values.applicationsNamespace }}"
+          podSelector:
+            matchLabels:
+              sparkyfitness.io/server: "true"
+        {{- end }}
+        {{- if eq (include "app.private" (list . "woodpecker")) "" }}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: "{{ .Values.applicationsNamespace }}"
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: woodpecker-server
+        {{- end }}
+    # CrowdSec LAPI and Tempo OTLP are the only platform services the public
+    # proxy needs.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: platform
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 4318
+    # Kubernetes API through the service ClusterIP.
+    - to:
+        - ipBlock:
+            cidr: "{{ .Values.kubernetesServiceIp }}/32"
+      ports:
+        - protocol: TCP
+          port: 443
+    # Kubernetes API after kube-proxy DNATs to a node address.
+    - to:
+        {{- range .Values.localIpv4Ranges }}
+        - ipBlock:
+            cidr: {{ . }}
+        {{- end }}
+      ports:
+        - protocol: TCP
+          port: 6443
+    # Public internet (plugin downloads). Private, link-local, and cluster
+    # ranges are excluded.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              {{- include "ip.private_ipv4_ranges" . | nindent 14 }}
+              - {{ .Values.clusterPodCidr }}
+              - {{ .Values.clusterServiceCidr }}
+              - 169.254.0.0/16
+              - 224.0.0.0/4
+              - 240.0.0.0/4
+        - ipBlock:
+            cidr: 2000::/3
+            except:
+              {{- include "ip.private_ipv6_ranges" . | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: 443
+{{- end }}
+
+---
+# Private applications accept traffic from the application namespace and from
+# the private ingress proxy or monitoring. Public Traefik is also blocked at
+# ingress as a second layer of defense.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: app-ingress-private
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  podSelector:
+    matchLabels:
+      networking.arch-anes.io/private: "true"
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: "{{ .Values.applicationsNamespace }}"
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: platform
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+              app.kubernetes.io/instance: traefik-platform
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: platform
+          podSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - prometheus
+                  - prometheus-blackbox-exporter
+
+---
+# Public applications accept traffic from the application namespace, both
+# ingress proxies, and platform monitoring.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: app-ingress-public
+  namespace: "{{ .Values.applicationsNamespace }}"
+spec:
+  podSelector:
+    matchLabels:
+      networking.arch-anes.io/private: "false"
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: "{{ .Values.applicationsNamespace }}"
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: platform
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: platform
+          podSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - prometheus
+                  - prometheus-blackbox-exporter

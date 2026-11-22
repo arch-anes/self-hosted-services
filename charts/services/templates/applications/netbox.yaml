@@ -18,6 +18,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    podLabels:
+      networking.arch-anes.io/private: {{ include "app.private" (list . "netbox") | default "false" | quote }}
     commonAnnotations:
       reloader.stakater.com/auto: "true"
     loginRequired: true
@@ -100,6 +102,7 @@ spec:
       storageClass: local-path-persistent-namespaced
     ingress:
       enabled: true
+      className: {{ include "app.ingressClass" (list . "netbox") | quote }}
       annotations:
         {{- if include "app.private" (list . "netbox") }}
         traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd

@@ -45,11 +45,14 @@ spec:
         enabled: true
         type: emptyDir
     global:
+      labels:
+        networking.arch-anes.io/private: {{ include "app.private" (list . "redis_insight") | default "false" | quote }}
       traefik:
         commonMiddlewares: []
     ingress:
       main:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "redis_insight") | quote }}
         annotations:
           homer.service.name: Administration
           homer.item.name: Redis Insight

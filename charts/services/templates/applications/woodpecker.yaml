@@ -53,6 +53,7 @@ spec:
             defaultMode: 0400
       ingress:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "woodpecker") | quote }}
         annotations:
           {{- if include "app.private" (list . "woodpecker") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd

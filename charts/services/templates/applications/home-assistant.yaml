@@ -139,6 +139,8 @@ spec:
         memory: 1Gi
         cpu: 0
     global:
+      labels:
+        networking.arch-anes.io/private: {{ include "app.private" (list . "home_assistant") | default "false" | quote }}
       traefik:
         commonMiddlewares: []
     metrics:
@@ -153,6 +155,7 @@ spec:
     ingress:
       main:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "home_assistant") | quote }}
         annotations:
           {{- if include "app.private" (list . "home_assistant") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd

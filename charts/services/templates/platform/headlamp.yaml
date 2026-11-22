@@ -13,6 +13,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    podLabels:
+      networking.arch-anes.io/private: {{ include "app.private" (list . "headlamp") | default "false" | quote }}
     config:
       enableHelm: true
       watchPlugins: true
@@ -24,6 +26,7 @@ spec:
         memory: {{ include "app.resources.memory" (list $ "200Mi") }}
     ingress:
       enabled: true
+      ingressClassName: {{ include "app.ingressClass" (list . "headlamp") | quote }}
       annotations:
         homer.service.name: Administration
         homer.service.icon: "fas fa-tools"

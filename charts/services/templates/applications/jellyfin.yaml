@@ -56,11 +56,14 @@ spec:
         cpu: 0
         {{- include "gpu.device" (list . "Jellyfin" .Values.applications.jellyfin.gpu_vendor) | nindent 8 }}
     global:
+      labels:
+        networking.arch-anes.io/private: {{ include "app.private" (list . "jellyfin") | default "false" | quote }}
       traefik:
         commonMiddlewares: []
     ingress:
       main:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "jellyfin") | quote }}
         annotations:
           {{- if include "app.private" (list . "jellyfin") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd

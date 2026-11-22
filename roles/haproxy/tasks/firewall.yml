@@ -1,17 +1,32 @@
 # code: language=ansible
 ---
 
-- name: Allow guests to reach HAProxy VIP
+- name: Allow guests to reach the public HAProxy VIP
   community.openwrt.uci:
     command: section
     config: firewall
     name: guest_haproxy
     type: rule
     value:
-      name: Guest-to-HAProxy
+      name: Guest-to-public-HAProxy
       src: guest
       dest_ip: "{{ prepare_detect_haproxy_virtual_ip }}"
       proto: all
       target: ACCEPT
+    autocommit: true
+  notify: Restart firewall
+
+- name: Block WAN access to the private HAProxy VIP
+  community.openwrt.uci:
+    command: section
+    config: firewall
+    name: wan_private_haproxy
+    type: rule
+    value:
+      name: Block-WAN-to-private-HAProxy
+      src: wan
+      dest_ip: "{{ prepare_detect_haproxy_private_ip }}"
+      proto: all
+      target: DROP
     autocommit: true
   notify: Restart firewall

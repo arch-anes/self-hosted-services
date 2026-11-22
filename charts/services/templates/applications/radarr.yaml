@@ -75,11 +75,14 @@ spec:
         memory: 1Gi
         cpu: 0
     global:
+      labels:
+        networking.arch-anes.io/private: {{ include "app.private" (list . "radarr") | default "false" | quote }}
       traefik:
         commonMiddlewares: []
     ingress:
       main:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "radarr") | quote }}
         annotations:
           {{- if include "app.private" (list . "radarr") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd

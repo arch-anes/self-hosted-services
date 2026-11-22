@@ -85,6 +85,7 @@ spec:
     grafana:
       podLabels:
         networking.arch-anes.io/egress-service.ai: "true"
+        networking.arch-anes.io/private: {{ include "app.private" (list . "prometheus") | default "false" | quote }}
       plugins:
         - grafana-clock-panel
         - pierosavi-imageit-panel
@@ -396,6 +397,7 @@ spec:
           preinstall_auto_update: "false"
       ingress:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "prometheus") | quote }}
         annotations:
           homer.service.name: Monitoring
           homer.item.name: Grafana

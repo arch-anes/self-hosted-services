@@ -162,11 +162,14 @@ spec:
         cpu: 0
         memory: 2Gi
     global:
+      labels:
+        networking.arch-anes.io/private: {{ include "app.private" (list . "immich") | default "false" | quote }}
       traefik:
         commonMiddlewares: []
     ingress:
       main:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "immich") | quote }}
         annotations:
           {{- if include "app.private" (list . "immich") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd

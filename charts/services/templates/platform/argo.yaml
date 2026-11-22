@@ -26,6 +26,8 @@ spec:
       params:
         server.insecure: true
     server:
+      podLabels:
+        networking.arch-anes.io/private: {{ include "app.private" (list . "argo") | default "false" | quote }}
       resources:
         limits:
           memory: 1Gi
@@ -34,6 +36,7 @@ spec:
           memory: {{ include "app.resources.memory" (list $ "128Mi") }}
       ingress:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "argo") | quote }}
         annotations:
           homer.service.name: Automation
           homer.service.icon: "fas fa-home"

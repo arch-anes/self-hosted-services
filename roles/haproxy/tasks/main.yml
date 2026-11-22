@@ -10,6 +10,9 @@
     - name: Configure network
       ansible.builtin.include_tasks: network.yml
 
+    - name: Apply virtual IP changes before starting HAProxy
+      ansible.builtin.meta: flush_handlers
+
     - name: Configure firewall
       ansible.builtin.include_tasks: firewall.yml
 

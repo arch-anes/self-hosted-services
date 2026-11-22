@@ -12,6 +12,9 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    global:
+      labels:
+        networking.arch-anes.io/private: {{ include "app.private" (list . "octoprint") | default "false" | quote }}
     podOptions:
       nodeSelector:
         # TrueCharts auto-injects an amd64 nodeSelector by default.
@@ -51,6 +54,7 @@ spec:
     ingress:
       main:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "octoprint") | quote }}
         annotations:
           {{- if include "app.private" (list . "octoprint") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
@@ -68,6 +72,9 @@ spec:
               - octoprint.{{ .Values.fqdn }}
       webcam:
         enabled: true
+        # The webcam route is admin-protected and stays private even when the
+        # main OctoPrint UI is public.
+        ingressClassName: traefik
         targetSelector:
           webcam: webcam
         annotations:

@@ -137,11 +137,14 @@ spec:
             enabled: true
             port: 8072
     global:
+      labels:
+        networking.arch-anes.io/private: {{ include "app.private" (list . "odoo") | default "false" | quote }}
       traefik:
         commonMiddlewares: []
     ingress:
       main:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "odoo") | quote }}
         annotations:
           {{- if include "app.private" (list . "odoo") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
@@ -158,6 +161,7 @@ spec:
               - odoo.{{ .Values.fqdn }}
       websocket:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "odoo") | quote }}
         annotations:
           {{- if include "app.private" (list . "odoo") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd

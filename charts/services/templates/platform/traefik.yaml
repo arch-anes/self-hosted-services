@@ -33,6 +33,8 @@ spec:
         metadata:
           name: cluster-admin-authentication
           namespace: platform
+          labels:
+            networking.arch-anes.io/public: "true"
         spec:
           basicAuth:
             secret: "cluster-admin-credentials"
@@ -41,6 +43,8 @@ spec:
         metadata:
           name: traefik-websecure
           namespace: platform
+          labels:
+            networking.arch-anes.io/public: "true"
         spec:
           headers:
             browserXssFilter: true
@@ -53,6 +57,8 @@ spec:
         metadata:
           name: traefik-redirect-www
           namespace: platform
+          labels:
+            networking.arch-anes.io/public: "true"
         spec:
           redirectRegex:
             regex: ^https?://www\.(.*)
@@ -63,6 +69,8 @@ spec:
         metadata:
           name: intranet-allowlist
           namespace: platform
+          labels:
+            networking.arch-anes.io/public: "true"
         spec:
           ipAllowList:
             sourceRange:
@@ -73,6 +81,8 @@ spec:
         metadata:
           name: crowdsec
           namespace: platform
+          labels:
+            networking.arch-anes.io/public: "true"
         spec:
           plugin:
             crowdsec-bouncer-traefik-plugin:
@@ -171,6 +181,11 @@ spec:
         allowCrossNamespace: true
       kubernetesIngress:
         ingressClass: ""
+        # This release also serves traefik-public Ingresses for LAN and
+        # Tailscale clients. Leave status publication to the public release so
+        # two controllers do not fight over the same Ingress status.
+        publishedService:
+          enabled: false
     service:
       spec:
         externalTrafficPolicy: {{ if .Values.behindTcpProxy }}Local{{ else }}Cluster{{ end }}
@@ -178,6 +193,7 @@ spec:
       traefik:
         expose:
           default: true
+        exposedPort: 9000
       web:
         exposedPort: 80
         http:
@@ -254,6 +270,13 @@ spec:
       enabled: true
       isDefaultClass: false
       name: traefik-public
+    serviceAccount:
+      name: traefik-public
+    # Public Traefik uses a dedicated, application-namespace-scoped Role
+    # instead of the chart's cluster-wide RBAC. It does not watch the platform
+    # namespace and therefore cannot read platform secrets.
+    rbac:
+      enabled: false
     experimental:
       plugins:
         crowdsec-bouncer-traefik-plugin:
@@ -317,9 +340,13 @@ spec:
         enabled: false
     providers:
       kubernetesCRD:
-        allowCrossNamespace: true
+        namespaces:
+          - "{{ .Values.applicationsNamespace }}"
+        labelSelector: networking.arch-anes.io/public=true
       kubernetesIngress:
         ingressClass: traefik-public
+        namespaces:
+          - "{{ .Values.applicationsNamespace }}"
     service:
       spec:
         externalTrafficPolicy: {{ if .Values.behindTcpProxy }}Local{{ else }}Cluster{{ end }}
@@ -327,6 +354,7 @@ spec:
       traefik:
         expose:
           default: true
+        exposedPort: 9001
       web:
         exposedPort: 8080
         http:
@@ -358,10 +386,10 @@ spec:
             readTimeout: 0
         http:
           middlewares:
-            - platform-traefik-redirect-www@kubernetescrd
-            - platform-traefik-websecure@kubernetescrd
+            - "{{ .Values.applicationsNamespace }}-traefik-redirect-www@kubernetescrd"
+            - "{{ .Values.applicationsNamespace }}-traefik-websecure@kubernetescrd"
             {{- if (include "app.enabled" (list . "crowdsec")) }}
-            - platform-crowdsec@kubernetescrd
+            - "{{ .Values.applicationsNamespace }}-crowdsec@kubernetescrd"
             {{- end }}
           tls:
             enabled: true
@@ -401,4 +429,122 @@ spec:
             target:
               type: Utilization
               averageUtilization: 60
+
+---
+# The public Traefik only reads routing resources in the application namespace.
+# It still watches Secrets because Traefik's Kubernetes providers require a
+# secret informer even when no Ingress uses a TLS secret. Restricting the
+# provider to the application namespace keeps platform secrets (cluster admin
+# credentials, SMTP, Authentik, etc.) out of reach, but a future change should
+# move public applications to their own namespace to isolate application
+# secrets as well.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: traefik-public
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingressclasses
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: traefik-public
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: traefik-public
+subjects:
+  - kind: ServiceAccount
+    name: traefik-public
+    namespace: platform
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: traefik-public
+  namespace: "{{ .Values.applicationsNamespace }}"
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - endpoints
+      - pods
+      - secrets
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - discovery.k8s.io
+    resources:
+      - endpointslices
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses/status
+    verbs:
+      - patch
+      - update
+  - apiGroups:
+      - traefik.io
+    resources:
+      - ingressroutes
+      - ingressroutetcps
+      - ingressrouteudps
+      - middlewaretcps
+      - middlewares
+      - serverstransporttcps
+      - serverstransports
+      - tlsoptions
+      - tlsstores
+      - traefikservices
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: traefik-public
+  namespace: "{{ .Values.applicationsNamespace }}"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: traefik-public
+subjects:
+  - kind: ServiceAccount
+    name: traefik-public
+    namespace: platform
 {{- end }}

@@ -105,6 +105,7 @@ spec:
           cpu: null
     ingress:
       enabled: true
+      className: {{ include "app.ingressClass" (list . "sparkyfitness") | quote }}
       annotations:
         {{- if include "app.private" (list . "sparkyfitness") }}
         traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd

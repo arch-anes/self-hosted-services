@@ -19,69 +19,89 @@ defaults
     option dontlognull
     option dontlog-normal
 
-frontend http-in
+# Public listeners: WAN traffic reaches this virtual IP through the router's
+# port forwards. They may only reach the public Traefik release.
+frontend public_http
     bind {{ prepare_detect_haproxy_virtual_ip }}:80
     mode tcp
-    default_backend http-servers
+    default_backend public-http-servers
 
-frontend https-in
+frontend public_https
     bind {{ prepare_detect_haproxy_virtual_ip }}:443
     mode tcp
-    default_backend https-servers
+    default_backend public-https-servers
     timeout client  24h
     timeout server  24h
 
-frontend mx-in
+frontend public_mx
     bind {{ prepare_detect_haproxy_virtual_ip }}:2465
     mode tcp
-    default_backend mx-servers
+    default_backend public-mx-servers
 
-frontend smtp-in
+frontend public_smtp
     bind {{ prepare_detect_haproxy_virtual_ip }}:465
     mode tcp
-    default_backend smtp-servers
+    default_backend public-smtp-servers
 
-frontend imap-in
+frontend public_imap
     bind {{ prepare_detect_haproxy_virtual_ip }}:993
     mode tcp
-    default_backend imap-servers
+    default_backend public-imap-servers
     timeout client 30m
 
-frontend mqtt-in
+frontend public_mqtt
     bind {{ prepare_detect_haproxy_virtual_ip }}:1883
     mode tcp
-    default_backend mqtt-servers
+    default_backend public-mqtt-servers
 
-frontend mqtts-in
+frontend public_mqtts
     bind {{ prepare_detect_haproxy_virtual_ip }}:8883
     mode tcp
-    default_backend mqtts-servers
+    default_backend public-mqtts-servers
 
-backend http-servers
+# Private listeners: LAN and Tailscale clients use this virtual IP. It is
+# never forwarded from the WAN and may reach the private Traefik release,
+# which also serves public applications.
+frontend private_http
+    bind {{ prepare_detect_haproxy_private_ip }}:80
+    mode tcp
+    default_backend private-http-servers
+
+frontend private_https
+    bind {{ prepare_detect_haproxy_private_ip }}:443
+    mode tcp
+    default_backend private-https-servers
+    timeout client  24h
+    timeout server  24h
+
+backend public-http-servers
     mode tcp
     balance roundrobin
+    source {{ prepare_detect_haproxy_virtual_ip }}
     option httpchk
-    http-check connect port 8080
+    http-check connect port 9001
     http-check send meth GET uri /ping
     default-server inter 3s fall 3 rise 2
 {% for name, ip in haproxy.servers.items() %}
-    server {{ name }} {{ ip }}:80 send-proxy-v2 check
+    server {{ name }} {{ ip }}:8080 send-proxy-v2 check
 {% endfor %}
 
-backend https-servers
+backend public-https-servers
     mode tcp
     balance roundrobin
+    source {{ prepare_detect_haproxy_virtual_ip }}
     option httpchk
-    http-check connect port 8080
+    http-check connect port 9001
     http-check send meth GET uri /ping
     default-server inter 3s fall 3 rise 2
 {% for name, ip in haproxy.servers.items() %}
-    server {{ name }} {{ ip }}:443 send-proxy-v2 check
+    server {{ name }} {{ ip }}:8443 send-proxy-v2 check
 {% endfor %}
 
-backend smtp-servers
+backend public-smtp-servers
     mode tcp
     balance roundrobin
+    source {{ prepare_detect_haproxy_virtual_ip }}
     option tcp-check
     tcp-check connect port 465
     default-server inter 3s fall 3 rise 2
@@ -89,9 +109,10 @@ backend smtp-servers
     server {{ name }} {{ ip }}:465 send-proxy-v2 check
 {% endfor %}
 
-backend imap-servers
+backend public-imap-servers
     mode tcp
     balance roundrobin
+    source {{ prepare_detect_haproxy_virtual_ip }}
     option tcp-check
     tcp-check connect port 993
     default-server inter 3s fall 3 rise 2
@@ -100,9 +121,10 @@ backend imap-servers
 {% endfor %}
     timeout server 30m
 
-backend mx-servers
+backend public-mx-servers
     mode tcp
     balance roundrobin
+    source {{ prepare_detect_haproxy_virtual_ip }}
     option tcp-check
     tcp-check connect port 2465
     default-server inter 3s fall 3 rise 2
@@ -110,9 +132,10 @@ backend mx-servers
     server {{ name }} {{ ip }}:2465 send-proxy-v2 check
 {% endfor %}
 
-backend mqtt-servers
+backend public-mqtt-servers
     mode tcp
     balance roundrobin
+    source {{ prepare_detect_haproxy_virtual_ip }}
     option tcp-check
     tcp-check connect port 1883
     default-server inter 3s fall 3 rise 2
@@ -120,14 +143,39 @@ backend mqtt-servers
     server {{ name }} {{ ip }}:1883 send-proxy-v2 check
 {% endfor %}
 
-backend mqtts-servers
+backend public-mqtts-servers
     mode tcp
     balance roundrobin
+    source {{ prepare_detect_haproxy_virtual_ip }}
     option tcp-check
     tcp-check connect port 8883
     default-server inter 3s fall 3 rise 2
 {% for name, ip in haproxy.servers.items() %}
     server {{ name }} {{ ip }}:8883 send-proxy-v2 check
+{% endfor %}
+
+backend private-http-servers
+    mode tcp
+    balance roundrobin
+    source {{ prepare_detect_haproxy_private_ip }}
+    option httpchk
+    http-check connect port 9000
+    http-check send meth GET uri /ping
+    default-server inter 3s fall 3 rise 2
+{% for name, ip in haproxy.servers.items() %}
+    server {{ name }} {{ ip }}:80 send-proxy-v2 check
+{% endfor %}
+
+backend private-https-servers
+    mode tcp
+    balance roundrobin
+    source {{ prepare_detect_haproxy_private_ip }}
+    option httpchk
+    http-check connect port 9000
+    http-check send meth GET uri /ping
+    default-server inter 3s fall 3 rise 2
+{% for name, ip in haproxy.servers.items() %}
+    server {{ name }} {{ ip }}:443 send-proxy-v2 check
 {% endfor %}
 
 frontend prometheus

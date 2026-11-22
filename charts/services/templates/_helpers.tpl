@@ -13,6 +13,16 @@
   {{- dig "private" $privateDefault $appValues | ternary "true" "" -}}
 {{- end -}}
 
+{{- define "app.ingressClass" -}}
+  {{- $scope := index . 0 -}}
+  {{- $app := index . 1 -}}
+  {{- if include "app.private" (list $scope $app) -}}
+traefik
+  {{- else -}}
+traefik-public
+  {{- end -}}
+{{- end -}}
+
 {{- define "app.require" -}}
   {{- $scope := index . 0 -}}
   {{- $thisApp := index . 1 -}}

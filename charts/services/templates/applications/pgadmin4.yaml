@@ -24,6 +24,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    podLabels:
+      networking.arch-anes.io/private: {{ include "app.private" (list . "pgadmin4") | default "false" | quote }}
     annotations:
       reloader.stakater.com/auto: "true"
     existingSecret: pgadmin4
@@ -51,6 +53,7 @@ spec:
       enabled: false
     ingress:
       enabled: true
+      ingressClassName: {{ include "app.ingressClass" (list . "pgadmin4") | quote }}
       annotations:
         homer.service.name: Administration
         homer.item.name: pgAdmin4

@@ -19,6 +19,7 @@ spec:
       reloader.stakater.com/auto: "true"
     podLabels:
       networking.arch-anes.io/egress.ai: "true"
+      networking.arch-anes.io/private: {{ include "app.private" (list . "open_webui") | default "false" | quote }}
       networking.arch-anes.io/egress.db: "true"
     pipelines:
       enabled: false
@@ -102,6 +103,7 @@ spec:
         memory: 2Gi
     ingress:
       enabled: true
+      class: {{ include "app.ingressClass" (list . "open_webui") | quote }}
       annotations:
         {{- if include "app.private" (list . "open_webui") }}
         traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd

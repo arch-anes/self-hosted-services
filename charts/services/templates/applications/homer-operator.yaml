@@ -13,6 +13,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    podLabels:
+      networking.arch-anes.io/private: {{ include "app.private" (list . "homer_operator") | default "false" | quote }}
     watchedNamespaces:
       - {{ .Values.applicationsNamespace }}
       {{- if .Values.primaryTenant }}
@@ -27,6 +29,7 @@ spec:
         memory: 64Mi
     ingress:
       enabled: true
+      className: {{ include "app.ingressClass" (list . "homer_operator") | quote }}
       annotations:
         {{- if include "app.private" (list . "homer_operator") }}
         traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd

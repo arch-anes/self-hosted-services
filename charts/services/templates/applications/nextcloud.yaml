@@ -29,6 +29,8 @@ spec:
   serverSide: "true"
   forceConflicts: true
   values:
+    podLabels:
+      networking.arch-anes.io/private: {{ include "app.private" (list . "nextcloud") | default "false" | quote }}
     deploymentAnnotations:
       reloader.stakater.com/auto: "true"
     podAnnotations:
@@ -182,6 +184,7 @@ spec:
             memory: 1Gi
     ingress:
       enabled: true
+      className: {{ include "app.ingressClass" (list . "nextcloud") | quote }}
       annotations:
         {{- if include "app.private" (list . "nextcloud") }}
         traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd

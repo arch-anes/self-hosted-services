@@ -154,6 +154,60 @@ tests:
           path: data\.app_private_foo
           value: "true"
 
+  # ----- app.ingressClass -----
+  - it: app.ingressClass returns traefik-public for a public app
+    set:
+      makeAllApplicationsPrivateByDefault: false
+    asserts:
+      - equal:
+          path: data\.app_ingress_class_foo
+          value: "traefik-public"
+
+  - it: app.ingressClass returns traefik for a private app
+    set:
+      makeAllApplicationsPrivateByDefault: false
+      applications:
+        foo:
+          private: true
+    asserts:
+      - equal:
+          path: data\.app_ingress_class_foo
+          value: "traefik"
+
+  - it: app.ingressClass honors the global private default
+    set:
+      makeAllApplicationsPrivateByDefault: true
+    asserts:
+      - equal:
+          path: data\.app_ingress_class_foo
+          value: "traefik"
+
+  - it: app.ingressClass honors an explicit public override
+    set:
+      makeAllApplicationsPrivateByDefault: true
+      applications:
+        foo:
+          private: false
+    asserts:
+      - equal:
+          path: data\.app_ingress_class_foo
+          value: "traefik-public"
+
+  - it: app.ingressClass reads each app independently
+    set:
+      makeAllApplicationsPrivateByDefault: true
+      applications:
+        foo:
+          private: false
+        bar: {}
+    asserts:
+      - equal:
+          path: data\.app_ingress_class_foo
+          value: "traefik-public"
+      - equal:
+          path: data\.app_ingress_class_bar
+          value: "traefik"
+
   # ----- metrics helpers (wrap app.enabled for "prometheus") -----
   - it: metrics.enabled returns "true" when prometheus explicitly enabled
     set:

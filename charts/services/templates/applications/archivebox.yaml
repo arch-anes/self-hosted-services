@@ -57,11 +57,14 @@ spec:
         memory: 4Gi
         cpu: 0
     global:
+      labels:
+        networking.arch-anes.io/private: {{ include "app.private" (list . "archivebox") | default "false" | quote }}
       traefik:
         commonMiddlewares: []
     ingress:
       main:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "archivebox") | quote }}
         annotations:
           {{- if include "app.private" (list . "archivebox") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd

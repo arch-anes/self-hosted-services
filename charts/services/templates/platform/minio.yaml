@@ -77,6 +77,8 @@ spec:
           volumesPerServer: 1
           size: 2Ti
           storageClassName: local-path-persistent-namespaced
+          labels:
+            networking.arch-anes.io/private: {{ include "app.private" (list . "minio") | default "false" | quote }}
           nodeSelector:
             # Schedule only on NAS nodes
             nas: "true"
@@ -131,6 +133,7 @@ spec:
     ingress:
       api:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "minio") | quote }}
         annotations:
           {{- if include "app.private" (list . "minio") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
@@ -146,6 +149,7 @@ spec:
         pathType: Prefix
       console:
         enabled: true
+        ingressClassName: {{ include "app.ingressClass" (list . "minio") | quote }}
         annotations:
           {{- if include "app.private" (list . "minio") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd

@@ -85,11 +85,14 @@ spec:
             enabled: true
             port: 5656
     global:
+      labels:
+        networking.arch-anes.io/private: {{ include "app.private" (list . "unpackerr") | default "false" | quote }}
       traefik:
         commonMiddlewares: []
     ingress:
       main:
         enabled: {{ .Values.applications.unpackerr.dashboard.enabled }}
+        ingressClassName: {{ include "app.ingressClass" (list . "unpackerr") | quote }}
         annotations:
           {{- if include "app.private" (list . "unpackerr") }}
           traefik.ingress.kubernetes.io/router.middlewares: platform-intranet-allowlist@kubernetescrd
