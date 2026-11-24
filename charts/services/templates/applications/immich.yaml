@@ -75,12 +75,16 @@ spec:
             main:
               env:
                 DB_VECTOR_EXTENSION: vectorchord
+                DB_HOSTNAME: postgresql-primary
+                DB_USERNAME: immich
+                DB_DATABASE_NAME: immich
                 DB_PASSWORD:
                   secretKeyRef:
                     name: postgresql-pguser-immich
                     key: password
                     expandObjectName: false
                 DB_URL: postgresql://immich:$(DB_PASSWORD)@postgresql-primary:5432/immich?sslmode=verify-full&sslrootcert=/etc/postgres/tls/ca.crt&sslcert=/etc/postgres/tls/tls.crt&sslkey=/etc/postgres/tls/tls.key
+                REDIS_HOSTNAME: redis-master
                 REDIS_PASSWORD:
                   secretKeyRef:
                     name: redis
@@ -100,12 +104,16 @@ spec:
             microservices:
               env:
                 DB_VECTOR_EXTENSION: vectorchord
+                DB_HOSTNAME: postgresql-primary
+                DB_USERNAME: immich
+                DB_DATABASE_NAME: immich
                 DB_PASSWORD:
                   secretKeyRef:
                     name: postgresql-pguser-immich
                     key: password
                     expandObjectName: false
                 DB_URL: postgresql://immich:$(DB_PASSWORD)@postgresql-primary:5432/immich?sslmode=verify-full&sslrootcert=/etc/postgres/tls/ca.crt&sslcert=/etc/postgres/tls/tls.crt&sslkey=/etc/postgres/tls/tls.key
+                REDIS_HOSTNAME: redis-master
                 REDIS_PASSWORD:
                   secretKeyRef:
                     name: redis
@@ -182,17 +190,11 @@ spec:
           - secretName: "{{ .Values.fqdn }}-tls"
             hosts:
               - immich.{{ .Values.fqdn }}
-    redis:
-      enabled: false
-      creds:
-        plainhost: redis-master
-    cnpg:
-      main:
+    dependencies:
+      postgresql:
         enabled: false
-        database: immich
-        user: immich
-        creds:
-          host: postgresql-primary
+      valkey:
+        enabled: false
     persistence:
       postgresql-certs:
         enabled: true

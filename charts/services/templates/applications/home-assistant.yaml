@@ -104,6 +104,14 @@ spec:
         podSpec:
           annotations:
             backup.velero.io/backup-volumes: config
+          initContainers:
+            init:
+              env:
+                HA_DB_URL:
+                  secretKeyRef:
+                    name: postgresql-pguser-home-assistant
+                    key: uri
+                    expandObjectName: false
           containers:
             main:
               env:
@@ -182,8 +190,8 @@ spec:
         type: pvc
         storageClass: local-path-persistent-namespaced
         size: 1Gi
-    cnpg:
-      main:
+    dependencies:
+      postgresql:
         enabled: false
     {{- if (include "app.enabled" (list . "authentik")) }}
     extraTpl:

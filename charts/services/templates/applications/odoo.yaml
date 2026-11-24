@@ -189,13 +189,17 @@ spec:
       addons:
         enabled: false
       odoo-config:
+        type: configmap
         objectName: config
-    cnpg:
-      main:
+    dependencies:
+      postgresql:
         enabled: false
-        creds:
-          host: "dummy"
-          password: "dummy"
+        depconfig:
+          postgresqlUsername: odoo
+          postgresqlDatabase: odoo
+          creds:
+            plainhost: "dummy"
+            postgresqlPassword: "dummy"
     {{- if (include "app.enabled" (list . "authentik")) }}
     extraTpl:
       - apiVersion: external-secrets.io/v1

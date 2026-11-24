@@ -122,8 +122,8 @@ spec:
         expandObjectName: false
         mountPath: /etc/postgres/tls
         defaultMode: "0400"
-    cnpg:
-      main:
+    dependencies:
+      postgresql:
         enabled: false
     extraTpl:
       - apiVersion: external-secrets.io/v1

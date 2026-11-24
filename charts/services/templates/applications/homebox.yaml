@@ -131,8 +131,8 @@ spec:
         expandObjectName: false
         mountPath: /etc/postgres/tls
         readOnly: true
-    cnpg:
-      main:
+    dependencies:
+      postgresql:
         enabled: false
     configmap:
       authentik-blueprint:

@@ -73,10 +73,10 @@ spec:
           - secretName: "{{ .Values.fqdn }}-tls"
             hosts:
               - tracearr.{{ .Values.fqdn }}
-    redis:
-      enabled: false
-    cnpg:
-      main:
+    dependencies:
+      postgresql:
+        enabled: false
+      valkey:
         enabled: false
     persistence:
       postgresql-certs:

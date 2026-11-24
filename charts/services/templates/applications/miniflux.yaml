@@ -95,7 +95,7 @@ spec:
         expandObjectName: false
         mountPath: /etc/postgres/tls
         defaultMode: "0400"
-    cnpg:
-      main:
+    dependencies:
+      postgresql:
         enabled: false
 {{- end }}
