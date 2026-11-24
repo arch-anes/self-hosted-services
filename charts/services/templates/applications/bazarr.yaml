@@ -34,7 +34,7 @@ spec:
             init:
               enabled: true
               type: init
-              imageSelector: alpineImage
+              imageSelector: ubuntuImage
               command: [/bin/sh]
               args: [-c, "mkdir -p /config/config && cp /seed/config.yaml /config/config/config.yaml"]
           containers:
