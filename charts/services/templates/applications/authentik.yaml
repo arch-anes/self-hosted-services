@@ -9,7 +9,7 @@ metadata:
 spec:
   chart: authentik
   repo: https://charts.goauthentik.io/
-  version: 2026.8.6
+  version: 2026.8.7
   targetNamespace: "{{ .Values.applicationsNamespace }}"
   serverSide: "true"
   forceConflicts: true
