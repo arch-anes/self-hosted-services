@@ -173,6 +173,8 @@ applications:
   joal: {}
   #   enabled: true
   #   private: false
+  kokoro: {}
+  #   enabled: true
   llama_cpp:
     # enabled: true
     use_vulkan: false
@@ -222,6 +224,9 @@ applications:
     # private: false
     updatePluginsOnStartup: false
   open_webui: {}
+  #   enabled: true
+  #   private: false
+  opencode: {}
   #   enabled: true
   #   private: false
   pgadmin4:
